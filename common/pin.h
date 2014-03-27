@@ -1,0 +1,46 @@
+///@file pin.h
+///
+/// A simple GPIO driver for the AVR, modelled on the laks GPIO driver.
+///
+
+#pragma once
+
+#include <avr/io.h>
+
+class Port
+{
+public:
+    typedef volatile uint8_t Reg_t;
+
+    Reg_t               &DDR;
+    Reg_t               &PORT;
+    Reg_t               &PIN;
+
+    class Pin
+    {
+    private:
+        const Port      &_port;
+        uint8_t         _bit;
+
+    public:
+        constexpr Pin(const Port &port, uint8_t pin) : _port(port), _bit(1 << pin) {}
+
+        void cfgOutput()       {          _port.DDR |=  _bit; }
+        void cfgInputNoPull()  { clear(); _port.DDR &= ~_bit; }
+        void cfgInputPullUp()  { set();   _port.DDR &= ~_bit; }
+
+        void set()             { _port.PORT |=  _bit; }
+        void clear()           { _port.PORT &= ~_bit; }
+        void toggle()          { _port.PIN  |=  _bit; }
+
+        bool get()             { return _port.PORT & _bit; }
+    };
+
+    constexpr Port(Reg_t &ddr, Reg_t &port, Reg_t &pin) : DDR(ddr), PORT(port), PIN(pin) {}
+    constexpr Pin operator[](uint8_t pin) {
+        return Pin(*this, pin);
+    }
+};
+
+static Port portA(DDRA, PORTA, PINA);
+static Port portB(DDRB, PORTB, PINB);

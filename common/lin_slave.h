@@ -27,6 +27,6 @@ protected:
     virtual void    responseSent(LIN::FID fid);
 
 private:
-    LIN::FID    _currentFID;
-    LIN::Frame  _frameBuf;
+    LIN::FID        _currentFID;
+    LIN::Frame      _frameBuf;
 };

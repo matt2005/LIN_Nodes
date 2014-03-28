@@ -46,8 +46,8 @@ vpath %.h	$(TOPDIR)/common
 .SUFFIXES:
 
 OBJS		:= $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
-DEPS		:= $(addsuffix .d,$(OBJS))
-ELF		:= $(BUILDDIR)/$(PROG).elf
+DEPS		:= $(OBJS:.o=.d)
+ELF			:= $(BUILDDIR)/$(PROG).elf
 
 build:	$(ELF)
 

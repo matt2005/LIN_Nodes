@@ -8,6 +8,16 @@
 
 static Slave *_slave;
 
+ISR(LIN_TC_vect)
+{
+    _slave->isrTC();
+}
+
+ISR(LIN_ERR_vect)
+{
+    _slave->isrError();
+}
+
 Slave::Slave() :
     _currentFID(0)
 {
@@ -23,11 +33,6 @@ Slave::init()
     Lin_set_enable_it();
 }
 
-ISR(LIN_TC_vect)
-{
-    _slave->isrTC();
-}
-
 void
 Slave::isrTC() 
 {
@@ -35,27 +40,22 @@ Slave::isrTC()
     case LIN_IDOK:
         _currentFID = Lin_get_id();
         Lin_clear_idok_it();
-        _slave->headerReceived(_currentFID);
+        headerReceived(_currentFID);
         break;
 
     case LIN_RXOK:
         lin_get_response(&_frameBuf.b[0]);
         Lin_clear_rxok_it();
-        _slave->responseReceived(_currentFID, _frameBuf);
+        responseReceived(_currentFID, _frameBuf);
         _currentFID = 0;
         break;
 
     case LIN_TXOK:
         Lin_clear_txok_it();
-        _slave->responseSent(_currentFID);
+        responseSent(_currentFID);
         _currentFID = 0;
         break;
     }
-}
-
-ISR(LIN_ERR_vect)
-{
-    _slave->isrError();
 }
 
 void

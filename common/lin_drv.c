@@ -52,7 +52,7 @@ unsigned char lin_init (unsigned char l_type, unsigned long b_rate) {
     			return 0;
     }
     // If LIN is interrupt driven, enable the 2 following lines
-    //Lin_set_enable_it();
+    Lin_set_enable_it();
     // asm ("sei");
     
     return 1;

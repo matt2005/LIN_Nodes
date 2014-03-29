@@ -37,6 +37,8 @@ main(void)
     }
     disp.setBacklight(10);
     disp.clear();
+    disp.write("write ");
+    disp.write(10U);
 
     // XXX for now, idle here
     for (;;) {

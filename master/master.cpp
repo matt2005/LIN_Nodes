@@ -29,7 +29,7 @@ Event::nextEvent()
         LIN::FID fid = _slotNext[_currentSlot]->_fid;
 
         // turn on the LIN driver
-//        pinLINCS.set();
+        pinLINCS.set();
 
         // special handling for the LIN master/slave requests
         if (fid < LIN::kFIDMasterRequest) {

@@ -63,61 +63,6 @@ Display::getButtons()
     return buf[2];
 }
 
-void
-Display::write(uint8_t x, uint8_t y, char c)
-{
-    _x = x;
-    _y = y;
-    write(c);
-}
-
-void
-Display::write(char c)
-{
-    uint8_t pkt[] = { kOPWrite, 3, _x, _y, c };
-    send(&pkt[0]);
-    waitAck(kOPWrite);
-
-    if (++_x >= kWidth) {
-        _x = 0;
-        if (++_y >= kHeight) {
-            _y = 0;
-        }
-    }
-}
-
-void
-Display::write(uint8_t x, uint8_t y, const char *s)
-{
-    _x = x;
-    _y = y;
-    write(s);
-}
-
-void
-Display::write(const char *s)
-{
-    while (*s != '\0') {
-        write(*s++);
-    }
-}
-
-void
-Display::writeP(uint8_t x, uint8_t y, PGM_P s)
-{
-    _x = x;
-    _y = y;
-    writeP(s);
-}
-
-void
-Display::writeP(PGM_P s)
-{
-    while (*s != '\0') {
-        write(pgm_read_byte(s++));
-    }
-}
-
 bool
 Display::send(const uint8_t *pkt)
 {
@@ -203,3 +148,58 @@ Display::crc(uint8_t *ptr)
     *ptr++ = crc & 0xff;
     *ptr++ = crc >> 8;
 }
+
+void
+Display::write(const char *s, Reader r, uint8_t count)
+{
+    uint8_t pkt[20] = { kOPWrite, 2, _x, _y };
+
+    // copy bytes via the reader into the packet
+    for (uint8_t pos = 4; (pos < 20) && (count > 0); pos++, count--) {
+        uint8_t c = r(s++);
+        if (c == 0) {
+            break;
+        }
+        pkt[pos] = c;
+        pkt[1]++;
+        _x++;
+    }
+
+    // send packet and wait for an acknowledgement
+    send(&pkt[0]);
+    waitAck(kOPWrite);
+}
+
+void
+Display::write(uint16_t n, uint8_t width)
+{
+    char buf[6];
+    uint8_t pos = width - 1;
+
+    buf[width] = 0;
+    buf[pos] = '0';
+
+    while(n > 0) {
+        buf[pos--] = '0' + n % 10;
+        n /= 10;
+    }
+    if (pos > 0) {
+        do {
+            buf[pos] = ' ';
+        } while (pos-- > 0);
+    }
+    write(&buf[0]);
+}
+
+uint8_t
+Display::readChar(const char *p)
+{
+    return *p++;
+}
+
+uint8_t
+Display::readCharP(const char *p)
+{
+    return pgm_read_byte(p++);
+}
+

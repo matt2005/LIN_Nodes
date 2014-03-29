@@ -13,20 +13,22 @@
 class Display
 {
 public:
-    bool        init();
+    bool            init();
     
-    void        clear();
-    void        setBacklight(uint8_t value);
-    uint8_t     getButtons();
+    void            clear();
+    void            move(uint8_t x, uint8_t y) { _x = x; _y = y; }
     
-    void        write(uint8_t x, uint8_t y, char c);
-    void        write(char c);
-    void        write(uint8_t x, uint8_t y, const char *s);
-    void        write(const char *s);
-    void        writeP(uint8_t x, uint8_t y, PGM_P s);
-    void        writeP(PGM_P s);
+    void            write(const char *s) { write(s, readChar); }
+    void            writeP(PGM_P s)      { write(s, readCharP); }
+    void            write(uint8_t n)     { write(n, 3); }
+    void            write(uint16_t n)    { write(n, 5); }
+
+    void            setBacklight(uint8_t value);
+    uint8_t         getButtons();
 
 private:
+    typedef uint8_t (*Reader)(const char *p);
+
     static const uint8_t    kReadAddress    = 0x55;
     static const uint8_t    kWriteAddress   = 0x54;
     static const uint8_t    kWidth          = 16;
@@ -40,12 +42,17 @@ private:
 
     static const uint8_t    kACK            = 0x40;
 
+    uint8_t         _x;
+    uint8_t         _y;
 
-    uint8_t     _x;
-    uint8_t     _y;
+    bool            send(const uint8_t *pkt);
+    bool            recv(uint8_t *pkt, uint8_t pktlen);
+    bool            waitAck(uint8_t opcode);
+    void            crc(uint8_t *pkt);
 
-    bool        send(const uint8_t *pkt);
-    bool        recv(uint8_t *pkt, uint8_t pktlen);
-    bool        waitAck(uint8_t opcode);
-    void        crc(uint8_t *pkt);
+    void            write(const char *s, Reader r, uint8_t count = 16);
+    void            write(uint16_t n, uint8_t width);
+
+    static uint8_t  readChar(const char *p);
+    static uint8_t  readCharP(const char *p);
 };

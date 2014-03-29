@@ -69,6 +69,10 @@ namespace Board
 ///
 extern void init();
 
+/// Panic with a status code
+///
+extern void panic(uint8_t code) __attribute__((noreturn));
+
 /// Read the board-specific mode configuration switch (if any)
 ///
 extern uint8_t getMode();

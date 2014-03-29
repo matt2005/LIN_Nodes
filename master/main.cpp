@@ -1,6 +1,7 @@
 
 #include <util/delay.h>
 #include <avr/wdt.h>
+#include <avr/interrupt.h>
 
 #include "board.h"
 #include "lin_protocol.h"
@@ -21,7 +22,11 @@ main(void)
 {
     // basic board & system init
     Board::init();
+    Timer::init();
     slave.init();
+    sei();
+
+    // display init
     if (!disp.init()) {
         Board::panic(3);
     }
@@ -34,7 +39,6 @@ main(void)
         //disp.write("test");
         _delay_ms(100);
         wdt_reset();
-        pinLINCS.toggle();
     }
 }
 

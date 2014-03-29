@@ -33,8 +33,8 @@ void
 panic(uint8_t code)
 {
     for (;;) {
-        //pinLINCS.cfgOutput();
-        //pinLINCS.clear();
+        pinLINCS.cfgOutput();
+        pinLINCS.clear();
         _delay_ms(250);
 
         for (uint8_t i = 0; i < code; i++) {

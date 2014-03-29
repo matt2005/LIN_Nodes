@@ -1,6 +1,7 @@
 
 #include "lin_drv.h"
 
+#include "board.h"
 #include "master.h"
 
 Event   *Event::_slotHead[kMaxSlots];
@@ -26,6 +27,9 @@ Event::nextEvent()
     }
     if (_slotNext[_currentSlot] != nullptr) {
         LIN::FID fid = _slotNext[_currentSlot]->_fid;
+
+        // turn on the LIN driver
+//        pinLINCS.set();
 
         // special handling for the LIN master/slave requests
         if (fid < LIN::kFIDMasterRequest) {

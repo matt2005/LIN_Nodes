@@ -2,6 +2,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#include "board.h"
 #include "timer.h"
 
 Timer *Timer::_first;
@@ -37,12 +38,13 @@ Timer::init()
     TCCR0A = 0;     // output off
     TCNT0 = 0;      // reset counter
     OCR0A = 0;      // clear the compare value
+    ASSR = 0;
 
     // Configure for a 1ms tick
     TIFR0 = ((1 << OCF0A) | (1 << TOV0));   // interrupt on overflow / reset
     TCCR0A = 0x02;                          // output off, mode 2
-    TCCR0B = 0x03;                          // prescaler divide by 32
     OCR0A = (F_CPU / 1000 / 32) - 1;        // tick every 1ms
+    TCCR0B = 0x03;                          // prescaler divide by 32 and timer on
 
     TIMSK0 |= 1 << OCIE0A;                  // compare interrupt on
 }

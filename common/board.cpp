@@ -73,19 +73,20 @@ getMode()
     // allow inputs to settle
     _delay_ms(1);
 
-    if (pinMode0.get())
+    // 1 bits are pulled low
+    if (!pinMode0.get())
         mode |= 1;
 #endif
 #ifdef pinMode1
-    if (pinMode1.get())
+    if (!pinMode1.get())
         mode |= 2;
 #endif
 #ifdef pinMode2
-    if (pinMode2.get())
+    if (!pinMode2.get())
         mode |= 4;
 #endif
 #ifdef pinMode3
-    if (pinMode3.get())
+    if (!pinMode3.get())
         mode |= 8;
 #endif
 

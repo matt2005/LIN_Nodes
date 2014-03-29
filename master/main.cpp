@@ -11,8 +11,8 @@
 #include "master.h"
 
 Master          master;
-Event           masterRequest(1, LIN::kFIDMasterRequest);
-Event           slaveResponse(1, LIN::kFIDSlaveResponse);
+//Event           masterRequest(1, LIN::kFIDMasterRequest);
+//Event           slaveResponse(1, LIN::kFIDSlaveResponse);
 
 MasterSlave     slave;
 Display         disp;
@@ -22,8 +22,13 @@ main(void)
 {
     // basic board & system init
     Board::init();
-    Timer::init();
+    // stop here if we are in 'recovery' mode
+    if (Board::getMode() != 0) {
+        for (;;) {
+        }
+    }
     slave.init();
+    Timer::init();
     sei();
 
     // display init
@@ -31,7 +36,7 @@ main(void)
         Board::panic(3);
     }
     disp.setBacklight(10);
-    disp.write("Master");
+    disp.clear();
 
     // XXX for now, idle here
     for (;;) {

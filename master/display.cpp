@@ -1,5 +1,7 @@
 
 #include <util/delay.h>
+#include <avr/wdt.h>
+#include <avr/interrupt.h>
 
 #include "USI_TWI_Master.h"
 #include "display.h"
@@ -9,6 +11,12 @@
 bool
 Display::init()
 {
+    // the display takes some time to boot, so wait for it...
+    for (unsigned i = 0; i < 5; i++) {
+        _delay_ms(100);
+        wdt_reset();
+    }
+
     USI_TWI_Master_Initialise();
 
     // ping the display
@@ -115,6 +123,7 @@ Display::send(const uint8_t *pkt)
 {
     uint8_t len = pkt[1] + 5;
     uint8_t buf[len];
+    bool result;
 
     buf[0] = kWriteAddress;
 
@@ -126,7 +135,11 @@ Display::send(const uint8_t *pkt)
     // generate packet CRC
     crc(buf + 1);
 
-    return USI_TWI_Start_Transceiver_With_Data(buf, len) == TRUE;
+    cli();
+    result = USI_TWI_Start_Transceiver_With_Data(buf, len) == TRUE;
+    sei();
+
+    return result;
 }
 
 bool

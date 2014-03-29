@@ -8,8 +8,13 @@ BUILDDIR	:= $(TOPDIR)/build/$(PROG)
 CC		 = avr-gcc
 CXX		 = avr-g++
 SIZE		 = avr-size
+AVRDUDE		 = avrdude
 
 MCU		 = attiny167
+FUSES		 = -U hfuse:w:0xdf:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
+# To enable DebugWire: (does not work with the jtagice-ii-cn)
+#FUSES		 = -U hfuse:w:0x9f:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
+
 ARCHFLAGS	 = -mmcu=$(MCU)
 DEFINES		 = -DBOARD_$(BOARD)
 COMPILEFLAGS	 = $(ARCHFLAGS)			\
@@ -50,6 +55,9 @@ DEPS		:= $(OBJS:.o=.d)
 ELF			:= $(BUILDDIR)/$(PROG).elf
 
 build:	$(ELF)
+
+upload: $(ELF)
+	$(AVRDUDE) -p $(MCU) -c jtag2isp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
 
 $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 	@echo LINK $(notdir $@)

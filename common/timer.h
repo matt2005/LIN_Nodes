@@ -50,7 +50,7 @@ public:
     /// Timers without callbacks can use this to check whether a timer's period has
     /// expired. Calling this function resets the expired status.
     ///
-    /// @return             True if the timer's delay has expired.
+    /// @return                 True if the timer's delay has expired.
     ///
     bool            didExpire() { bool didExpire = _expired; _expired = false; return didExpire; }
 
@@ -64,13 +64,13 @@ public:
     static void     tick();
 
 private:
-    const Callback  _callback;  //< callback function or nullptr if no callback
-    void            * const _arg;
+    const Callback      _callback;  //< callback function or nullptr if no callback
+    void                * const _arg;
 
-    volatile Period _remaining; //< number of ticks remaining before expiry
-    volatile Period _interval;  //< reload value for periodic, 0 for one-shot
-    volatile bool   _expired;   //< true if the timeout has expired
+    volatile Period     _remaining; //< number of ticks remaining before expiry
+    volatile Period     _interval;  //< reload value for periodic, 0 for one-shot
+    volatile bool       _expired;   //< true if the timeout has expired
 
-    Timer         *_next;       //< list linkage
-    static Timer  *_first;      //< list anchor
+    Timer               *_next;     //< list linkage
+    static Timer        *_first;    //< list anchor
 };

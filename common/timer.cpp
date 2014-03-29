@@ -43,8 +43,8 @@ Timer::init()
     // Configure for a 1ms tick
     TIFR0 = ((1 << OCF0A) | (1 << TOV0));   // interrupt on overflow / reset
     TCCR0A = 0x02;                          // output off, mode 2
-    OCR0A = (F_CPU / 1000 / 32) - 1;        // tick every 1ms
-    TCCR0B = 0x03;                          // prescaler divide by 32 and timer on
+    OCR0A = (F_CPU / 1000 / 64);            // tick every 1ms
+    TCCR0B = 0x04;                          // prescaler divide by 64 and timer on
 
     TIMSK0 |= 1 << OCIE0A;                  // compare interrupt on
 }

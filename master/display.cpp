@@ -174,20 +174,27 @@ void
 Display::write(uint16_t n, uint8_t width)
 {
     char buf[6];
-    uint8_t pos = width - 1;
+    uint8_t pos = width;
+    bool clear = false;
 
-    buf[width] = 0;
+    buf[pos--] = 0;
     buf[pos] = '0';
-
-    while(n > 0) {
-        buf[pos--] = '0' + n % 10;
-        n /= 10;
-    }
-    if (pos > 0) {
-        do {
-            buf[pos] = ' ';
-        } while (pos-- > 0);
-    }
+    
+    for (;;) {
+        if (n > 0) {
+            buf[pos] = '0' + n % 10;
+            n /= 10;
+        } else {
+            if (clear) {
+                buf[pos] = ' ';
+            }
+        }
+        if (pos == 0) {
+            break;
+        }
+        clear = true;
+        pos--;
+    } 
     write(&buf[0]);
 }
 

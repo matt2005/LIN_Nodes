@@ -38,7 +38,7 @@ main(void)
     disp.setBacklight(10);
     disp.clear();
     disp.write("write ");
-    disp.write(10U);
+    disp.write((uint8_t)10);
 
     // XXX for now, idle here
     for (;;) {

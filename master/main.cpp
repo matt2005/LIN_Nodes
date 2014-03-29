@@ -11,8 +11,8 @@
 #include "master.h"
 
 Master          master;
-//Event           masterRequest(1, LIN::kFIDMasterRequest);
-//Event           slaveResponse(1, LIN::kFIDSlaveResponse);
+Event           masterRequest(1, LIN::kFIDMasterRequest);
+Event           slaveResponse(1, LIN::kFIDSlaveResponse);
 
 MasterSlave     slave;
 Display         disp;

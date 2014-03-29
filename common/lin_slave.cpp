@@ -61,9 +61,12 @@ ISR(LIN_ERR_vect)
 void
 Slave::isrError()
 {
-    // clear any state for in-progress operations
-    pinLINCS.clear();
-    _slave->responseSent(0);
+    // XXX we should really clear some state here based on what went wrong,
+    //     but it looks like transmission may still be in progress and so 
+    //     we run the risk of clearing LINCS and thus powering down the board
+    //     on the next 0-bit transmitted.
+    //
+    // For now, we just ignore the error.
 
     // clear the interrupt
     Lin_clear_err_it();

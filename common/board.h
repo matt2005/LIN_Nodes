@@ -38,10 +38,10 @@
 # define pinP6      portB[6]
 # define pinP7      portA[7]
 
-# define pinMode0   portA[4]
-# define pinMode1   portA[2]
-# define pinMode2   portA[5]
-# define pinMode3   portA[3]
+# define pinMode1   portA[4]
+# define pinMode2   portA[2]
+# define pinMode4   portA[5]
+# define pinMode8   portA[3]
 
 # define pinMOSI    portA[4]
 # define pinMISO    portA[2]

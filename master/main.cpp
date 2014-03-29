@@ -22,10 +22,9 @@ main(void)
 {
     // basic board & system init
     Board::init();
-    // stop here if we are in 'recovery' mode
     if (Board::getMode() != 0) {
-        for (;;) {
-        }
+        // stop here as we are in 'recovery' mode
+        Board::panic(2);
     }
     slave.init();
     Timer::init();
@@ -37,15 +36,14 @@ main(void)
     }
     disp.setBacklight(10);
     disp.clear();
-    disp.write("write ");
-    disp.write((uint8_t)10);
 
-    // XXX for now, idle here
+    // spin running the UI
     for (;;) {
-        //disp.clear();
-        //disp.write("test");
         _delay_ms(100);
         wdt_reset();
+        disp.move(0,0);
+        disp.write(Board::getMode());
+        //disp.write(Event::count);
     }
 }
 

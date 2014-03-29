@@ -14,6 +14,8 @@ public:
 
     static void     nextEvent();
 
+    static uint16_t count;
+
 private:
     static const uint8_t kMaxSlots = 2;
 

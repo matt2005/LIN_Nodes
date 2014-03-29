@@ -33,7 +33,7 @@ public:
         void clear()           { _port.PORT &= ~_bit; }
         void toggle()          { _port.PIN  |=  _bit; }
 
-        bool get()             { return _port.PORT & _bit; }
+        bool get()             { return _port.PIN & _bit; }
     };
 
     constexpr Port(Reg_t &ddr, Reg_t &port, Reg_t &pin) : DDR(ddr), PORT(port), PIN(pin) {}

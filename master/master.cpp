@@ -7,6 +7,7 @@
 Event   *Event::_slotHead[kMaxSlots];
 Event   *Event::_slotNext[kMaxSlots];
 uint8_t Event::_currentSlot;
+uint16_t Event::count;
 
 Event::Event(uint8_t slot, LIN::FID fid) :
     _next(_slotHead[slot]),
@@ -18,6 +19,8 @@ Event::Event(uint8_t slot, LIN::FID fid) :
 void
 Event::nextEvent()
 {
+    count++;
+
     // Invoke the pending slot handler, if there is one.
     //
     // If there are no handlers for this slot, we will sit idle until the next one.

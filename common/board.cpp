@@ -17,6 +17,9 @@ init()
     // set the prescaler for maximum speed
     clock_prescale_set(clock_div_1);
 
+    // turn everything on
+    power_all_enable();
+
     // start the watchdog
     wdt_enable(WDTO_500MS);
 

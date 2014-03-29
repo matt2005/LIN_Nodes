@@ -27,15 +27,25 @@ public:
     void        writeP(PGM_P s);
 
 private:
-    static const uint8_t    kReadAddress    = 0x54;
-    static const uint8_t    kWriteAddress   = 0x55;
+    static const uint8_t    kReadAddress    = 0x55;
+    static const uint8_t    kWriteAddress   = 0x54;
     static const uint8_t    kWidth          = 16;
     static const uint8_t    kHeight         = 2;
+
+    static const uint8_t    kOPNop          = 0x00;
+    static const uint8_t    kOPClear        = 0x06;
+    static const uint8_t    kOPBacklight    = 0x0e;
+    static const uint8_t    kOPButtons      = 0x18;
+    static const uint8_t    kOPWrite        = 0x1f;
+
+    static const uint8_t    kACK            = 0x40;
+
 
     uint8_t     _x;
     uint8_t     _y;
 
     bool        send(const uint8_t *pkt);
     bool        recv(uint8_t *pkt, uint8_t pktlen);
+    bool        waitAck(uint8_t opcode);
     void        crc(uint8_t *pkt);
 };

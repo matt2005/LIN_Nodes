@@ -21,15 +21,20 @@ main(void)
 {
     // basic board & system init
     Board::init();
-    disp.init();
     slave.init();
+    if (!disp.init()) {
+        Board::panic(3);
+    }
+    disp.setBacklight(10);
+    disp.write("Master");
 
     // XXX for now, idle here
     for (;;) {
-        disp.clear();
-        disp.write("test");
-        _delay_ms(200);
+        //disp.clear();
+        //disp.write("test");
+        _delay_ms(100);
         wdt_reset();
+        pinLINCS.toggle();
     }
 }
 

@@ -30,7 +30,7 @@
 //********** Defines **********//
 
 // Defines controlling timing limits
-#define TWI_FAST_MODE
+//#define TWI_FAST_MODE
 
 #define SYS_CLK   (F_CPU/1000)  // [kHz]
 

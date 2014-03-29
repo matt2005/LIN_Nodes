@@ -7,6 +7,8 @@
 
 #include "board.h"
 
+extern "C" void panic(uint8_t code) { Board::panic(code); }
+
 namespace Board {
 
 void
@@ -25,6 +27,25 @@ init()
     // configure LIN data pins
     pinLINRX.cfgInputPullUp();
     pinLINTX.cfgInputPullUp();
+}
+
+void
+panic(uint8_t code)
+{
+    for (;;) {
+        //pinLINCS.cfgOutput();
+        //pinLINCS.clear();
+        _delay_ms(250);
+
+        for (uint8_t i = 0; i < code; i++) {
+            wdt_reset();
+            pinLINCS.set();
+            _delay_ms(200);
+            wdt_reset();
+            pinLINCS.clear();
+            _delay_ms(200);            
+        }
+    }
 }
 
 uint8_t

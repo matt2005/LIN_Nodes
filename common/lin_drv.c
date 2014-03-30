@@ -41,6 +41,12 @@
 //------------------------------------------------------------------------------
 unsigned char lin_init (unsigned char l_type, unsigned long b_rate) {
 
+    // Pull-up on TxLIN & RxLIN (one by one to use bit-addressing)
+    LIN_PORT_DIR &= ~(1<<LIN_INPUT_PIN );
+    LIN_PORT_DIR &= ~(1<<LIN_OUTPUT_PIN);
+    LIN_PORT_OUT |=  (1<<LIN_INPUT_PIN );
+    LIN_PORT_OUT |=  (1<<LIN_OUTPUT_PIN);
+
     Lin_full_reset();
     Lin_set_baudrate(b_rate);
 			
@@ -52,7 +58,7 @@ unsigned char lin_init (unsigned char l_type, unsigned long b_rate) {
     			return 0;
     }
     // If LIN is interrupt driven, enable the 2 following lines
-    Lin_set_enable_it();
+    //Lin_set_enable_it();
     // asm ("sei");
     
     return 1;

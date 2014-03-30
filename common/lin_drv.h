@@ -25,48 +25,20 @@
 
 //_____ D E F I N I T I O N S __________________________________________________
 
-#define FOSC            (F_CPU/1000)    // in KHz
 #define LIN_BAUDRATE    19200       // in bit/s
+
+// Specific to ATtiny167
+#define LIN_PORT_IN PINA
+#define LIN_PORT_DIR DDRA
+#define LIN_PORT_OUT PORTA
+#define LIN_INPUT_PIN 0
+#define LIN_OUTPUT_PIN 1
 
 // ---- Bit Time
 
-#ifndef FOSC
-#error  You must define FOSC
-
-#elif   FOSC == 16000           // if device frequency = 16 MHz
-#ifndef LIN_BAUDRATE
-#error  You must define LIN_BAUDRATE
-#elif   LIN_BAUDRATE == 19200
-#define CONF_LINBRR     25      // (0x19) 19.2 kbps, error = 0.2%
-#elif   LIN_BAUDRATE == 9600
-#define CONF_LINBRR     51      // (0x33) 9.6 kbps, error= 0.2%
-#elif   LIN_BAUDRATE == 4800
-#define CONF_LINBRR     103     // (0x67) 4.8 kbps, error= 0.2%
-#elif   LIN_BAUDRATE == 2400
-#define CONF_LINBRR     207     // (0xCF) 2.4 kbps, error=-0.2% 
-
-#else
-#error  Not available LIN_BAUDRATE value
-#endif
-
-#elif   FOSC == 8000			// if device frequency = 8 MHz
-#ifndef	LIN_BAUDRATE
-#error	You must define LIN_BAUDRATE
-#elif	LIN_BAUDRATE == 19200
-#define	CONF_LINBRR		12      // (0x0C) 19.2 kbps, error = 0.2%
-#elif	LIN_BAUDRATE == 9600
-#define	CONF_LINBRR		25		// (0x19) 9.6 kbps, error= 0.2%
-#elif	LIN_BAUDRATE == 4800
-#define	CONF_LINBRR		51		// (0x33) 4.8 kbps, error= 0.2%
-#elif	LIN_BAUDRATE == 2400
-#define	CONF_LINBRR		103		// (0x67) 2.4 kbps, error=-0.2% 
-#else
-#error  Not available LIN_BAUDRATE value
-
-#endif
-#else
-#error  Not available FOSC value
-#endif
+    // LINBRR should be set to deliver a clock suitable for 32x (the default) 
+    // oversampling of the desired bit clock. Per the datasheet:
+#define CONF_LINBRR     ((F_CPU / (32UL * LIN_BAUDRATE)) - 1)
 
 // ---- Configuration
 

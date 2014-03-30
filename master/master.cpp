@@ -34,12 +34,8 @@ Event::nextEvent()
         // turn on the LIN driver
         pinLINCS.set();
 
-        // special handling for the LIN master/slave requests
-        if (fid < LIN::kFIDMasterRequest) {
-            lin_tx_header(LIN_2X, fid, 0);
-        } else {
-            lin_tx_header(LIN_1X, fid, 8);
-        }
+        // and transmit the header
+        lin_tx_header(LIN_2X, fid, 0);
     }
     _slotNext[_currentSlot] = _slotNext[_currentSlot]->_next;
 

@@ -29,7 +29,8 @@ Slave::init()
 {
     pinLINCS.clear();
 
-    lin_init(LIN_2X, LIN_BAUDRATE);
+    lin_init(LIN_2X, CONF_LINBRR);
+
     Lin_set_enable_it();
 }
 
@@ -75,18 +76,14 @@ Slave::isrError()
 void
 Slave::requestResponse(uint8_t length)
 {
-    uint8_t cmode = (_currentFID > 0x3c) ? LIN_1X : LIN_2X;
-
-    lin_rx_response(cmode, length);
+    lin_rx_response(LIN_2X, length);
 }
 
 void
 Slave::sendResponse(LIN::Frame &f, uint8_t length)
 {
-    uint8_t cmode = (_currentFID > LIN::kFIDMasterRequest) ? LIN_1X : LIN_2X;
-
     pinLINCS.set();
-    lin_tx_response(cmode, &f.b[0], length);
+    lin_tx_response(LIN_2X, &f.b[0], length);
 }
 
 void

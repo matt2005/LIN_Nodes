@@ -23,13 +23,11 @@ init()
     // start the watchdog
     wdt_enable(WDTO_500MS);
 
-    // configure LIN data pins
-    pinLINRX.cfgInputPullUp();
-    pinLINTX.cfgInputPullUp();
-
     // LINCS starts tristated, keep it de-asserted as we turn it into an output
     pinLINCS.clear();
     pinLINCS.cfgOutput();
+
+    // LIN pins are configured by the driver
 }
 
 void

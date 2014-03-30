@@ -2,6 +2,7 @@
 #include <util/delay.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include <avr/io.h>
 
 #include "board.h"
 #include "lin_protocol.h"
@@ -16,6 +17,9 @@ Event           slaveResponse(1, LIN::kFIDSlaveResponse);
 
 MasterSlave     slave;
 Display         disp;
+
+// for timer testing
+//void blink(void *arg) { pinLINCS.toggle(); }
 
 int
 main(void)
@@ -42,8 +46,7 @@ main(void)
         _delay_ms(100);
         wdt_reset();
         disp.move(0,0);
-        disp.write(Board::getMode());
-        //disp.write(Event::count);
+        disp.write(Event::count);
     }
 }
 

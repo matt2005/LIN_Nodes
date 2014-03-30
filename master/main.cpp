@@ -12,6 +12,7 @@
 #include "master.h"
 
 Master          master;
+Event           controlsRequest(0, LIN::kFIDControls);
 Event           masterRequest(1, LIN::kFIDMasterRequest);
 Event           slaveResponse(1, LIN::kFIDSlaveResponse);
 

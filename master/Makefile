@@ -3,6 +3,7 @@ PROG		 = master
 SRCS		 = main.cpp \
 		   display.cpp \
 		   master.cpp \
+		   menu.cpp \
 		   board.cpp \
 		   lin_drv.c \
 		   lin_slave.cpp \

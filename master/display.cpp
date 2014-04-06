@@ -41,6 +41,7 @@ Display::clear()
     uint8_t pkt[] = { kOPClear, 0 };
     send(&pkt[0]);
     waitAck(kOPClear);
+    move(0, 0);
 }
 
 void
@@ -51,16 +52,16 @@ Display::setBacklight(uint8_t value)
     waitAck(kOPBacklight);
 }
 
-uint8_t
-Display::getButtons()
+Display::Button
+Display::getButtonPress()
 {
     uint8_t pkt[] = { 0x18, 0 };
     send(&pkt[0]);
 
-    uint8_t buf[7];
+    uint8_t buf[5];
     recv(&buf[0], sizeof(buf));
 
-    return buf[2];
+    return (Button)buf[3];
 }
 
 bool
@@ -103,6 +104,8 @@ Display::recv(uint8_t *pkt, uint8_t pktlen)
             pkt[i] = buf[i + 1];
         }
     }
+    // XXX check checksum?
+
     return result;
 }
 

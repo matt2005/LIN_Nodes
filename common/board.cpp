@@ -23,11 +23,15 @@ init()
     // start the watchdog
     wdt_enable(WDTO_500MS);
 
-    // LINCS starts tristated, keep it de-asserted as we turn it into an output
-    pinLINCS.clear();
+    // LINCS/LINTX start tristated, keep them asserted as we turn it into an output
+    // to avoid any risk of accidentally powering ourselves off.
+    //
+    pinLINCS.set();
     pinLINCS.cfgOutput();
+    pinLINTX.set();
+    pinLINTX.cfgOutput();
 
-    // LIN pins are configured by the driver
+    // LIN pins are re-configured by the driver
 }
 
 void

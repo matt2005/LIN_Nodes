@@ -10,6 +10,7 @@
 #include "display.h"
 #include "slave.h"
 #include "master.h"
+#include "menu.h"
 
 Master          master;
 Event           controlsRequest(0, LIN::kFIDControls);
@@ -18,6 +19,7 @@ Event           slaveResponse(1, LIN::kFIDSlaveResponse);
 
 MasterSlave     slave;
 Display         disp;
+Menu            menu(disp);
 
 // for timer testing
 //void blink(void *arg) { pinLINCS.toggle(); }
@@ -42,12 +44,20 @@ main(void)
     disp.setBacklight(10);
     disp.clear();
 
+    for (unsigned i = 0; i < 5; i++) {
+        wdt_reset();
+        _delay_ms(100);
+    }
+    disp.writeP(PSTR("Master Node OK"));
+    for (unsigned i = 0; i < 20; i++) {
+        wdt_reset();
+        _delay_ms(100);
+    }
+
     // spin running the UI
     for (;;) {
-        _delay_ms(100);
         wdt_reset();
-        disp.move(0,0);
-        disp.write(Event::count);
+        menu.tick();
     }
 }
 

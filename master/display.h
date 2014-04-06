@@ -24,8 +24,23 @@ public:
     void            write(uint16_t n)    { write(n, 5); }
 
     void            setBacklight(uint8_t value);
-    uint8_t         getButtons();
 
+    enum Button {
+        kButtonNone     = 0x00,
+        kButtonUp       = 0x01,
+        kButtonEnter    = 0x02,
+        kButtonCancel   = 0x04,
+        kButtonLeft     = 0x08,
+        kButtonRight    = 0x10,
+        kButtonDown     = 0x20
+    };
+
+    /// Returns button(s) that have been pressed since the 
+    /// last call.
+    ///
+    Button         getButtonPress();
+
+    
 private:
     typedef uint8_t (*Reader)(const char *p);
 

@@ -32,7 +32,7 @@ Event::nextEvent()
         LIN::FID fid = _slotNext[_currentSlot]->_fid;
 
         // turn on the LIN driver
-        pinLINCS.set();
+        Board::linCS(true);
 
         // and transmit the header
         lin_tx_header(LIN_2X, fid, 0);
@@ -46,6 +46,37 @@ Event::nextEvent()
 }
 
 Master::Master() :
+    Slave(LIN::kNADMaster),
     _timer(10, (Timer::Callback)Event::nextEvent)
 {
+}
+
+void
+Master::headerReceived(LIN::FID fid)
+{
+    switch (fid) {
+    case LIN::kFIDControls:
+        break;
+
+    default:
+        Slave::headerReceived(fid);
+        break;
+    }
+}
+
+void
+Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
+{
+    switch (fid) {
+
+    default:
+        Slave::responseReceived(fid, frame);
+        break;
+    }
+}
+
+void
+Master::sleepRequested()
+{
+    // XXX might be OK to sleep here, really...
 }

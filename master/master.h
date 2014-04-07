@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "lin_protocol.h"
+#include "lin_slave.h"
 #include "timer.h"
 
 class Event
@@ -28,10 +29,18 @@ private:
 };
 
 
-class Master
+class Master : public Slave
 {
 public:
     Master();
+
+    bool            doRequest(LIN::Frame &frame);
+    bool            doRequestResponse(LIN::Frame &frame);
+
+protected:
+    virtual void headerReceived(LIN::FID fid) override;
+    virtual void responseReceived(LIN::FID fid, LIN::Frame &frame) override;
+    virtual void sleepRequested();
 
 private:
     Timer           _timer;

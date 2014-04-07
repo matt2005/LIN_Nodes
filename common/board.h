@@ -77,4 +77,12 @@ extern void panic(uint8_t code) __attribute__((noreturn));
 ///
 extern uint8_t getMode();
 
+/// Put the board to sleep
+///
+extern void sleep();
+
+/// Set the LIN CS state
+///
+extern void linCS(bool state);
+
 } // namespace Board

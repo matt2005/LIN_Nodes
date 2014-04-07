@@ -84,4 +84,24 @@ getMode()
     return mode;
 }
 
+void
+sleep()
+{
+    // by the time LINCS and LINTX are both driving 0, the board will power off
+    pinLINCS.clear();
+    pinLINTX.clear();
+    pinLINCS.cfgOutput();
+    pinLINTX.cfgOutput();
+}
+
+void
+linCS(bool state)
+{
+    if (state) {
+        pinLINCS.set();
+    } else {
+        pinLINCS.clear();
+    }
+}
+
 } // namespace Board

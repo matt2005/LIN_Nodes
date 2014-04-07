@@ -10,11 +10,11 @@
 class Slave
 {
 public:
-    Slave();
+    Slave(LIN::NodeAddress);
 
-    /// Perform one-time initialisation of the slave.
+    /// Perform one-time LIN initialisation.
     ///
-    void            init();
+    static void     init();
 
     /// Called from the transfer-complete ISR
     ///
@@ -26,6 +26,10 @@ public:
 
 protected:
 
+    LIN::NodeAddress _nad;               //< node address 
+    LIN::Frame      _slaveResponse;     //< slave response from previous master request
+    bool            _haveSlaveResponse; //< we have a slave response ready to send
+
     /// Ask the driver to receive a response.
     ///
     /// Subclass implementation of headerReceived will call when an 
@@ -36,7 +40,6 @@ protected:
     /// @param length           The length of the response to be received.
     ///
     void            requestResponse(uint8_t length);
-    
     
     /// Send a response.
     ///
@@ -73,6 +76,10 @@ protected:
     ///                         was sent.
     ///
     virtual void    responseSent(LIN::FID fid);
+
+    /// Called when the network is told to sleep
+    ///
+    virtual void    sleepRequested();
 
 private:
     LIN::FID        _currentFID;    //< the FID from the most recently received header

@@ -18,7 +18,8 @@ ISR(LIN_ERR_vect)
     _slave->isrError();
 }
 
-Slave::Slave() :
+Slave::Slave(LIN::NodeAddress nad) :
+    _nad(nad),
     _currentFID(0)
 {
     _slave = this;
@@ -27,7 +28,7 @@ Slave::Slave() :
 void
 Slave::init()
 {
-    pinLINCS.clear();
+    Board::linCS(false);
 
     lin_init(LIN_2X, CONF_LINBRR);
 
@@ -82,23 +83,43 @@ Slave::requestResponse(uint8_t length)
 void
 Slave::sendResponse(LIN::Frame &f, uint8_t length)
 {
-    pinLINCS.set();
+    // turn on the LIN transmitter
+    Board::linCS(true);
+
+    // and send the response
     lin_tx_response(LIN_2X, &f.b[0], length);
 }
 
 void
 Slave::headerReceived(LIN::FID fid)
 {
+    switch (fid) {
+    case LIN::kFIDSlaveResponse:
+        if (_haveSlaveResponse) {
+            sendResponse(_slaveResponse, 8);
+            _haveSlaveResponse = false;
+        }
+        break;
+    }
 }
 
 void
 Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 {
+    switch (fid) {
+    default:
+        break;
+    }
 }
 
 void
 Slave::responseSent(LIN::FID fid)
 {
-    pinLINCS.clear();
+    Board::linCS(false);
 }
 
+void
+Slave::sleepRequested()
+{
+    Board::sleep();
+}

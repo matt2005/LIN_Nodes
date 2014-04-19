@@ -46,7 +46,7 @@ Slave::isrTC()
         break;
 
     case LIN_RXOK:
-        lin_get_response(&_frameBuf.b[0]);
+        lin_get_response(_frameBuf.buf());
         Lin_clear_rxok_it();
         responseReceived(_currentFID, _frameBuf);
         _currentFID = 0;
@@ -87,7 +87,7 @@ Slave::sendResponse(LIN::Frame &f, uint8_t length)
     Board::linCS(true);
 
     // and send the response
-    lin_tx_response(LIN_2X, &f.b[0], length);
+    lin_tx_response(LIN_2X, f.buf(), length);
 }
 
 void
@@ -107,6 +107,18 @@ void
 Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 {
     switch (fid) {
+    case LIN::kFIDMasterRequest:
+        // check for broadcast sleep request
+        if (frame.nad() == LIN::kNADSleep) {
+            sleepRequested();
+        }
+        // check for directly addressed or broadcast master request
+        if ((frame.nad() == _nad) ||
+            (frame.nad() == LIN::kNADBroadcast)) {
+            masterRequest(frame);
+        }
+        break;
+
     default:
         break;
     }
@@ -122,4 +134,38 @@ void
 Slave::sleepRequested()
 {
     Board::sleep();
+}
+
+void
+Slave::masterRequest(LIN::Frame &frame)
+{
+    if (frame.sid() == LIN::kSIDReadByID) {
+        switch (frame.d1()) {
+        case 0:                                     // product ID
+            frame.pci() = 6;
+            frame.sid() |= LIN::kSIDResponseOffset;
+            frame.d1() = LIN::kSupplierID & 0xff;   // supplier ID
+            frame.d2() = LIN::kSupplierID >> 8;
+            frame.d3() = 1;                         // product ID XXX
+            frame.d4() = 0;
+            frame.d5() = 0;                         // variant
+            prepareSlaveResponse(frame);
+            break;
+
+        case 1:                                     // serial number
+            frame.pci() = 5;
+            frame.sid() |= LIN::kSIDResponseOffset;
+            frame.d1() = 0;
+            frame.d2() = 0;
+            frame.d3() = 0;
+            frame.d4() = 0;
+            frame.d5() = 0xff;
+            prepareSlaveResponse(frame);
+            break;
+
+        default:
+            break;
+        }
+        return;
+    }
 }

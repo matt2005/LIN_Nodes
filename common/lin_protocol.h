@@ -9,12 +9,44 @@
 namespace LIN
 {
 
-union Frame
+class Frame 
 {
-    uint8_t b[8];
-    uint8_t w[4];
-    uint8_t l[2];
+public:
+    uint8_t &operator[](uint8_t index) { return _b[index]; }
+
+    uint8_t     &nad()   { return _b[kFINAD]; }
+    uint8_t     &pci()   { return _b[kFIPCI]; }
+    uint8_t     &sid()   { return _b[kFISID]; }
+    uint8_t     &d1()    { return _b[kFID1]; }
+    uint8_t     &d2()    { return _b[kFID2]; }
+    uint8_t     &d3()    { return _b[kFID3]; }
+    uint8_t     &d4()    { return _b[kFID4]; }
+    uint8_t     &d5()    { return _b[kFID5]; }
+
+    uint8_t     *buf()   { return &_b[0]; }
+
+private:
+    enum FrameIndex : uint8_t
+    {
+        kFINAD              = 0,    //< node address
+        kFIPCI              = 1,    //< PCI (always zero) and length (low 4 bits)
+        kFISID              = 2,    //< service ID (see below)
+        kFID1               = 3,
+        kFID2               = 4,
+        kFID3               = 5,
+        kFID4               = 6,
+        kFID5               = 7,
+    };
+
+    uint8_t _b[8];
 };
+
+//union Frame
+//{
+//    uint8_t b[8];
+//    uint8_t w[4];
+//    uint8_t l[2];
+//};
 
 typedef uint8_t FID;
 
@@ -27,17 +59,6 @@ enum FrameID : uint8_t
     kFIDSlaveResponse   = 0x3d
 };
 
-enum FrameIndex : uint8_t
-{
-    kFINAD              = 0,    //< node address
-    kFIPCI              = 1,    //< PCI (always zero) and length (low 4 bits)
-    kFISID              = 2,    //< service ID (see below)
-    kFID1               = 3,
-    kFID2               = 4,
-    kFID3               = 5,
-    kFID4               = 6,
-    kFID5               = 7,
-};
 
 enum NodeAddress : uint8_t
 {
@@ -57,6 +78,7 @@ enum ServiceID : uint8_t
     kSIDResponseOffset  = 0x40
 };
 
+static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
 
 
 } // namespace LIN

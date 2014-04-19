@@ -27,8 +27,6 @@ public:
 protected:
 
     LIN::NodeAddress _nad;               //< node address 
-    LIN::Frame      _slaveResponse;     //< slave response from previous master request
-    bool            _haveSlaveResponse; //< we have a slave response ready to send
 
     /// Ask the driver to receive a response.
     ///
@@ -54,6 +52,16 @@ protected:
     ///
     void            sendResponse(LIN::Frame &frame, uint8_t length);
 
+    /// Prepare a response to the LIN::kSlaveResponse message.
+    ///
+    /// @param frame            The frame to send in response.
+    ///
+    void            prepareSlaveResponse(LIN::Frame &frame) 
+    {
+        _slaveResponse = frame;
+        _haveSlaveResponse = true;
+    }
+
     /// Called when a header has been received.
     ///
     /// Must be implemented by the subclass.
@@ -77,11 +85,22 @@ protected:
     ///
     virtual void    responseSent(LIN::FID fid);
 
-    /// Called when the network is told to sleep
+    /// Called when the network is told to sleep.
+    ///
+    /// Default behaviour is to ask the board to sleep.
     ///
     virtual void    sleepRequested();
 
+    /// Called when a LIN::kMasterRequest response is received that addresses
+    /// this node.
+    ///
+    /// @param frame            The response frame
+    ///
+    virtual void    masterRequest(LIN::Frame &frame);
+
 private:
-    LIN::FID        _currentFID;    //< the FID from the most recently received header
-    LIN::Frame      _frameBuf;      //< working buffer for frame data
+    LIN::FID        _currentFID;        //< the FID from the most recently received header
+    LIN::Frame      _frameBuf;          //< working buffer for frame data
+    LIN::Frame      _slaveResponse;     //< slave response from previous master request
+    bool            _haveSlaveResponse; //< we have a slave response ready to send
 };

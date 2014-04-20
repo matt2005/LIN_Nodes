@@ -1,9 +1,13 @@
 
 #include "menu.h"
 
+// UI modes
 static IdleMode modeIdle;
 static ParameterMode modeParameter;
 
+////////////////////////////////////////////////////////////////////////////////
+// Toplevel menu engine
+//
 Menu::Menu(Display &disp) :
     _disp(disp),
     _mode(&modeIdle)
@@ -15,24 +19,30 @@ Menu::tick()
 {
     Display::Button bp = _disp.getButtonPress();
 
-    _mode = _mode->action(_disp, bp);
+    // kick the mode state machine
+    Mode *newmode = _mode->action(_disp, bp);
+
+    // mode change?
+    if (newmode != _mode) {
+        _mode = newmode;
+        _mode->enter(_disp);
+    }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Idle mode
+//
+
 void
-IdleMode::enter()
+IdleMode::enter(Display &disp)
 {
-    _want_refresh = true;
+        disp.clear();
+        disp.setBacklight(0);
 }
 
 Mode *
 IdleMode::action(Display &disp, Display::Button bp)
 {
-    if (_want_refresh) {
-        disp.clear();
-        disp.setBacklight(0);
-        _want_refresh = false;
-    }
-
     if (bp == Display::kButtonEnter) {
         disp.setBacklight(10);
         return &modeParameter;
@@ -40,72 +50,40 @@ IdleMode::action(Display &disp, Display::Button bp)
     return this;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Parameter mode
+//
+
 void
-ParameterMode::enter()
+ParameterMode::enter(Display &disp)
 {
     _submode = SM_NODE;
-    _editor.init();
-    _want_refresh = true;
+    _setNode(0);
+    _draw(disp);
 }
 
 Mode *
 ParameterMode::action(Display &disp, Display::Button bp)
 {
-    if (_want_refresh) {
-        disp.clear();
-        disp.writeP(PSTR("Node Parm Value"));
-
-        // mode marker
-        disp.move((uint8_t)_submode, 1);
-        disp.writeP(PSTR(">"));
-
-        // unsaved marker
-        if (_editor.isChanged()) {
-            disp.move(15, 0);
-            disp.writeP(PSTR("*"));
-        }
-
-        // values
-        disp.move(1, 1);
-        disp.write(_editor.getNode());
-        if (_editor.isNodePresent()) {
-            disp.move(6, 1);
-            disp.write(_editor.getParam());
-
-            if (_editor.isParamValid()) {
-                disp.move(11, 1);
-                disp.write(_editor.getValue());
-            }
-        }
-
-        _want_refresh = false;
-    }
-
-    // XXX should have an idle timer here
-
-    // assume this is true...
-    _want_refresh = true;
-
     switch (bp) {
 
     case Display::kButtonCancel:
         return &modeIdle;
 
     case Display::kButtonEnter:
-        _editor.saveValue();
-        _want_refresh = true;
+        _saveValue();
         break;
 
     case Display::kButtonDown:
         switch (_submode) {
         case SM_NODE:
-            _editor.prevNode();
+            _prevNode();
             break;
         case SM_PARAM:
-            _editor.prevParam();
+            _prevParam();
             break;
         case SM_VALUE:
-            _editor.setValue(_editor.getValue() - 1);
+            _setValue(_value - 1);
             break;
         }
         break;
@@ -113,13 +91,13 @@ ParameterMode::action(Display &disp, Display::Button bp)
     case Display::kButtonUp:
         switch (_submode) {
         case SM_NODE:
-            _editor.nextNode();
+            _nextNode();
             break;
         case SM_PARAM:
-            _editor.nextParam();
+            _nextParam();
             break;
         case SM_VALUE:
-            _editor.setValue(_editor.getValue() + 1);
+            _setValue(_value + 1);
             break;
         }
         break;
@@ -140,12 +118,12 @@ ParameterMode::action(Display &disp, Display::Button bp)
     case Display::kButtonRight:
         switch (_submode) {
         case SM_NODE:
-            if (_editor.isNodePresent()) {
+            if (_present) {
                 _submode = SM_PARAM;
             }
             break;
         case SM_PARAM:
-            if (_editor.isParamValid() && _editor.isParamWritable()) {
+            if (_valid && _writable) {
                 _submode = SM_VALUE;
             }
             break;
@@ -155,56 +133,99 @@ ParameterMode::action(Display &disp, Display::Button bp)
         break;
 
     case Display::kButtonNone:
-        _want_refresh = false;
     default:
-        break;
+        return this;        // do nothing
     }
+
+    // update the display to handle changes
+    _draw(disp);
 
     // no mode change
     return this;
 }
 
-ParamEditor::ParamEditor() :
-    _node(0),
-    _param(0),
-    _value(0),
-    _changed(false),
-    _present(true),
-    _valid(true)
-{
-}
-
 void
-ParamEditor::_setNode(uint8_t node)
+ParameterMode::_setNode(uint8_t node)
 {
     // parameter 0 should always be valid
     _node = node;
-    _param = 0;
-    _present = _valid = _load();
-}
-
-void
-ParamEditor::_setParam(uint8_t param)
-{
-    _param = param;
-    _valid = _load();
+    _present = _setParam(0);
 }
 
 bool
-ParamEditor::_load()
+ParameterMode::_setParam(uint8_t param)
 {
+    _param = param;
+    return _load();
+}
+
+void
+ParameterMode::_setValue(uint16_t value)
+{
+    if (_writable) {
+        _value = value;
+        _changed = true; 
+    }
+}
+
+void
+ParameterMode::_saveValue()
+{
+    if (_present && _valid && _changed) {
+        // send the parameter to the node and then read it back
+        _save();
+        _load();
+    }
+}
+
+bool
+ParameterMode::_load()
+{
+    _changed = false;
+
     // XXX fake it
     if (_node == 0 && (_param == 0 || _param == 3)) {
         _value = 10 + _param;
         _writable = (_param != 0);
+        _valid = true;
         return true;
     }
+    _writable = false;
+    _valid = false;
     return false;
 }
 
-bool
-ParamEditor::_save()
+void
+ParameterMode::_save()
 {
-    // XXX fake it
-    return true;
+}
+
+void
+ParameterMode::_draw(Display &disp)
+{
+    disp.clear();
+    disp.writeP(PSTR("Node Parm Value"));
+
+    // mode marker
+    disp.move((uint8_t)_submode, 1);
+    disp.writeP(PSTR(">"));
+
+    // unsaved marker
+    if (_changed) {
+        disp.move(15, 0);
+        disp.writeP(PSTR("*"));
+    }
+
+    // values
+    disp.move(1, 1);
+    disp.write(_node);
+    if (_present) {
+        disp.move(6, 1);
+        disp.write(_param);
+
+        if (_valid) {
+            disp.move(11, 1);
+            disp.write(_value);
+        }
+    }
 }

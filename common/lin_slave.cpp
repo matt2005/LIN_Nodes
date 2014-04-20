@@ -139,33 +139,24 @@ Slave::sleepRequested()
 void
 Slave::masterRequest(LIN::Frame &frame)
 {
+    // ReadByID
     if (frame.sid() == LIN::kSIDReadByID) {
-        switch (frame.d1()) {
-        case 0:                                     // product ID
-            frame.pci() = 6;
-            frame.sid() |= LIN::kSIDResponseOffset;
-            frame.d1() = LIN::kSupplierID & 0xff;   // supplier ID
-            frame.d2() = LIN::kSupplierID >> 8;
-            frame.d3() = 1;                         // product ID XXX
-            frame.d4() = 0;
-            frame.d5() = 0;                         // variant
-            prepareSlaveResponse(frame);
-            break;
+        // product ID
+        if (frame.d1() == 0) {
+            LIN::Frame f(6,
+                         frame.sid() | LIN::kSIDResponseOffset,
+                         LIN::kSupplierID & 0xff,
+                         LIN::kSupplierID >> 8,
+                         1);
+            prepareSlaveResponse(f);
 
-        case 1:                                     // serial number
-            frame.pci() = 5;
-            frame.sid() |= LIN::kSIDResponseOffset;
-            frame.d1() = 0;
-            frame.d2() = 0;
-            frame.d3() = 0;
-            frame.d4() = 0;
-            frame.d5() = 0xff;
-            prepareSlaveResponse(frame);
-            break;
-
-        default:
-            break;
+        // serial number    
+        } else if (frame.d1() == 1) {
+            LIN::Frame f(5, frame.sid() | LIN::kSIDResponseOffset);
+            prepareSlaveResponse(f);
         }
+
+        // nothing to do here
         return;
     }
 }

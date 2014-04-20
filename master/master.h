@@ -34,14 +34,14 @@ class Master : public Slave
 public:
     Master();
 
-    /// Send a Master Request frame
+    /// Queue a MasterRequest frame.
     ///
     /// @param frame            The frame to send.
     /// @return                 True if the frame is sent, false if it times out.
     ///
     bool            doRequest(LIN::Frame &frame);
 
-    /// Send a Master Request frame, then a Slave Response to 
+    /// Queue a Master Request frame, then a Slave Response to 
     /// gather the slave's reply.
     ///
     /// @param frame            The frame to send, and the buffer into which

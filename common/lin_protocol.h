@@ -5,6 +5,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <string.h>
 
 namespace LIN
 {
@@ -12,6 +13,25 @@ namespace LIN
 class Frame 
 {
 public:
+    Frame(uint8_t b0 = 0,
+          uint8_t b1 = 0,
+          uint8_t b2 = 0,
+          uint8_t b3 = 0,
+          uint8_t b4 = 0,
+          uint8_t b5 = 0,
+          uint8_t b6 = 0,
+          uint8_t b7 = 0)
+    {
+        _b[0] = b0;
+        _b[1] = b1;
+        _b[2] = b2;
+        _b[3] = b3;
+        _b[4] = b4;
+        _b[5] = b5;
+        _b[6] = b6;
+        _b[7] = b7;
+    }
+
     uint8_t &operator[](uint8_t index) { return _b[index]; }
 
     uint8_t     &nad()   { return _b[kFINAD]; }

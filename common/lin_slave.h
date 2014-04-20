@@ -28,12 +28,10 @@ protected:
 
     LIN::NodeAddress _nad;               //< node address 
 
-    /// Ask the driver to receive a response.
+    /// As the driver to pay attention to the next response that it sees.
     ///
-    /// Subclass implementation of headerReceived will call when an 
-    /// interesting header has been seen; responseReceived will be
-    /// called if a response is actually received.
-    ///
+    /// This will usually be the response associated with an interesting
+    /// header.
     ///
     /// @param length           The length of the response to be received.
     ///

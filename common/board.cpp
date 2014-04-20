@@ -95,6 +95,26 @@ sleep()
 }
 
 void
+delay(uint16_t ms)
+{
+    // try to keep the delay long for accuracy reasons
+    while (ms > 0) {
+        wdt_reset();
+        if (ms > 100) {
+            _delay_ms(100);
+            ms -= 100;
+        } else if (ms > 10) {
+            _delay_ms(10);
+            ms -= 10;
+        } else {
+            _delay_ms(1);
+            ms--;
+        }
+    }
+    wdt_reset();
+}
+
+void
 linCS(bool state)
 {
     if (state) {

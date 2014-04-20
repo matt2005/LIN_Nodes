@@ -81,6 +81,10 @@ extern uint8_t getMode();
 ///
 extern void sleep();
 
+/// Delay for a period, keeping the watchdog at bay
+///
+extern void delay(uint16_t ms);
+
 /// Set the LIN CS state
 ///
 extern void linCS(bool state);

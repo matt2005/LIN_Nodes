@@ -1,11 +1,12 @@
 
 #include "menu.h"
 
+static IdleMode modeIdle;
+static ParameterMode modeParameter;
+
 Menu::Menu(Display &disp) :
     _disp(disp),
-    _mode(M_IDLE),
-    _submode(SM_NONE),
-    _want_refresh(true)
+    _mode(&modeIdle)
 {
 }
 
@@ -14,88 +15,81 @@ Menu::tick()
 {
     Display::Button bp = _disp.getButtonPress();
 
-    switch(_mode) {
-    case M_IDLE:
-        _m_do_idle(bp);
-        break;
-    case M_PARAM:
-        _m_do_param(bp);
-        break;
-    }
+    _mode = _mode->action(_disp, bp);
 }
 
 void
-Menu::_m_go_idle()
+IdleMode::enter()
 {
-    _mode = M_IDLE;
     _want_refresh = true;
 }
 
-void
-Menu::_m_do_idle(Display::Button bp)
+Mode *
+IdleMode::action(Display &disp, Display::Button bp)
 {
     if (_want_refresh) {
-        _disp.clear();
-        _disp.setBacklight(0);
+        disp.clear();
+        disp.setBacklight(0);
         _want_refresh = false;
     }
 
     if (bp == Display::kButtonEnter) {
-        _disp.setBacklight(10);
-        _m_go_param();
+        disp.setBacklight(10);
+        return &modeParameter;
     }
+    return this;
 }
 
 void
-Menu::_m_go_param()
+ParameterMode::enter()
 {
-    _disp.clear();
-    _mode = M_PARAM;
     _submode = SM_NODE;
     _editor.init();
     _want_refresh = true;
 }
 
-void
-Menu::_m_do_param(Display::Button bp)
+Mode *
+ParameterMode::action(Display &disp, Display::Button bp)
 {
     if (_want_refresh) {
-        _disp.clear();
-        _disp.writeP(PSTR("Node Parm Value"));
+        disp.clear();
+        disp.writeP(PSTR("Node Parm Value"));
 
         // mode marker
-        _disp.move((uint8_t)_submode, 1);
-        _disp.writeP(PSTR(">"));
+        disp.move((uint8_t)_submode, 1);
+        disp.writeP(PSTR(">"));
 
         // unsaved marker
         if (_editor.isChanged()) {
-            _disp.move(15, 0);
-            _disp.writeP(PSTR("*"));
+            disp.move(15, 0);
+            disp.writeP(PSTR("*"));
         }
 
         // values
-        _disp.move(1, 1);
-        _disp.write(_editor.getNode());
+        disp.move(1, 1);
+        disp.write(_editor.getNode());
         if (_editor.isNodePresent()) {
-            _disp.move(6, 1);
-            _disp.write(_editor.getParam());
+            disp.move(6, 1);
+            disp.write(_editor.getParam());
 
             if (_editor.isParamValid()) {
-                _disp.move(11, 1);
-                _disp.write(_editor.getValue());
+                disp.move(11, 1);
+                disp.write(_editor.getValue());
             }
         }
 
         _want_refresh = false;
     }
 
+    // XXX should have an idle timer here
+
+    // assume this is true...
+    _want_refresh = true;
+
     switch (bp) {
-    case Display::kButtonNone:
-        return;
 
     case Display::kButtonCancel:
-        _m_go_idle();
-        break;
+        return &modeIdle;
 
     case Display::kButtonEnter:
         _editor.saveValue();
@@ -160,11 +154,14 @@ Menu::_m_do_param(Display::Button bp)
         }
         break;
 
+    case Display::kButtonNone:
+        _want_refresh = false;
     default:
         break;
     }
 
-    _want_refresh = true;
+    // no mode change
+    return this;
 }
 
 ParamEditor::ParamEditor() :

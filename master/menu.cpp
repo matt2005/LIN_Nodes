@@ -1,5 +1,8 @@
 
+#include "lin_protocol.h"
+
 #include "menu.h"
+#include "master.h"
 
 // UI modes
 static IdleMode modeIdle;
@@ -172,8 +175,10 @@ void
 ParameterMode::_saveValue()
 {
     if (_present && _valid && _changed) {
-        // send the parameter to the node and then read it back
+        // send the parameter to the node...
         _save();
+
+        // read it back, clears _changed on success
         _load();
     }
 }
@@ -181,23 +186,33 @@ ParameterMode::_saveValue()
 bool
 ParameterMode::_load()
 {
-    _changed = false;
+    LIN::DataDumpRequest f(_node,
+                          LIN::kDataDumpGetParam,
+                          _param);
 
-    // XXX fake it
-    if (_node == 0 && (_param == 0 || _param == 3)) {
-        _value = 10 + _param;
-        _writable = (_param != 0);
-        _valid = true;
-        return true;
+    if (!gMaster.doRequestResponse(f)) {
+        return false;
     }
-    _writable = false;
-    _valid = false;
-    return false;
+
+    _changed = false;
+    _valid = f.d1() & LIN::kParamValid;
+    _writable = f.d1() & LIN::kParamWritable;
+    _value = f.d3();
+    _value = (_value << 8) | f.d2();
+
+    return true;
 }
 
 void
 ParameterMode::_save()
 {
+    LIN::DataDumpRequest f(_node,
+                           LIN::kDataDumpSetParam,
+                           _param,
+                           _value & 0xff,
+                           _value >> 8);
+
+    gMaster.doRequest(f);
 }
 
 void

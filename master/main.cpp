@@ -11,7 +11,7 @@
 #include "master.h"
 #include "menu.h"
 
-Master          master;
+Master          gMaster;
 Event           controlsRequest(0, LIN::kFIDControls);
 Event           masterRequest(1, LIN::kFIDMasterRequest);
 Event           slaveResponse(1, LIN::kFIDSlaveResponse);

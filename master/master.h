@@ -67,3 +67,5 @@ private:
     ///
     bool            _waitRequest();
 };
+
+extern Master gMaster;

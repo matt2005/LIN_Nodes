@@ -10,6 +10,38 @@
 namespace LIN
 {
 
+typedef uint8_t FID;
+
+enum FrameID : uint8_t
+{
+    kFIDControls        = 1,
+    kFIDAuxSwitches     = 2,
+
+    kFIDMasterRequest   = 0x3c,
+    kFIDSlaveResponse   = 0x3d
+};
+
+
+enum NodeAddress : uint8_t
+{
+    kNADSleep           = 0,
+
+    kNADMaster          = 1,    //< always NAD 1
+
+    kNADFunctional      = 126,
+    kNADBroadcast       = 127,
+};
+
+enum ServiceID : uint8_t
+{
+    kSIDReadByID        = 0xb2,
+    kSIDDataDump        = 0xb4,
+
+    kSIDResponseOffset  = 0x40
+};
+
+static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
+
 class Frame 
 {
 public:
@@ -61,45 +93,40 @@ private:
     uint8_t _b[8];
 };
 
-//union Frame
-//{
-//    uint8_t b[8];
-//    uint8_t w[4];
-//    uint8_t l[2];
-//};
-
-typedef uint8_t FID;
-
-enum FrameID : uint8_t
+enum DataDumpOperations : uint8_t 
 {
-    kFIDControls        = 1,
-    kFIDAuxSwitches     = 2,
-
-    kFIDMasterRequest   = 0x3c,
-    kFIDSlaveResponse   = 0x3d
+    kDataDumpGetParam   = 10,
+    kDataDumpSetParam   = 11,
 };
 
+static const uint8_t kParamValid = 0x01;
+static const uint8_t kParamWritable = 0x02;
 
-enum NodeAddress : uint8_t
+class DataDumpRequest : public Frame
 {
-    kNADSleep           = 0,
-
-    kNADMaster          = 1,    //< always NAD 1
-
-    kNADFunctional      = 126,
-    kNADBroadcast       = 127,
+public:
+    DataDumpRequest(uint8_t nad,
+                    uint8_t d1 = 0,
+                    uint8_t d2 = 0,
+                    uint8_t d3 = 0,
+                    uint8_t d4 = 0,
+                    uint8_t d5 = 0) :
+    Frame(nad, 0x06, kSIDDataDump, d1, d2, d3, d4, d5)
+    {}
 };
 
-enum ServiceID : uint8_t
+class DataDumpResponse : public Frame
 {
-    kSIDReadByID        = 0xb2,
-    kSIDDataDump        = 0xb4,
-
-    kSIDResponseOffset  = 0x40
+public:
+    DataDumpResponse(uint8_t nad,
+                    uint8_t d1 = 0,
+                    uint8_t d2 = 0,
+                    uint8_t d3 = 0,
+                    uint8_t d4 = 0,
+                    uint8_t d5 = 0) :
+    Frame(nad, 0x06, kSIDDataDump | kSIDResponseOffset, d1, d2, d3, d4, d5)
+    {}
 };
-
-static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
-
 
 } // namespace LIN
 

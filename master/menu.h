@@ -3,6 +3,7 @@
 #pragma once
 
 #include "display.h"
+#include "master.h"
 
 class Mode
 {

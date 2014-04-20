@@ -39,18 +39,14 @@ main(void)
     if (!disp.init()) {
         Board::panic(3);
     }
-    disp.setBacklight(10);
-    disp.clear();
 
-    for (unsigned i = 0; i < 5; i++) {
-        wdt_reset();
-        _delay_ms(100);
-    }
+    // dim backlight to reduce current & keep node PSU from
+    // overheating when the display is powered from it
+    disp.setBacklight(10);
+
+    // sign on
     disp.writeP(PSTR("Master Node OK"));
-    for (unsigned i = 0; i < 20; i++) {
-        wdt_reset();
-        _delay_ms(100);
-    }
+    Board::delay(2000);
 
     // spin running the UI
     for (;;) {

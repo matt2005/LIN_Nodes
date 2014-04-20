@@ -12,10 +12,7 @@ bool
 Display::init()
 {
     // the display takes some time to boot, so wait for it...
-    for (unsigned i = 0; i < 5; i++) {
-        _delay_ms(100);
-        wdt_reset();
-    }
+    Board::delay(500);
 
     USI_TWI_Master_Initialise();
 

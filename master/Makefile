@@ -2,9 +2,12 @@
 PROG		 = master
 SRCS		 = main.cpp \
 		   display.cpp \
+		   event.cpp \
 		   master.cpp \
 		   menu.cpp \
-		   board.cpp \
+		   slave.cpp
+
+SRCS		+= board.cpp \
 		   lin_drv.c \
 		   lin_slave.cpp \
 		   timer.cpp \

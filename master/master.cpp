@@ -6,49 +6,8 @@
 #include "board.h"
 #include "master.h"
 
-Event   *Event::_slotHead[kMaxSlots];
-Event   *Event::_slotNext[kMaxSlots];
-uint8_t Event::_currentSlot;
-uint16_t Event::count;
-
-Event::Event(uint8_t slot, LIN::FID fid) :
-    _next(_slotHead[slot]),
-    _fid(fid)
-{
-    _slotHead[slot] = this;
-}
-
-void
-Event::nextEvent()
-{
-    count++;
-
-    // Invoke the pending slot handler, if there is one.
-    //
-    // If there are no handlers for this slot, we will sit idle until the next one.
-    //
-    if (_slotNext[_currentSlot] == nullptr) {
-        _slotNext[_currentSlot] = _slotHead[_currentSlot];
-    }
-    if (_slotNext[_currentSlot] != nullptr) {
-        LIN::FID fid = _slotNext[_currentSlot]->_fid;
-
-        // turn on the LIN driver
-        Board::linCS(true);
-
-        // and transmit the header
-        lin_tx_header(LIN_2X, fid, 0);
-    }
-    _slotNext[_currentSlot] = _slotNext[_currentSlot]->_next;
-
-    // move to the next slot, or back to the top
-    if (++_currentSlot >= kMaxSlots) {
-        _currentSlot = 0;
-    }
-}
-
 Master::Master() :
-    Slave(LIN::kNADMaster),
+    SwitchSlave(LIN::kNADMaster),
     _eventTimer((Timer::Callback)Event::nextEvent, (Timer::Period)10)
 {
 }
@@ -100,8 +59,8 @@ Master::headerReceived(LIN::FID fid)
         break;
 
     case LIN::kFIDMasterRequest:
-        // do slave processing first
-        Slave::headerReceived(fid);
+        // do slave processing first (may reset state, arrange to listen, etc)
+        SwitchSlave::headerReceived(fid);
 
         // if we have a request to send, commit it to the wire
         if (_requestFrame != nullptr) {
@@ -115,11 +74,11 @@ Master::headerReceived(LIN::FID fid)
         requestResponse(8);
 
         // and do slave processing
-        Slave::headerReceived(fid);
+        SwitchSlave::headerReceived(fid);
         break;
 
     default:
-        Slave::headerReceived(fid);
+        SwitchSlave::headerReceived(fid);
         break;
     }
 }
@@ -138,13 +97,7 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
         break;
 
     default:
-        Slave::responseReceived(fid, frame);
+        SwitchSlave::responseReceived(fid, frame);
         break;
     }
-}
-
-void
-Master::sleepRequested()
-{
-    // XXX might be OK to sleep here, really...
 }

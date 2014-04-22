@@ -12,7 +12,7 @@ class Slave
 public:
     typedef uint16_t    Param;
 
-    Slave(LIN::NodeAddress);
+    Slave(LIN::NodeAddress nad);
 
     /// Called from the transfer-complete ISR
     ///

@@ -12,46 +12,58 @@
 #include "menu.h"
 
 Board           board;
-Display         disp;
-Menu            menu(disp);
-
 Master          gMaster;
-Event           controlsRequest(0, LIN::kFIDControls);
-Event           masterRequest(1, LIN::kFIDMasterRequest);
-Event           slaveResponse(1, LIN::kFIDSlaveResponse);
-
-
-// for timer testing
-//void blink(void *arg) { pinLINCS.toggle(); }
 
 int
 main(void)
 {
-    // Dim display backlight to reduce current & keep node PSU from
-    // overheating when the display is powered from it.
-    //
-    disp.setBacklight(10);
+    uint8_t boardMode = Board::getMode();
 
-    // Check board mode for 'recovery' mode.
-    // XXX it would be good to be able to do this earlier.
-    //
-    if (Board::getMode() != 0) {
+    if (boardMode == 0) {
+        // Board in master mode with an attached display
+
+        // Create master-mode events
+        Event   controlsRequest(0, LIN::kFIDControls);
+        Event   masterRequest(1, LIN::kFIDMasterRequest);
+        Event   slaveResponse(1, LIN::kFIDSlaveResponse);
+
+        // Enable interrupts; timers and LIN events will start.
+        //
+        sei();
+
+        // Create display and menu system
+        Display disp;
+        Menu    menu(disp);
+
+        // set the backlight low to avoid overheating the node power supply
+        disp.setBacklight(10);
+
+        // post a message to the display
+        disp.writeP(PSTR("Master Node OK"));
+        Board::delay(2000);
+
+        // spin running the UI
+        for (;;) {
+            wdt_reset();
+            menu.tick();
+        }
+
+    } else if (boardMode == 8) {
+        // In board mode 8, we are an aux switch input block without a display.
+
+        // Enable interrupts; timers and LIN events will start.
+        //
+        sei();
+
+        // spin tickling the watchdog
+        for (;;) {
+            wdt_reset();
+        }
+
+    } else {
+
+        // board is in 'recovery' mode
         Board::panic(2);
-    }
-    
-    // Enable interrupts; timers and LIN events will start.
-    //
-    sei();
-
-    // Post a message to the display
-    //
-    disp.writeP(PSTR("Master Node OK"));
-    Board::delay(2000);
-
-    // spin running the UI
-    for (;;) {
-        wdt_reset();
-        menu.tick();
     }
 }
 

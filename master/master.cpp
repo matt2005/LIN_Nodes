@@ -49,7 +49,7 @@ Event::nextEvent()
 
 Master::Master() :
     Slave(LIN::kNADMaster),
-    _eventTimer(10, (Timer::Callback)Event::nextEvent)
+    _eventTimer((Timer::Callback)Event::nextEvent, (Timer::Period)10)
 {
 }
 

@@ -8,27 +8,21 @@
 class Timer
 {
 public:
-    typedef void        (*Callback)(void *arg);  //< timer expiry callback function
+    typedef void        (*Callback)();  //< timer expiry callback function
     typedef uint16_t    Period;         //< timer period in milliseconds
 
     static const Period kMaxPeriod = ~(Period)0; // UINT16_MAX
 
-    /// Create a one-shot timer.
+    /// Construct a timer.
     ///
     /// @param callback         If set, the callback function to call when
-    ///                         the timeout expires.
+    ///                         the timeout expires, or nullptr if didExpire will
+    ///                         be used.
+    /// @param interval         The interval in ticks, or zero for a one-shot
+    ///                         timer started with setRemaining.
     /// @param arg              Passed to the callback function.
     ///
-    Timer(Callback callback = nullptr, void *arg = nullptr);
-
-    /// Create a periodic timer.
-    ///
-    /// @param interval         The interval in ticks.
-    /// @param callback         If set, the callback function to call when
-    ///                         the timeout expires.
-    /// @param arg              Passed to the callback function.
-    ///
-    Timer(Period interval, Callback callback = nullptr, void *arg = nullptr);
+    Timer(Callback callback = nullptr, Period interval = 0);
 
     /// Set the delay until the timer expires.
     ///
@@ -61,7 +55,6 @@ public:
 
 private:
     const Callback      _callback;  //< callback function or nullptr if no callback
-    void                * const _arg;
 
     volatile Period     _remaining; //< number of ticks remaining before expiry
     volatile Period     _interval;  //< reload value for periodic, 0 for one-shot
@@ -69,9 +62,5 @@ private:
 
     Timer               *_next;     //< list linkage
     static Timer        *_first;    //< list anchor
-
-    /// Initialise the timer system
-    ///
-    static void         init();
 
 };

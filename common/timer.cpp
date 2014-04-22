@@ -5,7 +5,7 @@
 #include "board.h"
 #include "timer.h"
 
-Timer *Timer::_first;
+Timer *Timer::_first = nullptr;
 
 Timer::Timer(Callback callback, void *arg) :
     _callback(callback),
@@ -15,6 +15,9 @@ Timer::Timer(Callback callback, void *arg) :
     _expired(false),
     _next(_first)
 {
+    if (_first == nullptr) {
+        init();
+    }
     _first = this;
 }
 
@@ -26,27 +29,10 @@ Timer::Timer(uint16_t interval, Callback callback, void *arg) :
     _expired(false),
     _next(_first)
 {
+    if (_first == nullptr) {
+        init();
+    }
     _first = this;
-}
-
-void
-Timer::init()
-{
-    // Reset Timer0
-    TIMSK0 = 0;     // interrupts off
-    TCCR0B = 0;     // timer off
-    TCCR0A = 0;     // output off
-    TCNT0 = 0;      // reset counter
-    OCR0A = 0;      // clear the compare value
-    ASSR = 0;
-
-    // Configure for a 1ms tick
-    TIFR0 = ((1 << OCF0A) | (1 << TOV0));   // interrupt on overflow / reset
-    TCCR0A = 0x02;                          // output off, mode 2
-    OCR0A = (F_CPU / 1000 / 64);            // tick every 1ms
-    TCCR0B = 0x04;                          // prescaler divide by 64 and timer on
-
-    TIMSK0 |= 1 << OCIE0A;                  // compare interrupt on
 }
 
 ISR(TIMER0_COMPA_vect)
@@ -87,4 +73,24 @@ Timer::tick()
         }
         t = t->_next;
     }
+}
+
+void
+Timer::init()
+{
+    // Reset Timer0
+    TIMSK0 = 0;     // interrupts off
+    TCCR0B = 0;     // timer off
+    TCCR0A = 0;     // output off
+    TCNT0 = 0;      // reset counter
+    OCR0A = 0;      // clear the compare value
+    ASSR = 0;
+
+    // Configure for a 1ms tick
+    TIFR0 = ((1 << OCF0A) | (1 << TOV0));   // interrupt on overflow / reset
+    TCCR0A = 0x02;                          // output off, mode 2
+    OCR0A = (F_CPU / 1000 / 64);            // tick every 1ms
+    TCCR0B = 0x04;                          // prescaler divide by 64 and timer on
+
+    TIMSK0 |= 1 << OCIE0A;                  // compare interrupt on
 }

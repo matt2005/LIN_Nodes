@@ -61,7 +61,7 @@ Master::doRequest(LIN::Frame &frame)
     _responseFrame = nullptr;
     sei();
 
-    return _waitRequest();
+    return waitRequest();
 }
 
 bool
@@ -72,11 +72,11 @@ Master::doRequestResponse(LIN::Frame &frame)
     _responseFrame = &frame;
     sei();
 
-    return _waitRequest();    
+    return waitRequest();    
 }
 
 bool
-Master::_waitRequest()
+Master::waitRequest()
 {
     // spin for 100ms waiting for the frame to be sent
     _requestTimer.setRemaining(100);

@@ -13,7 +13,7 @@
 class Display
 {
 public:
-    bool            init();
+    Display();
     
     void            clear();
     void            move(uint8_t x, uint8_t y) { _x = x; _y = y; }

@@ -65,7 +65,7 @@ private:
 
     /// Internal waiter for doRequest/doRequestResponse.
     ///
-    bool            _waitRequest();
+    bool            waitRequest();
 };
 
 extern Master gMaster;

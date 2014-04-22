@@ -27,15 +27,9 @@ Slave::Slave(LIN::NodeAddress nad) :
     _currentFID(0)
 {
     _slave = this;
-}
 
-void
-Slave::init()
-{
     Board::linCS(false);
-
     lin_init(LIN_2X, CONF_LINBRR);
-
     Lin_set_enable_it();
 }
 

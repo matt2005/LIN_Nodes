@@ -14,10 +14,6 @@ public:
 
     Slave(LIN::NodeAddress);
 
-    /// Perform one-time LIN initialisation.
-    ///
-    static void     init();
-
     /// Called from the transfer-complete ISR
     ///
     void            isrTC();

@@ -37,13 +37,13 @@ public:
     ///
     /// @param ticks            The number of timer ticks to wait before the timer expires.
     ///
-    void            setRemaining(Period ticks) { _remaining = ticks; _expired = false; };
+    void                setRemaining(Period ticks) { _remaining = ticks; _expired = false; };
 
     /// Adjust the interval between periodic timer expiry.
     ///
     /// @param ticks            The number of ticks to be reloaded on the next timer expiration.
     ///
-    void            setInterval(Period ticks) { _interval = ticks; }
+    void                setInterval(Period ticks) { _interval = ticks; }
 
     /// Tests whether a timer has expired.
     ///
@@ -52,16 +52,12 @@ public:
     ///
     /// @return                 True if the timer's delay has expired.
     ///
-    bool            didExpire() { bool didExpire = _expired; _expired = false; return didExpire; }
-
-    /// Initialise the timer system
-    ///
-    static void     init();
+    bool                didExpire() { bool didExpire = _expired; _expired = false; return didExpire; }
 
     /// Iterate the set of timers, decrement their remaining counts and
     /// call any applicable callbacks.
     ///
-    static void     tick();
+    static void         tick();
 
 private:
     const Callback      _callback;  //< callback function or nullptr if no callback
@@ -73,4 +69,9 @@ private:
 
     Timer               *_next;     //< list linkage
     static Timer        *_first;    //< list anchor
+
+    /// Initialise the timer system
+    ///
+    static void         init();
+
 };

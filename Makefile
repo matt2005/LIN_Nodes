@@ -1,4 +1,5 @@
-DIRS		 = aux_switches master
+#DIRS		 = aux_switches master
+DIRS		 = master
 
 MAKECMDGOALS	?= build
 TARGETS		:= $(foreach dir,$(DIRS),$(addsuffix -$(dir),$(MAKECMDGOALS)))

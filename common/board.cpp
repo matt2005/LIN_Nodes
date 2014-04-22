@@ -9,10 +9,7 @@
 
 extern "C" void panic(uint8_t code) { Board::panic(code); }
 
-namespace Board {
-
-void
-init()
+Board::Board()
 {
     // set the prescaler for maximum speed
     clock_prescale_set(clock_div_1);
@@ -35,7 +32,7 @@ init()
 }
 
 void
-panic(uint8_t code)
+Board::panic(uint8_t code)
 {
     for (;;) {
         // start in a state that doesn't risk powering us off
@@ -59,7 +56,7 @@ panic(uint8_t code)
 }
 
 uint8_t
-getMode()
+Board::getMode()
 {
     uint8_t mode = 0;
 
@@ -85,7 +82,7 @@ getMode()
 }
 
 void
-sleep()
+Board::sleep()
 {
     // by the time LINCS and LINTX are both driving 0, the board will power off
     pinLINCS.clear();
@@ -95,7 +92,7 @@ sleep()
 }
 
 void
-delay(uint16_t ms)
+Board::delay(uint16_t ms)
 {
     // try to keep the delay long for accuracy reasons
     while (ms > 0) {
@@ -114,14 +111,12 @@ delay(uint16_t ms)
     wdt_reset();
 }
 
-void
-linCS(bool state)
-{
-    if (state) {
-        pinLINCS.set();
-    } else {
-        pinLINCS.clear();
-    }
-}
-
-} // namespace Board
+//void
+//Board::linCS(bool state)
+//{
+//    if (state) {
+//        pinLINCS.set();
+//    } else {
+//        pinLINCS.clear();
+//    }
+//}

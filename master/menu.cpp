@@ -61,8 +61,8 @@ void
 ParameterMode::enter(Display &disp)
 {
     _submode = SM_NODE;
-    _setNode(0);
-    _draw(disp);
+    setNode(0);
+    draw(disp);
 }
 
 Mode *
@@ -74,19 +74,19 @@ ParameterMode::action(Display &disp, Display::Button bp)
         return &modeIdle;
 
     case Display::kButtonEnter:
-        _saveValue();
+        saveValue();
         break;
 
     case Display::kButtonDown:
         switch (_submode) {
         case SM_NODE:
-            _prevNode();
+            prevNode();
             break;
         case SM_PARAM:
-            _prevParam();
+            prevParam();
             break;
         case SM_VALUE:
-            _setValue(_value - 1);
+            setValue(_value - 1);
             break;
         }
         break;
@@ -94,13 +94,13 @@ ParameterMode::action(Display &disp, Display::Button bp)
     case Display::kButtonUp:
         switch (_submode) {
         case SM_NODE:
-            _nextNode();
+            nextNode();
             break;
         case SM_PARAM:
-            _nextParam();
+            nextParam();
             break;
         case SM_VALUE:
-            _setValue(_value + 1);
+            setValue(_value + 1);
             break;
         }
         break;
@@ -139,48 +139,48 @@ ParameterMode::action(Display &disp, Display::Button bp)
     }
 
     // update the display to handle changes
-    _draw(disp);
+    draw(disp);
 
     // no mode change
     return this;
 }
 
 void
-ParameterMode::_setNode(uint8_t node)
+ParameterMode::setNode(uint8_t node)
 {
     // parameter 0 should always be valid
     _node = node;
-    _present = _setParam(0);
+    _present = setParam(0);
 }
 
 bool
-ParameterMode::_setParam(uint8_t param)
+ParameterMode::setParam(uint8_t param)
 {
     _param = param;
-    return _load();
+    return load();
 }
 
 void
-ParameterMode::_setValue(uint16_t value)
+ParameterMode::setValue(uint16_t value)
 {
     _value = value;
     _changed = true; 
 }
 
 void
-ParameterMode::_saveValue()
+ParameterMode::saveValue()
 {
     if (_present && _changed) {
         // send the parameter to the node...
-        _save();
+        save();
 
         // read it back, clears _changed on success
-        _load();
+        load();
     }
 }
 
 bool
-ParameterMode::_load()
+ParameterMode::load()
 {
     LIN::DataDumpRequest f(_node,
                           LIN::kDataDumpGetParam,
@@ -198,7 +198,7 @@ ParameterMode::_load()
 }
 
 void
-ParameterMode::_save()
+ParameterMode::save()
 {
     LIN::DataDumpRequest f(_node,
                            LIN::kDataDumpSetParam,
@@ -210,7 +210,7 @@ ParameterMode::_save()
 }
 
 void
-ParameterMode::_draw(Display &disp)
+ParameterMode::draw(Display &disp)
 {
     disp.clear();
     disp.writeP(PSTR("Node Parm Value"));

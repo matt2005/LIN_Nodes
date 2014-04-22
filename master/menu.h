@@ -59,7 +59,7 @@ private:
     ///
     /// @param node     The new node address.
     ///
-    void            _setNode(uint8_t node);
+    void            setNode(uint8_t node);
 
     /// Set a new parameter ID and attempts to load it from the node. Updates
     /// _valid, _writable and _value, clears _changed and discards any previously 
@@ -68,43 +68,43 @@ private:
     /// @param param    The new parameter ID.
     /// @return         True if the node responds to the parameter load.
     ///
-    bool            _setParam(uint8_t param);
+    bool            setParam(uint8_t param);
 
     /// Set a new parameter value.
     ///
     /// @param value    new value for the parameter
     ///
-    void            _setValue(uint16_t value);
+    void            setValue(uint16_t value);
 
     /// Write the parameter back to the node
-    void            _saveValue();
+    void            saveValue();
 
     /// Move to the previous node
-    void            _prevNode() { if (_node > 0) _setNode(_node - 1); }
+    void            prevNode() { if (_node > 0) setNode(_node - 1); }
 
     /// Move to the next node
-    void            _nextNode() { if (_node < 255) _setNode(_node + 1); }
+    void            nextNode() { if (_node < 255) setNode(_node + 1); }
 
     /// Move to the previous parameter
-    void            _prevParam() { if (_param > 0) _setParam(_param - 1); }
+    void            prevParam() { if (_param > 0) setParam(_param - 1); }
 
     /// Move to the next parameter
-    void            _nextParam() { if (_param < 255) _setParam(_param + 1); }
+    void            nextParam() { if (_param < 255) setParam(_param + 1); }
 
     /// Send the parameter to the node.
     ///
-    void            _save();
+    void            save();
 
     /// Load the parameter from the node. Updates _valid, _writable and _value,
     /// clears _changed and discards any previously changed parameter.
     ///
     /// @return         True if the node responds to the request.
     ///
-    bool            _load();
+    bool            load();
 
     /// Draw the edit display
     ///
-    void            _draw(Display &disp);
+    void            draw(Display &disp);
 
 };
 
@@ -118,16 +118,7 @@ public:
     void            tick();
 
 private:
-
-    Display         &_disp; ///< display we are using
-
-    Mode            *_mode;         ///< current mode
-
-    ///
-    void            _m_go_idle();
-    void            _m_do_idle(Display::Button bp);
-
-    void            _m_go_param();
-    void            _m_do_param(Display::Button bp);
+    Display         &_disp;     ///< display we are using
+    Mode            *_mode;     ///< current mode
 };
 

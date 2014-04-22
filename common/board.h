@@ -62,31 +62,38 @@
 
 #endif // BOARD_NODE_V1
 
-namespace Board 
+class Board 
 {
+public:
 
-/// Perform chip- and board-level initialisation
-///
-extern void init();
+    /// Perform chip- and board-level initialisation
+    ///
+    Board();
 
-/// Panic with a status code
-///
-extern void panic(uint8_t code) __attribute__((noreturn));
+    /// Panic with a status code
+    ///
+    static void         panic(uint8_t code) __attribute__((noreturn));
 
-/// Read the board-specific mode configuration switch (if any)
-///
-extern uint8_t getMode();
+    /// Read the board-specific mode configuration switch (if any)
+    ///
+    static uint8_t      getMode();
 
-/// Put the board to sleep
-///
-extern void sleep();
+    /// Put the board to sleep
+    ///
+    static void         sleep();
 
-/// Delay for a period, keeping the watchdog at bay
-///
-extern void delay(uint16_t ms);
+    /// Delay for a period, keeping the watchdog at bay
+    ///
+    static void         delay(uint16_t ms);
 
-/// Set the LIN CS state
-///
-extern void linCS(bool state);
-
-} // namespace Board
+    /// Set the LIN CS state
+    ///
+    static void         linCS(bool state)
+    {
+        if (state) {
+            pinLINCS.set();
+        } else {
+            pinLINCS.clear();
+        }
+    }
+};

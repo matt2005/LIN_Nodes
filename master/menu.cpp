@@ -126,9 +126,7 @@ ParameterMode::action(Display &disp, Display::Button bp)
             }
             break;
         case SM_PARAM:
-            if (_valid && _writable) {
-                _submode = SM_VALUE;
-            }
+            _submode = SM_VALUE;
             break;
         default:
             break;
@@ -165,16 +163,14 @@ ParameterMode::_setParam(uint8_t param)
 void
 ParameterMode::_setValue(uint16_t value)
 {
-    if (_writable) {
-        _value = value;
-        _changed = true; 
-    }
+    _value = value;
+    _changed = true; 
 }
 
 void
 ParameterMode::_saveValue()
 {
-    if (_present && _valid && _changed) {
+    if (_present && _changed) {
         // send the parameter to the node...
         _save();
 
@@ -195,10 +191,8 @@ ParameterMode::_load()
     }
 
     _changed = false;
-    _valid = f.d1() & LIN::kParamValid;
-    _writable = f.d1() & LIN::kParamWritable;
-    _value = f.d3();
-    _value = (_value << 8) | f.d2();
+    _value = f.d2();
+    _value = (_value << 8) | f.d1();
 
     return true;
 }
@@ -237,10 +231,7 @@ ParameterMode::_draw(Display &disp)
     if (_present) {
         disp.move(6, 1);
         disp.write(_param);
-
-        if (_valid) {
-            disp.move(11, 1);
-            disp.write(_value);
-        }
+        disp.move(11, 1);
+        disp.write(_value);
     }
 }

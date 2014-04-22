@@ -99,9 +99,6 @@ enum DataDumpOperations : uint8_t
     kDataDumpSetParam   = 11,
 };
 
-static const uint8_t kParamValid = 0x01;
-static const uint8_t kParamWritable = 0x02;
-
 class DataDumpRequest : public Frame
 {
 public:

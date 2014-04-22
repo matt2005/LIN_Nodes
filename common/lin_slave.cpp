@@ -1,5 +1,6 @@
 
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 
 #include "lin_drv.h"
 #include "lin_protocol.h"
@@ -7,6 +8,9 @@
 #include "board.h"
 
 static Slave *_slave;
+
+// parameter storage
+EEMEM uint16_t Slave::parameters[Slave::maxParam];
 
 ISR(LIN_TC_vect)
 {
@@ -72,6 +76,15 @@ Slave::isrError()
 
     // clear the interrupt
     Lin_clear_err_it();
+}
+
+Slave::Param
+Slave::getParameter(uint8_t id)
+{
+    if (id >= maxParam) {
+        return 0xffff;
+    }
+    return eeprom_read_word((Param *)(id * sizeof(Param)));
 }
 
 void
@@ -158,5 +171,13 @@ Slave::masterRequest(LIN::Frame &frame)
 
         // nothing to do here
         return;
+    }
+}
+
+void
+Slave::setParameter(uint8_t id, Param value)
+{
+    if (id < maxParam) {
+        eeprom_update_word((Param *)(id * sizeof(Param)), value);
     }
 }

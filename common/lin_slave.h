@@ -10,6 +10,8 @@
 class Slave
 {
 public:
+    typedef uint16_t    Param;
+
     Slave(LIN::NodeAddress);
 
     /// Perform one-time LIN initialisation.
@@ -23,6 +25,13 @@ public:
     /// Called from the error ISR
     ///
     void            isrError();
+
+    /// Fetch a parameter
+    ///
+    /// @param id               The parameter ID
+    /// @return                 The parameter value. Illegal IDs return 0xffff.
+    ///
+    static Param    getParameter(uint8_t id);
 
 protected:
 
@@ -96,9 +105,21 @@ protected:
     ///
     virtual void    masterRequest(LIN::Frame &frame);
 
+    /// Called when a parameter change is received. The default implementation
+    /// writes the parameter to EEPROM.
+    ///
+    /// @param id               The parameter ID
+    /// @param value            The new value of the parameter
+    ///
+    virtual void    setParameter(uint8_t id, Param value);
+
 private:
+    static const uint8_t maxParam = 16; //< maximum number of supported parameters
+
     LIN::FID        _currentFID;        //< the FID from the most recently received header
     LIN::Frame      _frameBuf;          //< working buffer for frame data
     LIN::Frame      _slaveResponse;     //< slave response from previous master request
     bool            _haveSlaveResponse; //< we have a slave response ready to send
+
+    static          Param parameters[];
 };

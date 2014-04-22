@@ -52,8 +52,6 @@ private:
 
     bool            _changed:1;     ///< true if the parameter has been changed
     bool            _present:1;     ///< true if the node is present
-    bool            _valid:1;       ///< true if the parameter is valid for the node
-    bool            _writable:1;    ///< true if the parameter is writable
 
     /// Set a new node address. Resets the current parameter ID to zero
     /// and attempts to load it from the node. Updates _present, _valid, _writable 

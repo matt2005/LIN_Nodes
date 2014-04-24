@@ -35,7 +35,6 @@ Slave::Slave(LIN::NodeAddress nad) :
 {
     _slave = this;
 
-    Board::linCS(false);
     lin_init(LIN_2X, CONF_LINBRR);
     Lin_set_enable_it();
 }
@@ -144,7 +143,9 @@ Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 void
 Slave::responseSent(LIN::FID fid)
 {
-    Board::linCS(false);
+    // It would be nice to do this, but we seem to be called
+    // too soon...
+    //Board::linCS(false);
 }
 
 void

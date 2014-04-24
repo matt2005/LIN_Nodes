@@ -46,18 +46,27 @@ Slave::isrTC()
     case LIN_IDOK:
         _currentFID = Lin_get_id();
         Lin_clear_idok_it();
+#ifdef DEBUG
+        nHeader++;
+#endif
         headerReceived(_currentFID);
         break;
 
     case LIN_RXOK:
         lin_get_response(_frameBuf.buf());
         Lin_clear_rxok_it();
+#ifdef DEBUG
+        nResponseRx++;
+#endif
         responseReceived(_currentFID, _frameBuf);
         _currentFID = 0;
         break;
 
     case LIN_TXOK:
         Lin_clear_txok_it();
+#ifdef DEBUG
+        nResponseTx++;
+#endif
         responseSent(_currentFID);
         _currentFID = 0;
         break;

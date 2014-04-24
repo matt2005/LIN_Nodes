@@ -13,6 +13,14 @@ class Slave
 public:
     typedef uint16_t    Param;
 
+    static const uint8_t maxParam = 32; //< maximum number of supported parameters
+
+#ifdef DEBUG
+    volatile uint16_t   nHeader;
+    volatile uint16_t   nResponseRx;
+    volatile uint16_t   nResponseTx;
+#endif
+
     Slave(LIN::NodeAddress nad);
 
     /// Called from the transfer-complete ISR
@@ -118,8 +126,6 @@ protected:
     virtual void    setParameter(uint8_t id, Param value);
 
 private:
-    static const uint8_t maxParam = 16; //< maximum number of supported parameters
-
     Timer           _idleTimer;         //< Bus idle timer
     LIN::FID        _currentFID;        //< the FID from the most recently received header
     LIN::Frame      _frameBuf;          //< working buffer for frame data

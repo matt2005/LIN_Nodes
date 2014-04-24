@@ -186,13 +186,14 @@ ParameterMode::load()
                           LIN::kDataDumpGetParam,
                           _param);
 
-    if (!gMaster.doRequestResponse(f)) {
-        return false;
-    }
+    //if (!gMaster.doRequestResponse(f)) {
+    //    return false;
+    //}
 
     _changed = false;
-    _value = f.d2();
-    _value = (_value << 8) | f.d1();
+    _value = 2 * _node;
+    //_value = f.d2();
+    //_value = (_value << 8) | f.d1();
 
     return true;
 }
@@ -206,7 +207,7 @@ ParameterMode::save()
                            _value & 0xff,
                            _value >> 8);
 
-    gMaster.doRequest(f);
+    //gMaster.doRequest(f);
 }
 
 void

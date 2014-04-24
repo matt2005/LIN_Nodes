@@ -25,7 +25,8 @@
 
 //_____ D E F I N I T I O N S __________________________________________________
 
-#define LIN_BAUDRATE    19200       // in bit/s
+#define LIN_BAUDRATE    19200       // in bit/s - max speed
+//#define LIN_BAUDRATE    10417       // in bit/s - SAE J2602
 
 // Specific to ATtiny167
 #define LIN_PORT_IN PINA

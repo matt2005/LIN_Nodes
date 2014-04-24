@@ -42,6 +42,11 @@ private:
     Timer           _eventTimer;
     Timer           _requestTimer;
 
+    // master-mode events
+    Event           _controlsRequest;
+    Event           _masterRequest;
+    Event           _slaveResponse;
+
     LIN::Frame      * volatile _requestFrame;
     LIN::Frame      * volatile _responseFrame;
 
@@ -49,5 +54,3 @@ private:
     ///
     bool            waitRequest();
 };
-
-extern Master gMaster;

@@ -8,7 +8,10 @@
 
 Master::Master() :
     SwitchSlave(LIN::kNADMaster),
-    _eventTimer((Timer::Callback)Event::nextEvent, (Timer::Period)10)
+    _eventTimer((Timer::Callback)Event::nextEvent, (Timer::Period)10),
+    _controlsRequest(0, LIN::kFIDControls),
+    _masterRequest(1, LIN::kFIDMasterRequest),
+    _slaveResponse(1, LIN::kFIDSlaveResponse)
 {
 }
 
@@ -66,6 +69,10 @@ Master::headerReceived(LIN::FID fid)
         if (_requestFrame != nullptr) {
             sendResponse(*_requestFrame, 8);
             _requestFrame = nullptr;
+        } else {
+            LIN::Frame f(LIN::kNADMaster);
+
+            sendResponse(f, 8);
         }
         break;
 

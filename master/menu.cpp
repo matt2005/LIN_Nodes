@@ -4,17 +4,17 @@
 #include "menu.h"
 #include "master.h"
 
-// UI modes
-static IdleMode modeIdle;
-static ParameterMode modeParameter;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Toplevel menu engine
 //
-Menu::Menu(Display &disp) :
+Menu::Menu(Display &disp, Master &master) :
     _disp(disp),
-    _mode(&modeIdle)
+    _master(master),
+    _modeIdle(*this),
+    _modeParameter(*this),
+    _mode(&_modeIdle)
 {
+    _mode->enter();
 }
 
 void
@@ -23,12 +23,12 @@ Menu::tick()
     Display::Button bp = _disp.getButtonPress();
 
     // kick the mode state machine
-    Mode *newmode = _mode->action(_disp, bp);
+    Mode *newmode = _mode->action(bp);
 
     // mode change?
     if (newmode != _mode) {
         _mode = newmode;
-        _mode->enter(_disp);
+        _mode->enter();
     }
 }
 
@@ -37,19 +37,31 @@ Menu::tick()
 //
 
 void
-IdleMode::enter(Display &disp)
+Menu::IdleMode::enter()
 {
-        disp.clear();
-        disp.setBacklight(0);
+    _parent._disp.clear();
+#ifdef DEBUG
+    _parent._disp.setBacklight(10);
+#else
+    _parent._disp.setBacklight(0);
+#endif
 }
 
-Mode *
-IdleMode::action(Display &disp, Display::Button bp)
+Menu::Mode *
+Menu::IdleMode::action(Display::Button bp)
 {
     if (bp == Display::kButtonEnter) {
-        disp.setBacklight(10);
-        return &modeParameter;
+        _parent._disp.setBacklight(10);
+        return &_parent._modeParameter;
     }
+#ifdef DEBUG
+    _parent._disp.move(0, 0);
+    _parent._disp.write(_parent._master.nHeader);
+    _parent._disp.move(6, 0);
+    _parent._disp.write(_parent._master.nResponseRx);
+    _parent._disp.move(11, 0);
+    _parent._disp.write(_parent._master.nResponseTx);
+#endif
     return this;
 }
 
@@ -58,20 +70,20 @@ IdleMode::action(Display &disp, Display::Button bp)
 //
 
 void
-ParameterMode::enter(Display &disp)
+Menu::ParameterMode::enter()
 {
     _submode = SM_NODE;
     setNode(0);
-    draw(disp);
+    draw();
 }
 
-Mode *
-ParameterMode::action(Display &disp, Display::Button bp)
+Menu::Mode *
+Menu::ParameterMode::action(Display::Button bp)
 {
     switch (bp) {
 
     case Display::kButtonCancel:
-        return &modeIdle;
+        return &_parent._modeIdle;
 
     case Display::kButtonEnter:
         saveValue();
@@ -139,14 +151,14 @@ ParameterMode::action(Display &disp, Display::Button bp)
     }
 
     // update the display to handle changes
-    draw(disp);
+    draw();
 
     // no mode change
     return this;
 }
 
 void
-ParameterMode::setNode(uint8_t node)
+Menu::ParameterMode::setNode(uint8_t node)
 {
     // parameter 0 should always be valid
     _node = node;
@@ -154,21 +166,21 @@ ParameterMode::setNode(uint8_t node)
 }
 
 bool
-ParameterMode::setParam(uint8_t param)
+Menu::ParameterMode::setParam(uint8_t param)
 {
     _param = param;
     return load();
 }
 
 void
-ParameterMode::setValue(uint16_t value)
+Menu::ParameterMode::setValue(uint16_t value)
 {
     _value = value;
     _changed = true; 
 }
 
 void
-ParameterMode::saveValue()
+Menu::ParameterMode::saveValue()
 {
     if (_present && _changed) {
         // send the parameter to the node...
@@ -180,7 +192,7 @@ ParameterMode::saveValue()
 }
 
 bool
-ParameterMode::load()
+Menu::ParameterMode::load()
 {
     LIN::DataDumpRequest f(_node,
                           LIN::kDataDumpGetParam,
@@ -199,7 +211,7 @@ ParameterMode::load()
 }
 
 void
-ParameterMode::save()
+Menu::ParameterMode::save()
 {
     LIN::DataDumpRequest f(_node,
                            LIN::kDataDumpSetParam,
@@ -211,28 +223,28 @@ ParameterMode::save()
 }
 
 void
-ParameterMode::draw(Display &disp)
+Menu::ParameterMode::draw()
 {
-    disp.clear();
-    disp.writeP(PSTR("Node Parm Value"));
+    _parent._disp.clear();
+    _parent._disp.writeP(PSTR("Node Parm Value"));
 
     // mode marker
-    disp.move((uint8_t)_submode, 1);
-    disp.writeP(PSTR(">"));
+    _parent._disp.move((uint8_t)_submode, 1);
+    _parent._disp.writeP(PSTR(">"));
 
     // unsaved marker
     if (_changed) {
-        disp.move(15, 0);
-        disp.writeP(PSTR("*"));
+        _parent._disp.move(15, 0);
+        _parent._disp.writeP(PSTR("*"));
     }
 
     // values
-    disp.move(1, 1);
-    disp.write(_node);
+    _parent._disp.move(1, 1);
+    _parent._disp.write(_node);
     if (_present) {
-        disp.move(6, 1);
-        disp.write(_param);
-        disp.move(11, 1);
-        disp.write(_value);
+        _parent._disp.move(6, 1);
+        _parent._disp.write(_param);
+        _parent._disp.move(11, 1);
+        _parent._disp.write(_value);
     }
 }

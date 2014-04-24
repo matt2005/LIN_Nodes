@@ -30,3 +30,9 @@ SwitchSlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
         break;
     }
 }
+
+void
+SwitchSlave::sleepRequested()
+{
+    // XXX might be OK to sleep here, really...
+}

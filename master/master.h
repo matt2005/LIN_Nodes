@@ -36,7 +36,6 @@ public:
 protected:
     virtual void    headerReceived(LIN::FID fid) override;
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
-    virtual void    sleepRequested(SleepType type);
 
 private:
     Timer           _eventTimer;

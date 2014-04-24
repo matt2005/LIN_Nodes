@@ -3,6 +3,7 @@
 #include <avr/eeprom.h>
 
 #include "lin_drv.h"
+#include "lin_protocol.h"
 #include "lin_slave.h"
 #include "board.h"
 
@@ -21,17 +22,9 @@ ISR(LIN_ERR_vect)
     _slave->isrError();
 }
 
-void
-Slave::idleTimeout()
-{
-    _slave->sleepRequested(kSleepIdle);
-}
-
 Slave::Slave(LIN::NodeAddress nad) :
     _nad(nad),
-    _idleTimer(&Slave::idleTimeout),
-    _currentFID(LIN::kFIDNone),
-    _haveSlaveResponse(false)
+    _currentFID(0)
 {
     _slave = this;
 
@@ -115,9 +108,6 @@ Slave::headerReceived(LIN::FID fid)
         }
         break;
     }
-
-    // reset the idle timeout
-    _idleTimer.setRemaining(kIdleTimeout);
 }
 
 void
@@ -127,7 +117,7 @@ Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
     case LIN::kFIDMasterRequest:
         // check for broadcast sleep request
         if (frame.nad() == LIN::kNADSleep) {
-            sleepRequested(kSleepRequested);
+            sleepRequested();
         }
         // check for directly addressed or broadcast master request
         if ((frame.nad() == _nad) ||
@@ -148,9 +138,8 @@ Slave::responseSent(LIN::FID fid)
 }
 
 void
-Slave::sleepRequested(SleepType type)
+Slave::sleepRequested()
 {
-    // default behaviour is to behave as requested
     Board::sleep();
 }
 

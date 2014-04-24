@@ -101,9 +101,3 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
         break;
     }
 }
-
-void
-Master::sleepRequested(SleepType type)
-{
-    // Don't do anything here yet.
-}

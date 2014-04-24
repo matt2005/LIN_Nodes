@@ -14,7 +14,6 @@ typedef uint8_t FID;
 
 enum FrameID : uint8_t
 {
-    kFIDNone            = 0,
     kFIDControls        = 1,
     kFIDAuxSwitches     = 2,
 

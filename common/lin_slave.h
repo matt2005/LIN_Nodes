@@ -6,7 +6,6 @@
 #pragma once
 
 #include "lin_protocol.h"
-#include "timer.h"
 
 class Slave
 {
@@ -31,12 +30,6 @@ public:
     static Param    getParameter(uint8_t id);
 
 protected:
-
-    enum SleepType {
-        kSleepRequested,
-        kSleepIdle
-    };
-    static const uint16_t kIdleTimeout = 4000;  //< 4 seconds
 
     LIN::NodeAddress _nad;               //< node address 
 
@@ -97,10 +90,9 @@ protected:
 
     /// Called when the network is told to sleep.
     ///
-    /// @param type             Indicates whether this is a requested or idle
-    ///                         timeout sleep request.
+    /// Default behaviour is to ask the board to sleep.
     ///
-    virtual void    sleepRequested(SleepType type);
+    virtual void    sleepRequested();
 
     /// Called when a LIN::kMasterRequest response is received that addresses
     /// this node.
@@ -120,13 +112,10 @@ protected:
 private:
     static const uint8_t maxParam = 16; //< maximum number of supported parameters
 
-    Timer           _idleTimer;         //< Bus idle timer
     LIN::FID        _currentFID;        //< the FID from the most recently received header
     LIN::Frame      _frameBuf;          //< working buffer for frame data
     LIN::Frame      _slaveResponse;     //< slave response from previous master request
     bool            _haveSlaveResponse; //< we have a slave response ready to send
 
     static          Param parameters[];
-
-    static void     idleTimeout();      //< idle timeout callback
 };

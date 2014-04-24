@@ -3,7 +3,6 @@ DEBUG		 = YES
 PROG		 = master
 SRCS		 = main.cpp \
 		   display.cpp \
-		   event.cpp \
 		   master.cpp \
 		   menu.cpp \
 		   slave.cpp

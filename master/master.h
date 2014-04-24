@@ -8,7 +8,6 @@
 #include "lin_slave.h"
 #include "timer.h"
 
-#include "event.h"
 #include "slave.h"
 
 class Master : public SwitchSlave
@@ -42,13 +41,11 @@ private:
     Timer           _eventTimer;
     Timer           _requestTimer;
 
-    // master-mode events
-    Event           _controlsRequest;
-    Event           _masterRequest;
-    Event           _slaveResponse;
-
     LIN::Frame      * volatile _requestFrame;
     LIN::Frame      * volatile _responseFrame;
+
+    /// Event initiator
+    static void     event();
 
     /// Internal waiter for doRequest/doRequestResponse.
     ///

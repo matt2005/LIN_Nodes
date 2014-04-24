@@ -84,7 +84,7 @@ private:
     {
         kFINAD              = 0,    //< node address
         kFIPCI              = 1,    //< PCI (always zero) and length (low 4 bits)
-        kFISID              = 2,    //< service ID (see below)
+        kFISID              = 2,    //< service ID
         kFID1               = 3,
         kFID2               = 4,
         kFID3               = 5,

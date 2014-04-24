@@ -6,13 +6,13 @@
 #include "board.h"
 #include "master.h"
 
+static Master *_master;
+
 Master::Master() :
     SwitchSlave(LIN::kNADMaster),
-    _eventTimer((Timer::Callback)Event::nextEvent, (Timer::Period)10),
-    _controlsRequest(0, LIN::kFIDControls),
-    _masterRequest(1, LIN::kFIDMasterRequest),
-    _slaveResponse(1, LIN::kFIDSlaveResponse)
+    _eventTimer((Timer::Callback)Master::event, (Timer::Period)10)
 {
+    _master = this;
 }
 
 bool
@@ -35,6 +35,54 @@ Master::doRequestResponse(LIN::Frame &frame)
     sei();
 
     return waitRequest();    
+}
+
+void
+Master::event()
+{
+    LIN::FrameID fid = LIN::kFIDNone;
+    static uint8_t eventIndex;
+
+    // work out what header we should send now 
+    do {
+        switch (eventIndex++) {
+        case 0:
+        case 2:
+        case 4:
+        case 6:
+            // send controls
+            fid = LIN::kFIDControls;
+            break;
+
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+            // read switches
+            fid = LIN::kFIDAuxSwitches;
+            break;
+
+        case 8:
+            // MasterRequest/SlaveResponse
+            if (_master->_requestFrame != nullptr) {
+                fid = LIN::kFIDMasterRequest;
+            } else if (_master->_responseFrame != nullptr) {
+                fid = LIN::kFIDSlaveResponse;
+            }
+            break;
+
+        default:
+            // wrap
+            eventIndex = 0;
+            break;
+        }
+    } while (fid == LIN::kFIDNone);
+
+    // turn on the LIN driver
+    Board::linCS(true);
+
+    // and transmit the header
+    lin_tx_header(LIN_2X, fid, 0);
 }
 
 bool
@@ -69,10 +117,6 @@ Master::headerReceived(LIN::FID fid)
         if (_requestFrame != nullptr) {
             sendResponse(*_requestFrame, 8);
             _requestFrame = nullptr;
-        } else {
-            LIN::Frame f(LIN::kNADMaster);
-
-            sendResponse(f, 8);
         }
         break;
 

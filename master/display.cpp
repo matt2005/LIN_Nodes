@@ -13,21 +13,26 @@ Display::Display()
     // the display takes some time to boot, so wait for it...
     Board::delay(500);
 
-    USI_TWI_Master_Initialise();
+    for (uint8_t tries = 0; tries < 5; tries++) {
 
-    // ping the display
-    uint8_t pkt[] = { 0x00, 1, 0x5a };
-    if (send(&pkt[0]) == FALSE) {
-        Board::panic(3);
-    }
-    _delay_ms(5);
+        USI_TWI_Master_Initialise();
 
-    // check the ping response
-    uint8_t buf[3];
-    if ((recv(&buf[0], 3) == FALSE) || (buf[0] != 0x40) || (buf[1] != 1) || (buf[2] != 0x5a)) {
-        Board::panic(3);
+        // ping the display
+        uint8_t pkt[] = { 0x00, 1, 0x5a };
+        if (send(&pkt[0]) == FALSE) {
+            continue;
+        }
+        _delay_ms(5);
+
+        // check the ping response
+        uint8_t buf[3];
+        if ((recv(&buf[0], 3) == FALSE) || (buf[0] != 0x40) || (buf[1] != 1) || (buf[2] != 0x5a)) {
+            continue;
+        }
+        clear();
+        return;
     }
-    clear();
+    Board::panic(3);
 }
 
 void

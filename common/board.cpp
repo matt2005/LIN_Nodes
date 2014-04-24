@@ -3,6 +3,7 @@
 
 #include <avr/power.h>
 #include <avr/wdt.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 
 #include "board.h"
@@ -34,14 +35,20 @@ Board::Board()
 void
 Board::panic(uint8_t code)
 {
-    for (;;) {
-        // start in a state that doesn't risk powering us off
-        pinLINTX.set();
-        pinLINTX.cfgOutput();
-        pinLINCS.cfgOutput();
-        pinLINCS.clear();
+    // disable interrupts and wait for possible pending LIN transmit to 
+    // complete
+    cli();
+    delay(10);
 
-        _delay_ms(250);
+    // start in a state that doesn't risk powering us off
+    pinLINTX.set();
+    pinLINTX.cfgOutput();
+    pinLINCS.clear();
+    pinLINCS.cfgOutput();
+
+    for (;;) {
+
+        delay(1000);
 
         // blink the LIN CS LED with our error code
         for (uint8_t i = 0; i < code; i++) {

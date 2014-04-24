@@ -1,3 +1,4 @@
+DEBUG		 = YES
 
 PROG		 = master
 SRCS		 = main.cpp \

@@ -29,7 +29,8 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -MMD				\
 		   -I$(TOPDIR)/common		\
 		   $(DEFINES)			\
-		   -DF_CPU=8000000UL
+		   -DF_CPU=8000000UL		\
+		   $(if $(DEBUG),-DDEBUG)
 
 CFLAGS		 = $(COMPILEFLAGS)		\
 		   -std=gnu11			\
@@ -52,7 +53,10 @@ vpath %.h	$(TOPDIR)/common
 
 OBJS		:= $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
 DEPS		:= $(OBJS:.o=.d)
-ELF			:= $(BUILDDIR)/$(PROG).elf
+ELF		:= $(BUILDDIR)/$(PROG).elf
+ifeq ($(VERBOSE),)
+q		= @
+endif
 
 build:	$(ELF)
 
@@ -61,21 +65,21 @@ upload: $(ELF)
 
 $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 	@echo LINK $(notdir $@)
-	@$(CXX) -o $@ $(LDFLAGS) $(OBJS) -Wl,-Map,$@.map
-	@$(SIZE) $@
+	$q $(CXX) -o $@ $(LDFLAGS) $(OBJS) -Wl,-Map,$@.map
+	$q $(SIZE) $@
 
 clean:
 	@echo CLEAN $(BUILDDIR)
-	@rm -f $(ELF) $(OBJS) $(DEPS)
+	$q rm -f $(ELF) $(OBJS) $(DEPS)
 
 $(filter %.c.o,$(OBJS)): $(BUILDDIR)/%.o: %
 	@mkdir -p $(dir $@)
 	@echo CC $(notdir $<)
-	@$(CC) -c -o $@ $(CFLAGS) $(abspath $<)
+	$q $(CC) -c -o $@ $(CFLAGS) $(abspath $<)
 
 $(filter %.cpp.o,$(OBJS)): $(BUILDDIR)/%.o: %
 	@mkdir -p $(dir $@)
 	@echo CXX $(notdir $<)
-	@$(CXX) -c -o $@ $(CXXFLAGS) $(abspath $<)
+	$q $(CXX) -c -o $@ $(CXXFLAGS) $(abspath $<)
 
 -include $(DEPS)

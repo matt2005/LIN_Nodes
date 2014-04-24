@@ -28,6 +28,7 @@ enum NodeAddress : uint8_t
     kNADSleep           = 0,
 
     kNADMaster          = 1,    //< always NAD 1
+    kNADAuxSwitches     = 2,
 
     kNADFunctional      = 126,
     kNADBroadcast       = 127,

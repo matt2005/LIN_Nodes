@@ -5,7 +5,8 @@ SRCS		 = main.cpp \
 		   display.cpp \
 		   master.cpp \
 		   menu.cpp \
-		   slave.cpp
+		   slave.cpp \
+		   switches.cpp
 
 SRCS		+= board.cpp \
 		   lin_drv.c \

@@ -25,6 +25,9 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -funsigned-char		\
 		   -funsigned-bitfields		\
 		   -fshort-enums		\
+		   -fno-inline-small-functions	\
+		   -fno-stack-protector		\
+		   -ffreestanding		\
 		   -Wall			\
 		   -ffunction-sections		\
 		   -fdata-sections		\
@@ -45,7 +48,8 @@ CXXFLAGS	 = $(COMPILEFLAGS)		\
 
 LDFLAGS		 = $(ARCHFLAGS)			\
 		   -gdwarf-2			\
-		   -Wl,-gc-sections
+		   -Wl,-gc-sections		\
+		   -Wl,--relax
 
 vpath %.c	$(TOPDIR)/common
 vpath %.cpp	$(TOPDIR)/common

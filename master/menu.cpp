@@ -62,10 +62,9 @@ Menu::IdleMode::enter()
     // approximate free memory value
     extern uint8_t _end;
     volatile uint8_t *p = &_end;
-    uint16_t sp = ((uint16_t)SPH << 8) + SPL;
     _free = 0;
 
-    while ((*p == 0xff) && (p < (uint8_t *)sp)) {
+    while ((*p == 0xff) && (p < (uint8_t *)SP)) {
         _free++;
         p++;
     }

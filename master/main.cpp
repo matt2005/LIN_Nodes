@@ -37,9 +37,8 @@ main_init(Display &disp)
     {
         extern uint8_t _end;
         volatile uint8_t *p = &_end;
-        uint16_t sp = ((uint16_t)SPH << 8) + SPL - 32;
 
-        while (p < (uint8_t *)sp) {
+        while (p < (uint8_t *)SP) {
             *p++ = 0xff;
         }
     }

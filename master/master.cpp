@@ -10,7 +10,7 @@ static Master *_master;
 
 Master::Master() :
     SwitchSlave(LIN::kNADMaster),
-    _eventTimer((Timer::Callback)Master::event, (Timer::Period)10)
+    _eventTimer((Timer::Callback)Master::event, 10)
 {
     _master = this;
 }
@@ -88,12 +88,12 @@ Master::event()
 bool
 Master::waitRequest()
 {
+    auto then = Timer::timeNow();
+
     // spin for 100ms waiting for the frame to be sent
-    _requestTimer.setRemaining(100);
-    while (!_requestTimer.didExpire()) {
+    while (Timer::timeSince(then) < 100) {
         if ((_requestFrame == nullptr) &&
             (_responseFrame == nullptr)) {
-            _requestTimer.setRemaining(0);
             return true;
         }
     }

@@ -39,7 +39,6 @@ protected:
 
 private:
     Timer           _eventTimer;
-    Timer           _requestTimer;
 
     LIN::Frame      * volatile _requestFrame;
     LIN::Frame      * volatile _responseFrame;

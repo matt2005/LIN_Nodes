@@ -5,13 +5,13 @@
 #include "board.h"
 #include "timer.h"
 
+volatile Timer::Timeval Timer::_now = 0;
 Timer *Timer::_first = nullptr;
 
 Timer::Timer(Callback callback, uint16_t interval) :
     _callback(callback),
     _remaining(interval),
     _interval(interval),
-    _expired(false),
     _next(_first)
 {
     if (_first == nullptr) {
@@ -44,6 +44,8 @@ Timer::tick()
 {
     Timer *t = _first;
 
+    _now++;
+
     while (t != nullptr) {
         switch (t->_remaining) {
         case 0:
@@ -56,13 +58,8 @@ Timer::tick()
             // reload if periodic, otherwise set to 0
             t->_remaining = t->_interval;
 
-            // callback?
-            if (t->_callback != nullptr) {
-                t->_callback();
-            } else {
-                // mark expired
-                t->_expired = true;
-            }
+            // call the callback
+            t->_callback();
             break;
 
         default:

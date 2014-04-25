@@ -9,9 +9,9 @@ class Timer
 {
 public:
     typedef void        (*Callback)();  //< timer expiry callback function
-    typedef uint16_t    Period;         //< timer period in milliseconds
+    typedef uint16_t    Timeval;        //< timer period or value in milliseconds
 
-    static const Period kMaxPeriod = ~(Period)0; // UINT16_MAX
+    static const Timeval kMaxTimeval = ~(Timeval)0; // UINT16_MAX
 
     /// Construct a timer.
     ///
@@ -22,7 +22,7 @@ public:
     ///                         timer started with setRemaining.
     /// @param arg              Passed to the callback function.
     ///
-    Timer(Callback callback = nullptr, Period interval = 0);
+    Timer(Callback callback, Timeval interval = 0);
 
     /// Set the delay until the timer expires.
     ///
@@ -31,22 +31,31 @@ public:
     ///
     /// @param ticks            The number of timer ticks to wait before the timer expires.
     ///
-    void                setRemaining(Period ticks) { _remaining = ticks; _expired = false; };
+    void                setRemaining(Timeval ticks) { _remaining = ticks; };
 
     /// Adjust the interval between periodic timer expiry.
     ///
     /// @param ticks            The number of ticks to be reloaded on the next timer expiration.
     ///
-    void                setInterval(Period ticks) { _interval = ticks; }
+    void                setInterval(Timeval ticks) { _interval = ticks; }
 
-    /// Tests whether a timer has expired.
+    /// Returns the current time.
     ///
-    /// Timers without callbacks can use this to check whether a timer's period has
-    /// expired. Calling this function resets the expired status.
+    /// Note that due to the limited range of Timeval, time wraps every ~65 seconds.
     ///
-    /// @return                 True if the timer's delay has expired.
+    /// @return                 The current time in milliseconds
     ///
-    bool                didExpire() { bool didExpire = _expired; _expired = false; return didExpire; }
+    static Timeval      timeNow() { return _now; }
+
+    /// Returns the delta beetween some time in the past and now.
+    ///
+    /// Note that due to the limited range of Timeval, intervals greater
+    /// than ~65 seconds will be truncated.
+    ///
+    /// @param then             The time in the past
+    /// @return                 The time difference in milliseconds
+    ///
+    static Timeval      timeSince(Timeval then) { return then - _now; }
 
     /// Iterate the set of timers, decrement their remaining counts and
     /// call any applicable callbacks.
@@ -56,11 +65,11 @@ public:
 private:
     const Callback      _callback;  //< callback function or nullptr if no callback
 
-    volatile Period     _remaining; //< number of ticks remaining before expiry
-    volatile Period     _interval;  //< reload value for periodic, 0 for one-shot
-    volatile bool       _expired;   //< true if the timeout has expired
+    volatile Timeval    _remaining; //< number of ticks remaining before expiry
+    volatile Timeval    _interval;  //< reload value for periodic, 0 for one-shot
 
     Timer               *_next;     //< list linkage
-    static Timer        *_first;    //< list anchor
 
+    static Timer        *_first;    //< list anchor
+    static volatile Timeval _now;
 };

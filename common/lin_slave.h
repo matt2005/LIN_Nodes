@@ -79,7 +79,6 @@ protected:
     void            prepareSlaveResponse(LIN::Frame &frame) 
     {
         _slaveResponse = frame;
-        _haveSlaveResponse = true;
     }
 
     /// Called when a header has been received.
@@ -130,9 +129,7 @@ protected:
 private:
     Timer           _idleTimer;         //< Bus idle timer
     LIN::FID        _currentFID;        //< the FID from the most recently received header
-    LIN::Frame      _frameBuf;          //< working buffer for frame data
     LIN::Frame      _slaveResponse;     //< slave response from previous master request
-    bool            _haveSlaveResponse; //< we have a slave response ready to send
 
     static          Param parameters[];
 

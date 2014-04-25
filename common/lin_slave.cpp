@@ -27,10 +27,14 @@ Slave::idleTimeout()
 }
 
 Slave::Slave(LIN::NodeAddress nad) :
+#ifdef DEBUG
+    nHeader(0),
+    nResponseRx(0),
+    nResponseTx(0),
+#endif
     _nad(nad),
     _idleTimer(&Slave::idleTimeout),
-    _currentFID(LIN::kFIDNone),
-    _haveSlaveResponse(false)
+    _currentFID(LIN::kFIDNone)
 {
     _slave = this;
 
@@ -52,14 +56,18 @@ Slave::isrTC()
         break;
 
     case LIN_RXOK:
-        lin_get_response(_frameBuf.buf());
+    {
+        LIN::Frame f;
+
+        lin_get_response(f.buf());
         Lin_clear_rxok_it();
 #ifdef DEBUG
         nResponseRx++;
 #endif
-        responseReceived(_currentFID, _frameBuf);
+        responseReceived(_currentFID, f);
         _currentFID = 0;
         break;
+    }
 
     case LIN_TXOK:
         Lin_clear_txok_it();
@@ -107,9 +115,9 @@ Slave::headerReceived(LIN::FID fid)
 {
     switch (fid) {
     case LIN::kFIDSlaveResponse:
-        if (_haveSlaveResponse) {
+        if (_slaveResponse.sid() & LIN::kSIDResponseOffset) {
             sendResponse(_slaveResponse, 8);
-            _haveSlaveResponse = false;
+            _slaveResponse.sid() = 0;
         }
         break;
     }

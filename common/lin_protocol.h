@@ -81,7 +81,8 @@ static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
 class Frame 
 {
 public:
-    Frame(uint8_t b0 = 0,
+    Frame() {}
+    Frame(uint8_t b0,
           uint8_t b1 = 0,
           uint8_t b2 = 0,
           uint8_t b3 = 0,

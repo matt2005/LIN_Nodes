@@ -5,7 +5,7 @@
 class SwitchSlave : public Slave
 {
 public:
-    SwitchSlave(LIN::NodeAddress nad) :
+    SwitchSlave(LIN::NodeAddress nad = LIN::kNADAuxSwitches) :
         Slave(nad)
     {
     }

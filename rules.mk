@@ -17,6 +17,8 @@ FUSES		 = -U hfuse:w:0xdf:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
 
 ARCHFLAGS	 = -mmcu=$(MCU)
 DEFINES		 = -DBOARD_$(BOARD)
+
+# -O2 gives best code size, -O3 gives best RAM usage
 COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -gdwarf-2			\
 		   -O2				\

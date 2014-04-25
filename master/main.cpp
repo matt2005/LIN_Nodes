@@ -10,53 +10,61 @@
 #include "display.h"
 #include "master.h"
 #include "menu.h"
+#include "switches.h"
 
 Board           board;
+
+static void
+main_master()
+{
+    Switches    switches(0);
+    Master      master;
+    Display     disp;
+    Menu        menu(disp, master);
+
+    // enable interrupts; timers and LIN events will start.
+    sei();
+
+    // Initialise the display and set the backlight low to avoid
+    // overheating the node power supply.
+    disp.setBacklight(10);
+    disp.writeP(PSTR("Master Node OK"));
+    Board::delay(2000);
+    disp.setBacklight(0);
+
+    // spin forever running the UI and polling switches
+    for (;;) {
+        wdt_reset();
+        menu.tick();
+        switches.scan();
+    }
+}
+
+static void
+main_slave()
+{
+    Switches    switches(0);
+    Slave       slave(LIN::kNADAuxSwitches);
+
+    // enable interrupts; timers and LIN events will start.
+    sei();
+
+    // spin tickling the watchdog and checking switches
+    for (;;) {
+        wdt_reset();
+        switches.scan();
+    }
+}
 
 int
 main(void)
 {
-    uint8_t boardMode = Board::getMode();
-
-    if (boardMode == 0) {
-        // Board in master mode
-        Master          master;
-
-        // Enable interrupts; timers and LIN events will start.
-        sei();
-
-        // Initialise the display and set the backlight low to avoid
-        // overheating the node power supply.
-        Display disp;
-        disp.setBacklight(10);
-        disp.writeP(PSTR("Master Node OK"));
-        Board::delay(2000);
-
-        // Initialise the menu system
-        Menu    menu(disp, master);
-
-        // spin running the UI
-        for (;;) {
-            wdt_reset();
-            menu.tick();
-        }
-
-    } else if (boardMode == 8) {
-        // In board mode 8, we are an aux switch input block without a display.
-
-        Slave slave(LIN::kNADAuxSwitches);
-
-        // Enable interrupts; timers and LIN events will start.
-        //
-        sei();
-
-        // spin tickling the watchdog
-        for (;;) {
-            wdt_reset();
-        }
-
-    } else {
-
+    switch (Board::getMode()) {
+    case 0:
+        main_master();
+    case 8:
+        main_slave();
+    default:
         // board is in 'recovery' mode
         Board::panic(2);
     }

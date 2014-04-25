@@ -46,6 +46,7 @@
 # define pinMOSI    portA[4]
 # define pinMISO    portA[2]
 # define pinSCK     portA[5]
+# define pinCS      portB[1]
 
 # define pinSDA     portB[0]
 # define pinSCL     portB[2]

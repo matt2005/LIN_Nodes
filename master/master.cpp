@@ -51,7 +51,7 @@ Master::event()
         case 4:
         case 6:
             // send controls
-            fid = LIN::kFIDControls;
+            fid = LIN::kFIDRelays;
             break;
 
         case 1:
@@ -106,7 +106,7 @@ void
 Master::headerReceived(LIN::FID fid)
 {
     switch (fid) {
-    case LIN::kFIDControls:
+    case LIN::kFIDRelays:
         break;
 
     case LIN::kFIDMasterRequest:

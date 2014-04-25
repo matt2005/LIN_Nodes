@@ -10,7 +10,7 @@ void
 SwitchSlave::headerReceived(LIN::FID fid)
 {
     switch (fid) {
-    case LIN::kFIDControls:
+    case LIN::kFIDRelays:
         /// XXX send control state here
         break;
 

@@ -15,7 +15,7 @@ typedef uint8_t FID;
 enum FrameID : uint8_t
 {
     kFIDNone            = 0,
-    kFIDControls        = 1,
+    kFIDRelays          = 1,
     kFIDAuxSwitches     = 2,
 
     kFIDMasterRequest   = 0x3c,
@@ -40,6 +40,40 @@ enum ServiceID : uint8_t
     kSIDDataDump        = 0xb4,
 
     kSIDResponseOffset  = 0x40
+};
+
+enum SwitchID : uint8_t
+{
+    kSWNone             = 0,
+
+    kSWIgnition         = 1,
+    kSWLights           = 2,
+    kSWLowBeam          = 3,
+    kSWHighBeam         = 4,
+    kSWHighBeamToggle   = 5,
+    kSWFog              = 6,
+    kSWLeftTurn         = 7,
+    kSWRightTurn        = 8,
+    kSWBrake            = 9,
+    kSWReverse          = 10,
+    kSWDoor             = 11,
+    kSWInteriorLight    = 12,
+};
+
+enum RelayID : uint8_t
+{
+    kRelayNone          = 0,
+
+    kRelayLights        = 1,
+    kRelayLowBeam       = 2,
+    kRelayHighBeam      = 3,
+    kRelayFog           = 4,
+    kRelayParking       = 5,
+    kRelayLeftTurn      = 6,
+    kRelayRightTurn     = 7,
+    kRelayBrake         = 8,
+    kRelayReverse       = 9,
+    kRelayInterior      = 10,
 };
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number

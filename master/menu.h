@@ -47,6 +47,24 @@ private:
 
         virtual void    enter() override;
         virtual Mode    *action(Display::Button bp);
+
+    private:
+        uint16_t        _free;
+    };
+
+    class ExploreMode : public Mode
+    {
+    public:
+        ExploreMode(Menu &parent) : Mode(parent) {}
+
+        virtual void    enter() override;
+        virtual Mode    *action(Display::Button bp);
+
+    private:
+
+        uint8_t         _node;
+        bool            _present;
+        void            check();
     };
 
     class ParameterMode : public Mode
@@ -133,6 +151,7 @@ private:
 
     IdleMode        _modeIdle;
     ParameterMode   _modeParameter;
+    ExploreMode     _modeExplore;
     Mode            *_mode;     ///< current mode
 };
 

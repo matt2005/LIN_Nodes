@@ -12,6 +12,7 @@ Menu::Menu(Display &disp, Master &master) :
     _master(master),
     _modeIdle(*this),
     _modeParameter(*this),
+    _modeExplore(*this),
     _mode(&_modeIdle)
 {
     _mode->enter();
@@ -33,6 +34,21 @@ Menu::tick()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Menu stubs
+//
+
+void
+Menu::Mode::enter()
+{
+}
+
+Menu::Mode *
+Menu::Mode::action(Display::Button bp)
+{
+    return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Idle mode
 //
 
@@ -42,6 +58,18 @@ Menu::IdleMode::enter()
     _parent._disp.clear();
 #ifdef DEBUG
     _parent._disp.setBacklight(10);
+
+    // approximate free memory value
+    extern uint8_t _end;
+    volatile uint8_t *p = &_end;
+    uint16_t sp = ((uint16_t)SPH << 8) + SPL;
+    _free = 0;
+
+    while ((*p == 0xff) && (p < (uint8_t *)sp)) {
+        _free++;
+        p++;
+    }
+
 #else
     _parent._disp.setBacklight(0);
 #endif
@@ -54,6 +82,10 @@ Menu::IdleMode::action(Display::Button bp)
         _parent._disp.setBacklight(10);
         return &_parent._modeParameter;
     }
+    if (bp == Display::kButtonDown) {
+        _parent._disp.setBacklight(10);
+        return &_parent._modeExplore;
+    }
 #ifdef DEBUG
     _parent._disp.move(0, 0);
     _parent._disp.write(_parent._master.nHeader);
@@ -61,8 +93,65 @@ Menu::IdleMode::action(Display::Button bp)
     _parent._disp.write(_parent._master.nResponseRx);
     _parent._disp.move(11, 0);
     _parent._disp.write(_parent._master.nResponseTx);
+
+    _parent._disp.move(0, 1);
+    _parent._disp.write(_free);
+    _parent._disp.move(6, 1);
+    _parent._disp.write((uint16_t)sizeof(Master));    
 #endif
     return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Explore mode
+//
+
+void
+Menu::ExploreMode::enter()
+{
+    _parent._disp.clear();
+    _node = LIN::kNADMaster;
+    check();
+}
+
+Menu::Mode *
+Menu::ExploreMode::action(Display::Button bp)
+{
+    switch (bp) {
+    case Display::kButtonCancel:
+        return &_parent._modeIdle;
+
+    case Display::kButtonDown:
+        if (_node > LIN::kNADMaster) {
+            _node--;
+            check();
+        }
+        break;
+
+    case Display::kButtonUp:
+        if (_node < (LIN::kNADMaster + 15)) {
+            _node++;
+            check();
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return this;
+}
+
+void
+Menu::ExploreMode::check()
+{
+    _present = true;
+
+    _parent._disp.clear();
+    _parent._disp.move(0, 0);
+    _parent._disp.write(_node);
+    _parent._disp.move(4, 0);
+    _parent._disp.writeP(_present ? PSTR("found") : PSTR("missing"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

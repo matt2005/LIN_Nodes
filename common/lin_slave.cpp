@@ -1,6 +1,5 @@
 
 #include <avr/interrupt.h>
-#include <avr/eeprom.h>
 
 #include "lin_drv.h"
 #include "lin_slave.h"
@@ -85,15 +84,6 @@ Slave::isrError()
 
     // clear the interrupt
     Lin_clear_err_it();
-}
-
-Slave::Param
-Slave::getParameter(uint8_t id)
-{
-    if (id >= maxParam) {
-        return 0xffff;
-    }
-    return eeprom_read_word((Param *)(id * sizeof(Param)));
 }
 
 void

@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <avr/eeprom.h>
+
 #include "lin_protocol.h"
 #include "timer.h"
 
@@ -31,12 +33,12 @@ public:
     ///
     void            isrError();
 
-    /// Fetch a parameter
+    /// Read a parameter from EEPROM
     ///
     /// @param id               The parameter ID
-    /// @return                 The parameter value. Illegal IDs return 0xffff.
+    /// @return                 The value of the parameter
     ///
-    static Param    getParameter(uint8_t id);
+    static uint16_t  getParameter(uint8_t id) { return eeprom_read_word((const uint16_t *)0 + id); }
 
 protected:
 

@@ -1,4 +1,5 @@
 
+#include "board.h"
 #include "lin_protocol.h"
 
 #include "menu.h"
@@ -56,22 +57,7 @@ void
 Menu::IdleMode::enter()
 {
     _parent._disp.clear();
-#ifdef DEBUG
-    _parent._disp.setBacklight(10);
-
-    // approximate free memory value
-    extern uint8_t _end;
-    volatile uint8_t *p = &_end;
-    _free = 0;
-
-    while ((*p == 0xff) && (p < (uint8_t *)SP)) {
-        _free++;
-        p++;
-    }
-
-#else
     _parent._disp.setBacklight(0);
-#endif
 }
 
 Menu::Mode *
@@ -85,19 +71,7 @@ Menu::IdleMode::action(Display::Button bp)
         _parent._disp.setBacklight(10);
         return &_parent._modeExplore;
     }
-#ifdef DEBUG
-    _parent._disp.move(0, 0);
-    _parent._disp.write(_parent._master.nHeader);
-    _parent._disp.move(6, 0);
-    _parent._disp.write(_parent._master.nResponseRx);
-    _parent._disp.move(11, 0);
-    _parent._disp.write(_parent._master.nResponseTx);
 
-    _parent._disp.move(0, 1);
-    _parent._disp.write(_free);
-    _parent._disp.move(6, 1);
-    _parent._disp.write((uint16_t)sizeof(Master));    
-#endif
     return this;
 }
 

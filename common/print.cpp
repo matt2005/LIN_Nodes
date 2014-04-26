@@ -58,7 +58,7 @@ Print::printfP(PGM_P fmt, ...)
         }
 
         // initalise formatter
-        uint8_t w = 5;
+        uint8_t w = 0;
 
 nextfmt:
         c = pgm_read_byte(fmt++);
@@ -72,7 +72,11 @@ nextfmt:
             goto nextfmt;
 
         case 'u':
-            _write(va_arg(ap, unsigned), w);
+            _write(va_arg(ap, unsigned), w ? w : 5);
+            break;
+
+        case 'x':
+            _writex(va_arg(ap, unsigned), w ? w : 4);
             break;
 
         default:
@@ -107,4 +111,19 @@ Print::_write(uint16_t n, uint8_t width)
         pos--;
     } 
     write(&buf[0]);
+}
+
+void
+Print::_writex(uint16_t n, uint8_t width)
+{
+    while (width > 0) {
+        uint8_t d = (n >> 4 * (width - 1)) & 0xf;
+
+        if (d <= 9) {
+            _write('0' + d);
+        } else {
+            _write('a' + d - 10);
+        }
+        width--;
+    }
 }

@@ -55,7 +55,7 @@ public:
     /// @param then             The time in the past
     /// @return                 The time difference in milliseconds
     ///
-    static Timeval      timeSince(Timeval then) { return then - _now; }
+    static Timeval      timeSince(Timeval then) { return _now - then; }
 
     /// Iterate the set of timers, decrement their remaining counts and
     /// call any applicable callbacks.

@@ -61,6 +61,8 @@
 
 # define pinINT0    portB[6]
 
+# define pinDebugTX portA[7]
+
 #endif // BOARD_NODE_V1
 
 class Board 

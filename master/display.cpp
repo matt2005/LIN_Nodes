@@ -1,5 +1,4 @@
 
-#include <util/delay.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 
@@ -153,22 +152,12 @@ Display::crc(uint8_t *ptr)
 }
 
 void
-Display::_write(const char *s, Reader r)
+Display::_write(uint8_t c)
 {
-    uint8_t pkt[20] = { kOPWrite, 2, _x, _y };
-
-    // copy bytes via the reader into the packet
-    for (uint8_t pos = 4; (pos < 20); pos++) {
-        uint8_t c = r(s++);
-        if (c == 0) {
-            break;
-        }
-        pkt[pos] = c;
-        pkt[1]++;
-        _x++;
-    }
+    uint8_t pkt[20] = { kOPWrite, 3, _x, _y, c };
 
     // send packet and wait for an acknowledgement
     send(&pkt[0]);
     waitAck(kOPWrite);
+    _x++;
 }

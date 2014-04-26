@@ -1,3 +1,4 @@
+#include <stdarg.h>
 
 #include <avr/pgmspace.h>
 
@@ -6,13 +7,21 @@
 void
 Print::write(const char *s)
 {
-    _write(s, readChar);
+    uint8_t c;
+
+    while ((c = *s++) != 0) {
+        _write(c);
+    }
 }
 
 void
 Print::writeP(PGM_P s)
 {
-    _write(s, readCharP);
+    uint8_t c;
+
+    while ((c = pgm_read_byte(s++)) != 0) {
+        _write(c);
+    }
 }
 
 void
@@ -25,6 +34,11 @@ void
 Print::write(uint16_t n)
 {
     _write(n, 5);
+}
+
+void
+Print::printf(PGM_P fmt, ...)
+{
 }
 
 void
@@ -52,17 +66,5 @@ Print::_write(uint16_t n, uint8_t width)
         clear = true;
         pos--;
     } 
-    _write(&buf[0], readChar);
-}
-
-uint8_t
-Print::readChar(const char *p)
-{
-    return *p++;
-}
-
-uint8_t
-Print::readCharP(const char *p)
-{
-    return pgm_read_byte(p++);
+    write(&buf[0]);
 }

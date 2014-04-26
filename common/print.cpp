@@ -71,6 +71,10 @@ nextfmt:
             w = c - '0';
             goto nextfmt;
 
+        case 'p':
+            _write('0');
+            _write('x');
+            /* FALLTHROUGH */
         case 'u':
             _write(va_arg(ap, unsigned), w ? w : 5);
             break;

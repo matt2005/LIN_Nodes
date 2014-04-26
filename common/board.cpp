@@ -39,7 +39,7 @@ Board::Board()
 void
 Board::panic(uint8_t code)
 {
-    debug("panic %3u @ %u", code, __builtin_return_address(0));
+    debug("panic %3u @ %p", code, __builtin_return_address(0));
 
     // disable interrupts and wait for possible pending LIN transmit to 
     // complete

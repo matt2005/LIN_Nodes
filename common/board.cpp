@@ -8,6 +8,10 @@
 
 #include "board.h"
 
+#ifdef DEBUG
+Serial       Board::debugPort;
+#endif
+
 extern "C" void panic(uint8_t code) { Board::panic(code); }
 
 Board::Board()
@@ -35,6 +39,8 @@ Board::Board()
 void
 Board::panic(uint8_t code)
 {
+    debug("panic %3u @ %u", code, __builtin_return_address(0));
+
     // disable interrupts and wait for possible pending LIN transmit to 
     // complete
     cli();

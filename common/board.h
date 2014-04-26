@@ -6,6 +6,7 @@
 #pragma once
 
 #include "pin.h"
+#include "softserial.h"
 
 // The V1 power board mostly looks like a V1 node, but it has additional names for
 // the hardwired pins.
@@ -103,4 +104,15 @@ public:
             pinLINCS.clear();
         }
     }
+
+#if defined(DEBUG) && defined(pinDebugTX)
+    /// Debug serial port
+    ///
+    static Serial       debugPort;
+
+# define debug(fmt, args...)    Board::debugPort.printfP(PSTR(fmt "\n"), ## args)
+#else
+# define debug(fmt, args)       do {} while(0)
+#endif
+
 };

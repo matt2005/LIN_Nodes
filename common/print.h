@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <stdarg.h>
+
 #include <avr/pgmspace.h>
 
 class Print

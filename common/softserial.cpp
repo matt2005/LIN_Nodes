@@ -5,9 +5,7 @@
 #include "softserial.h"
 #include "board.h"
 
-#ifndef pinDebugTX
-# error No pinDebugTX defined for this board
-#endif
+#ifdef pinDebugTX
 
 // 57600
 #define BIT_DELAY  17
@@ -70,3 +68,7 @@ Serial::tx(uint8_t c)
 
     sei();
 }
+
+#else
+# error No pinDebugTX defined for this board
+#endif

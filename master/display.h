@@ -40,7 +40,6 @@ public:
 
 protected:
     virtual void    _write(const char *s, Reader r) override;
-    virtual void    _write(uint16_t n, uint8_t width) override;
     
 private:
 

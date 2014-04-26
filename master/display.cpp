@@ -172,31 +172,3 @@ Display::_write(const char *s, Reader r)
     send(&pkt[0]);
     waitAck(kOPWrite);
 }
-
-void
-Display::_write(uint16_t n, uint8_t width)
-{
-    char buf[6];
-    uint8_t pos = width;
-    bool clear = false;
-
-    buf[pos--] = 0;
-    buf[pos] = '0';
-    
-    for (;;) {
-        if (n > 0) {
-            buf[pos] = '0' + n % 10;
-            n /= 10;
-        } else {
-            if (clear) {
-                buf[pos] = ' ';
-            }
-        }
-        if (pos == 0) {
-            break;
-        }
-        clear = true;
-        pos--;
-    } 
-    _write(&buf[0], readChar);
-}

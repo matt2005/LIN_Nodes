@@ -23,7 +23,7 @@ private:
 
         /// Called when the mode is activated.
         ///
-        virtual void    enter();
+        virtual void    enter() = 0;
 
         /// Kick the mode state machine.
         ///
@@ -34,7 +34,7 @@ private:
         /// @return         The mode that is current following processing of
         ///                 this call; should return this if no mode change.
         ///
-        virtual Mode    *action(Display::Button bp);
+        virtual Mode    *action(Display::Button bp) = 0;
 
     protected:
         Menu            &_parent;

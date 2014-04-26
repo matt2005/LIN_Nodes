@@ -35,21 +35,6 @@ Menu::tick()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Menu stubs
-//
-
-void
-Menu::Mode::enter()
-{
-}
-
-Menu::Mode *
-Menu::Mode::action(Display::Button bp)
-{
-    return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Idle mode
 //
 
@@ -136,6 +121,8 @@ Menu::ParameterMode::enter()
 {
     _submode = SM_NODE;
     setNode(0);
+    _parent._disp.clear();
+    _parent._disp.writeP(PSTR("Node Parm Value"));
     draw();
 }
 
@@ -287,18 +274,17 @@ Menu::ParameterMode::save()
 void
 Menu::ParameterMode::draw()
 {
-    _parent._disp.clear();
-    _parent._disp.writeP(PSTR("Node Parm Value"));
+    // clear edit line
+    _parent._disp.move(0, 1);
+    _parent._disp.writeP(PSTR("                "));     // XXX inefficient
 
     // mode marker
     _parent._disp.move((uint8_t)_submode, 1);
     _parent._disp.writeP(PSTR(">"));
 
     // unsaved marker
-    if (_changed) {
-        _parent._disp.move(15, 0);
-        _parent._disp.writeP(PSTR("*"));
-    }
+    _parent._disp.move(15, 0);
+    _parent._disp.writeP(_changed ? PSTR("*") : PSTR(" "));
 
     // values
     _parent._disp.move(1, 1);

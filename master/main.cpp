@@ -29,6 +29,7 @@ master_init(Display &disp)
     disp.writeP(PSTR("Master Node OK"));
     Board::msDelay(2000);
     disp.setBacklight(0);
+    disp.clear();
 
     // fill (most of) the stack with 0xff for sniffing purposes
     {

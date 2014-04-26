@@ -12,6 +12,7 @@ SRCS		+= board.cpp \
 		   lin_drv.c \
 		   lin_slave.cpp \
 		   print.cpp \
+		   softserial.cpp \
 		   timer.cpp \
 		   USI_TWI_Master.c
 

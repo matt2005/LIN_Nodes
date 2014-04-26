@@ -83,9 +83,13 @@ public:
     ///
     static void         sleep();
 
-    /// Delay for a period, keeping the watchdog at bay
+    /// Delay for a period in milliseconds, keeping the watchdog at bay
     ///
-    static void         delay(uint16_t ms);
+    static void         msDelay(uint16_t ms);
+
+    /// Delay for a period in microseconds
+    ///
+    static void         usDelay(uint16_t us);
 
     /// Set the LIN CS state
     ///

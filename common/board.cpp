@@ -4,7 +4,7 @@
 #include <avr/power.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
+#include <util/delay_basic.h>
 
 #include "board.h"
 
@@ -38,7 +38,7 @@ Board::panic(uint8_t code)
     // disable interrupts and wait for possible pending LIN transmit to 
     // complete
     cli();
-    delay(10);
+    msDelay(10);
 
     // start in a state that doesn't risk powering us off
     pinLINTX.set();
@@ -48,16 +48,16 @@ Board::panic(uint8_t code)
 
     for (;;) {
 
-        delay(1000);
+        msDelay(1000);
 
         // blink the LIN CS LED with our error code
         for (uint8_t i = 0; i < code; i++) {
             wdt_reset();
             pinLINCS.set();
-            _delay_ms(200);
+            msDelay(200);
             wdt_reset();
             pinLINCS.clear();
-            _delay_ms(200);            
+            msDelay(200);            
         }
     }
 }
@@ -74,7 +74,7 @@ Board::getMode()
     pinMode8.cfgInputPullUp();
 
     // sample the mode pins
-    _delay_ms(10);              // allow inputs to settle
+    msDelay(10);                // allow inputs to settle
 
     if (!pinMode1.get())        // 1 bits are pulled low
         mode |= 1;
@@ -99,23 +99,25 @@ Board::sleep()
 }
 
 void
-Board::delay(uint16_t ms)
+Board::msDelay(uint16_t ms)
 {
-    // try to keep the delay long for accuracy reasons
     while (ms > 0) {
         wdt_reset();
-        if (ms > 100) {
-            _delay_ms(100);
-            ms -= 100;
-        } else if (ms > 10) {
-            _delay_ms(10);
-            ms -= 10;
-        } else {
-            _delay_ms(1);
-            ms--;
-        }
+        usDelay(1000);   // XXX approximate
+        ms--;
     }
     wdt_reset();
+}
+
+void
+Board::usDelay(uint16_t us)
+{
+
+    // _delay_loop_2 consumes 4 cycles per count, so convert microseconds to
+    // units of 4 cycles
+    us *= F_CPU / 4000000UL;
+
+    _delay_loop_2(us);
 }
 
 //void

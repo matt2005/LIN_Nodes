@@ -11,7 +11,7 @@
 Display::Display()
 {
     // the display takes some time to boot, so wait for it...
-    Board::delay(500);
+    Board::msDelay(500);
 
     for (uint8_t tries = 0; tries < 5; tries++) {
 
@@ -22,7 +22,7 @@ Display::Display()
         if (send(&pkt[0]) == FALSE) {
             continue;
         }
-        _delay_ms(5);
+        Board::msDelay(5);
 
         // check the ping response
         uint8_t buf[3];

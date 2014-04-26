@@ -26,7 +26,7 @@ main_init(Display &disp)
     // overheating the node power supply.
     disp.setBacklight(10);
     disp.writeP(PSTR("Master Node OK"));
-    Board::delay(2000);
+    Board::msDelay(2000);
 #ifndef DEBUG
     disp.setBacklight(0);
 #else
@@ -43,7 +43,6 @@ main_init(Display &disp)
         }
     }
 }
-
 
 static void
 main_master()

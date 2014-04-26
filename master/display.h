@@ -39,7 +39,7 @@ public:
     Button         getButtonPress();
 
 protected:
-    virtual void    _write(const char *s, Reader r) override;
+    virtual void   _write(uint8_t c) override;
     
 private:
 
@@ -63,5 +63,4 @@ private:
     bool            recv(uint8_t *pkt, uint8_t pktlen);
     bool            waitAck(uint8_t opcode);
     void            crc(uint8_t *pkt);
-
 };

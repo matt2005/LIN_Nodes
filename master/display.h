@@ -56,8 +56,8 @@ private:
 
     static const uint8_t    kACK            = 0x40;
 
-    uint8_t         _x;
-    uint8_t         _y;
+    uint8_t         _x:4;
+    uint8_t         _y:4;
 
     bool            send(const uint8_t *pkt);
     bool            recv(uint8_t *pkt, uint8_t pktlen);

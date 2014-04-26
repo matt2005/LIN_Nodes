@@ -7,21 +7,19 @@
 
 #pragma once
 
-#include <avr/pgmspace.h>
-#include "stdint.h"
+#include <stdint.h>
 
-class Display
+#include <avr/pgmspace.h>
+
+#include "print.h"
+
+class Display : public Print
 {
 public:
     Display();
     
     void            clear();
     void            move(uint8_t x, uint8_t y) { _x = x; _y = y; }
-    
-    void            write(const char *s) { write(s, readChar); }
-    void            writeP(PGM_P s)      { write(s, readCharP); }
-    void            write(uint8_t n)     { write(n, 3); }
-    void            write(uint16_t n)    { write(n, 5); }
 
     void            setBacklight(uint8_t value);
 
@@ -40,9 +38,11 @@ public:
     ///
     Button         getButtonPress();
 
+protected:
+    virtual void    _write(const char *s, Reader r) override;
+    virtual void    _write(uint16_t n, uint8_t width) override;
     
 private:
-    typedef uint8_t (*Reader)(const char *p);
 
     static const uint8_t    kReadAddress    = 0x55;
     static const uint8_t    kWriteAddress   = 0x54;
@@ -65,9 +65,4 @@ private:
     bool            waitAck(uint8_t opcode);
     void            crc(uint8_t *pkt);
 
-    void            write(const char *s, Reader r, uint8_t count = 16);
-    void            write(uint16_t n, uint8_t width);
-
-    static uint8_t  readChar(const char *p);
-    static uint8_t  readCharP(const char *p);
 };

@@ -11,6 +11,7 @@ SRCS		 = main.cpp \
 SRCS		+= board.cpp \
 		   lin_drv.c \
 		   lin_slave.cpp \
+		   print.cpp \
 		   timer.cpp \
 		   USI_TWI_Master.c
 

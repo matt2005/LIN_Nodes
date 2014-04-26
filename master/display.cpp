@@ -153,12 +153,12 @@ Display::crc(uint8_t *ptr)
 }
 
 void
-Display::write(const char *s, Reader r, uint8_t count)
+Display::_write(const char *s, Reader r)
 {
     uint8_t pkt[20] = { kOPWrite, 2, _x, _y };
 
     // copy bytes via the reader into the packet
-    for (uint8_t pos = 4; (pos < 20) && (count > 0); pos++, count--) {
+    for (uint8_t pos = 4; (pos < 20); pos++) {
         uint8_t c = r(s++);
         if (c == 0) {
             break;
@@ -174,7 +174,7 @@ Display::write(const char *s, Reader r, uint8_t count)
 }
 
 void
-Display::write(uint16_t n, uint8_t width)
+Display::_write(uint16_t n, uint8_t width)
 {
     char buf[6];
     uint8_t pos = width;
@@ -198,18 +198,5 @@ Display::write(uint16_t n, uint8_t width)
         clear = true;
         pos--;
     } 
-    write(&buf[0]);
+    _write(&buf[0], readChar);
 }
-
-uint8_t
-Display::readChar(const char *p)
-{
-    return *p++;
-}
-
-uint8_t
-Display::readCharP(const char *p)
-{
-    return pgm_read_byte(p++);
-}
-

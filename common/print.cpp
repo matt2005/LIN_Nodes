@@ -37,14 +37,54 @@ Print::write(uint16_t n)
 }
 
 void
-Print::printf(PGM_P fmt, ...)
+Print::printfP(PGM_P fmt, ...)
 {
+    va_list ap;
+    uint8_t c;
+
+    va_start(ap, fmt);
+
+    while ((c = pgm_read_byte(fmt++)) != 0) {
+
+        // nl -> cr,nl
+        if (c == '\n') {
+            _write('\r');
+        }
+
+        // non-format characters
+        if (c != '%') {
+            _write(c);
+            continue;
+        }
+
+        // initalise formatter
+        uint8_t w = 5;
+
+nextfmt:
+        c = pgm_read_byte(fmt++);
+
+        switch(c) {
+        case '\0':                  // sanity
+            return;
+
+        case '1'...'9':
+            w = c - '0';
+            goto nextfmt;
+
+        case 'u':
+            _write(va_arg(ap, unsigned), w);
+            break;
+
+        default:
+            break;
+        }
+    }
 }
 
 void
 Print::_write(uint16_t n, uint8_t width)
 {
-    char buf[6];
+    char buf[width + 1];
     uint8_t pos = width;
     bool clear = false;
 

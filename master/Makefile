@@ -16,5 +16,6 @@ SRCS		+= board.cpp \
 		   USI_TWI_Master.c
 
 BOARD		 = NODE_V1
+#FUSES		 = $(RES_FUSES)
 
 include ../rules.mk

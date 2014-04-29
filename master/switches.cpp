@@ -6,6 +6,8 @@
 Switches::Switches(uint8_t paramBase) :
     _paramBase(paramBase)
 {
+    return;
+
     // do pin configuration
     pinMOSI.cfgOutput();
     pinMISO.cfgInputNoPull();

@@ -103,13 +103,19 @@ Menu::ExploreMode::action(Display::Button bp)
 void
 Menu::ExploreMode::check()
 {
-    _present = true;
-
     _parent._disp.clear();
     _parent._disp.move(0, 0);
     _parent._disp.write(_node);
     _parent._disp.move(4, 0);
-    _parent._disp.writeP(_present ? PSTR("found") : PSTR("missing"));
+
+    LIN::Frame f = LIN::Frame::makeReadByIDRequest(_node, LIN::kRBIProductID);
+    if (!_parent._master.doRequestResponse(f)) {
+        _present = false;
+        _parent._disp.writeP(PSTR("missing"));
+    } else {
+        _present = true;
+        _parent._disp.writeP(PSTR("found"));
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

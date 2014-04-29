@@ -17,12 +17,6 @@ public:
 
     static const uint8_t maxParam = 32; //< maximum number of supported parameters
 
-#ifdef DEBUG
-    volatile uint16_t   nHeader;
-    volatile uint16_t   nResponseRx;
-    volatile uint16_t   nResponseTx;
-#endif
-
     Slave(LIN::NodeAddress nad);
 
     /// Called from the transfer-complete ISR
@@ -38,7 +32,20 @@ public:
     /// @param id               The parameter ID
     /// @return                 The value of the parameter
     ///
-    static uint16_t  getParameter(uint8_t id) { return eeprom_read_word((const uint16_t *)0 + id); }
+    static uint16_t getParameter(uint8_t id) { return eeprom_read_word((const uint16_t *)0 + id); }
+
+    void            masterTest();
+
+    enum Error : uint8_t {
+        kErrLine,
+        kErrChecksum,
+        kErrParity,
+        kErrFraming,
+        kErrSynchronisation,
+        kErrMax
+    };
+
+    uint16_t        errors[kErrMax];     //< error counters
 
 protected:
 
@@ -59,6 +66,13 @@ protected:
     ///
     void            requestResponse(uint8_t length);
     
+    /// Send a LIN header. This is strictly speaking a master function, but
+    /// it shares functionality with the slave.
+    ///
+    /// @param fid              The Frame ID to send in the header.
+    ///
+    void            sendHeader(LIN::FrameID fid);
+
     /// Send a response.
     ///
     /// Subclass implementation of headerReceived will call when it wants ti

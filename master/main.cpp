@@ -23,6 +23,7 @@ static void master_status(Master &master) __attribute__((noinline));
 static void
 master_init(Display &disp)
 {
+    debug("master init");
     // Initialise the display and set the backlight low to avoid
     // overheating the node power supply.
     disp.setBacklight(10);
@@ -66,7 +67,7 @@ main_master()
     // spin forever running the UI and polling switches
     for (;;) {
         wdt_reset();
-        menu.tick();
+        //menu.tick();
         switches.scan();
 #ifdef DEBUG
         master_status(master);
@@ -79,6 +80,10 @@ main_slave()
 {
     Switches    switches;
     SwitchSlave slave;
+
+    debug("%3u free", Board::freemem());
+
+    slave.masterTest();
 
     // enable interrupts; timers and LIN events will start.
     sei();
@@ -95,8 +100,10 @@ main(void)
 {
     switch (Board::getMode()) {
     case 0:
+        debug("master mode");
         main_master();
     case 8:
+        debug("slave mode");
         main_slave();
     default:
         // board is in 'recovery' mode

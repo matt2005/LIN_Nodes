@@ -50,7 +50,7 @@ Master::event(void *arg)
         case 4:
         case 6:
             // send controls
-            fid = LIN::kFIDRelays;
+            fid = LIN::kFIDNonsense; //LIN::kFIDRelays;
             break;
 
         case 1:
@@ -58,7 +58,7 @@ Master::event(void *arg)
         case 5:
         case 7:
             // read switches
-            fid = LIN::kFIDAuxSwitches;
+            fid = LIN::kFIDNonsense; //LIN::kFIDAuxSwitches;
             break;
 
         case 8:
@@ -77,11 +77,15 @@ Master::event(void *arg)
         }
     } while (fid == LIN::kFIDNone);
 
+    // stubbed out noise packets
+    if (fid == LIN::kFIDNonsense)
+        return;
+
     // turn on the LIN driver
     Board::linCS(true);
 
     // and transmit the header
-    lin_tx_header(LIN_2X, fid, 0);
+    master->sendHeader(fid);
 }
 
 bool
@@ -90,7 +94,7 @@ Master::waitRequest()
     auto then = Timer::timeNow();
 
     // spin for 100ms waiting for the frame to be sent
-    while (Timer::timeSince(then) < 100) {
+    while (Timer::timeSince(then) < 500) {
         if ((_requestFrame == nullptr) &&
             (_responseFrame == nullptr)) {
             return true;

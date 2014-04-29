@@ -9,7 +9,6 @@ SRCS		 = main.cpp \
 		   switches.cpp
 
 SRCS		+= board.cpp \
-		   lin_drv.c \
 		   lin_slave.cpp \
 		   print.cpp \
 		   softserial.cpp \

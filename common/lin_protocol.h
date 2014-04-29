@@ -10,6 +10,9 @@
 namespace LIN
 {
 
+//
+// LIN frame IDs
+//
 typedef uint8_t FID;
 
 enum FrameID : uint8_t
@@ -19,29 +22,15 @@ enum FrameID : uint8_t
     kFIDAuxSwitches     = 2,
 
     kFIDMasterRequest   = 0x3c,
-    kFIDSlaveResponse   = 0x3d
+    kFIDSlaveResponse   = 0x3d,
+
+    kFIDTest            = 0x14,
+    kFIDNonsense        = 0xff
 };
 
-
-enum NodeAddress : uint8_t
-{
-    kNADSleep           = 0,
-
-    kNADMaster          = 1,    //< always NAD 1
-    kNADAuxSwitches     = 2,
-
-    kNADFunctional      = 126,
-    kNADBroadcast       = 127,
-};
-
-enum ServiceID : uint8_t
-{
-    kSIDReadByID        = 0xb2,
-    kSIDDataDump        = 0xb4,
-
-    kSIDResponseOffset  = 0x40
-};
-
+//
+// Switch IDs for AuxSwitches
+//
 enum SwitchID : uint8_t
 {
     kSWNone             = 0,
@@ -60,6 +49,9 @@ enum SwitchID : uint8_t
     kSWInteriorLight    = 12,
 };
 
+//
+// Relay IDs for Relays
+//
 enum RelayID : uint8_t
 {
     kRelayNone          = 0,
@@ -76,11 +68,48 @@ enum RelayID : uint8_t
     kRelayInterior      = 10,
 };
 
+//
+// LIN node addresses for MasterRequest/SlaveResponse
+//
+enum NodeAddress : uint8_t
+{
+    kNADSleep           = 0,
+
+    kNADMaster          = 1,    //< always NAD 1
+    kNADAuxSwitches     = 2,
+    kNADPowerBase       = 3,
+
+    kNADFunctional      = 126,
+    kNADBroadcast       = 127,
+};
+
+//
+// LIN service IDs for  MasterRequest/SlaveResponse
+//
+enum ServiceID : uint8_t
+{
+    kSIDReadByID        = 0xb2,
+    kSIDDataDump        = 0xb4,
+
+    kSIDResponseOffset  = 0x40
+};
+
+//
+// Identifier for ReadByID
+//
+enum ReadByID : uint8_t {
+    kRBIProductID       = 0,
+    kRBISerialNumber    = 1,
+    kRBIErrorCounters   = 32
+};
+
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
 
 class Frame 
 {
 public:
+
+    // Generic constructor
     Frame() {}
     Frame(uint8_t b0,
           uint8_t b1 = 0,
@@ -101,8 +130,18 @@ public:
         _b[7] = b7;
     }
 
+    // ReadByID request factory
+    static Frame    makeReadByIDRequest(uint8_t nad, ReadByID flavor)
+    {
+        Frame f(nad, 2, kSIDReadByID, flavor);
+
+        return f;
+    }
+
+    // field access by index
     uint8_t &operator[](uint8_t index) { return _b[index]; }
 
+    // field access by name
     uint8_t     &nad()   { return _b[kFINAD]; }
     uint8_t     &pci()   { return _b[kFIPCI]; }
     uint8_t     &sid()   { return _b[kFISID]; }
@@ -112,6 +151,7 @@ public:
     uint8_t     &d4()    { return _b[kFID4]; }
     uint8_t     &d5()    { return _b[kFID5]; }
 
+    // direct buffer access
     uint8_t     *buf()   { return &_b[0]; }
 
 private:
@@ -130,6 +170,14 @@ private:
     uint8_t _b[8];
 };
 
+class ReadByIDRequest : public Frame
+{
+public:
+    ReadByIDRequest(uint8_t nad, ReadByID flavor) :
+        Frame(nad, 2, kSIDReadByID, flavor)
+    {}
+};
+
 enum DataDumpOperations : uint8_t 
 {
     kDataDumpGetParam   = 10,
@@ -145,7 +193,7 @@ public:
                     uint8_t d3 = 0,
                     uint8_t d4 = 0,
                     uint8_t d5 = 0) :
-    Frame(nad, 0x06, kSIDDataDump, d1, d2, d3, d4, d5)
+        Frame(nad, 0x06, kSIDDataDump, d1, d2, d3, d4, d5)
     {}
 };
 
@@ -158,9 +206,11 @@ public:
                     uint8_t d3 = 0,
                     uint8_t d4 = 0,
                     uint8_t d5 = 0) :
-    Frame(nad, 0x06, kSIDDataDump | kSIDResponseOffset, d1, d2, d3, d4, d5)
+        Frame(nad, 0x06, kSIDDataDump | kSIDResponseOffset, d1, d2, d3, d4, d5)
     {}
 };
+
+
 
 } // namespace LIN
 

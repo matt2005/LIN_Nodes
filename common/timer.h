@@ -8,7 +8,7 @@
 class Timer
 {
 public:
-    typedef void        (*Callback)();  //< timer expiry callback function
+    typedef void        (*Callback)(void *arg);  //< timer expiry callback function
     typedef uint16_t    Timeval;        //< timer period or value in milliseconds
 
     static const Timeval kMaxTimeval = ~(Timeval)0; // UINT16_MAX
@@ -22,7 +22,7 @@ public:
     ///                         timer started with setRemaining.
     /// @param arg              Passed to the callback function.
     ///
-    Timer(Callback callback, Timeval interval = 0);
+    Timer(Callback callback, void *arg = nullptr, Timeval interval = 0);
 
     /// Set the delay until the timer expires.
     ///
@@ -63,7 +63,8 @@ public:
     static void         tick();
 
 private:
-    const Callback      _callback;  //< callback function or nullptr if no callback
+    const Callback      _callback;  //< callback function
+    void               *const _arg;      //< callback function argument
 
     volatile Timeval    _remaining; //< number of ticks remaining before expiry
     volatile Timeval    _interval;  //< reload value for periodic, 0 for one-shot

@@ -133,5 +133,7 @@ private:
 
     static          Param parameters[];
 
-    static void     idleTimeout();      //< idle timeout callback
+    static void     idleTimeout(void *arg); //< idle timeout callback
+    static void     waitBusy();         //< wait while the LIN block is busy
+
 };

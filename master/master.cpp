@@ -6,13 +6,10 @@
 #include "board.h"
 #include "master.h"
 
-static Master *_master;
-
 Master::Master() :
     SwitchSlave(LIN::kNADMaster),
-    _eventTimer((Timer::Callback)Master::event, 10)
+    _eventTimer((Timer::Callback)Master::event, this, 10)
 {
-    _master = this;
 }
 
 bool
@@ -38,8 +35,10 @@ Master::doRequestResponse(LIN::Frame &frame)
 }
 
 void
-Master::event()
+Master::event(void *arg)
 {
+    auto *master = (Master *)arg;
+
     LIN::FrameID fid = LIN::kFIDNone;
     static uint8_t eventIndex;
 
@@ -64,9 +63,9 @@ Master::event()
 
         case 8:
             // MasterRequest/SlaveResponse
-            if (_master->_requestFrame != nullptr) {
+            if (master->_requestFrame != nullptr) {
                 fid = LIN::kFIDMasterRequest;
-            } else if (_master->_responseFrame != nullptr) {
+            } else if (master->_responseFrame != nullptr) {
                 fid = LIN::kFIDSlaveResponse;
             }
             break;

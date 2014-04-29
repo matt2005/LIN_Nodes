@@ -8,8 +8,9 @@
 volatile Timer::Timeval Timer::_now = 0;
 Timer *Timer::_first = nullptr;
 
-Timer::Timer(Callback callback, uint16_t interval) :
+Timer::Timer(Callback callback, void *arg, uint16_t interval) :
     _callback(callback),
+    _arg(arg),
     _remaining(interval),
     _interval(interval),
     _next(_first)
@@ -59,7 +60,7 @@ Timer::tick()
             t->_remaining = t->_interval;
 
             // call the callback
-            t->_callback();
+            t->_callback(t->_arg);
             break;
 
         default:

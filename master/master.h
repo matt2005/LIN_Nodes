@@ -44,7 +44,7 @@ private:
     LIN::Frame      * volatile _responseFrame;
 
     /// Event initiator
-    static void     event();
+    static void     event(void *arg);
 
     /// Internal waiter for doRequest/doRequestResponse.
     ///

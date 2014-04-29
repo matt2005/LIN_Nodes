@@ -21,7 +21,7 @@ ISR(LIN_ERR_vect)
 }
 
 void
-Slave::idleTimeout()
+Slave::idleTimeout(void *_arg)
 {
     _slave->sleepRequested(kSleepIdle);
 }

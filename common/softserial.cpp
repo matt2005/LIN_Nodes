@@ -43,6 +43,7 @@ Serial::_write(uint8_t c)
 void
 Serial::tx(uint8_t c)
 {
+    uint8_t sreg = SREG;
     cli();
 
     // start bit
@@ -66,7 +67,7 @@ Serial::tx(uint8_t c)
     tunedDelay(BIT_DELAY);
     tunedDelay(BIT_DELAY);
 
-    sei();
+    SREG = sreg;
 }
 
 #else

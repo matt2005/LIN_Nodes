@@ -11,9 +11,11 @@ SIZE		 = avr-size
 AVRDUDE		 = avrdude
 
 MCU		 = attiny167
-FUSES		 = -U hfuse:w:0xdf:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
-# To enable DebugWire: (does not work with the jtagice-ii-cn)
-#FUSES		 = -U hfuse:w:0x9f:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
+
+# default fusing is for the internal oscillator
+OSC_FUSES	 = -U hfuse:w:0xdf:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
+RES_FUSES	 = -U hfuse:w:0xdf:m -U efuse:w:0xff:m -U lfuse:w:0x6c:m
+FUSES		?= $(OSC_FUSES)
 
 ARCHFLAGS	 = -mmcu=$(MCU)
 DEFINES		 = -DBOARD_$(BOARD)

@@ -25,15 +25,15 @@ Board::Board()
     // start the watchdog
     wdt_enable(WDTO_500MS);
 
-    // LINCS/LINTX start tristated, keep them asserted as we turn it into an output
-    // to avoid any risk of accidentally powering ourselves off.
-    //
-    pinLINCS.set();
-    pinLINCS.cfgOutput();
-    pinLINTX.set();
-    pinLINTX.cfgOutput();
+    // fill (most of) the stack with 0xff for sniffing purposes
+    {
+        extern uint8_t _end;
+        volatile uint8_t *p = &_end;
 
-    // LIN pins are re-configured by the driver
+        while (p < (uint8_t *)SP) {
+            *p++ = 0xff;
+        }
+    }
 }
 
 void
@@ -124,6 +124,22 @@ Board::usDelay(uint16_t us)
     us *= F_CPU / 4000000UL;
 
     _delay_loop_2(us);
+}
+
+uint16_t
+Board::freemem()
+{
+    // approximate free memory value
+    extern uint8_t _end;
+    volatile uint8_t *p = &_end;
+    uint16_t mem = 0;
+
+    while ((*p == 0xff) && (p < (uint8_t *)SP)) {
+        mem++;
+        p++;
+    }
+
+    return mem;
 }
 
 //void

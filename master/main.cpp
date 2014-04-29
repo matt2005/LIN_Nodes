@@ -31,15 +31,6 @@ master_init(Display &disp)
     disp.setBacklight(0);
     disp.clear();
 
-    // fill (most of) the stack with 0xff for sniffing purposes
-    {
-        extern uint8_t _end;
-        volatile uint8_t *p = &_end;
-
-        while (p < (uint8_t *)SP) {
-            *p++ = 0xff;
-        }
-    }
 }
 
 static void
@@ -51,18 +42,7 @@ master_status(Master &master)
     if (Timer::timeSince(last) > 2000) {
         last = Timer::timeNow();
 
-        // approximate free memory value
-        extern uint8_t _end;
-        volatile uint8_t *p = &_end;
-        uint16_t free = 0;
-
-        while ((*p == 0xff) && (p < (uint8_t *)SP)) {
-            free++;
-            p++;
-        }
-
-        debug("%u: %3u free", Timer::timeNow(), free);
-        debug("  %u headers %u responseRX %u responseTX", master.nHeader, master.nResponseRx, master.nResponseTx);
+        debug("%3u free", Board::freemem());
     }
 }
 
@@ -73,6 +53,9 @@ main_master()
     Master      master;
     Display     disp;
     Menu        menu(disp, master);
+
+    // after everything has been constructed...
+    debug("%3u free", Board::freemem());
 
     // enable interrupts; timers and LIN events will start.
     sei();

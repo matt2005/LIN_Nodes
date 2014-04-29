@@ -94,6 +94,12 @@ public:
     ///
     static void         usDelay(uint16_t us);
 
+    /// Check free space between stack and BSS
+    ///
+    /// @return         The number of free bytes left between the BSS and stack
+    ///
+    static uint16_t     freemem();
+
     /// Set the LIN CS state
     ///
     static void         linCS(bool state)

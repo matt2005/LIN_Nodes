@@ -3,17 +3,10 @@
 #pragma once
 
 #include "board.h"
-#include "lin_slave.h"
 
-class Switches
+class MC33972
 {
 public:
-    Switches(uint8_t paramBase = 0);
-
-    void                scan() { cmd(kCMDStatus); }
-    bool                operator[](LIN::SwitchID id);
-
-private:
     enum Input : uint8_t
     {
         kInputSG0   = 0,
@@ -38,11 +31,15 @@ private:
         kInputSP5,
         kInputSP6,
         kInputSP7,
-        kInputMax,
-
-        kInputNone  = 255
+        kInputMax
     };
 
+    MC33972();
+
+    void                scan() { cmd(kCMDStatus); }
+    bool                test(Input inp) const { return _buf[inp / 8] & (1 << (inp & 0x7)); }
+
+private:
     enum Command : uint8_t {
         kCMDStatus          = 0x00,
         kCMDSettings        = 0x01,
@@ -61,13 +58,8 @@ private:
     };
 
     uint8_t                 _buf[3];
-    const uint8_t           _paramBase;
 
     void                    transfer(uint8_t *buf);
     void                    cmd(Command cmd, uint8_t op1 = 0, uint8_t op2 = 0);
 
-    LIN::SwitchID       getAssignment(uint8_t in) const 
-    {
-        return (LIN::SwitchID)Slave::getParameter(in + _paramBase); 
-    }
 };

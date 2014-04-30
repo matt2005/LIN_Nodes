@@ -129,6 +129,6 @@ private:
     static void     idleTimeout(void *arg); //< idle timeout callback
     static void     waitBusy();         //< wait while the LIN block is busy
 
-    LIN::FrameID    currentFID() const { return (LIN::FrameID)Lin_get_id(); }
+    LIN::FrameID    currentFID() { return (LIN::FrameID)Lin_get_id(); }
 
 };

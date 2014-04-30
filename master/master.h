@@ -10,7 +10,7 @@
 
 #include "slave.h"
 
-class Master : public SwitchSlave
+class Master : public Slave
 {
 public:
     Master();

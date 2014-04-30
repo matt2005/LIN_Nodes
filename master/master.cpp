@@ -7,7 +7,7 @@
 #include "master.h"
 
 Master::Master() :
-    SwitchSlave(LIN::kNADMaster),
+    Slave(LIN::kNADMaster),
     _eventTimer((Timer::Callback)Master::event, this, 10)
 {
 }
@@ -114,7 +114,7 @@ Master::headerReceived(LIN::FID fid)
 
     case LIN::kFIDMasterRequest:
         // do slave processing first (may reset state, arrange to listen, etc)
-        SwitchSlave::headerReceived(fid);
+        Slave::headerReceived(fid);
 
         // if we have a request to send, commit it to the wire
         if (_requestFrame != nullptr) {
@@ -128,11 +128,11 @@ Master::headerReceived(LIN::FID fid)
         requestResponse(8);
 
         // and do slave processing
-        SwitchSlave::headerReceived(fid);
+        Slave::headerReceived(fid);
         break;
 
     default:
-        SwitchSlave::headerReceived(fid);
+        Slave::headerReceived(fid);
         break;
     }
 }
@@ -151,7 +151,7 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
         break;
 
     default:
-        SwitchSlave::responseReceived(fid, frame);
+        Slave::responseReceived(fid, frame);
         break;
     }
 }

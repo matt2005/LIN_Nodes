@@ -249,16 +249,16 @@ Menu::ParameterMode::saveValue()
 bool
 Menu::ParameterMode::load()
 {
-    LIN::DataDumpRequest f(_node,
-                          LIN::kDataDumpGetParam,
-                          _param);
+//    LIN::DataDumpRequest f(_node,
+//                          LIN::kDataDumpGetParam,
+//                          _param);
 
-    //if (!gMaster.doRequestResponse(f)) {
-    //    return false;
-    //}
+//    //if (!gMaster.doRequestResponse(f)) {
+//    //    return false;
+//    //}
 
-    _changed = false;
-    _value = 2 * _node;
+//    _changed = false;
+//    _value = 2 * _node;
     //_value = f.d2();
     //_value = (_value << 8) | f.d1();
 
@@ -268,12 +268,12 @@ Menu::ParameterMode::load()
 void
 Menu::ParameterMode::save()
 {
-    LIN::DataDumpRequest f(_node,
-                           LIN::kDataDumpSetParam,
-                           _param,
-                           _value & 0xff,
-                           _value >> 8);
-
+//    LIN::DataDumpRequest f(_node,
+//                           LIN::kDataDumpSetParam,
+//                           _param,
+//                           _value & 0xff,
+//                           _value >> 8);
+//
     //gMaster.doRequest(f);
 }
 
@@ -288,10 +288,6 @@ Menu::ParameterMode::draw()
     _parent._disp.move((uint8_t)_submode, 1);
     _parent._disp.writeP(PSTR(">"));
 
-    // unsaved marker
-    _parent._disp.move(15, 0);
-    _parent._disp.writeP(_changed ? PSTR("*") : PSTR(" "));
-
     // values
     _parent._disp.move(1, 1);
     _parent._disp.write(_node);
@@ -301,4 +297,8 @@ Menu::ParameterMode::draw()
         _parent._disp.move(11, 1);
         _parent._disp.write(_value);
     }
+
+    // unsaved marker
+    _parent._disp.move(14, 1);
+    _parent._disp.writeP(_changed ? PSTR("*") : PSTR(" "));
 }

@@ -121,7 +121,7 @@ private:
         void            prevNode() { if (_node > 0) setNode(_node - 1); }
 
         /// Move to the next node
-        void            nextNode() { if (_node < Slave::maxParam) setNode(_node + 1); }
+        void            nextNode() { if (_node < Parameter::maxIndex) setNode(_node + 1); }
 
         /// Move to the previous parameter
         void            prevParam() { if (_param > 0) setParam(_param - 1); }

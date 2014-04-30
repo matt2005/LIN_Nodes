@@ -8,8 +8,6 @@
 #include "lin_slave.h"
 #include "timer.h"
 
-#include "slave.h"
-
 class Master : public Slave
 {
 public:

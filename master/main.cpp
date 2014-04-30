@@ -5,20 +5,17 @@
 
 #include "board.h"
 #include "lin_protocol.h"
+#include "mc33972.h"
+#include "softserial.h"
 
 #include "display.h"
 #include "master.h"
 #include "menu.h"
-#include "switches.h"
-#include "softserial.h"
 
 Board           board;
 
 static void master_init(Display &disp) __attribute__((noinline));
-static void main_master() __attribute__((noreturn,noinline));
-static void main_slave() __attribute__((noreturn,noinline));
 static void master_status(Master &master) __attribute__((noinline));
-
 
 static void
 master_init(Display &disp)
@@ -47,10 +44,15 @@ master_status(Master &master)
     }
 }
 
-static void
-main_master()
+void
+main(void)
 {
-    Switches    switches;
+    if (Board::getMode() != 0) {
+        // board is in 'recovery' mode
+        Board::panic(2);
+    }
+
+    MC33972     switches;
     Master      master;
     Display     disp;
     Menu        menu(disp, master);
@@ -73,41 +75,6 @@ main_master()
         master_status(master);
 #endif
     }
-}
 
-static void
-main_slave()
-{
-    Switches    switches;
-    SwitchSlave slave;
-
-    debug("%3u free", Board::freemem());
-
-    slave.masterTest();
-
-    // enable interrupts; timers and LIN events will start.
-    sei();
-
-    // spin tickling the watchdog and checking switches
-    for (;;) {
-        wdt_reset();
-        switches.scan();
-    }
-}
-
-void
-main(void)
-{
-    switch (Board::getMode()) {
-    case 0:
-        debug("master mode");
-        main_master();
-    case 8:
-        debug("slave mode");
-        main_slave();
-    default:
-        // board is in 'recovery' mode
-        Board::panic(2);
-    }
 }
 

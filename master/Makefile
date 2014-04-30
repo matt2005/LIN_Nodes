@@ -4,12 +4,11 @@ PROG		 = master
 SRCS		 = main.cpp \
 		   display.cpp \
 		   master.cpp \
-		   menu.cpp \
-		   slave.cpp \
-		   switches.cpp
+		   menu.cpp
 
 SRCS		+= board.cpp \
 		   lin_slave.cpp \
+		   mc33972.cpp \
 		   print.cpp \
 		   softserial.cpp \
 		   timer.cpp \

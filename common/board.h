@@ -6,6 +6,7 @@
 #pragma once
 
 #include "pin.h"
+#include "parameter.h"
 #include "softserial.h"
 
 // V1 relay node
@@ -31,6 +32,11 @@
 # define pinLINCS       portA[6]
 
 # define pinDebugTX     portA[7]
+
+#define paramRelay1Assign   Parameter(1)
+#define paramRelay2Assign   Parameter(2)
+#define paramRelay3Assign   Parameter(3)
+#define paramRelay4Assign   Parameter(4)
 
 #endif // BOARD_POWER_V1
 

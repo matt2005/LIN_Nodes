@@ -8,9 +8,6 @@
 
 static Slave *_slave;
 
-// parameter storage
-EEMEM uint16_t Slave::parameters[Slave::maxParam];
-
 ISR(LIN_TC_vect)
 {
     _slave->isrTC();
@@ -339,14 +336,6 @@ Slave::masterRequest(LIN::Frame &frame)
             return;
         }
         prepareSlaveResponse(frame);
-    }
-}
-
-void
-Slave::setParameter(uint8_t id, Param value)
-{
-    if (id < maxParam) {
-        eeprom_update_word((Param *)(id * sizeof(Param)), value);
     }
 }
 

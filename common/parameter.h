@@ -7,6 +7,8 @@
 class Parameter
 {
 public:
+    static const uint8_t    maxIndex = UINT8_MAX;
+
     constexpr Parameter(uint8_t index) : _index(index) {}
 
     uint8_t     get() const { return eeprom_read_byte((uint8_t *)0 + _index); }

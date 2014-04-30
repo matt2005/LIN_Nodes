@@ -13,10 +13,6 @@
 class Slave
 {
 public:
-    typedef uint16_t    Param;
-
-    static const uint8_t maxParam = 32; //< maximum number of supported parameters
-
     Slave(LIN::NodeAddress nad);
 
     /// Called from the transfer-complete ISR
@@ -27,21 +23,16 @@ public:
     ///
     void            isrError();
 
-    /// Read a parameter from EEPROM
-    ///
-    /// @param id               The parameter ID
-    /// @return                 The value of the parameter
-    ///
-    static uint16_t getParameter(uint8_t id) { return eeprom_read_word((const uint16_t *)0 + id); }
-
+    // test mode
     void            masterTest();
 
     enum Error : uint8_t {
-        kErrLine,
-        kErrChecksum,
-        kErrParity,
-        kErrFraming,
-        kErrSynchronisation,
+        kErrLine,                       //< readback error when transmitting
+        kErrChecksum,                   //< received data checksum mismatch
+        kErrParity,                     //< header parity error
+        kErrFraming,                    //< framing error
+        kErrSynchronisation,            //< bitrate synchronisation error
+        kErrProtocol,                   //< slave protocol error
         kErrMax
     };
 
@@ -132,20 +123,10 @@ protected:
     ///
     virtual void    masterRequest(LIN::Frame &frame);
 
-    /// Called when a parameter change is received. The default implementation
-    /// writes the parameter to EEPROM.
-    ///
-    /// @param id               The parameter ID
-    /// @param value            The new value of the parameter
-    ///
-    virtual void    setParameter(uint8_t id, Param value);
-
 private:
     Timer           _idleTimer;         //< Bus idle timer
     LIN::FID        _currentFID;        //< the FID from the most recently received header
     LIN::Frame      _slaveResponse;     //< slave response from previous master request
-
-    static          Param parameters[];
 
     static void     idleTimeout(void *arg); //< idle timeout callback
     static void     waitBusy();         //< wait while the LIN block is busy

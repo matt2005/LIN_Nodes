@@ -29,24 +29,26 @@ enum FrameID : uint8_t
 };
 
 //
-// Switch IDs for AuxSwitches
+// Switch IDs
 //
 enum SwitchID : uint8_t
 {
-    kSWNone             = 0,
-
-    kSWIgnition         = 1,
+    kSWIgnition         = 0,
+    kSWStart            = 1,
     kSWLights           = 2,
     kSWLowBeam          = 3,
     kSWHighBeam         = 4,
     kSWHighBeamToggle   = 5,
-    kSWFog              = 6,
+    kSWFogLight         = 6,
     kSWLeftTurn         = 7,
     kSWRightTurn        = 8,
     kSWBrake            = 9,
     kSWReverse          = 10,
     kSWDoor             = 11,
     kSWInteriorLight    = 12,
+    kSWHazard           = 13,
+
+    kSWMax
 };
 
 //
@@ -54,18 +56,18 @@ enum SwitchID : uint8_t
 //
 enum RelayID : uint8_t
 {
-    kRelayNone          = 0,
+    kRelayLights        = 0,
+    kRelayLowBeam       = 1,
+    kRelayHighBeam      = 2,
+    kRelayFog           = 3,
+    kRelayParking       = 4,
+    kRelayLeftTurn      = 5,
+    kRelayRightTurn     = 6,
+    kRelayBrake         = 7,
+    kRelayReverse       = 8,
+    kRelayInterior      = 9,
 
-    kRelayLights        = 1,
-    kRelayLowBeam       = 2,
-    kRelayHighBeam      = 3,
-    kRelayFog           = 4,
-    kRelayParking       = 5,
-    kRelayLeftTurn      = 6,
-    kRelayRightTurn     = 7,
-    kRelayBrake         = 8,
-    kRelayReverse       = 9,
-    kRelayInterior      = 10,
+    kRelayMax
 };
 
 //
@@ -100,7 +102,7 @@ enum ServiceID : uint8_t
 enum ReadByID : uint8_t {
     kRBIProductID       = 0,
     kRBISerialNumber    = 1,
-    kRBIErrorCounters   = 32
+    kRBIErrorCounters   = 32,
 };
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
@@ -169,47 +171,6 @@ private:
 
     uint8_t _b[8];
 };
-
-class ReadByIDRequest : public Frame
-{
-public:
-    ReadByIDRequest(uint8_t nad, ReadByID flavor) :
-        Frame(nad, 2, kSIDReadByID, flavor)
-    {}
-};
-
-enum DataDumpOperations : uint8_t 
-{
-    kDataDumpGetParam   = 10,
-    kDataDumpSetParam   = 11,
-};
-
-class DataDumpRequest : public Frame
-{
-public:
-    DataDumpRequest(uint8_t nad,
-                    uint8_t d1 = 0,
-                    uint8_t d2 = 0,
-                    uint8_t d3 = 0,
-                    uint8_t d4 = 0,
-                    uint8_t d5 = 0) :
-        Frame(nad, 0x06, kSIDDataDump, d1, d2, d3, d4, d5)
-    {}
-};
-
-class DataDumpResponse : public Frame
-{
-public:
-    DataDumpResponse(uint8_t nad,
-                    uint8_t d1 = 0,
-                    uint8_t d2 = 0,
-                    uint8_t d3 = 0,
-                    uint8_t d4 = 0,
-                    uint8_t d5 = 0) :
-        Frame(nad, 0x06, kSIDDataDump | kSIDResponseOffset, d1, d2, d3, d4, d5)
-    {}
-};
-
 
 
 } // namespace LIN

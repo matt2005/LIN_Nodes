@@ -1,4 +1,4 @@
-DIRS		 = master
+DIRS		 = master relays
 MAKECMDGOALS	?= build
 TARGETS		:= $(foreach dir,$(DIRS),$(addsuffix -$(dir),$(MAKECMDGOALS)))
 

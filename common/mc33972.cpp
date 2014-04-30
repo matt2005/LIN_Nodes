@@ -1,9 +1,9 @@
 
 #include <avr/io.h>
 
-#include "mx33972.h"
+#include "mc33972.h"
 
-MC33972::MC33972(uint8_t paramBase) :
+MC33972::MC33972() :
     _buf{0, 0, 0}
 {
     return;

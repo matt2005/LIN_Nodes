@@ -5,8 +5,7 @@
 
 #pragma once
 
-#include <avr/eeprom.h>
-
+#include "lin_drv.h"
 #include "lin_protocol.h"
 #include "timer.h"
 
@@ -125,10 +124,11 @@ protected:
 
 private:
     Timer           _idleTimer;         //< Bus idle timer
-    LIN::FID        _currentFID;        //< the FID from the most recently received header
     LIN::Frame      _slaveResponse;     //< slave response from previous master request
 
     static void     idleTimeout(void *arg); //< idle timeout callback
     static void     waitBusy();         //< wait while the LIN block is busy
+
+    LIN::FrameID    currentFID() const { return (LIN::FrameID)Lin_get_id(); }
 
 };

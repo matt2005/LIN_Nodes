@@ -2,7 +2,6 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 
-#include "lin_drv.h"
 #include "lin_slave.h"
 #include "board.h"
 
@@ -26,8 +25,7 @@ Slave::idleTimeout(void *_arg)
 
 Slave::Slave(LIN::NodeAddress nad) :
     _nad(nad),
-    _idleTimer(&Slave::idleTimeout),
-    _currentFID(LIN::kFIDNone)
+    _idleTimer(&Slave::idleTimeout)
 {
     _slave = this;
 
@@ -100,12 +98,11 @@ Slave::isrTC()
 {
     if (Is_lin_header_ready()) {
 
-        // get the FID and ack the interrupt
-        _currentFID = Lin_get_id();
+        // ack the interrupt
         Lin_clear_idok_it();
 
         // handle the header
-        headerReceived(_currentFID);
+        headerReceived(currentFID());
 
     }
 
@@ -128,19 +125,12 @@ Slave::isrTC()
         Lin_clear_rxok_it();
 
         // handle the frame
-        responseReceived(_currentFID, f);
-
-        // clear the current FID, since we have seen its frame
-        _currentFID = LIN::kFIDNone;
-
+        responseReceived(currentFID(), f);
     }
 
     if (LINSIR & (1 << LTXOK)) {
 
-        responseSent(_currentFID);
-
-        // clear the current FID, since we have sent its frame
-        _currentFID = LIN::kFIDNone;
+        responseSent(currentFID());
 
         // and clear the interrupt
         Lin_clear_txok_it();
@@ -180,7 +170,7 @@ Slave::requestResponse(uint8_t length)
     waitBusy();
 
     // select 1x mode for FIDs that require it
-    if (_currentFID >= LIN::kFIDMasterRequest) {
+    if (currentFID() >= LIN::kFIDMasterRequest) {
         Lin_1x_set_type();
     } else {
         Lin_2x_set_type();
@@ -205,7 +195,7 @@ Slave::sendHeader(LIN::FrameID fid)
     Board::linCS(true);
 
     // select 1x or 2x mode
-    if (_currentFID >= LIN::kFIDMasterRequest) {
+    if (currentFID() >= LIN::kFIDMasterRequest) {
         Lin_1x_set_type();
         Lin_1x_set_id(fid);
         Lin_1x_set_len(8);
@@ -231,7 +221,7 @@ Slave::sendResponse(LIN::Frame &f, uint8_t length)
     Board::linCS(true);
 
     // select 1x mode for FIDs that require it
-    if (_currentFID >= LIN::kFIDMasterRequest) {
+    if (currentFID() >= LIN::kFIDMasterRequest) {
         Lin_1x_set_type();
     } else {
         Lin_2x_set_type();

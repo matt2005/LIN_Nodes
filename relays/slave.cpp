@@ -6,7 +6,8 @@
 RelaySlave::RelaySlave(uint8_t BoardID) :
     Slave(LIN::NodeAddress(LIN::kNADPowerBase + BoardID - 1)),
     _monitorTimer(monitor, this, 1000),
-    _relayState(0),
+    _currentRelayState(0),
+    _desiredRelayState(0),
     _outputFault(0)
 {
     pinOUT1.clear();
@@ -48,6 +49,16 @@ void
 RelaySlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 {
     switch (fid) {
+
+    case LIN::kFIDRelays:
+        _desiredRelayState = 0;
+
+        for (uint8_t i = 0; i < 4; i++) {
+            if (testRelayCmd(frame, (LIN::RelayID)Parameter(i + 1).get())) {
+                _desiredRelayState |= (1 << i);
+            }
+        }
+        break;
 
     case LIN::kFIDTest:
         break;

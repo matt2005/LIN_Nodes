@@ -7,22 +7,15 @@ class RelaySlave : public Slave
 public:
     RelaySlave(uint8_t BoardID);
 
+    bool            testRelay(LIN::RelayID id) 
+    {
+        return (id < LIN::kRelayMax) && (relayFrame[id / 8] & (1 << id & 0x7));
+    }
+
 protected:
     virtual void    headerReceived(LIN::FID fid) override;
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
 
 private:
-    Timer           _monitorTimer;
-
-    uint8_t         _currentRelayState;
-    uint8_t         _desiredRelayState;
-    uint8_t         _outputFault;
-
-    static void     monitor(void *arg);
-
-    bool            testRelayCmd(LIN::Frame &f, LIN::RelayID id) const 
-    {
-        return (id < LIN::kRelayMax) && (f[id / 8] & (1 << id & 0x7));
-    }
-
+    volatile LIN::Frame relayFrame;
 };

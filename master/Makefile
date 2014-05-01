@@ -4,7 +4,8 @@ PROG		 = master
 SRCS		 = main.cpp \
 		   display.cpp \
 		   master.cpp \
-		   menu.cpp
+		   menu.cpp \
+		   switches.cpp
 
 SRCS		+= board.cpp \
 		   lin_dev.cpp \

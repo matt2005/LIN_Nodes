@@ -7,11 +7,15 @@
 
 #include "board.h"
 
-Display::Display()
+Display::Display() :
+    _x(0),
+    _y(0)
 {
-    // the display takes some time to boot, so wait for it...
-    Board::msDelay(500);
+}
 
+bool
+Display::probe()
+{
     for (uint8_t tries = 0; tries < 5; tries++) {
 
         USI_TWI_Master_Initialise();
@@ -29,9 +33,11 @@ Display::Display()
             continue;
         }
         clear();
-        return;
+        setBacklight(10);
+
+        return true;
     }
-    Board::panic(3);
+    return false;
 }
 
 void

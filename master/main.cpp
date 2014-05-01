@@ -12,68 +12,43 @@
 #include "master.h"
 #include "menu.h"
 
-Board           board;
-
-static void master_init(Display &disp) __attribute__((noinline));
-static void master_status(Master &master) __attribute__((noinline));
-
-static void
-master_init(Display &disp)
-{
-    debug("master init");
-    // Initialise the display and set the backlight low to avoid
-    // overheating the node power supply.
-    disp.setBacklight(10);
-    disp.writeP(PSTR("Master Node OK"));
-    Board::msDelay(2000);
-    disp.setBacklight(0);
-    disp.clear();
-
-}
-
-static void
-master_status(Master &master)
-{
-    static Timer::Timeval last;
-
-    // don't print too ofte
-    if (Timer::timeSince(last) > 2000) {
-        last = Timer::timeNow();
-
-        debug("%3u free", Board::freemem());
-    }
-}
-
 void
 main(void)
 {
+    Board       board;
+
+    // check for recovery mode before constructing anything else
     if (Board::getMode() != 0) {
-        // board is in 'recovery' mode
-        Board::panic(2);
+        Board::panic(Board::kPanicRecovery);
     }
 
-    MC33972     switches;
-    Master      master;
-    Display     disp;
-    Menu        menu(disp, master);
-
-    // after everything has been constructed...
-    debug("%3u free", Board::freemem());
+    // construct drivers that we need
+    Master      master;         // XXX must be before switches to get !SS as an output 
+    MC33972     switches;       // XXX should move LINCS somewhere else, use PA6 for SPI !SS
 
     // enable interrupts; timers and LIN events will start.
     sei();
 
-    // do one-time init
-    master_init(disp);
+    // check for an attached display, run setup mode if attached
+    Display     disp;
+    if (disp.probe()) {
+        Menu        menu(disp, master);
 
-    // spin forever running the UI and polling switches
+        debug("Display found, entering setup mode");
+
+        // run the menu state machine forever
+        for (;;) {
+            wdt_reset();
+            menu.tick();
+            switches.scan();
+        }
+    }
+
+    // run the master logic forever
     for (;;) {
         wdt_reset();
         //menu.tick();
         switches.scan();
-#ifdef DEBUG
-        master_status(master);
-#endif
     }
 
 }

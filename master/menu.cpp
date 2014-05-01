@@ -42,18 +42,16 @@ void
 Menu::IdleMode::enter()
 {
     _parent._disp.clear();
-    _parent._disp.setBacklight(0);
+    _parent._disp.writeP(PSTR("Setup Mode"));
 }
 
 Menu::Mode *
 Menu::IdleMode::action(Display::Button bp)
 {
     if (bp == Display::kButtonEnter) {
-        _parent._disp.setBacklight(10);
         return &_parent._modeParameter;
     }
     if (bp == Display::kButtonDown) {
-        _parent._disp.setBacklight(10);
         return &_parent._modeExplore;
     }
 

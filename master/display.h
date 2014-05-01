@@ -18,10 +18,11 @@ class Display : public Print
 public:
     Display();
     
+    bool            probe();
     void            clear();
-    void            move(uint8_t x, uint8_t y) { _x = x; _y = y; }
-
     void            setBacklight(uint8_t value);
+
+    void            move(uint8_t x, uint8_t y) { _x = x; _y = y; }
 
     enum Button {
         kButtonNone     = 0x00,

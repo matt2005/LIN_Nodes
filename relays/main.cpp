@@ -5,27 +5,28 @@
 #include "board.h"
 #include "slave.h"
 
-Board           board;
 
 void
 main(void)
 {
-    uint8_t id = Board::getMode();
+    Board       board;
+    uint8_t     id = Board::getMode();
 
+    // check for recovery mode before constructing anything else
     if (Board::getMode() == 0) {
-        // board is in 'recovery' mode
-        Board::panic(2);
+        Board::panic(Board::kPanicRecovery);
     }
 
-    debug("relay slave %2u", id);
-    debug("%3u free", Board::freemem());
-
+    // construct the slave
     RelaySlave  slave(id);
 
+    // enable interrupts
     sei();
 
+    // run the relay logic forever
     for (;;) {
         wdt_reset();
+        // XXX respond to frame updates, etc. here
     }
 }
 

@@ -80,9 +80,12 @@ Display::send(const uint8_t *pkt)
     // generate packet CRC
     crc(buf + 1);
 
+
+    // XXX might want to make sure the master is paused here first...
+    uint8_t sreg = SREG;
     cli();
     result = USI_TWI_Start_Transceiver_With_Data(buf, len) == TRUE;
-    sei();
+    SREG = sreg;
 
     return result;
 }

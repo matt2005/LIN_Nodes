@@ -186,7 +186,7 @@ Slave::sendHeader(LIN::FrameID fid)
 {
     if (LINSIR & (1 << LBUSY)) {
         debug("TX header while busy LINSIR=%2x LINERR=%2x", LINSIR, Lin_get_error_status());
-        Board::panic(5);
+        Board::panic(Board::kPanicLIN);
         return;
     }
 
@@ -213,7 +213,7 @@ Slave::sendResponse(LIN::Frame &f, uint8_t length)
 {
     if (LINSIR & (1 << LBUSY)) {
         debug("TX response while busy LINSIR=%2x LINERR=%2x", LINSIR, LINERR);
-        Board::panic(5);
+        Board::panic(Board::kPanicLIN);
         return;
     }
 
@@ -326,19 +326,5 @@ Slave::masterRequest(LIN::Frame &frame)
             return;
         }
         prepareSlaveResponse(frame);
-    }
-}
-
-void
-Slave::waitBusy()
-{
-    Timer::Timeval then = Timer::timeNow();
-
-    while (LINSIR & (1 << LBUSY)) {
-        wdt_reset();
-        if (Timer::timeSince(then) > 100) {
-            debug("LIN busy lockup");
-            Board::panic(6);
-        }
     }
 }

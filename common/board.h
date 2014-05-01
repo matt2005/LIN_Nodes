@@ -92,11 +92,12 @@ public:
     ///
     Board();
 
-    enum PanicCode {
+    enum PanicCode : uint8_t {
         kPanicRecovery  = 2,
         kPanicI2C       = 3,
         kPanicSPI       = 4,
-    }
+        kPanicLIN       = 5
+    };
 
     /// Panic with a status code
     ///

@@ -127,8 +127,9 @@ private:
     LIN::Frame      _slaveResponse;     //< slave response from previous master request
 
     static void     idleTimeout(void *arg); //< idle timeout callback
-    static void     waitBusy();         //< wait while the LIN block is busy
 
-    LIN::FrameID    currentFID() { return (LIN::FrameID)Lin_get_id(); }
+    void            waitBusy() const { while (LINSIR & (1 << LBUSY)) {} }
+
+    LIN::FrameID    currentFID() const { return (LIN::FrameID)Lin_get_id(); }
 
 };

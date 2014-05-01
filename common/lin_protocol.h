@@ -145,7 +145,7 @@ public:
 
     // frame data copier - avoids some ambiguity around volatile
     // frames
-    void                copy(volatile Frame &f) volatile 
+    void                copy(const volatile Frame &f) volatile 
     {
         _b[0] = f._b[0];
         _b[1] = f._b[1];
@@ -159,6 +159,7 @@ public:
 
     // field access by index
     volatile uint8_t &operator[](uint8_t index) volatile { return _b[index]; }
+    const volatile uint8_t &operator[](uint8_t index) const volatile { return _b[index]; }
 
     // field access by name
     volatile uint8_t    &nad()  volatile { return _b[kFINAD]; }

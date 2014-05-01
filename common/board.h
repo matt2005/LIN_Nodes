@@ -92,6 +92,12 @@ public:
     ///
     Board();
 
+    enum PanicCode {
+        kPanicRecovery  = 2,
+        kPanicI2C       = 3,
+        kPanicSPI       = 4,
+    }
+
     /// Panic with a status code
     ///
     static void         panic(uint8_t code) __attribute__((noreturn));

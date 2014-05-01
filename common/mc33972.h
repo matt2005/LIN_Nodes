@@ -62,4 +62,6 @@ private:
     void                    transfer(uint8_t *buf);
     void                    cmd(Command cmd, uint8_t op1 = 0, uint8_t op2 = 0);
 
+    void                    xferWait() { while (!(SPSR & (1 << SPIF))) {} }
+
 };

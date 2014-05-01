@@ -33,20 +33,21 @@ enum FrameID : uint8_t
 //
 enum SwitchID : uint8_t
 {
-    kSWIgnition         = 0,
-    kSWStart            = 1,
-    kSWLights           = 2,
-    kSWLowBeam          = 3,
-    kSWHighBeam         = 4,
-    kSWHighBeamToggle   = 5,
-    kSWFogLight         = 6,
-    kSWLeftTurn         = 7,
-    kSWRightTurn        = 8,
-    kSWBrake            = 9,
-    kSWReverse          = 10,
-    kSWDoor             = 11,
-    kSWInteriorLight    = 12,
-    kSWHazard           = 13,
+    kSWNone             = 0,
+    kSWIgnition,
+    kSWStart,
+    kSWLights,
+    kSWLowBeam,
+    kSWHighBeam,
+    kSWHighBeamToggle,
+    kSWFogLight,
+    kSWLeftTurn,
+    kSWRightTurn,
+    kSWBrake,
+    kSWReverse,
+    kSWDoor,
+    kSWInteriorLight,
+    kSWHazard,
 
     kSWMax
 };
@@ -56,16 +57,18 @@ enum SwitchID : uint8_t
 //
 enum RelayID : uint8_t
 {
-    kRelayLights        = 0,
-    kRelayLowBeam       = 1,
-    kRelayHighBeam      = 2,
-    kRelayFog           = 3,
-    kRelayParking       = 4,
-    kRelayLeftTurn      = 5,
-    kRelayRightTurn     = 6,
-    kRelayBrake         = 7,
-    kRelayReverse       = 8,
-    kRelayInterior      = 9,
+    kRelayNone          = 0,
+    kRelayLights,
+    kRelayLowBeam,
+    kRelayHighBeam,
+    kRelayFog,
+    kRelayMarkers,
+    kRelayCityLights,
+    kRelayLeftTurn,
+    kRelayRightTurn,
+    kRelayBrake,
+    kRelayReverse,
+    kRelayInterior,
 
     kRelayMax
 };
@@ -140,21 +143,35 @@ public:
         return f;
     }
 
+    // frame data copier - avoids some ambiguity around volatile
+    // frames
+    void                copy(volatile Frame &f) volatile 
+    {
+        _b[0] = f._b[0];
+        _b[1] = f._b[1];
+        _b[2] = f._b[2];
+        _b[3] = f._b[3];
+        _b[4] = f._b[4];
+        _b[5] = f._b[5];
+        _b[6] = f._b[6];
+        _b[7] = f._b[7];
+    }
+
     // field access by index
-    uint8_t &operator[](uint8_t index) { return _b[index]; }
+    volatile uint8_t &operator[](uint8_t index) volatile { return _b[index]; }
 
     // field access by name
-    uint8_t     &nad()   { return _b[kFINAD]; }
-    uint8_t     &pci()   { return _b[kFIPCI]; }
-    uint8_t     &sid()   { return _b[kFISID]; }
-    uint8_t     &d1()    { return _b[kFID1]; }
-    uint8_t     &d2()    { return _b[kFID2]; }
-    uint8_t     &d3()    { return _b[kFID3]; }
-    uint8_t     &d4()    { return _b[kFID4]; }
-    uint8_t     &d5()    { return _b[kFID5]; }
+    volatile uint8_t    &nad()  volatile { return _b[kFINAD]; }
+    volatile uint8_t    &pci()  volatile { return _b[kFIPCI]; }
+    volatile uint8_t    &sid()  volatile { return _b[kFISID]; }
+    volatile uint8_t    &d1()   volatile { return _b[kFID1]; }
+    volatile uint8_t    &d2()   volatile { return _b[kFID2]; }
+    volatile uint8_t    &d3()   volatile { return _b[kFID3]; }
+    volatile uint8_t    &d4()   volatile { return _b[kFID4]; }
+    volatile uint8_t    &d5()   volatile { return _b[kFID5]; }
 
     // direct buffer access
-    uint8_t     *buf()   { return &_b[0]; }
+    volatile uint8_t    *buf() volatile { return &_b[0]; }
 
 private:
     enum FrameIndex : uint8_t

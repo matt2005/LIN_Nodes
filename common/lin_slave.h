@@ -74,15 +74,20 @@ protected:
     /// @param frame            The response frame to send.
     /// @param length           The length of the response frame.
     ///
-    void            sendResponse(LIN::Frame &frame, uint8_t length);
+    void            sendResponse(const LIN::Frame &frame, uint8_t length);
+
+    void            sendResponse(const volatile LIN::Frame &frame, uint8_t length)
+    {
+        sendResponse(const_cast<const LIN::Frame&>(frame), length);
+    }
 
     /// Prepare a response to the LIN::kSlaveResponse message.
     ///
     /// @param frame            The frame to send in response.
     ///
-    void            prepareSlaveResponse(LIN::Frame &frame) 
+    void            prepareSlaveResponse(const LIN::Frame &frame) 
     {
-        _slaveResponse = frame;
+        _slaveResponse.copy(frame);
     }
 
     /// Called when a header has been received.

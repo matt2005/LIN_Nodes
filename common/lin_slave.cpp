@@ -209,7 +209,7 @@ Slave::sendHeader(LIN::FrameID fid)
 }
 
 void
-Slave::sendResponse(LIN::Frame &f, uint8_t length)
+Slave::sendResponse(const LIN::Frame &f, uint8_t length)
 {
     if (LINSIR & (1 << LBUSY)) {
         debug("TX response while busy LINSIR=%2x LINERR=%2x", LINSIR, LINERR);

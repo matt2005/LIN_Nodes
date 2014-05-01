@@ -5,6 +5,7 @@ SRCS		 = main.cpp \
 		   slave.cpp
 
 SRCS		+= board.cpp \
+		   lin_dev.cpp \
 		   lin_slave.cpp \
 		   print.cpp \
 		   softserial.cpp \

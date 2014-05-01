@@ -7,7 +7,6 @@
 #include "master.h"
 
 Master::Master() :
-    Slave(LIN::kNADMaster),
     _eventTimer((Timer::Callback)Master::event, this, 10),
     _eventIndex(0)
 {

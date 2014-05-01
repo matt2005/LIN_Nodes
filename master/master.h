@@ -5,10 +5,10 @@
 #include <stdint.h>
 
 #include "lin_protocol.h"
-#include "lin_slave.h"
+#include "lin_dev.h"
 #include "timer.h"
 
-class Master : public Slave
+class Master : public LINDev
 {
 public:
     Master();

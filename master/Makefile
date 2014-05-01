@@ -7,6 +7,7 @@ SRCS		 = main.cpp \
 		   menu.cpp
 
 SRCS		+= board.cpp \
+		   lin_dev.cpp \
 		   lin_slave.cpp \
 		   mc33972.cpp \
 		   print.cpp \

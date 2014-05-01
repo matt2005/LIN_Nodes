@@ -58,17 +58,18 @@ enum SwitchID : uint8_t
 enum RelayID : uint8_t
 {
     kRelayNone          = 0,
-    kRelayLights,
+    kRelayLightsUp,
+    kRelayLightsDown,
     kRelayLowBeam,
     kRelayHighBeam,
-    kRelayFog,
+    kRelayFogLights,
     kRelayMarkers,
     kRelayCityLights,
     kRelayLeftTurn,
     kRelayRightTurn,
     kRelayBrake,
     kRelayReverse,
-    kRelayInterior,
+    kRelayInteriorLight,
 
     kRelayMax
 };
@@ -115,8 +116,8 @@ class Frame
 public:
 
     // Generic constructor
-    Frame() {}
-    Frame(uint8_t b0,
+    //Frame() {}
+    Frame(uint8_t b0 = 0,
           uint8_t b1 = 0,
           uint8_t b2 = 0,
           uint8_t b3 = 0,
@@ -188,6 +189,16 @@ private:
     };
 
     uint8_t _b[8];
+};
+
+class RelayFrame : public Frame
+{
+public:
+    void        set(RelayID relay) {
+        uint8_t index = relay / 8;
+        uint8_t bit = 1 << (relay & 0x7);
+        (*this)[index] |= bit;
+    }
 };
 
 

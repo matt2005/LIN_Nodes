@@ -8,7 +8,8 @@
 
 Master::Master() :
     Slave(LIN::kNADMaster),
-    _eventTimer((Timer::Callback)Master::event, this, 10)
+    _eventTimer((Timer::Callback)Master::event, this, 10),
+    _eventIndex(0)
 {
 }
 
@@ -16,8 +17,9 @@ bool
 Master::doRequest(LIN::Frame &frame)
 {
     cli();
-    _requestFrame = &frame;
-    _responseFrame = nullptr;
+    requestResponseFrame.copy(frame);
+    _sendRequest = true;
+    _getResponse = false;
     sei();
 
     return waitRequest();
@@ -27,11 +29,16 @@ bool
 Master::doRequestResponse(LIN::Frame &frame)
 {
     cli();
-    _requestFrame = &frame;
-    _responseFrame = &frame;
+    requestResponseFrame.copy(frame);
+    _sendRequest = true;
+    _getResponse = true;
     sei();
 
-    return waitRequest();    
+    if (!waitRequest()) {
+        return false;
+    }
+    frame.copy(requestResponseFrame);
+    return true;
 }
 
 void
@@ -39,12 +46,17 @@ Master::event(void *arg)
 {
     auto *master = (Master *)arg;
 
+    master->_event();
+}
+
+void
+Master::_event()
+{
     LIN::FrameID fid = LIN::kFIDNone;
-    static uint8_t eventIndex;
 
     // work out what header we should send now 
     do {
-        switch (eventIndex++) {
+        switch (_eventIndex++) {
         case 0:
         case 2:
         case 4:
@@ -63,16 +75,16 @@ Master::event(void *arg)
 
         case 8:
             // MasterRequest/SlaveResponse
-            if (master->_requestFrame != nullptr) {
+            if (_sendRequest) {
                 fid = LIN::kFIDMasterRequest;
-            } else if (master->_responseFrame != nullptr) {
+            } else if (_getResponse) {
                 fid = LIN::kFIDSlaveResponse;
             }
             break;
 
         default:
             // wrap
-            eventIndex = 0;
+            _eventIndex = 0;
             break;
         }
     } while (fid == LIN::kFIDNone);
@@ -85,7 +97,7 @@ Master::event(void *arg)
     Board::linCS(true);
 
     // and transmit the header
-    master->sendHeader(fid);
+    sendHeader(fid);
 }
 
 bool
@@ -95,13 +107,12 @@ Master::waitRequest()
 
     // spin for 100ms waiting for the frame to be sent
     while (Timer::timeSince(then) < 500) {
-        if ((_requestFrame == nullptr) &&
-            (_responseFrame == nullptr)) {
+        if (!_sendRequest && !_getResponse) {
             return true;
         }
     }
-    _requestFrame = nullptr;
-    _responseFrame = nullptr;
+    _sendRequest = false;
+    _getResponse = false;
     return false;
 }
 
@@ -110,16 +121,14 @@ Master::headerReceived(LIN::FID fid)
 {
     switch (fid) {
     case LIN::kFIDRelays:
+        sendResponse(relayFrame, 8);
         break;
 
     case LIN::kFIDMasterRequest:
-        // do slave processing first (may reset state, arrange to listen, etc)
-        Slave::headerReceived(fid);
-
         // if we have a request to send, commit it to the wire
-        if (_requestFrame != nullptr) {
-            sendResponse(*_requestFrame, 8);
-            _requestFrame = nullptr;
+        if (_sendRequest) {
+            sendResponse(requestResponseFrame, 8);
+            _sendRequest = false;
         }
         break;
 
@@ -127,12 +136,9 @@ Master::headerReceived(LIN::FID fid)
         // arrange to receive the response if a slave sends it
         requestResponse(8);
 
-        // and do slave processing
-        Slave::headerReceived(fid);
         break;
 
     default:
-        Slave::headerReceived(fid);
         break;
     }
 }
@@ -144,20 +150,13 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
 
     case LIN::kFIDSlaveResponse:
         // if we are expecting a response, copy it back
-        if (_responseFrame != nullptr) {
-            *_responseFrame = frame;
-            _responseFrame = nullptr;
+        if (_getResponse) {
+            requestResponseFrame.copy(frame);
+            _getResponse = false;
         }
         break;
 
     default:
-        Slave::responseReceived(fid, frame);
         break;
     }
-}
-
-void
-Master::sleepRequested(SleepType type)
-{
-    // Don't do anything here yet.
 }

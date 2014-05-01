@@ -13,6 +13,9 @@ class Master : public Slave
 public:
     Master();
 
+    volatile LIN::Frame relayFrame;
+    volatile LIN::Frame requestResponseFrame;
+
     /// Queue a MasterRequest frame.
     ///
     /// @param frame            The frame to send.
@@ -33,16 +36,17 @@ public:
 protected:
     virtual void    headerReceived(LIN::FID fid) override;
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
-    virtual void    sleepRequested(SleepType type);
 
 private:
     Timer           _eventTimer;
+    uint8_t         _eventIndex;
 
-    LIN::Frame      * volatile _requestFrame;
-    LIN::Frame      * volatile _responseFrame;
+    volatile bool   _sendRequest:1;
+    volatile bool   _getResponse:1;
 
     /// Event initiator
     static void     event(void *arg);
+    void            _event();
 
     /// Internal waiter for doRequest/doRequestResponse.
     ///

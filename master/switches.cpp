@@ -3,17 +3,31 @@
 void
 Switches::scan()
 {
+    // fetch the switch inputs
     _inputs.scan();
 
     for (uint8_t i = 0; i < kCacheSlots; i++) {
         _cache[i] = 0;
     }
 
-    for (uint8_t sw = 0; sw < _inputs.kInputMax; sw++) {
-        if (_inputs[(MC33972::Input)sw]) {
-            auto sid = (LIN::SwitchID)Parameter(sw).get();
+    // XXX debounce
 
-            _cache[sid / 8] |= (1 << (sid & 0x7));
+    // hardcoded ignition input on SP0
+    if (_inputs[MC33972::kInputSP0]) {
+        set(LIN::kSWIgnition);
+    }
+
+    // SP1-SP7
+    for (uint8_t sw = 1; sw <=7; sw++) {
+        if (_inputs[MC33972::kInputSP0 + sw]) {
+            set(Parameter(sw).get());
+        }
+    }
+
+    // SG0-SG13
+    for (uint8_t sw = 0; sw <= 13; sw++) {
+        if (_inputs[MC33972::kInputSG0 + sw]) {
+            set(Parameter(8 + sw).get());
         }
     }
 }

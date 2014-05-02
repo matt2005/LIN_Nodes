@@ -20,4 +20,10 @@ private:
     MC33972         _inputs;
 
     uint8_t         _cache[kCacheSlots];
+
+    void            set(uint8_t sid) {
+        if (sid < LIN::kSWMax) {
+            _cache[sid / 8] |= (1 << (sid & 0x7));
+        }
+    }
 };

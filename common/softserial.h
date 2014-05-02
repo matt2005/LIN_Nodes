@@ -14,5 +14,6 @@ protected:
     virtual void    _write(uint8_t c) override;
 
 private:
-    void            tx(uint8_t c);
+    static void     tx(uint8_t c);
+    static void     tunedDelay(uint16_t delay);
 };

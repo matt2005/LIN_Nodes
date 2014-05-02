@@ -10,22 +10,6 @@
 // 57600
 #define BIT_DELAY  17
 
-static inline void
-tunedDelay(uint16_t delay)
-{  
-  uint8_t tmp=0;
-
-  asm volatile(
-    "sbiw    %0, 0x01   \n\t"
-    "ldi     %1, 0xFF   \n\t"
-    "cpi     %A0, 0xFF  \n\t"
-    "cpc     %B0, %1    \n\t"
-    "brne    .-10       \n\t"
-    : "+r" (delay), "+a" (tmp)
-    : "0" (delay)
-    );
-}
-
 Serial::Serial()
 {
     pinDebugTX.set();
@@ -63,11 +47,24 @@ Serial::tx(uint8_t c)
     // stop bit
     pinDebugTX.set();
     tunedDelay(BIT_DELAY);
-    tunedDelay(BIT_DELAY);
-    tunedDelay(BIT_DELAY);
-    tunedDelay(BIT_DELAY);
 
     SREG = sreg;
+}
+
+void
+Serial::tunedDelay(uint16_t delay)
+{  
+  uint8_t tmp=0;
+
+  asm volatile(
+    "sbiw    %0, 0x01   \n\t"
+    "ldi     %1, 0xFF   \n\t"
+    "cpi     %A0, 0xFF  \n\t"
+    "cpc     %B0, %1    \n\t"
+    "brne    .-10       \n\t"
+    : "+r" (delay), "+a" (tmp)
+    : "0" (delay)
+    );
 }
 
 #else

@@ -8,6 +8,8 @@
 class Switches
 {
 public:
+    Switches();
+    
     void            scan();
 
     bool operator[](LIN::SwitchID id) const {
@@ -16,8 +18,6 @@ public:
 
 private:
     static const uint8_t kCacheSlots = (LIN::kSWMax + 7) / 8;
-
-    MC33972         _inputs;
 
     uint8_t         _cache[kCacheSlots];
 

@@ -36,6 +36,7 @@ public:
 
     MC33972();
 
+    void                init();
     void                scan() { cmd(kCMDStatus); }
     bool operator[](uint8_t inp) const {
         return (inp < kInputMax) && (_buf[inp / 8] & (1 << (inp & 0x7)));

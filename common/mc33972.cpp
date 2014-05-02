@@ -10,6 +10,13 @@ MC33972::MC33972() :
     (void)SPSR;
     (void)SPDR;
 
+    // Configure SPI for mode 2 master at 2MHz
+    SPCR = (1 << SPE) | (1 << MSTR) | (1 << CPHA);
+}
+
+void
+MC33972::init()
+{
     // reset the chip to defaults
     cmd(kCMDReset);
 
@@ -28,9 +35,6 @@ MC33972::MC33972() :
 void
 MC33972::transfer(uint8_t *buf)
 {
-
-    // Configure SPI for mode 2 master at 2MHz
-    SPCR = (1 << SPE) | (1 << MSTR) | (1 << CPHA);
 
     // select the slave
     pinCS.clear();

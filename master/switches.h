@@ -12,18 +12,22 @@ public:
     
     void            scan();
 
-    bool operator[](LIN::SwitchID id) const {
-        return (id < LIN::kSWMax) && (_cache[id / 8] & (1 << (id &0x7)));
+    bool test(LIN::SwitchID id) const {
+        return _state[id].state;
+    }
+
+    bool changed(LIN::SwitchID id) const {
+        return _state[id].count == 1;
     }
 
 private:
-    static const uint8_t kCacheSlots = (LIN::kSWMax + 7) / 8;
+    static const uint8_t kStateBytes = (LIN::kSWMax + 7) / 8;
 
-    uint8_t         _cache[kCacheSlots];
+    struct Debounce
+    {
+        uint8_t     count:7;    //< counts down to 0
+        uint8_t     state:1;    //< current state of the switch
+    };
 
-    void            set(uint8_t sid) {
-        if (sid < LIN::kSWMax) {
-            _cache[sid / 8] |= (1 << (sid & 0x7));
-        }
-    }
+    Debounce        _state[LIN::kSWMax];
 };

@@ -52,59 +52,59 @@ main(void)
         LIN::RelayFrame f;
 
         // interior light
-        if (switches[LIN::kSWDoor] || switches[LIN::kSWInteriorLight]) {
+        if (switches.test(LIN::kSWDoor) || switches.test(LIN::kSWInteriorLight)) {
             // XXX stay-on timer goes here
             f.set(LIN::kRelayInteriorLight);
             // XXX path lighting if ignition was just turned off
         }
-        if (switches[LIN::kSWHazard]) {
+        if (switches.test(LIN::kSWHazard)) {
             // XXX test blink timer
             f.set(LIN::kRelayLeftTurn);
             f.set(LIN::kRelayRightTurn);
         }
 
         // relays only on with ignition
-        if (switches[LIN::kSWIgnition]) {
+        if (switches.test(LIN::kSWIgnition)) {
 
             // high/low-beam lights
-            if (switches[LIN::kSWHighBeam]) {
+            if (switches.test(LIN::kSWHighBeam)) {
                 f.set(LIN::kRelayHighBeam);
-            } else if (switches[LIN::kSWLowBeam]) {
+            } else if (switches.test(LIN::kSWLowBeam)) {
                 f.set(LIN::kRelayLowBeam);
             }
 
             // markers and city lights
-            if (switches[LIN::kSWLights] || 
-                switches[LIN::kSWLowBeam] ||
-                switches[LIN::kSWHighBeam]) {
+            if (switches.test(LIN::kSWLights) || 
+                switches.test(LIN::kSWLowBeam) ||
+                switches.test(LIN::kSWHighBeam)) {
                 f.set(LIN::kRelayMarkers);
                 f.set(LIN::kRelayCityLights);
             }
 
             // foglights
             // XXX require other lights?
-            if (switches[LIN::kSWFogLight]) {
+            if (switches.test(LIN::kSWFogLight)) {
                 f.set(LIN::kRelayFogLights);
             }
 
             // popup headlights 
             // up when headlights go on, down when all lights go off
-            if (switches[LIN::kSWLowBeam] ||
-                switches[LIN::kSWHighBeam]) {
+            if (switches.test(LIN::kSWLowBeam) ||
+                switches.test(LIN::kSWHighBeam)) {
                 f.set(LIN::kRelayLightsUp);
                 // minimum raise signal time?
-            } else if (!switches[LIN::kSWLights]) {
+            } else if (!switches.test(LIN::kSWLights)) {
                 f.set(LIN::kRelayLightsDown);
                 // minimum lower signal time?
             }
 
             // turn signals
             // XXX test keep-blinking timer
-            if (switches[LIN::kSWLeftTurn]) {
+            if (switches.test(LIN::kSWLeftTurn)) {
                 // XXX test blink timer
                 f.set(LIN::kRelayLeftTurn);
             }
-            if (switches[LIN::kSWRightTurn]) {
+            if (switches.test(LIN::kSWRightTurn)) {
                 // XXX test blink timer
                 f.set(LIN::kRelayRightTurn);
             }
@@ -112,12 +112,12 @@ main(void)
             // brake lights
             // XXX test minimum-brake timer
             // XXX test brake-blnk timer
-            if (switches[LIN::kSWBrake]) {
+            if (switches.test(LIN::kSWBrake)) {
                 f.set(LIN::kRelayBrake);
             }
 
             // reverse lights
-            if (switches[LIN::kSWReverse]) {
+            if (switches.test(LIN::kSWReverse)) {
                 f.set(LIN::kRelayReverse);
             }
 
@@ -125,10 +125,10 @@ main(void)
         } else {
 
             // parking lights - no blink
-            if (switches[LIN::kSWLeftTurn]) {
+            if (switches.test(LIN::kSWLeftTurn)) {
                 f.set(LIN::kRelayLeftTurn);
             }
-            if (switches[LIN::kSWRightTurn]) {
+            if (switches.test(LIN::kSWRightTurn)) {
                 f.set(LIN::kRelayRightTurn);
             }
         }

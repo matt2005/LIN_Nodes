@@ -10,9 +10,8 @@ class Switches
 public:
     void            scan();
 
-    bool operator[](LIN::SwitchID id) const 
-    {
-        return _cache[id / 8] & (1 << (id &0x7));
+    bool operator[](LIN::SwitchID id) const {
+        return (id < LIN::kSWMax) && (_cache[id / 8] & (1 << (id &0x7)));
     }
 
 private:

@@ -37,7 +37,9 @@ public:
     MC33972();
 
     void                scan() { cmd(kCMDStatus); }
-    bool operator[](Input inp) const { return _buf[inp / 8] & (1 << (inp & 0x7)); }
+    bool operator[](uint8_t inp) const {
+        return (inp < kInputMax) && (_buf[inp / 8] & (1 << (inp & 0x7)));
+    }
 
 private:
     enum Command : uint8_t {

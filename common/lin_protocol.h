@@ -33,7 +33,6 @@ enum FrameID : uint8_t
 //
 enum SwitchID : uint8_t
 {
-    kSWNone             = 0,
     kSWIgnition,
     kSWStart,
     kSWLights,
@@ -49,7 +48,8 @@ enum SwitchID : uint8_t
     kSWInteriorLight,
     kSWHazard,
 
-    kSWMax
+    kSWMax,
+    kSWNone             = 0xff
 };
 
 //
@@ -57,7 +57,6 @@ enum SwitchID : uint8_t
 //
 enum RelayID : uint8_t
 {
-    kRelayNone          = 0,
     kRelayLightsUp,
     kRelayLightsDown,
     kRelayLowBeam,
@@ -71,7 +70,8 @@ enum RelayID : uint8_t
     kRelayReverse,
     kRelayInteriorLight,
 
-    kRelayMax
+    kRelayMax,
+    kRelayNone          = 0xff
 };
 
 //

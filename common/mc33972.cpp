@@ -6,14 +6,7 @@
 MC33972::MC33972() :
     _buf{0, 0, 0}
 {
-    // do pin configuration
-    pinMOSI.cfgOutput();
-    pinMISO.cfgInputNoPull();
-    pinSCK.cfgOutput();
-    pinCS.set();
-    pinCS.cfgOutput();
-
-    // clear flags
+    // clear flags ready for use
     (void)SPSR;
     (void)SPDR;
 

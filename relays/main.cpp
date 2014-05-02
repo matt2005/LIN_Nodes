@@ -16,23 +16,6 @@ main(void)
         Board::panic(Board::kPanicRecovery);
     }
 
-    // do pin init
-    pinOUT1.clear();
-    pinOUT1.cfgOutput();
-    pinOUT2.clear();
-    pinOUT2.cfgOutput();
-    pinOUT3.clear();
-    pinOUT3.cfgOutput();
-    pinOUT4.clear();
-    pinOUT4.cfgOutput();
-
-    pinSTATUS1.cfgInputNoPull();
-    pinSTATUS2.cfgInputNoPull();
-    pinSTATUS3.cfgInputNoPull();
-#ifndef DEBUG                       // debug() output on this pin
-    pinSTATUS4.cfgInputNoPull();
-#endif
-
     // construct the slave
     RelaySlave  slave(id);
 

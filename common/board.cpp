@@ -34,6 +34,44 @@ Board::Board()
             *p++ = 0xff;
         }
     }
+
+    // do pin setup
+#if defined(BOARD_POWER_V1)
+    // power switch control pins
+    pinOUT1.clear();
+    pinOUT1.cfgOutput();
+    pinOUT2.clear();
+    pinOUT2.cfgOutput();
+    pinOUT3.clear();
+    pinOUT3.cfgOutput();
+    pinOUT4.clear();
+    pinOUT4.cfgOutput();
+
+    // power switch status pins
+    pinSTATUS1.cfgInputNoPull();
+    pinSTATUS2.cfgInputNoPull();
+    pinSTATUS3.cfgInputNoPull();
+# ifndef DEBUG                      // debug() output on this pin
+    pinSTATUS4.cfgInputNoPull();
+# endif    
+#endif
+
+#if defined(BOARD_NODE_V1)
+
+    // LINCS/LINTX start tristated, configure for LIN use.
+    pinLINCS.set();
+    pinLINCS.cfgOutput();
+    pinLINTX.cfgInputPullUp();
+    pinLINRX.cfgInputPullUp();
+
+    // SPI
+    pinMOSI.cfgOutput();
+    pinMISO.cfgInputNoPull();
+    pinSCK.cfgOutput();
+    pinCS.set();
+    pinCS.cfgOutput();
+#endif
+
 }
 
 void

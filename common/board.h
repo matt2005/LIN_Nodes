@@ -33,10 +33,10 @@
 
 # define pinDebugTX     portA[7]
 
-#define paramRelay1Assign   Parameter(1)
-#define paramRelay2Assign   Parameter(2)
-#define paramRelay3Assign   Parameter(3)
-#define paramRelay4Assign   Parameter(4)
+# define paramRelay1Assign  (LIN::RelayID)Parameter(1)
+# define paramRelay2Assign  (LIN::RelayID)Parameter(2)
+# define paramRelay3Assign  (LIN::RelayID)Parameter(3)
+# define paramRelay4Assign  (LIN::RelayID)Parameter(4)
 
 #endif // BOARD_POWER_V1
 
@@ -77,6 +77,14 @@
 # define pinINT0        portB[6]
 
 # define pinDebugTX     portA[7]
+
+# define paramSPAssign(_n)          (LIN::SwitchID)Parameter(_n)
+# define paramSGAssign(_n)          (LIN::SwitchID)Parameter(8 + _n)
+# define paramTurnBlinkPeriod       Parameter(22)
+# define paramPassingBlinkCount     Parameter(23)
+# define paramPathLightPeriod       Parameter(24)
+# define paramInteriorLightPeriod   Parameter(25)
+# define paramWelcomeLightPeriod    Parameter(26)
 
 #endif // BOARD_NODE_V1
 

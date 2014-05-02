@@ -22,8 +22,8 @@ main(void)
     }
 
     // construct drivers that we need
-    Master      master;         // XXX must be before switches to get !SS as an output 
-    Switches    switches;       // XXX should move LINCS somewhere else, use PA6 for SPI !SS
+    Master      master;
+    Switches    switches;
 
     // enable interrupts; timers and LIN events will start.
     sei();

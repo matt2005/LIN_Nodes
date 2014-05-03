@@ -35,8 +35,8 @@ enum SwitchID : uint8_t
 {
     kSWIgnition,
     kSWStart,
-    kSWLights,
-    kSWLowBeam,
+    kSWMarkerLights,
+    kSWHeadLights,
     kSWHighBeam,
     kSWHighBeamToggle,
     kSWFogLight,
@@ -58,13 +58,15 @@ enum SwitchID : uint8_t
 //
 enum RelayID : uint8_t
 {
+    kRelayIgnition,
+    kRelayStart,
     kRelayLightsUp,
     kRelayLightsDown,
+    kRelayHeadLights,
     kRelayLowBeam,
     kRelayHighBeam,
     kRelayFogLights,
     kRelayMarkers,
-    kRelayCityLights,
     kRelayLeftTurn,
     kRelayRightTurn,
     kRelayBrake,
@@ -213,6 +215,11 @@ public:
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] |= bit;
+    }
+    void        clear(RelayID relay) {
+        uint8_t index = relay / 8;
+        uint8_t bit = 1 << (relay & 0x7);
+        (*this)[index] &= ~bit;
     }
 };
 

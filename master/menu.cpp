@@ -14,14 +14,18 @@ Menu::Menu(Display &disp, Master &master) :
     _modeIdle(*this),
     _modeParameter(*this),
     _modeExplore(*this),
-    _mode(&_modeIdle)
+    _mode(nullptr)
 {
-    _mode->enter();
 }
 
 void
 Menu::tick()
 {
+    if (_mode == nullptr) {
+        _mode = &_modeIdle;
+        _mode->enter();
+    }
+
     Display::Button bp = _disp.getButtonPress();
 
     // kick the mode state machine

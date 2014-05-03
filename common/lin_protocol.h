@@ -159,6 +159,20 @@ public:
         _b[7] = f._b[7];
     }
 
+    void                clear(const volatile Frame &f) volatile 
+    {
+        _b[0] = 0;
+        _b[1] = 0;
+        _b[2] = 0;
+        _b[3] = 0;
+        _b[4] = 0;
+        _b[5] = 0;
+        _b[6] = 0;
+        _b[7] = 0;
+    }
+
+
+
     // field access by index
     volatile uint8_t &operator[](uint8_t index) volatile { return _b[index]; }
     const volatile uint8_t &operator[](uint8_t index) const volatile { return _b[index]; }

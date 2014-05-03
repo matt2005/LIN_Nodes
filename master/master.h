@@ -13,7 +13,7 @@ class Master : public LINDev
 public:
     Master();
 
-    volatile LIN::Frame relayFrame;
+    volatile LIN::RelayFrame relayFrame;
     volatile LIN::Frame requestResponseFrame;
 
     /// Queue a MasterRequest frame.

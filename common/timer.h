@@ -39,6 +39,8 @@ public:
     ///
     void                setInterval(Timeval ticks) { _interval = ticks; }
 
+
+
     /// Returns the current time.
     ///
     /// Note that due to the limited range of Timeval, time wraps every ~65 seconds.
@@ -62,7 +64,7 @@ public:
     ///
     static void         tick();
 
-private:
+protected:
     const Callback      _callback;  //< callback function
     void               *const _arg;      //< callback function argument
 

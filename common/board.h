@@ -85,6 +85,9 @@
 # define paramPathLightPeriod       Parameter(24)
 # define paramInteriorLightPeriod   Parameter(25)
 # define paramWelcomeLightPeriod    Parameter(26)
+# define paramBrakeBlinkPeriod      Parameter(27)
+# define paramBrakeBlinkCount       Parameter(28)
+
 
 #endif // BOARD_NODE_V1
 

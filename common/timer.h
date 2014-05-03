@@ -66,13 +66,34 @@ public:
 
 protected:
     const Callback      _callback;  //< callback function
-    void               *const _arg;      //< callback function argument
+    void               *const _arg; //< callback function argument
 
     volatile Timeval    _remaining; //< number of ticks remaining before expiry
     volatile Timeval    _interval;  //< reload value for periodic, 0 for one-shot
+
+private:
 
     Timer               *_next;     //< list linkage
 
     static Timer        *_first;    //< list anchor
     static volatile Timeval _now;
+};
+
+class Decrementer
+{
+public:
+    Decrementer();
+
+    void        setMilliseconds(uint16_t msec) { _count = msec; }
+    void        setSeconds(uint8_t sec) { _count = sec * 1000U; }
+    void        clear() { _count = 0; }
+    bool        expired() const { return _count == 0; }
+
+    static void tick();
+
+private:
+    Timer::Timeval      _count;
+    Decrementer         *_next;
+
+    static Decrementer  *_first;
 };

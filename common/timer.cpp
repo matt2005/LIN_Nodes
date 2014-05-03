@@ -16,6 +16,7 @@ Timer::Timer(Callback callback, void *arg, uint16_t interval) :
     _next(_first)
 {
     if (_first == nullptr) {
+
         // Reset Timer0
         TIMSK0 = 0;     // interrupts off
         TCCR0B = 0;     // timer off
@@ -69,5 +70,31 @@ Timer::tick()
             break;
         }
         t = t->_next;
+    }
+
+    Decrementer::tick();
+}
+
+Decrementer *Decrementer::_first;
+
+Decrementer::Decrementer() :
+    _count(0),
+    _next(_first)
+{
+    if (_first == nullptr) {
+        _first = this;
+    }
+}
+
+void
+Decrementer::tick()
+{
+    Decrementer *d = _first;
+
+    while (d != nullptr) {
+        if (d->_count > 0) {
+            d->_count--;
+        }
+        d = d->_next;
     }
 }

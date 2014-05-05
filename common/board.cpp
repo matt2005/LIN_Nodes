@@ -8,13 +8,18 @@
 
 #include "board.h"
 
+extern "C" uint8_t _end;
+
+namespace Board
+{
+
 #ifdef DEBUG
-Serial       Board::debugPort;
+/// Debug serial port
+///
+Serial       debugPort;
 #endif
 
-extern "C" void panic(uint8_t code) { Board::panic(code); }
-
-Board::Board()
+void init()
 {
     // set the prescaler for maximum speed
     clock_prescale_set(clock_div_1);
@@ -27,7 +32,6 @@ Board::Board()
 
     // fill (most of) the stack with 0xff for sniffing purposes
     {
-        extern uint8_t _end;
         volatile uint8_t *p = &_end;
 
         while (p < (uint8_t *)SP) {
@@ -75,7 +79,7 @@ Board::Board()
 }
 
 void
-Board::panic(uint8_t code)
+panic(uint8_t code)
 {
     debug("panic %3u @ %p", code, __builtin_return_address(0));
 
@@ -107,7 +111,7 @@ Board::panic(uint8_t code)
 }
 
 uint8_t
-Board::getMode()
+getMode()
 {
     uint8_t mode = 0;
 
@@ -133,7 +137,7 @@ Board::getMode()
 }
 
 void
-Board::sleep()
+sleep()
 {
     // by the time LINCS and LINTX are both driving 0, the board will power off
     pinLINCS.clear();
@@ -143,7 +147,7 @@ Board::sleep()
 }
 
 void
-Board::msDelay(uint16_t ms)
+msDelay(uint16_t ms)
 {
     while (ms > 0) {
         wdt_reset();
@@ -154,7 +158,7 @@ Board::msDelay(uint16_t ms)
 }
 
 void
-Board::usDelay(uint16_t us)
+usDelay(uint16_t us)
 {
 
     // _delay_loop_2 consumes 4 cycles per count, so convert microseconds to
@@ -165,10 +169,9 @@ Board::usDelay(uint16_t us)
 }
 
 uint16_t
-Board::freemem()
+freemem()
 {
     // approximate free memory value
-    extern uint8_t _end;
     volatile uint8_t *p = &_end;
     uint16_t mem = 0;
 
@@ -180,12 +183,4 @@ Board::freemem()
     return mem;
 }
 
-//void
-//Board::linCS(bool state)
-//{
-//    if (state) {
-//        pinLINCS.set();
-//    } else {
-//        pinLINCS.clear();
-//    }
-//}
+} // namespace Board

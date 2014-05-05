@@ -8,7 +8,7 @@
 void
 main(void)
 {
-    Board       board;
+    Board::init();
     uint8_t     id = Board::getMode();
 
     // check for recovery mode before constructing anything else

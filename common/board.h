@@ -95,66 +95,60 @@
 # error Need to define a board type
 #endif
 
-class Board 
+namespace Board
 {
-public:
+void init();
 
-    /// Perform chip- and board-level initialisation
-    ///
-    Board();
+enum PanicCode : uint8_t {
+    kPanicRecovery  = 2,
+    kPanicI2C       = 3,
+    kPanicSPI       = 4,
+    kPanicLIN       = 5
+};
 
-    enum PanicCode : uint8_t {
-        kPanicRecovery  = 2,
-        kPanicI2C       = 3,
-        kPanicSPI       = 4,
-        kPanicLIN       = 5
-    };
+/// Panic with a status code
+///
+void panic(uint8_t code) __attribute__((noreturn));
 
-    /// Panic with a status code
-    ///
-    static void         panic(uint8_t code) __attribute__((noreturn));
+/// Read the board-specific mode configuration switch (if any)
+///
+uint8_t getMode();
 
-    /// Read the board-specific mode configuration switch (if any)
-    ///
-    static uint8_t      getMode();
+/// Put the board to sleep
+///
+void sleep();
 
-    /// Put the board to sleep
-    ///
-    static void         sleep();
+/// Delay for a period in milliseconds, keeping the watchdog at bay
+///
+void msDelay(uint16_t ms);
 
-    /// Delay for a period in milliseconds, keeping the watchdog at bay
-    ///
-    static void         msDelay(uint16_t ms);
+/// Delay for a period in microseconds
+///
+void usDelay(uint16_t us);
 
-    /// Delay for a period in microseconds
-    ///
-    static void         usDelay(uint16_t us);
+/// Check free space between stack and BSS
+///
+/// @return         The number of free bytes left between the BSS and stack
+///
+uint16_t freemem();
 
-    /// Check free space between stack and BSS
-    ///
-    /// @return         The number of free bytes left between the BSS and stack
-    ///
-    static uint16_t     freemem();
-
-    /// Set the LIN CS state
-    ///
-    static void         linCS(bool state)
-    {
-        if (state) {
-            pinLINCS.set();
-        } else {
-            pinLINCS.clear();
-        }
+/// Set the LIN CS state
+///
+static inline void
+linCS(bool state)
+{
+    if (state) {
+        pinLINCS.set();
+    } else {
+        pinLINCS.clear();
     }
+}
 
 #if defined(DEBUG) && defined(pinDebugTX)
-    /// Debug serial port
-    ///
-    static Serial       debugPort;
-
+extern Serial debugPort;
 # define debug(fmt, args...)    Board::debugPort.printfP(PSTR(fmt "\n"), ## args)
 #else
 # define debug(fmt, args)       do {} while(0)
 #endif
 
-};
+} //namespace Board

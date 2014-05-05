@@ -72,7 +72,6 @@ private:
     }
 };
 
-Board           board;
 Master          master;
 Display         disp;
 Menu            menu(disp, master);
@@ -292,7 +291,8 @@ pathLights(LIN::RelayFrame &f)
 void
 main(void)
 {
-
+    Board::init();
+    
     // check for recovery mode before doing anything else
     if (Board::getMode() != 0) {
         Board::panic(Board::kPanicRecovery);

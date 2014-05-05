@@ -4,14 +4,13 @@
 
 #include "display.h"
 #include "master.h"
-#include "switches.h"
 
 class Mode;
 
 class Menu
 {
 public:
-    Menu(Display &disp, Master &master, Switches &switches);
+    Menu(Display &disp, Master &master);
 
     /// Tickle the menu state machine
     ///

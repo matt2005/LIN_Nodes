@@ -2,32 +2,14 @@
 
 #pragma once
 
-#include "lin_protocol.h"
-#include "mc33972.h"
+#include <stdint.h>
 
-class Switches
+namespace Switches
 {
-public:
-    Switches();
-    
-    void            scan();
 
-    bool test(LIN::SwitchID id) const {
-        return _state[id].state;
-    }
+void init();
+void scan();
+bool test(uint8_t id);
+bool changed(uint8_t id);
 
-    bool changed(LIN::SwitchID id) const {
-        return _state[id].count == 1;
-    }
-
-private:
-    static const uint8_t kStateBytes = (LIN::kSWMax + 7) / 8;
-
-    struct Debounce
-    {
-        uint8_t     count:7;    //< counts down to 0
-        uint8_t     state:1;    //< current state of the switch
-    };
-
-    Debounce        _state[LIN::kSWMax];
-};
+} //namespace Switches

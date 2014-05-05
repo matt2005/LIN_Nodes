@@ -1,14 +1,40 @@
+
+#include "mc33972.h"
+#include "lin_protocol.h"
+
 #include "switches.h"
 
-Switches::Switches()
+namespace Switches
+{
+
+struct Debounce
+{
+    uint8_t     count:7;    //< counts down to 0
+    uint8_t     state:1;    //< current state of the switch
+};
+
+static const uint8_t    kStateBytes = (LIN::kSWMax + 7) / 8;
+static Debounce         _state[LIN::kSWMax];
+
+void init()
 {
     MC33972 inputs;
 
     inputs.init();    
 }
 
+bool test(uint8_t id)
+{
+    return _state[id].state;
+}
+
+bool changed(uint8_t id)
+{
+    return _state[id].count == 1;
+}
+
 void
-Switches::scan()
+scan()
 {
     // clear raw state
     uint8_t rawstate[kStateBytes];
@@ -72,3 +98,5 @@ Switches::scan()
         }
     }
 }
+
+} // namespace Switches

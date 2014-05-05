@@ -6,14 +6,14 @@
 
 #include "menu.h"
 #include "master.h"
+#include "switches.h"
 
 class Mode
 {
 public:
-    static void     configure(Display *disp, Master *master, Switches *switches) {
+    static void     configure(Display *disp, Master *master) {
         _disp = disp;
         _master = master;
-        _switches = switches;
     }
 
     /// Called when the mode is activated.
@@ -29,7 +29,6 @@ public:
 protected:
     static Display  *_disp;
     static Master   *_master;
-    static Switches *_switches;
 
     /// Kick the mode state machine.
     ///
@@ -46,7 +45,6 @@ protected:
 
 Display *Mode::_disp;
 Master  *Mode::_master;
-Switches *Mode::_switches;
 
 class TopMode : public Mode
 {
@@ -164,10 +162,10 @@ static SwitchMode _modeSwitches;
 ////////////////////////////////////////////////////////////////////////////////
 // Toplevel menu engine
 //
-Menu::Menu(Display &disp, Master &master, Switches &switches) :
+Menu::Menu(Display &disp, Master &master) :
     _mode(nullptr)
 {
-    Mode::configure(&disp, &master, &switches);
+    Mode::configure(&disp, &master);
 }
 
 void

@@ -74,9 +74,8 @@ private:
 
 Board           board;
 Master          master;
-Switches        switches;
 Display         disp;
-Menu            menu(disp, master, switches);
+Menu            menu(disp, master);
 
 TurnBlinker     turnBlinker;
 BrakeBlinker    brakeBlinker;
@@ -91,14 +90,14 @@ static void
 interiorLights(LIN::RelayFrame &f)
 {
     // door just closed - start interior lighting timer
-    if (!switches.test(LIN::kSWDoor) &&
-        switches.changed(LIN::kSWDoor)) {
+    if (!Switches::test(LIN::kSWDoor) &&
+        Switches::changed(LIN::kSWDoor)) {
         interiorLightsDelay.setSeconds(paramInteriorLightPeriod.get());
     }
 
-    if (switches.test(LIN::kSWDoor) ||          // door open
-        switches.test(LIN::kSWInteriorLight) || // light switch on
-        (!switches.test(LIN::kSWIgnition) &&    // ignition off
+    if (Switches::test(LIN::kSWDoor) ||          // door open
+        Switches::test(LIN::kSWInteriorLight) || // light switch on
+        (!Switches::test(LIN::kSWIgnition) &&    // ignition off
          !interiorLightsDelay.expired())) {          // ... and timer not expired
 
         f.set(LIN::kRelayInteriorLight);
@@ -113,10 +112,10 @@ turnSignals(LIN::RelayFrame &f)
     // the switches will come and go under its control.
 
     // hazard warning lights?
-    if (switches.test(LIN::kSWHazard)) {
+    if (Switches::test(LIN::kSWHazard)) {
 
         // reset turnBlinker to get a clean full flash
-        if (switches.changed(LIN::kSWHazard)) {
+        if (Switches::changed(LIN::kSWHazard)) {
             turnBlinker.reset();
         }
         if (turnBlinker.state()) {
@@ -127,12 +126,12 @@ turnSignals(LIN::RelayFrame &f)
     }
 
     // parking markers?
-    if (!switches.test(LIN::kSWIgnition)) {
+    if (!Switches::test(LIN::kSWIgnition)) {
         // parking lights - no blink
-        if (switches.test(LIN::kSWLeftTurn)) {
+        if (Switches::test(LIN::kSWLeftTurn)) {
             f.set(LIN::kRelayLeftTurn);
         }
-        if (switches.test(LIN::kSWRightTurn)) {
+        if (Switches::test(LIN::kSWRightTurn)) {
             f.set(LIN::kRelayRightTurn);
         }
         return;
@@ -140,16 +139,16 @@ turnSignals(LIN::RelayFrame &f)
 
     // turn signals?
     // XXX test keep-blinking timer
-    if (switches.test(LIN::kSWLeftTurn)) {
-        if (switches.changed(LIN::kSWLeftTurn)) {
+    if (Switches::test(LIN::kSWLeftTurn)) {
+        if (Switches::changed(LIN::kSWLeftTurn)) {
             turnBlinker.reset();
         }
         if (turnBlinker.state()) {
             f.set(LIN::kRelayLeftTurn);
         }
     }
-    if (switches.test(LIN::kSWRightTurn)) {
-        if (switches.changed(LIN::kSWRightTurn)) {
+    if (Switches::test(LIN::kSWRightTurn)) {
+        if (Switches::changed(LIN::kSWRightTurn)) {
             turnBlinker.reset();
         }
         if (turnBlinker.state()) {
@@ -163,7 +162,7 @@ markerLights(LIN::RelayFrame &f)
 {
     // markers and city lights
     // XXX should we stay awake while these are on?
-    if (switches.test(LIN::kSWMarkerLights)) {
+    if (Switches::test(LIN::kSWMarkerLights)) {
         f.set(LIN::kRelayMarkers);
     }
 }
@@ -174,32 +173,32 @@ headLights(LIN::RelayFrame &f)
     static bool highBeamToggle;
 
     // lights down if nothing is on
-    if (!switches.test(LIN::kSWMarkerLights) &&
-        !switches.test(LIN::kSWHeadLights) &&
-        !switches.test(LIN::kSWHighBeam)) {
+    if (!Switches::test(LIN::kSWMarkerLights) &&
+        !Switches::test(LIN::kSWHeadLights) &&
+        !Switches::test(LIN::kSWHighBeam)) {
         f.set(LIN::kRelayLightsDown);
     }
 
     // no lights without ignition
     // XXX marker-only mode?
-    if (!switches.test(LIN::kSWIgnition)) {
+    if (!Switches::test(LIN::kSWIgnition)) {
         return;
     }
 
     // clear the highbeam toggle at ignition-on
-    if (switches.changed(LIN::kSWIgnition)) {
+    if (Switches::changed(LIN::kSWIgnition)) {
         highBeamToggle = false;
     }
 
     // handle the high-beam toggle input
-    if (switches.test(LIN::kSWHighBeamToggle) && 
-        switches.changed(LIN::kSWHighBeamToggle)) {
+    if (Switches::test(LIN::kSWHighBeamToggle) && 
+        Switches::changed(LIN::kSWHighBeamToggle)) {
         highBeamToggle = !highBeamToggle;
     }
 
     // test for any headlight on
-    if (switches.test(LIN::kSWHeadLights) ||
-        switches.test(LIN::kSWHighBeam)) {
+    if (Switches::test(LIN::kSWHeadLights) ||
+        Switches::test(LIN::kSWHighBeam)) {
 
         // lights on and popups up
         f.set(LIN::kRelayHeadLights);
@@ -207,8 +206,8 @@ headLights(LIN::RelayFrame &f)
         f.clear(LIN::kRelayLightsDown);
 
         // test for high beam; headlights off while starting
-        if (!switches.test(LIN::kSWStart)) {
-            if (switches.test(LIN::kSWHighBeam) ||
+        if (!Switches::test(LIN::kSWStart)) {
+            if (Switches::test(LIN::kSWHighBeam) ||
                 highBeamToggle) {
                 f.set(LIN::kRelayHighBeam);
             } else {
@@ -219,7 +218,7 @@ headLights(LIN::RelayFrame &f)
 
     // foglights
     // XXX require other lights?
-    if (switches.test(LIN::kSWFogLight)) {
+    if (Switches::test(LIN::kSWFogLight)) {
         f.set(LIN::kRelayFogLights);
     }
 }
@@ -229,8 +228,8 @@ tailLights(LIN::RelayFrame &f)
 {
     // brake lights
     // XXX test minimum-brake timer
-    if (switches.test(LIN::kSWBrake)) {
-        if (switches.changed(LIN::kSWBrake)) {
+    if (Switches::test(LIN::kSWBrake)) {
+        if (Switches::changed(LIN::kSWBrake)) {
             brakeBlinker.reset();
         }
         if (brakeBlinker.state()) {
@@ -239,7 +238,7 @@ tailLights(LIN::RelayFrame &f)
     }
 
     // reverse lights
-    if (switches.test(LIN::kSWReverse)) {
+    if (Switches::test(LIN::kSWReverse)) {
         f.set(LIN::kRelayReverse);
     }
 }
@@ -251,11 +250,11 @@ pathLights(LIN::RelayFrame &f)
     bool pathLightingStart = false;
 
     // detect ignition transition to off
-    if (!switches.test(LIN::kSWIgnition) &&
-        switches.changed(LIN::kSWIgnition)) {
+    if (!Switches::test(LIN::kSWIgnition) &&
+        Switches::changed(LIN::kSWIgnition)) {
 
         // door already open?
-        if (switches.test(LIN::kSWDoor)) {
+        if (Switches::test(LIN::kSWDoor)) {
             pathLightingStart = true;
         } else {
             ignitionWasOn = true;
@@ -263,15 +262,15 @@ pathLights(LIN::RelayFrame &f)
     }
 
     // door opens after ignition off
-    if (switches.test(LIN::kSWDoor) &&
-        switches.changed(LIN::kSWDoor) &&
+    if (Switches::test(LIN::kSWDoor) &&
+        Switches::changed(LIN::kSWDoor) &&
         ignitionWasOn) {
         pathLightingStart = true;
     }
 
     // ignition off and alarm unlock changed?
-    if (!switches.test(LIN::kSWIgnition) &&
-        switches.changed(LIN::kSWDoorUnlock)) {
+    if (!Switches::test(LIN::kSWIgnition) &&
+        Switches::changed(LIN::kSWDoorUnlock)) {
         pathLightingStart = true;
     }
 
@@ -311,14 +310,14 @@ main(void)
         for (;;) {
             wdt_reset();
             menu.tick();
-            switches.scan();
+            Switches::scan();
         }
     }
 
     // run the master logic forever
     for (;;) {
         wdt_reset();
-        switches.scan();
+        Switches::scan();
 
         // update the relays frame by looking at switches
         LIN::RelayFrame f;
@@ -332,8 +331,8 @@ main(void)
 
 #if 0
             // doors just opened with ignition off
-            if (switches.test(LIN::kSWDoor) &&
-                switches.changed(LIN::kSWDoor)) {
+            if (Switches::test(LIN::kSWDoor) &&
+                Switches::changed(LIN::kSWDoor)) {
                 if (ignitionWasOn) {
                     // start path lighting timer
                     pathLightingStart = Timer::timeNow();

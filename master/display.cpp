@@ -34,6 +34,7 @@ Display::probe()
         }
         clear();
         setBacklight(10);
+        Board::msDelay(500);
 
         return true;
     }

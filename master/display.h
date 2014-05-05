@@ -65,3 +65,6 @@ private:
     bool            waitAck(uint8_t opcode);
     void            crc(uint8_t *pkt);
 };
+
+extern Display gDisplay;
+

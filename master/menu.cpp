@@ -6,30 +6,26 @@
 
 #include "menu.h"
 #include "master.h"
+#include "display.h"
 #include "switches.h"
+
+namespace Menu
+{
 
 class Mode
 {
 public:
-    static void     configure(Display *disp, Master *master) {
-        _disp = disp;
-        _master = master;
-    }
-
     /// Called when the mode is activated.
     ///
     virtual void    enter(Mode *from) = 0;
 
     /// Called to give the mode CPU cycles
     Mode            *tick() {
-        Display::Button bp = _disp->getButtonPress();
+        Display::Button bp = gDisplay.getButtonPress();
         return action(bp);
     }
 
 protected:
-    static Display  *_disp;
-    static Master   *_master;
-
     /// Kick the mode state machine.
     ///
     /// @param disp     The display the mode is using.
@@ -42,9 +38,6 @@ protected:
     virtual Mode    *action(Display::Button bp) = 0;
 
 };
-
-Display *Mode::_disp;
-Master  *Mode::_master;
 
 class TopMode : public Mode
 {
@@ -154,22 +147,18 @@ private:
     void            draw();
 };
 
-static TopMode     _modeTop;
+static TopMode      _modeTop;
 static ExploreMode  _modeExplore;
 static ParameterMode _modeParameter;
-static SwitchMode _modeSwitches;
+static SwitchMode   _modeSwitches;
+
+static Mode         *_mode;     ///< current mode
 
 ////////////////////////////////////////////////////////////////////////////////
 // Toplevel menu engine
 //
-Menu::Menu(Display &disp, Master &master) :
-    _mode(nullptr)
-{
-    Mode::configure(&disp, &master);
-}
-
 void
-Menu::tick()
+tick()
 {
     // lazily init to idle mode
     if (_mode == nullptr) {
@@ -265,11 +254,11 @@ TopMode::draw()
         break;
     }
 
-    _disp->clear();
-    _disp->writeP(txt);
+    gDisplay.clear();
+    gDisplay.writeP(txt);
 #ifdef DEBUG
-    _disp->move(8, 1);
-    _disp->printfP(PSTR("free %3u"), Board::freemem());
+    gDisplay.move(8, 1);
+    gDisplay.printfP(PSTR("free %3u"), Board::freemem());
 #endif
 }
 
@@ -280,7 +269,7 @@ TopMode::draw()
 void
 ExploreMode::enter(Mode *from)
 {
-    _disp->clear();
+    gDisplay.clear();
     _node = LIN::kNADMaster;
     check();
 }
@@ -316,18 +305,18 @@ ExploreMode::action(Display::Button bp)
 void
 ExploreMode::check()
 {
-    _disp->clear();
-    _disp->move(0, 0);
-    _disp->write(_node);
-    _disp->move(4, 0);
+    gDisplay.clear();
+    gDisplay.move(0, 0);
+    gDisplay.write(_node);
+    gDisplay.move(4, 0);
 
     LIN::Frame f = LIN::Frame::makeReadByIDRequest(_node, LIN::kRBIProductID);
-    if (!_master->doRequestResponse(f)) {
+    if (!gMaster.doRequestResponse(f)) {
         _present = false;
-        _disp->writeP(PSTR("missing"));
+        gDisplay.writeP(PSTR("missing"));
     } else {
         _present = true;
-        _disp->writeP(PSTR("found"));
+        gDisplay.writeP(PSTR("found"));
     }
 }
 
@@ -340,8 +329,8 @@ ParameterMode::enter(Mode *from)
 {
     _submode = SM_NODE;
     setNode(0);
-    _disp->clear();
-    _disp->writeP(PSTR("Node Parm Value"));
+    gDisplay.clear();
+    gDisplay.writeP(PSTR("Node Parm Value"));
     draw();
 }
 
@@ -494,26 +483,26 @@ void
 ParameterMode::draw()
 {
     // clear edit line
-    _disp->move(0, 1);
-    _disp->writeP(PSTR("                "));     // XXX inefficient
+    gDisplay.move(0, 1);
+    gDisplay.writeP(PSTR("                "));     // XXX inefficient
 
     // mode marker
-    _disp->move((uint8_t)_submode, 1);
-    _disp->writeP(PSTR(">"));
+    gDisplay.move((uint8_t)_submode, 1);
+    gDisplay.writeP(PSTR(">"));
 
     // values
-    _disp->move(1, 1);
-    _disp->write(_node);
+    gDisplay.move(1, 1);
+    gDisplay.write(_node);
     if (_present) {
-        _disp->move(6, 1);
-        _disp->write(_param);
-        _disp->move(11, 1);
-        _disp->write(_value);
+        gDisplay.move(6, 1);
+        gDisplay.write(_param);
+        gDisplay.move(11, 1);
+        gDisplay.write(_value);
     }
 
     // unsaved marker
-    _disp->move(14, 1);
-    _disp->writeP(_changed ? PSTR("*") : PSTR(" "));
+    gDisplay.move(14, 1);
+    gDisplay.writeP(_changed ? PSTR("*") : PSTR(" "));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -522,7 +511,7 @@ ParameterMode::draw()
 void
 SwitchMode::enter(Mode *from)
 {
-    _disp->clear();
+    gDisplay.clear();
     draw();    
 }
 
@@ -544,20 +533,22 @@ SwitchMode::draw()
 {
     MC33972::scan();
 
-    _disp->move(0, 0);
+    gDisplay.move(0, 0);
     for (uint8_t i = MC33972::kInputSP0; i <= MC33972::kInputSP7; i++) {
         if (MC33972::test(i)) {
-            _disp->writeP(PSTR("x"));
+            gDisplay.writeP(PSTR("x"));
         } else {
-            _disp->writeP(PSTR(" "));
+            gDisplay.writeP(PSTR(" "));
         }
     }
-    _disp->move(0, 1);
+    gDisplay.move(0, 1);
     for (uint8_t i = MC33972::kInputSG0; i <= MC33972::kInputSG13; i++) {
         if (MC33972::test(i)) {
-            _disp->writeP(PSTR("x"));
+            gDisplay.writeP(PSTR("x"));
         } else {
-            _disp->writeP(PSTR(" "));
+            gDisplay.writeP(PSTR(" "));
         }
     }
 }
+
+} // namespace Menu

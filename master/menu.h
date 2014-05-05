@@ -2,21 +2,7 @@
 
 #pragma once
 
-#include "display.h"
-#include "master.h"
-
-class Mode;
-
-class Menu
+namespace Menu
 {
-public:
-    Menu(Display &disp, Master &master);
-
-    /// Tickle the menu state machine
-    ///
-    void            tick();
-
-private:
-    Mode            *_mode;     ///< current mode
-};
-
+void tick();
+} // namespace Menu

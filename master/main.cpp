@@ -72,9 +72,8 @@ private:
     }
 };
 
-Master          master;
-Display         disp;
-Menu            menu(disp, master);
+Master          gMaster;
+Display         gDisplay;
 
 TurnBlinker     turnBlinker;
 BrakeBlinker    brakeBlinker;
@@ -302,14 +301,14 @@ main(void)
     sei();
 
     // check for an attached display, run setup mode if attached
-    if (disp.probe()) {
+    if (gDisplay.probe()) {
 
         debug("Display found, entering setup mode");
 
         // run the menu state machine forever
         for (;;) {
             wdt_reset();
-            menu.tick();
+            Menu::tick();
             Switches::scan();
         }
     }
@@ -347,7 +346,7 @@ main(void)
 #endif
 
         // update the copy we are sending to nodes
-        master.relayFrame.copy(f);
+        gMaster.relayFrame.copy(f);
     }
 }
 

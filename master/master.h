@@ -52,3 +52,5 @@ private:
     ///
     bool            waitRequest();
 };
+
+extern Master gMaster;

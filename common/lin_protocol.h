@@ -48,6 +48,8 @@ enum SwitchID : uint8_t
     kSWInteriorLight,
     kSWHazard,
     kSWDoorUnlock,
+    kSWLightsUp,
+    kSWDemoMode,
 
     kSWMax,
     kSWNone             = 0xff

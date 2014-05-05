@@ -10,11 +10,11 @@ Switches::Switches()
 void
 Switches::scan()
 {
-        // clear raw state
-        uint8_t rawstate[kStateBytes];
-        for (uint8_t i = 0; i < kStateBytes; i++) {
-            rawstate[i] = 0;
-        }
+    // clear raw state
+    uint8_t rawstate[kStateBytes];
+    for (uint8_t i = 0; i < kStateBytes; i++) {
+        rawstate[i] = 0;
+    }
 
     #define SET(x)  do { if (x < LIN::kSWMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
     #define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)

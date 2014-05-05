@@ -16,7 +16,7 @@ SRCS		+= board.cpp \
 		   timer.cpp \
 		   USI_TWI_Master.c
 
-BOARD		 = NODE_V1
+BOARD		 = MASTER_V1
 #FUSES		 = $(RES_FUSES)
 
 include ../rules.mk

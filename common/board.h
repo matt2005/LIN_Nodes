@@ -9,88 +9,12 @@
 #include "parameter.h"
 #include "softserial.h"
 
-// V1 relay node
-//
 #if defined(BOARD_POWER_V1)
-
-# define pinOUT1        portB[0]
-# define pinSTATUS1     portB[1]
-# define pinOUT2        portB[2]
-# define pinSTATUS2     portB[3]
-# define pinOUT3        portB[4]
-# define pinSTATUS3     portB[5]
-# define pinOUT4        portB[6]
-# define pinSTATUS4     portA[7]
-
-# define pinMode1       portA[4]
-# define pinMode2       portA[2]
-# define pinMode4       portA[5]
-# define pinMode8       portA[3]
-
-# define pinLINRX       portA[0]
-# define pinLINTX       portA[1]
-# define pinLINCS       portA[6]
-
-# define pinDebugTX     portA[7]
-
-# define paramRelay1Assign  (LIN::RelayID)Parameter(1)
-# define paramRelay2Assign  (LIN::RelayID)Parameter(2)
-# define paramRelay3Assign  (LIN::RelayID)Parameter(3)
-# define paramRelay4Assign  (LIN::RelayID)Parameter(4)
-
-#endif // BOARD_POWER_V1
-
-// Common pin definitions for boards based on the V1 node.
-//
-#if defined(BOARD_NODE_V1)
-
-# define pinP0          portB[0]
-# define pinP1          portB[1]
-# define pinP2          portB[2]
-# define pinP3          portB[3]
-# define pinP4          portB[4]
-# define pinP5          portB[5]
-# define pinP6          portB[6]
-# define pinP7          portA[7]
-
-# define pinMode1       portA[4]
-# define pinMode2       portA[2]
-# define pinMode4       portA[5]
-# define pinMode8       portA[3]
-
-# define pinMOSI        portA[4]
-# define pinMISO        portA[2]
-# define pinSCK         portA[5]
-# define pinCS          portB[1]
-
-# define pinSDA         portB[0]
-# define pinSCL         portB[2]
-
-# define pinLINRX       portA[0]
-# define pinLINTX       portA[1]
-# define pinLINCS       portA[6]
-
-# define pinADC7        portA[7]
-# define pinADC8        portB[5]
-# define pinADC9        portB[6]
-
-# define pinINT0        portB[6]
-
-# define pinDebugTX     portA[7]
-
-# define paramSPAssign(_n)          (LIN::SwitchID)Parameter(_n)
-# define paramSGAssign(_n)          (LIN::SwitchID)Parameter(8 + _n)
-# define paramTurnBlinkPeriod       Parameter(22)
-# define paramPassingBlinkCount     Parameter(23)
-# define paramPathLightPeriod       Parameter(24)
-# define paramInteriorLightPeriod   Parameter(25)
-# define paramWelcomeLightPeriod    Parameter(26)
-# define paramBrakeBlinkPeriod      Parameter(27)
-# define paramBrakeBlinkCount       Parameter(28)
-
-
-#endif // BOARD_NODE_V1
-
+# include "config_power_v1.h"
+#endif
+#if defined(BOARD_MASTER_V1)
+# include "config_master_v1.h"
+#endif
 #ifndef pinLINRX
 # error Need to define a board type
 #endif

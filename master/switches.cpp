@@ -1,6 +1,7 @@
 
 #include "mc33972.h"
 #include "lin_protocol.h"
+#include "board.h"
 
 #include "switches.h"
 
@@ -18,9 +19,7 @@ static Debounce         _state[LIN::kSWMax];
 
 void init()
 {
-    MC33972 inputs;
-
-    inputs.init();    
+    MC33972::init();    
 }
 
 bool test(uint8_t id)
@@ -46,28 +45,24 @@ scan()
     #define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
 
     // fetch the switch inputs
-    {
-        MC33972 inputs;
+    MC33972::scan();
 
-        inputs.scan();
+    // hardcoded ignition input on SP0
+    if (MC33972::test(MC33972::kInputSP0)) {
+        SET(LIN::kSWIgnition);
+    }
 
-        // hardcoded ignition input on SP0
-        if (inputs[MC33972::kInputSP0]) {
-            SET(LIN::kSWIgnition);
+    // SP1-SP7
+    for (uint8_t sw = 1; sw <=7; sw++) {
+        if (MC33972::test(MC33972::kInputSP0 + sw)) {
+            SET(paramSPAssign(sw).get());
         }
+    }
 
-        // SP1-SP7
-        for (uint8_t sw = 1; sw <=7; sw++) {
-            if (inputs[MC33972::kInputSP0 + sw]) {
-                SET(paramSPAssign(sw).get());
-            }
-        }
-
-        // SG0-SG13
-        for (uint8_t sw = 0; sw <= 13; sw++) {
-            if (inputs[MC33972::kInputSG0 + sw]) {
-                SET(paramSGAssign(sw).get());
-            }
+    // SG0-SG13
+    for (uint8_t sw = 0; sw <= 13; sw++) {
+        if (MC33972::test(MC33972::kInputSG0 + sw)) {
+            SET(paramSGAssign(sw).get());
         }
     }
 

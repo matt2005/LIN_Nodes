@@ -542,13 +542,11 @@ SwitchMode::action(Display::Button bp)
 void
 SwitchMode::draw()
 {
-    MC33972 input;
-
-    input.scan();
+    MC33972::scan();
 
     _disp->move(0, 0);
     for (uint8_t i = MC33972::kInputSP0; i <= MC33972::kInputSP7; i++) {
-        if (input[i]) {
+        if (MC33972::test(i)) {
             _disp->writeP(PSTR("x"));
         } else {
             _disp->writeP(PSTR(" "));
@@ -556,7 +554,7 @@ SwitchMode::draw()
     }
     _disp->move(0, 1);
     for (uint8_t i = MC33972::kInputSG0; i <= MC33972::kInputSG13; i++) {
-        if (input[i]) {
+        if (MC33972::test(i)) {
             _disp->writeP(PSTR("x"));
         } else {
             _disp->writeP(PSTR(" "));

@@ -76,7 +76,7 @@ Board           board;
 Master          master;
 Switches        switches;
 Display         disp;
-Menu            menu(disp, master);
+Menu            menu(disp, master, switches);
 
 TurnBlinker     turnBlinker;
 BrakeBlinker    brakeBlinker;

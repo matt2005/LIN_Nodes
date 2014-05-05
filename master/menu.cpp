@@ -1,65 +1,278 @@
+#include <avr/pgmspace.h>
 
 #include "board.h"
 #include "lin_protocol.h"
+#include "mc33972.h"
 
 #include "menu.h"
 #include "master.h"
 
+class Mode
+{
+public:
+    static void     configure(Display *disp, Master *master, Switches *switches) {
+        _disp = disp;
+        _master = master;
+        _switches = switches;
+    }
+
+    /// Called when the mode is activated.
+    ///
+    virtual void    enter(Mode *from) = 0;
+
+    /// Called to give the mode CPU cycles
+    Mode            *tick() {
+        Display::Button bp = _disp->getButtonPress();
+        return action(bp);
+    }
+
+protected:
+    static Display  *_disp;
+    static Master   *_master;
+    static Switches *_switches;
+
+    /// Kick the mode state machine.
+    ///
+    /// @param disp     The display the mode is using.
+    /// @param bp       The oldest un-handled button press; may be
+    ///                 Display::kButtonNone if no button press has
+    ///                 been received.
+    /// @return         The mode that is current following processing of
+    ///                 this call; should return this if no mode change.
+    ///
+    virtual Mode    *action(Display::Button bp) = 0;
+
+};
+
+Display *Mode::_disp;
+Master  *Mode::_master;
+Switches *Mode::_switches;
+
+class TopMode : public Mode
+{
+public:
+    virtual void    enter(Mode *from) override;
+    virtual Mode    *action(Display::Button bp);
+private:
+    uint8_t         _index;
+    void            draw();
+};
+
+class ExploreMode : public Mode
+{
+public:
+    virtual void    enter(Mode *from) override;
+    virtual Mode    *action(Display::Button bp);
+
+private:
+    uint8_t         _node;
+    bool            _present;
+    void            check();
+};
+
+class ParameterMode : public Mode
+{
+public:
+    virtual void    enter(Mode *from) override;
+    virtual Mode    *action(Display::Button bp);
+
+private:
+    enum SubMode : uint8_t {
+        // enum values are also marker column values
+        SM_NODE     = 0,            ///< editing parameter node 
+        SM_PARAM    = 5,            ///< editing parameter ID
+        SM_VALUE    = 10,           ///< editing parameter value
+    };
+
+    uint16_t        _value;         ///< value of the current parameter
+    uint8_t         _node;          ///< address of the current node
+    uint8_t         _param;         ///< index of the current parameter
+    SubMode         _submode;       ///< current submode
+
+    bool            _changed:1;     ///< true if the parameter has been changed
+    bool            _present:1;     ///< true if the node is present
+
+    /// Set a new node address. Resets the current parameter ID to zero
+    /// and attempts to load it from the node. Updates _present, _valid, _writable 
+    /// and _value, clears _changed and discards any previously changed parameter.
+    ///
+    /// @param node     The new node address.
+    ///
+    void            setNode(uint8_t node);
+
+    /// Set a new parameter ID and attempts to load it from the node. Updates
+    /// _valid, _writable and _value, clears _changed and discards any previously 
+    /// changed parameter.
+    ///
+    /// @param param    The new parameter ID.
+    /// @return         True if the node responds to the parameter load.
+    ///
+    bool            setParam(uint8_t param);
+
+    /// Set a new parameter value.
+    ///
+    /// @param value    new value for the parameter
+    ///
+    void            setValue(uint16_t value);
+
+    /// Write the parameter back to the node
+    void            saveValue();
+
+    /// Move to the previous node
+    void            prevNode() { if (_node > 0) setNode(_node - 1); }
+
+    /// Move to the next node
+    void            nextNode() { if (_node < Parameter::maxIndex) setNode(_node + 1); }
+
+    /// Move to the previous parameter
+    void            prevParam() { if (_param > 0) setParam(_param - 1); }
+
+    /// Move to the next parameter
+    void            nextParam() { if (_param < 255) setParam(_param + 1); }
+
+    /// Send the parameter to the node.
+    ///
+    void            save();
+
+    /// Load the parameter from the node. Updates _valid, _writable and _value,
+    /// clears _changed and discards any previously changed parameter.
+    ///
+    /// @return         True if the node responds to the request.
+    ///
+    bool            load();
+
+    /// Draw the edit display
+    ///
+    void            draw();
+};
+
+class SwitchMode : public Mode
+{
+public:
+    virtual void    enter(Mode *from) override;
+    virtual Mode    *action(Display::Button bp);
+
+private:
+    void            draw();
+};
+
+static TopMode     _modeTop;
+static ExploreMode  _modeExplore;
+static ParameterMode _modeParameter;
+static SwitchMode _modeSwitches;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Toplevel menu engine
 //
-Menu::Menu(Display &disp, Master &master) :
-    _disp(disp),
-    _master(master),
-    _modeIdle(*this),
-    _modeParameter(*this),
-    _modeExplore(*this),
+Menu::Menu(Display &disp, Master &master, Switches &switches) :
     _mode(nullptr)
 {
+    Mode::configure(&disp, &master, &switches);
 }
 
 void
 Menu::tick()
 {
+    // lazily init to idle mode
     if (_mode == nullptr) {
-        _mode = &_modeIdle;
-        _mode->enter();
+        _mode = &_modeTop;
+        _mode->enter(nullptr);
     }
 
-    Display::Button bp = _disp.getButtonPress();
-
     // kick the mode state machine
-    Mode *newmode = _mode->action(bp);
+    Mode *newmode = _mode->tick();
 
     // mode change?
     if (newmode != _mode) {
+        newmode->enter(_mode);
         _mode = newmode;
-        _mode->enter();
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Idle mode
+// Top menu mode
 //
 
 void
-Menu::IdleMode::enter()
+TopMode::enter(Mode *from)
 {
-    _parent._disp.clear();
-    _parent._disp.writeP(PSTR("Setup Mode"));
+    _index = 0;
+    draw();    
 }
 
-Menu::Mode *
-Menu::IdleMode::action(Display::Button bp)
+Mode *
+TopMode::action(Display::Button bp)
 {
-    if (bp == Display::kButtonEnter) {
-        return &_parent._modeParameter;
+    bool wantDraw = false;
+    switch (bp) {
+
+    case Display::kButtonDown:
+        if (_index < 3) {
+            _index++;
+            wantDraw = true;
+        }
+        break;
+    case Display::kButtonUp:
+        if (_index > 0) {
+            _index--;
+            wantDraw = true;
+        }
+        break;
+    case Display::kButtonEnter:
+        switch (_index) {
+        case 0:
+            return &_modeParameter;
+        case 1:
+            return &_modeExplore;
+        case 2:
+            return &_modeSwitches;
+        default:
+            // ... oops
+            _index = 0;
+            wantDraw = true;
+            break;
+        }
+        break;
+    default:
+        break;
     }
-    if (bp == Display::kButtonDown) {
-        return &_parent._modeExplore;
+
+    if (wantDraw) {
+        draw();
     }
 
     return this;
+}
+
+void
+TopMode::draw()
+{
+    const char *txt;
+
+    switch (_index) {
+    default:
+        _index = 0;
+        // FALLTHROUGH
+    case 0:
+        txt = PSTR("System Setup");
+        break;
+    case 1:
+        txt = PSTR("Explore Network");
+        break;
+    case 2:
+        txt = PSTR("Switch Test");
+        break;
+    case 3:
+        txt = PSTR("Relay Test");
+        break;
+    }
+
+    _disp->clear();
+    _disp->writeP(txt);
+#ifdef DEBUG
+    _disp->move(8, 1);
+    _disp->printfP(PSTR("free %3u"), Board::freemem());
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,19 +280,19 @@ Menu::IdleMode::action(Display::Button bp)
 //
 
 void
-Menu::ExploreMode::enter()
+ExploreMode::enter(Mode *from)
 {
-    _parent._disp.clear();
+    _disp->clear();
     _node = LIN::kNADMaster;
     check();
 }
 
-Menu::Mode *
-Menu::ExploreMode::action(Display::Button bp)
+Mode *
+ExploreMode::action(Display::Button bp)
 {
     switch (bp) {
     case Display::kButtonCancel:
-        return &_parent._modeIdle;
+        return &_modeTop;
 
     case Display::kButtonDown:
         if (_node > LIN::kNADMaster) {
@@ -103,20 +316,20 @@ Menu::ExploreMode::action(Display::Button bp)
 }
 
 void
-Menu::ExploreMode::check()
+ExploreMode::check()
 {
-    _parent._disp.clear();
-    _parent._disp.move(0, 0);
-    _parent._disp.write(_node);
-    _parent._disp.move(4, 0);
+    _disp->clear();
+    _disp->move(0, 0);
+    _disp->write(_node);
+    _disp->move(4, 0);
 
     LIN::Frame f = LIN::Frame::makeReadByIDRequest(_node, LIN::kRBIProductID);
-    if (!_parent._master.doRequestResponse(f)) {
+    if (!_master->doRequestResponse(f)) {
         _present = false;
-        _parent._disp.writeP(PSTR("missing"));
+        _disp->writeP(PSTR("missing"));
     } else {
         _present = true;
-        _parent._disp.writeP(PSTR("found"));
+        _disp->writeP(PSTR("found"));
     }
 }
 
@@ -125,22 +338,22 @@ Menu::ExploreMode::check()
 //
 
 void
-Menu::ParameterMode::enter()
+ParameterMode::enter(Mode *from)
 {
     _submode = SM_NODE;
     setNode(0);
-    _parent._disp.clear();
-    _parent._disp.writeP(PSTR("Node Parm Value"));
+    _disp->clear();
+    _disp->writeP(PSTR("Node Parm Value"));
     draw();
 }
 
-Menu::Mode *
-Menu::ParameterMode::action(Display::Button bp)
+Mode *
+ParameterMode::action(Display::Button bp)
 {
     switch (bp) {
 
     case Display::kButtonCancel:
-        return &_parent._modeIdle;
+        return &_modeTop;
 
     case Display::kButtonEnter:
         saveValue();
@@ -215,7 +428,7 @@ Menu::ParameterMode::action(Display::Button bp)
 }
 
 void
-Menu::ParameterMode::setNode(uint8_t node)
+ParameterMode::setNode(uint8_t node)
 {
     // parameter 0 should always be valid
     _node = node;
@@ -223,21 +436,21 @@ Menu::ParameterMode::setNode(uint8_t node)
 }
 
 bool
-Menu::ParameterMode::setParam(uint8_t param)
+ParameterMode::setParam(uint8_t param)
 {
     _param = param;
     return load();
 }
 
 void
-Menu::ParameterMode::setValue(uint16_t value)
+ParameterMode::setValue(uint16_t value)
 {
     _value = value;
     _changed = true; 
 }
 
 void
-Menu::ParameterMode::saveValue()
+ParameterMode::saveValue()
 {
     if (_present && _changed) {
         // send the parameter to the node...
@@ -249,7 +462,7 @@ Menu::ParameterMode::saveValue()
 }
 
 bool
-Menu::ParameterMode::load()
+ParameterMode::load()
 {
 //    LIN::DataDumpRequest f(_node,
 //                          LIN::kDataDumpGetParam,
@@ -268,7 +481,7 @@ Menu::ParameterMode::load()
 }
 
 void
-Menu::ParameterMode::save()
+ParameterMode::save()
 {
 //    LIN::DataDumpRequest f(_node,
 //                           LIN::kDataDumpSetParam,
@@ -280,27 +493,75 @@ Menu::ParameterMode::save()
 }
 
 void
-Menu::ParameterMode::draw()
+ParameterMode::draw()
 {
     // clear edit line
-    _parent._disp.move(0, 1);
-    _parent._disp.writeP(PSTR("                "));     // XXX inefficient
+    _disp->move(0, 1);
+    _disp->writeP(PSTR("                "));     // XXX inefficient
 
     // mode marker
-    _parent._disp.move((uint8_t)_submode, 1);
-    _parent._disp.writeP(PSTR(">"));
+    _disp->move((uint8_t)_submode, 1);
+    _disp->writeP(PSTR(">"));
 
     // values
-    _parent._disp.move(1, 1);
-    _parent._disp.write(_node);
+    _disp->move(1, 1);
+    _disp->write(_node);
     if (_present) {
-        _parent._disp.move(6, 1);
-        _parent._disp.write(_param);
-        _parent._disp.move(11, 1);
-        _parent._disp.write(_value);
+        _disp->move(6, 1);
+        _disp->write(_param);
+        _disp->move(11, 1);
+        _disp->write(_value);
     }
 
     // unsaved marker
-    _parent._disp.move(14, 1);
-    _parent._disp.writeP(_changed ? PSTR("*") : PSTR(" "));
+    _disp->move(14, 1);
+    _disp->writeP(_changed ? PSTR("*") : PSTR(" "));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Switch test
+//
+void
+SwitchMode::enter(Mode *from)
+{
+    _disp->clear();
+    draw();    
+}
+
+Mode *
+SwitchMode::action(Display::Button bp)
+{
+
+    if (bp == Display::kButtonCancel) {
+        return &_modeTop;
+    }
+
+    draw();
+
+    return this;
+}
+
+void
+SwitchMode::draw()
+{
+    MC33972 input;
+
+    input.scan();
+
+    _disp->move(0, 0);
+    for (uint8_t i = MC33972::kInputSP0; i <= MC33972::kInputSP7; i++) {
+        if (input[i]) {
+            _disp->writeP(PSTR("x"));
+        } else {
+            _disp->writeP(PSTR(" "));
+        }
+    }
+    _disp->move(0, 1);
+    for (uint8_t i = MC33972::kInputSG0; i <= MC33972::kInputSG13; i++) {
+        if (input[i]) {
+            _disp->writeP(PSTR("x"));
+        } else {
+            _disp->writeP(PSTR(" "));
+        }
+    }
 }

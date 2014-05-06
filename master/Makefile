@@ -5,6 +5,7 @@ SRCS		 = main.cpp \
 		   display.cpp \
 		   master.cpp \
 		   menu.cpp \
+		   relays.cpp \
 		   switches.cpp
 
 SRCS		+= board.cpp \

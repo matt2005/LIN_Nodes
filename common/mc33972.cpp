@@ -26,12 +26,11 @@ enum Command : uint8_t {
 
 uint8_t                 _buf[3];
 
-static void transfer(uint8_t *buf);
 static void cmd(Command cmd, uint8_t op1 = 0, uint8_t op2 = 0);
-static void xferWait() { while (!(SPSR & (1 << SPIF))) {} }
+static void wait();
 
 void
-init()
+configure()
 {
     // reset the chip to defaults
     cmd(kCMDReset);
@@ -59,40 +58,49 @@ bool test(uint8_t inp)
 }
 
 void
-transfer(uint8_t *buf)
+cmd(Command cmd, uint8_t op1, uint8_t op2)
 {
+    // Configure SPI for mode 2 master at 2MHz
+    SPCR = (1 << SPE) | (1 << MSTR) | (1 << CPHA);
+
     // clear flags ready for use
     (void)SPSR;
     (void)SPDR;
 
-    // Configure SPI for mode 2 master at 2MHz
-    SPCR = (1 << SPE) | (1 << MSTR) | (1 << CPHA);
-
     // select the slave
     pinCS.clear();
 
-    SPDR = buf[0];
-    xferWait();
+    SPDR = cmd;
+
+    wait();
     _buf[2] = SPDR;
 
-    SPDR = buf[1];
-    xferWait();
+    SPDR = op1;
+    wait();
     _buf[1] = SPDR;
 
-    SPDR = buf[2];
-    xferWait();
+    SPDR = op2;
+    wait();
     _buf[0] = SPDR;
 
     pinCS.set();
+
+    debug("got %2x %2x %2x", _buf[2], _buf[1], _buf[0]);
 }
 
-void
-cmd(Command cmd, uint8_t op1, uint8_t op2)
+static void
+wait() 
 {
-    uint8_t buf[] = { cmd, op1, op2};
-
-    debug("cmd %2x", cmd);
-    transfer(&buf[0]);
+    while (!(SPSR & (1 << SPIF))) {
+        if (!(SPCR & (1 << MSTR))) {
+            debug("SPI !MSTR");
+            Board::panic(Board::kPanicSPI);
+        }
+        if (SPSR & (1 << WCOL)) {
+            debug("SPI WCOL");
+            Board::panic(Board::kPanicSPI);
+        }
+    }
 }
 
-} // namespce MC33972
+} // namespace MC33972

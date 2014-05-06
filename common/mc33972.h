@@ -33,7 +33,7 @@ enum Input : uint8_t
     kInputMax
 };
 
-void init();
+void configure();
 void scan();
 bool test(uint8_t inp);
 

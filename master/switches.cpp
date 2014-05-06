@@ -14,6 +14,7 @@ struct Debounce
     uint8_t     state:1;    //< current state of the switch
 };
 
+static const uint8_t    kDebounceCycles = 5; // XXX needs to be computed/tuned
 static const uint8_t    kStateBytes = (LIN::kSWMax + 7) / 8;
 static Debounce         _state[LIN::kSWMax];
 
@@ -79,7 +80,7 @@ scan()
         // switch does not match state; is timer running?
         if (_state[i].count == 0) {
             // no, start the debounce timer
-            _state[i].count = 100;  // XXX needs to be computed/tuned
+            _state[i].count = kDebounceCycles;
             continue;
         }
 

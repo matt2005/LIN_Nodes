@@ -296,10 +296,10 @@ main(void)
     if (Board::getMode() != 0) {
         Board::panic(Board::kPanicRecovery);
     }
-    debug("\nstart");
+
     // initialisation
+    gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS
     Switches::init();
-    gMaster.init();
 
     // enable interrupts; timers and LIN events will start.
     sei();

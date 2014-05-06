@@ -32,6 +32,12 @@ static void wait();
 void
 configure()
 {
+    pinMOSI.cfgOutput();
+    pinMISO.cfgInputNoPull();
+    pinSCK.cfgOutput();
+    pinCS.set();
+    pinCS.cfgOutput();
+
     // reset the chip to defaults
     cmd(kCMDReset);
 
@@ -84,8 +90,6 @@ cmd(Command cmd, uint8_t op1, uint8_t op2)
     _buf[0] = SPDR;
 
     pinCS.set();
-
-    debug("got %2x %2x %2x", _buf[2], _buf[1], _buf[0]);
 }
 
 static void

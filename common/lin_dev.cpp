@@ -25,6 +25,12 @@ LINDev::LINDev()
 void
 LINDev::init()
 {
+    // LINCS/LINTX start tristated, configure for LIN use.
+    pinLINCS.set();
+    pinLINCS.cfgOutput();
+    pinLINTX.cfgInputPullUp();
+    pinLINRX.cfgInputPullUp();
+
     // Reset the LIN block
     Lin_full_reset();
     Lin_set_baudrate(CONF_LINBRR);

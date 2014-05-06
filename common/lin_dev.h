@@ -10,6 +10,10 @@ class LINDev
 public:
     LINDev();
     
+    /// Initialise the block
+    ///
+    void            init();
+
     /// Called from the transfer-complete ISR
     ///
     void            isrTC();

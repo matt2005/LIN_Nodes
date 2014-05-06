@@ -20,11 +20,11 @@ ISR(LIN_ERR_vect)
 LINDev::LINDev()
 {
     _dev = this;
+}
 
-    for (uint8_t i = 0; i < kErrMax; i++) {
-        errors[i] = 0;
-    }
-
+void
+LINDev::init()
+{
     // Reset the LIN block
     Lin_full_reset();
     Lin_set_baudrate(CONF_LINBRR);

@@ -60,7 +60,7 @@ void init()
 # endif    
 #endif
 
-#if defined(BOARD_NODE_V1)
+#if defined(BOARD_MASTER_V1)
 
     // LINCS/LINTX start tristated, configure for LIN use.
     pinLINCS.set();

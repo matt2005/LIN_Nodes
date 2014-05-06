@@ -25,6 +25,7 @@ enum Command : uint8_t {
 };
 
 uint8_t                 _buf[3];
+bool                    changed;
 
 static void cmd(Command cmd, uint8_t op1 = 0, uint8_t op2 = 0);
 static void wait();
@@ -55,7 +56,10 @@ configure()
 
 void scan()
 {
+    uint8_t tbuf[3] = {_buf[0], _buf[1], _buf[2]};
+
     cmd(kCMDStatus);
+    changed = tbuf != _buf;
 }
 
 bool test(uint8_t inp)

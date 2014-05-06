@@ -37,4 +37,6 @@ void configure();
 void scan();
 bool test(uint8_t inp);
 
+extern bool changed;
+
 } //namespace MC33972

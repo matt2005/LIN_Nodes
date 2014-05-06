@@ -523,7 +523,11 @@ SwitchMode::action(Display::Button bp)
         return &_modeTop;
     }
 
-    draw();
+    MC33972::scan();
+
+    if (MC33972::changed) {
+        draw();
+    }
 
     return this;
 }
@@ -531,8 +535,6 @@ SwitchMode::action(Display::Button bp)
 void
 SwitchMode::draw()
 {
-    MC33972::scan();
-
     gDisplay.move(0, 0);
     gDisplay.writeP(PSTR("P "));
     char msg[2] = {'0', 0};

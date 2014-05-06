@@ -534,20 +534,26 @@ SwitchMode::draw()
     MC33972::scan();
 
     gDisplay.move(0, 0);
+    gDisplay.writeP(PSTR("P "));
+    char msg[2] = {'0', 0};
     for (uint8_t i = MC33972::kInputSP0; i <= MC33972::kInputSP7; i++) {
         if (MC33972::test(i)) {
-            gDisplay.writeP(PSTR("x"));
+            gDisplay.write(msg);
         } else {
             gDisplay.writeP(PSTR(" "));
         }
+        msg[0]++;
     }
     gDisplay.move(0, 1);
+    gDisplay.writeP(PSTR("G "));
+    msg[0] = '0';
     for (uint8_t i = MC33972::kInputSG0; i <= MC33972::kInputSG13; i++) {
         if (MC33972::test(i)) {
-            gDisplay.writeP(PSTR("x"));
+            gDisplay.write(msg);
         } else {
             gDisplay.writeP(PSTR(" "));
         }
+        msg[0]++;
     }
 }
 

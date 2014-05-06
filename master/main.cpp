@@ -23,7 +23,7 @@ void
 main(void)
 {
     Board::init();
-    
+
     // check for recovery mode before doing anything else
     if (Board::getMode() != 0) {
         Board::panic(Board::kPanicRecovery);
@@ -37,25 +37,18 @@ main(void)
     sei();
 
     // check for an attached display, run setup mode if attached
-    if (gDisplay.probe()) {
-
-        debug("Display found, entering setup mode");
-
-        // run the menu state machine forever
-        for (;;) {
-            wdt_reset();
-            Menu::tick();
-            Switches::scan();
-        }
-    }
+    bool doSetup = gDisplay.probe();
 
     // run the master logic forever
     for (;;) {
         wdt_reset();
         Switches::scan();
 
-        Relays::tick();
-
+        if (doSetup) {
+            Menu::tick();
+        } else {
+            Relays::tick();
+        }
     }
 }
 

@@ -11,5 +11,6 @@ void init();
 void scan();
 bool test(uint8_t id);
 bool changed(uint8_t id);
+bool changed();
 
 } //namespace Switches

@@ -18,19 +18,33 @@ static const uint8_t    kDebounceCycles = 5; // XXX needs to be computed/tuned
 static const uint8_t    kStateBytes = (LIN::kSWMax + 7) / 8;
 static Debounce         _state[LIN::kSWMax];
 
-void init()
+void
+init()
 {
     MC33972::configure();    
 }
 
-bool test(uint8_t id)
+bool
+test(uint8_t id)
 {
     return _state[id].state;
 }
 
-bool changed(uint8_t id)
+bool
+changed(uint8_t id)
 {
     return _state[id].count == 1;
+}
+
+bool
+changed()
+{
+    for (uint8_t id = 0; id < LIN::kSWMax; id++) {
+        if (changed(id)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void
@@ -69,6 +83,9 @@ scan()
 
     // debounce raw state
     for (uint8_t i = 0; i < LIN::kSWMax; i++) {
+
+        _state[i].state = GET(i);
+        continue;
 
         // if no change, reset debounce timer (also clears
         // 'changed' state

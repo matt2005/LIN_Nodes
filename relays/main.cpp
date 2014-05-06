@@ -18,6 +18,7 @@ main(void)
 
     // construct the slave
     RelaySlave  slave(id);
+    slave.init();
 
     // enable interrupts
     sei();

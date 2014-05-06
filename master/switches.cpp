@@ -19,7 +19,7 @@ static Debounce         _state[LIN::kSWMax];
 
 void init()
 {
-    MC33972::init();    
+    MC33972::configure();    
 }
 
 bool test(uint8_t id)

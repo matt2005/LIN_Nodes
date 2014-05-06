@@ -82,7 +82,7 @@ Decrementer     awakeDelay;
 Decrementer     interiorLightsDelay;
 Decrementer     pathwayLightingDelay;
 
-bool            ignitionWasOn;
+static bool     ignitionWasOn;
 
 static void
 interiorLights(LIN::RelayFrame &f)
@@ -296,6 +296,10 @@ main(void)
     if (Board::getMode() != 0) {
         Board::panic(Board::kPanicRecovery);
     }
+    debug("\nstart");
+    // initialisation
+    Switches::init();
+    gMaster.init();
 
     // enable interrupts; timers and LIN events will start.
     sei();

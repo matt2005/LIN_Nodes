@@ -3,8 +3,6 @@
 /// LCD character display driver
 ///
 
-/// XXX see https://github.com/johnmccombs/arduino-libraries/blob/master/Flash/Flash.h
-
 #pragma once
 
 #include <stdint.h>

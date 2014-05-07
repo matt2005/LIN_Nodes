@@ -6,9 +6,13 @@
 #include "hd44780.h"
 #include "m_top.h"
 #include "m_explore.h"
+#include "m_setup.h"
+#include "m_test.h"
 
 namespace Menu
 {
+
+TopMode modeTop;
 
 struct topNode
 {
@@ -22,12 +26,12 @@ static PROGMEM const char sTest[] = "Test";
 
 static PROGMEM const topNode nodes[] = 
 {
-//    {sSetup,    &modeSetup},
+    {sSetup,    &modeSetup},
     {sExplore,  &modeExplore},
-//    {sTest,     &modeTest}
+    {sTest,     &modeTest}
 };
 
-static const uint8_t numNodes = sizeof(nodes) / sizeof(nodes[0]);
+static const uint8_t kMaxNode = sizeof(nodes) / sizeof(nodes[0]) - 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Top menu mode
@@ -47,7 +51,7 @@ TopMode::action(Button bp)
     switch (bp) {
 
     case kButtonDown:
-        if (_index < (numNodes - 1)) {
+        if (_index < kMaxNode) {
             _index++;
             wantDraw = true;
         }

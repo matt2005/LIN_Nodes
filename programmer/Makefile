@@ -4,7 +4,9 @@ PROG		 = programmer
 SRCS		 = main.cpp \
 		   hd44780.cpp \
 		   m_top.cpp \
-		   m_explore.cpp
+		   m_explore.cpp \
+		   m_setup.cpp \
+		   m_test.cpp
 
 SRCS		+= board.cpp \
 		   lin_dev.cpp \

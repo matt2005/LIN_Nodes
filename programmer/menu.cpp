@@ -4,68 +4,20 @@
 #include "lin_protocol.h"
 #include "mc33972.h"
 
+#include "hd44780.h"
 #include "menu.h"
-#include "master.h"
-#include "display.h"
-#include "switches.h"
+
+#include "m_top.h"
+#include "m_explore.h"
 
 namespace Menu
 {
-
-class Mode
-{
-public:
-    /// Called when the mode is activated.
-    ///
-    virtual void    enter(Mode *from) = 0;
-
-    /// Called to give the mode CPU cycles
-    Mode            *tick() {
-        Display::Button bp = gDisplay.getButtonPress();
-        return action(bp);
-    }
-
-protected:
-    /// Kick the mode state machine.
-    ///
-    /// @param disp     The display the mode is using.
-    /// @param bp       The oldest un-handled button press; may be
-    ///                 Display::kButtonNone if no button press has
-    ///                 been received.
-    /// @return         The mode that is current following processing of
-    ///                 this call; should return this if no mode change.
-    ///
-    virtual Mode    *action(Display::Button bp) = 0;
-
-};
-
-class TopMode : public Mode
-{
-public:
-    virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Display::Button bp);
-private:
-    uint8_t         _index;
-    void            draw();
-};
-
-class ExploreMode : public Mode
-{
-public:
-    virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Display::Button bp);
-
-private:
-    uint8_t         _node;
-    bool            _present;
-    void            check();
-};
 
 class ParameterMode : public Mode
 {
 public:
     virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Display::Button bp);
+    virtual Mode    *action(Button bp);
 
 private:
     enum SubMode : uint8_t {
@@ -137,25 +89,11 @@ private:
     void            draw();
 };
 
-class SwitchMode : public Mode
-{
-public:
-    virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Display::Button bp);
-
-private:
-    void            draw();
-};
-
-static TopMode      _modeTop;
-static ExploreMode  _modeExplore;
-static ParameterMode _modeParameter;
-static SwitchMode   _modeSwitches;
 
 static Mode         *_mode;     ///< current mode
 
 ////////////////////////////////////////////////////////////////////////////////
-// Toplevel menu engine
+// Toplevel menu wrapper
 //
 void
 tick()
@@ -177,148 +115,6 @@ tick()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Top menu mode
-//
-
-void
-TopMode::enter(Mode *from)
-{
-    _index = 0;
-    draw();    
-}
-
-Mode *
-TopMode::action(Display::Button bp)
-{
-    bool wantDraw = false;
-    switch (bp) {
-
-    case Display::kButtonDown:
-        if (_index < 3) {
-            _index++;
-            wantDraw = true;
-        }
-        break;
-    case Display::kButtonUp:
-        if (_index > 0) {
-            _index--;
-            wantDraw = true;
-        }
-        break;
-    case Display::kButtonEnter:
-        switch (_index) {
-        case 0:
-            return &_modeParameter;
-        case 1:
-            return &_modeExplore;
-        case 2:
-            return &_modeSwitches;
-        default:
-            // ... oops
-            _index = 0;
-            wantDraw = true;
-            break;
-        }
-        break;
-    default:
-        break;
-    }
-
-    if (wantDraw) {
-        draw();
-    }
-
-    return this;
-}
-
-void
-TopMode::draw()
-{
-    const char *txt;
-
-    switch (_index) {
-    default:
-        _index = 0;
-        // FALLTHROUGH
-    case 0:
-        txt = PSTR("System Setup");
-        break;
-    case 1:
-        txt = PSTR("Explore Network");
-        break;
-    case 2:
-        txt = PSTR("Switch Test");
-        break;
-    case 3:
-        txt = PSTR("Relay Test");
-        break;
-    }
-
-    gDisplay.clear();
-    gDisplay.printf(txt);
-#ifdef DEBUG
-    gDisplay.move(8, 1);
-    gDisplay.printf(PSTR("free %3u"), Board::freemem());
-#endif
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Explore mode
-//
-
-void
-ExploreMode::enter(Mode *from)
-{
-    gDisplay.clear();
-    _node = LIN::kNADMaster;
-    check();
-}
-
-Mode *
-ExploreMode::action(Display::Button bp)
-{
-    switch (bp) {
-    case Display::kButtonCancel:
-        return &_modeTop;
-
-    case Display::kButtonDown:
-        if (_node > LIN::kNADMaster) {
-            _node--;
-            check();
-        }
-        break;
-
-    case Display::kButtonUp:
-        if (_node < (LIN::kNADMaster + 15)) {
-            _node++;
-            check();
-        }
-        break;
-
-    default:
-        break;
-    }
-
-    return this;
-}
-
-void
-ExploreMode::check()
-{
-    gDisplay.clear();
-    gDisplay.move(0, 0);
-
-    LIN::Frame f = LIN::Frame::makeReadByIDRequest(_node, LIN::kRBIProductID);
-    if (!gMaster.doRequestResponse(f)) {
-        _present = false;
-        gDisplay.printf(PSTR("%u missing"), _node);
-    } else {
-        _present = true;
-        gDisplay.printf(PSTR("%u found"), _node);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Parameter mode
 //
 
@@ -333,18 +129,18 @@ ParameterMode::enter(Mode *from)
 }
 
 Mode *
-ParameterMode::action(Display::Button bp)
+ParameterMode::action(Button bp)
 {
     switch (bp) {
 
-    case Display::kButtonCancel:
-        return &_modeTop;
+//    case kButtonCancel:
+//        return &_modeTop;
 
-    case Display::kButtonEnter:
+    case kButtonSelect:
         saveValue();
         break;
 
-    case Display::kButtonDown:
+    case kButtonDown:
         switch (_submode) {
         case SM_NODE:
             prevNode();
@@ -358,7 +154,7 @@ ParameterMode::action(Display::Button bp)
         }
         break;
 
-    case Display::kButtonUp:
+    case kButtonUp:
         switch (_submode) {
         case SM_NODE:
             nextNode();
@@ -500,60 +296,6 @@ ParameterMode::draw()
     // unsaved marker
     gDisplay.move(14, 1);
     gDisplay.printf(_changed ? PSTR("*") : PSTR(" "));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Switch test
-//
-void
-SwitchMode::enter(Mode *from)
-{
-    gDisplay.clear();
-    draw();    
-}
-
-Mode *
-SwitchMode::action(Display::Button bp)
-{
-
-    if (bp == Display::kButtonCancel) {
-        return &_modeTop;
-    }
-
-    MC33972::scan();
-
-    if (MC33972::changed) {
-        draw();
-    }
-
-    return this;
-}
-
-void
-SwitchMode::draw()
-{
-    gDisplay.move(0, 0);
-    gDisplay.printf(PSTR("P "));
-    char c = '0';
-    for (uint8_t i = MC33972::kInputSP0; i <= MC33972::kInputSP7; i++) {
-        if (MC33972::test(i)) {
-            gDisplay.putc(c);
-        } else {
-            gDisplay.putc(' ');
-        }
-        c++;
-    }
-    gDisplay.move(0, 1);
-    gDisplay.printf(PSTR("G "));
-    c = '0';
-    for (uint8_t i = MC33972::kInputSG0; i <= MC33972::kInputSG13; i++) {
-        if (MC33972::test(i)) {
-            gDisplay.putc(c);
-        } else {
-            gDisplay.putc(' ');
-        }
-        c++;
-    }
 }
 
 } // namespace Menu

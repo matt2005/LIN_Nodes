@@ -7,9 +7,7 @@
 #include "lin_protocol.h"
 #include "timer.h"
 
-#include "display.h"
 #include "master.h"
-#include "menu.h"
 #include "switches.h"
 #include "relays.h"
 
@@ -17,7 +15,6 @@ bool __cxa_guard_acquire() { return true; }
 void __cxa_guard_release() {}
 
 Master          gMaster;
-Display         gDisplay;
 
 void
 main(void)
@@ -36,19 +33,12 @@ main(void)
     // enable interrupts; timers and LIN events will start.
     sei();
 
-    // check for an attached display, run setup mode if attached
-    bool doSetup = gDisplay.probe();
-
     // run the master logic forever
     for (;;) {
         wdt_reset();
         Switches::scan();
 
-        if (doSetup) {
-            Menu::tick();
-        } else {
-            Relays::tick();
-        }
+        Relays::tick();
     }
 }
 

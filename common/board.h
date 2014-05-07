@@ -73,7 +73,7 @@ linCS(bool state)
 
 #if defined(DEBUG) && defined(pinDebugTX)
 extern Serial debugPort;
-# define debug(fmt, args...)    Board::debugPort.printfP(PSTR(fmt "\n"), ## args)
+# define debug(fmt, args...)    Board::debugPort.printf(PSTR(fmt "\n"), ## args)
 #else
 # define debug(fmt, args)       do {} while(0)
 #endif

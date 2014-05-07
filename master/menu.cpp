@@ -255,10 +255,10 @@ TopMode::draw()
     }
 
     gDisplay.clear();
-    gDisplay.writeP(txt);
+    gDisplay.printf(txt);
 #ifdef DEBUG
     gDisplay.move(8, 1);
-    gDisplay.printfP(PSTR("free %3u"), Board::freemem());
+    gDisplay.printf(PSTR("free %3u"), Board::freemem());
 #endif
 }
 
@@ -307,16 +307,14 @@ ExploreMode::check()
 {
     gDisplay.clear();
     gDisplay.move(0, 0);
-    gDisplay.write(_node);
-    gDisplay.move(4, 0);
 
     LIN::Frame f = LIN::Frame::makeReadByIDRequest(_node, LIN::kRBIProductID);
     if (!gMaster.doRequestResponse(f)) {
         _present = false;
-        gDisplay.writeP(PSTR("missing"));
+        gDisplay.printf(PSTR("%u missing"), _node);
     } else {
         _present = true;
-        gDisplay.writeP(PSTR("found"));
+        gDisplay.printf(PSTR("%u found"), _node);
     }
 }
 
@@ -330,7 +328,7 @@ ParameterMode::enter(Mode *from)
     _submode = SM_NODE;
     setNode(0);
     gDisplay.clear();
-    gDisplay.writeP(PSTR("Node Parm Value"));
+    gDisplay.printf(PSTR("Node Parm Value"));
     draw();
 }
 
@@ -484,25 +482,24 @@ ParameterMode::draw()
 {
     // clear edit line
     gDisplay.move(0, 1);
-    gDisplay.writeP(PSTR("                "));     // XXX inefficient
+    gDisplay.printf(PSTR("                "));     // XXX inefficient
 
     // mode marker
     gDisplay.move((uint8_t)_submode, 1);
-    gDisplay.writeP(PSTR(">"));
+    gDisplay.printf(PSTR(">"));
 
     // values
     gDisplay.move(1, 1);
-    gDisplay.write(_node);
+    gDisplay.printf(PSTR("%u"), _node);
     if (_present) {
         gDisplay.move(6, 1);
-        gDisplay.write(_param);
-        gDisplay.move(11, 1);
-        gDisplay.write(_value);
+
+        gDisplay.printf(PSTR("%u %u"), _param, _value);
     }
 
     // unsaved marker
     gDisplay.move(14, 1);
-    gDisplay.writeP(_changed ? PSTR("*") : PSTR(" "));
+    gDisplay.printf(_changed ? PSTR("*") : PSTR(" "));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -536,26 +533,26 @@ void
 SwitchMode::draw()
 {
     gDisplay.move(0, 0);
-    gDisplay.writeP(PSTR("P "));
-    char msg[2] = {'0', 0};
+    gDisplay.printf(PSTR("P "));
+    char c = '0';
     for (uint8_t i = MC33972::kInputSP0; i <= MC33972::kInputSP7; i++) {
         if (MC33972::test(i)) {
-            gDisplay.write(msg);
+            gDisplay.putc(c);
         } else {
-            gDisplay.writeP(PSTR(" "));
+            gDisplay.putc(' ');
         }
-        msg[0]++;
+        c++;
     }
     gDisplay.move(0, 1);
-    gDisplay.writeP(PSTR("G "));
-    msg[0] = '0';
+    gDisplay.printf(PSTR("G "));
+    c = '0';
     for (uint8_t i = MC33972::kInputSG0; i <= MC33972::kInputSG13; i++) {
         if (MC33972::test(i)) {
-            gDisplay.write(msg);
+            gDisplay.putc(c);
         } else {
-            gDisplay.writeP(PSTR(" "));
+            gDisplay.putc(' ');
         }
-        msg[0]++;
+        c++;
     }
 }
 

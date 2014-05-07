@@ -4,40 +4,20 @@
 
 #include "print.h"
 
-void
-Print::write(const char *s)
-{
-    uint8_t c;
-
-    while ((c = *s++) != 0) {
-        _write(c);
-    }
-}
-
-void
-Print::writeP(PGM_P s)
-{
-    uint8_t c;
-
-    while ((c = pgm_read_byte(s++)) != 0) {
-        _write(c);
-    }
-}
+//void
+//Print::write(uint8_t n)
+//{
+//    _write(n, 3);
+//}
+//
+//void
+//Print::write(uint16_t n)
+//{
+//    _write(n, 5);
+//}
 
 void
-Print::write(uint8_t n)
-{
-    _write(n, 3);
-}
-
-void
-Print::write(uint16_t n)
-{
-    _write(n, 5);
-}
-
-void
-Print::printfP(PGM_P fmt, ...)
+Print::printf(PGM_P fmt, ...)
 {
     va_list ap;
     uint8_t c;
@@ -92,11 +72,10 @@ nextfmt:
 void
 Print::_write(uint16_t n, uint8_t width)
 {
-    char buf[width + 1];
-    uint8_t pos = width;
+    char buf[width];
+    uint8_t pos = width - 1;
     bool clear = false;
 
-    buf[pos--] = 0;
     buf[pos] = '0';
     
     for (;;) {
@@ -114,20 +93,27 @@ Print::_write(uint16_t n, uint8_t width)
         clear = true;
         pos--;
     } 
-    write(&buf[0]);
+    while (pos < width) {
+        putc(buf[pos++]);
+    }
 }
 
 void
 Print::_writex(uint16_t n, uint8_t width)
 {
-    while (width > 0) {
-        uint8_t d = (n >> 4 * (width - 1)) & 0xf;
+    uint8_t shift = 4 * (width - 1);
+
+    for (;;) {
+        uint8_t d = (n >> shift) & 0xf;
 
         if (d <= 9) {
-            _write('0' + d);
+            putc('0' + d);
         } else {
-            _write('a' + d - 10);
+            putc('a' + d - 10);
         }
-        width--;
+        if (shift == 0) {
+            break;
+        }
+        shift -= 4;;
     }
 }

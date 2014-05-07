@@ -4,18 +4,6 @@
 
 #include "print.h"
 
-//void
-//Print::write(uint8_t n)
-//{
-//    _write(n, 3);
-//}
-//
-//void
-//Print::write(uint16_t n)
-//{
-//    _write(n, 5);
-//}
-
 void
 Print::printf(PGM_P fmt, ...)
 {

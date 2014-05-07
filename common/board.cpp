@@ -77,6 +77,7 @@ getMode()
 {
     uint8_t mode = 0;
 
+#ifdef pinMode1
     // configure Mode pins for reading
     pinMode1.cfgInputPullUp();
     pinMode2.cfgInputPullUp();
@@ -94,7 +95,7 @@ getMode()
         mode |= 4;
     if (!pinMode8.get())
         mode |= 8;
-
+#endif
     return mode;
 }
 

@@ -40,6 +40,7 @@ public:
     constexpr Pin operator[](uint8_t pin) {
         return Pin(*this, pin);
     }
+    void set(uint8_t val) { PORT = val; };
 };
 
 static Port portA(DDRA, PORTA, PINA);

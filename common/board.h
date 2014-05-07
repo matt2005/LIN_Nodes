@@ -15,6 +15,9 @@
 #if defined(BOARD_MASTER_V1)
 # include "config_master_v1.h"
 #endif
+#if defined(BOARD_PROGRAMMER_V1)
+# include "config_programmer_v1.h"
+#endif
 #ifndef pinLINRX
 # error Need to define a board type
 #endif

@@ -5,23 +5,24 @@
 
 #include "hd44780.h"
 
-HD44780 Display;
+HD44780 lcd;
+Display &gDisplay = lcd;
 
 void
 main(void)
 {
     Board::init();
-    Display.init();
+    lcd.init();
 
-    Display.writeP(PSTR("test"));
+    gDisplay.printf(PSTR("test"));
 
     unsigned i = 0;
 
     for (;;) {
         wdt_reset();
 
-        Display.move(0, 1);
-        Display.printfP(PSTR("count %u    "), i++);
+        gDisplay.move(0, 1);
+        gDisplay.printf(PSTR("count %u    "), i++);
     }
 
 }

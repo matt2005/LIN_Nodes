@@ -24,7 +24,8 @@ HD44780::init()
     // hide cursor
     sendCmd(0x08);
 
-    clear();
+    // clear display & home cursor
+    sendCmd(0x01);
 
     // set cursor direction
     sendCmd(0x06);

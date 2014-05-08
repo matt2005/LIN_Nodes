@@ -19,7 +19,6 @@ enum FrameID : uint8_t
 {
     kFIDNone            = 0,
     kFIDRelays          = 1,
-    kFIDAuxSwitches     = 2,
 
     kFIDMasterRequest   = 0x3c,
     kFIDSlaveResponse   = 0x3d,
@@ -87,8 +86,8 @@ enum NodeAddress : uint8_t
     kNADSleep           = 0,
 
     kNADMaster          = 1,    //< always NAD 1
-    kNADAuxSwitches     = 2,
-    kNADPowerBase       = 3,
+    kNADPowerBase       = 2,    //< 16 of these (board ID 0-15)
+    kNADProgrammer      = 18,
 
     kNADFunctional      = 126,
     kNADBroadcast       = 127,
@@ -112,6 +111,15 @@ enum ReadByID : uint8_t {
     kRBIProductID       = 0,
     kRBISerialNumber    = 1,
     kRBIErrorCounters   = 32,
+};
+
+enum DDID : uint8_t {
+    kDDIDGetParameter   = 1,    //< request, arg is parameter id
+    kDDIDReportParameter = 2,   //< response, args are parameter id and value
+    kDDIDSetParameter   = 3,    //< request, args are parameter id and value
+    kDDIDGetRequest     = 4,    //< request to programmer
+    kDDIDReportRequest  = 5,    //< response from programmer, args are operation,
+                                //< parameter and value (if required)
 };
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number

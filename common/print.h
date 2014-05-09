@@ -21,6 +21,7 @@ protected:
 private:
     void            _write(uint16_t n, uint8_t width);
     void            _writex(uint16_t n, uint8_t width);
+    void            _writes(const char *s, uint8_t width);
 };
 
 class Display : public Print

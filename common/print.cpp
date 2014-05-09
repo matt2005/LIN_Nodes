@@ -36,8 +36,12 @@ nextfmt:
             return;
 
         case '1'...'9':
-            w = c - '0';
+            w = (10 * w) + (c - '0');
             goto nextfmt;
+
+        case 's':
+            _writes(va_arg(ap, const char *), w);
+            break;
 
         case 'p':
             _write('0');
@@ -103,5 +107,18 @@ Print::_writex(uint16_t n, uint8_t width)
             break;
         }
         shift -= 4;;
+    }
+}
+
+void
+Print::_writes(const char *s, uint8_t width) 
+{
+    char c;
+    while (width > strlen_PF((uint_farptr_t)s)) {
+        putc(' ');
+        width--;
+    }
+    while ((c = pgm_read_byte((uint_farptr_t)s++)) != '\0') {
+        putc(c);
     }
 }

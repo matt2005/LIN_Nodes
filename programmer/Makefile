@@ -2,7 +2,9 @@ DEBUG		 = YES
 
 PROG		 = programmer
 SRCS		 = main.cpp \
+		   encoder.cpp \
 		   hd44780.cpp \
+		   menu.cpp \
 		   m_top.cpp \
 		   m_explore.cpp \
 		   m_setup.cpp \

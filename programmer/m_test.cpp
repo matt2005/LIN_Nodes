@@ -22,17 +22,17 @@ TestMode::enter(Mode *from)
 }
 
 Mode *
-TestMode::action(Button bp)
+TestMode::action(Encoder::Event bp)
 {
     switch (bp) {
 
-    case kButtonDown:
+    case Encoder::kEventDown:
         break;
 
-    case kButtonUp:
+    case Encoder::kEventUp:
         break;
 
-    case kButtonSelect:
+    case Encoder::kEventPress:
         return &modeTop;
 
     default:

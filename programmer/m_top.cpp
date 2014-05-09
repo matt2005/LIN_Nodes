@@ -45,26 +45,26 @@ TopMode::enter(Mode *from)
 }
 
 Mode *
-TopMode::action(Button bp)
+TopMode::action(Encoder::Event bp)
 {
     bool wantDraw = false;
     switch (bp) {
 
-    case kButtonDown:
+    case Encoder::kEventDown:
         if (_index < kMaxNode) {
             _index++;
             wantDraw = true;
         }
         break;
 
-    case kButtonUp:
+    case Encoder::kEventUp:
         if (_index > 0) {
             _index--;
             wantDraw = true;
         }
         break;
 
-    case kButtonSelect:
+    case Encoder::kEventPress:
         return reinterpret_cast<Mode *>(pgm_read_ptr(&nodes[_index].mode));
 
     default:
@@ -86,7 +86,7 @@ TopMode::draw()
 
 #ifdef DEBUG
     gDisplay.move(8, 1);
-    gDisplay.printf(PSTR("free %3u"), Board::freemem());
+    gDisplay.printf(PSTR("%u free %3u"), (unsigned)_index, Board::freemem());
 #endif
 }
 

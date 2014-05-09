@@ -39,8 +39,6 @@ public:
     ///
     void                setInterval(Timeval ticks) { _interval = ticks; }
 
-
-
     /// Returns the current time.
     ///
     /// Note that due to the limited range of Timeval, time wraps every ~65 seconds.

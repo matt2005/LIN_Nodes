@@ -21,10 +21,13 @@
 //
 
 #include <avr/wdt.h>
+#include <avr/interrupt.h>
 
 #include "board.h"
 
 #include "hd44780.h"
+#include "menu.h"
+#include "encoder.h"
 
 HD44780 lcd;
 Display &gDisplay = lcd;
@@ -34,16 +37,14 @@ main(void)
 {
     Board::init();
     lcd.init();
+    Encoder::init();
 
-    gDisplay.printf(PSTR("test"));
-
-    unsigned i = 0;
+    sei();
 
     for (;;) {
         wdt_reset();
 
-        gDisplay.move(0, 1);
-        gDisplay.printf(PSTR("count %u    "), i++);
+        Menu::tick();
     }
 
 }

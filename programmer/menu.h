@@ -6,16 +6,10 @@
 
 #include "print.h"
 
+#include "encoder.h"
+
 namespace Menu
 {
-
-enum Button : uint8_t
-{
-    kButtonNone = 0,
-    kButtonUp,
-    kButtonDown,
-    kButtonSelect
-};
 
 void tick();
 
@@ -27,10 +21,7 @@ public:
     virtual void    enter(Mode *from) = 0;
 
     /// Called to give the mode CPU cycles
-    Mode            *tick() {
-        Button bp = kButtonNone; // XXX get button press
-        return action(bp);
-    }
+    Mode            *tick();
 
 protected:
     /// Kick the mode state machine.
@@ -41,7 +32,7 @@ protected:
     /// @return         The mode that is current following processing of
     ///                 this call; should return this if no mode change.
     ///
-    virtual Mode    *action(Button bp) = 0;
+    virtual Mode    *action(Encoder::Event bp) = 0;
 
 };
 

@@ -11,7 +11,7 @@ class TopMode : public Mode
 {
 public:
     virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Button bp);
+    virtual Mode    *action(Encoder::Event bp);
 private:
     uint8_t         _index;
     void            draw();

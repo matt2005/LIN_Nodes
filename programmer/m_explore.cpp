@@ -21,20 +21,20 @@ ExploreMode::enter(Mode *from)
 }
 
 Mode *
-ExploreMode::action(Button bp)
+ExploreMode::action(Encoder::Event bp)
 {
     switch (bp) {
 //    case kButtonCancel:
 //        return &_modeTop;
 
-    case kButtonDown:
+    case Encoder::kEventDown:
         if (_node > LIN::kNADMaster) {
             _node--;
             check();
         }
         break;
 
-    case kButtonUp:
+    case Encoder::kEventUp:
         if (_node < (LIN::kNADMaster + 15)) {
             _node++;
             check();

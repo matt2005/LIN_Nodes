@@ -2,6 +2,7 @@
 #include <avr/pgmspace.h>
 
 #include "board.h"
+#include "util.h"
 
 #include "hd44780.h"
 #include "m_top.h"
@@ -19,13 +20,15 @@ struct topNode
     Mode *const mode;
 };
 
-static PROGMEM const char sExplore[] = "Configure";
-static PROGMEM const char sTest[] = "Test";
+static PROGMEM const char nametab[] = 
+    "Configure\0"
+    "Test\0"
+    "\0";
 
-static PROGMEM const topNode nodes[] = 
+static PROGMEM Mode * const nodes[] = 
 {
-    {sExplore,  &modeExplore},
-    {sTest,     &modeTest}
+    &modeExplore,
+    &modeTest
 };
 
 static const uint8_t kMaxNode = sizeof(nodes) / sizeof(nodes[0]) - 1;
@@ -62,7 +65,7 @@ TopMode::action(Encoder::Event bp)
         break;
 
     case Encoder::kEventPress:
-        return reinterpret_cast<Mode *>(pgm_read_ptr(&nodes[_index].mode));
+        return reinterpret_cast<Mode *>(pgm_read_ptr(&nodes[_index]));
 
     default:
         break;
@@ -79,7 +82,7 @@ void
 TopMode::draw()
 {
     gDisplay.clear();
-    gDisplay.printf(reinterpret_cast<const char *>(pgm_read_ptr(&nodes[_index].name)));
+    gDisplay.printf(Util::strtab(nametab, _index));
 
 #ifdef DEBUG
     gDisplay.move(8, 1);

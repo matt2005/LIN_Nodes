@@ -110,10 +110,9 @@ Master::_event()
 bool
 Master::waitRequest()
 {
-    auto then = Timer::timeNow();
-
     // spin for 100ms waiting for the frame to be sent
-    while (Timer::timeSince(then) < 500) {
+    Timestamp t;
+    while (!t.olderThan(100)) {
         if (!_sendRequest && !_getResponse) {
             return true;
         }

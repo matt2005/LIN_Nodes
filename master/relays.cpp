@@ -287,24 +287,6 @@ tick()
     tailLights(f);
     pathLights(f);
 
-    #if 0
-                // doors just opened with ignition off
-                if (Switches::test(LIN::kSWDoor) &&
-                    Switches::changed(LIN::kSWDoor)) {
-                    if (ignitionWasOn) {
-                        // start path lighting timer
-                        pathLightingStart = Timer::timeNow();
-                    }
-                }
-
-                // path lighting timer has not expired
-                if (Timer::timeSince(pathLightingStart) < (paramPathLightPeriod.get() * 1000U)) {
-                    f.set(LIN::kRelayMarkers);
-                    f.set(LIN::kRelayCityLights);
-                }
-    #endif
-
-
     // update the copy we are sending to nodes
     gMaster.relayFrame.copy(f);
 }

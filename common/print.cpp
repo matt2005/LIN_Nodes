@@ -113,6 +113,10 @@ Print::_writex(uint16_t n, uint8_t width)
 void
 Print::_writes(const char *s, uint8_t width) 
 {
+    if (s == nullptr) {
+        s = PSTR("null");
+    }
+
     char c;
     while (width > strlen_PF((uint_farptr_t)s)) {
         putc(' ');

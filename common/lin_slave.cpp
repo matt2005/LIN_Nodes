@@ -64,6 +64,11 @@ Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 }
 
 void
+Slave::responseSent()
+{
+}
+
+void
 Slave::sleepRequested(SleepType type)
 {
     // default behaviour is to behave as requested

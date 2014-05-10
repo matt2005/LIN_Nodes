@@ -48,15 +48,15 @@ TopMode::action(Encoder::Event bp)
     switch (bp) {
 
     case Encoder::kEventDown:
-        if (_index < kMaxNode) {
-            _index++;
+        if (_index > 0) {
+            _index--;
             wantDraw = true;
         }
         break;
 
     case Encoder::kEventUp:
-        if (_index > 0) {
-            _index--;
+        if (_index < kMaxNode) {
+            _index++;
             wantDraw = true;
         }
         break;

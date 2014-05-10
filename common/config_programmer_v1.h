@@ -9,8 +9,8 @@
 #define ENC_INT_REG     PCMSK0
 #define ENC_INT_BITS    ((1 << PCINT2) | (1 << PCINT3) | (1 << PCINT4))
 #define ENC_INT_BIT     (1 << PCIE0)
-#define pinENCA         portA[2]
-#define pinENCB         portA[3]
+#define pinENCA         portA[3]
+#define pinENCB         portA[2]
 #define pinButton       portA[4]
 
 #define pinLINRX        portA[0]

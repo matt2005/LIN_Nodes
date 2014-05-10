@@ -1,6 +1,7 @@
 
 #include "lin_protocol.h"
 #include "util.h"
+#include "board.h"
 
 #include "m_setup_master.h"
 #include "m_top.h"
@@ -47,18 +48,17 @@ static PROGMEM const char paramNames[] =
 void
 SetupMasterMode::enter(Mode *from)
 {
-    _param = 1;
     gDisplay.clear();
 
     if (_editing) {
         _editing = false;
-#if 0
         if (!gSlave.setParameter(LIN::kNADMaster, _param, _value)) {
             gDisplay.printf(PSTR("param %2u write error"), _param);
             Board::msDelay(5000);
             gDisplay.clear();
         }
-#endif
+    } else {
+        _param = 1;
     }
 
     draw();
@@ -128,7 +128,7 @@ SetupMasterMode::draw()
 
         switch (_param) {
         case 1 ... 21:
-            gDisplay.printf(PSTR("Input %2u:"), _param);
+            gDisplay.printf(PSTR("Input %2u"), _param);
             if ((str = Util::strtab(switchNames, _value)) == nullptr) {
                 str = PSTR("<unset>");
             }

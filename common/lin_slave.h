@@ -49,6 +49,10 @@ protected:
     ///
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
     
+    /// Called when a response has been sent
+    ///
+    virtual void    responseSent() override;
+
     /// Called when the network is told to sleep.
     ///
     /// @param type             Indicates whether this is a requested or idle

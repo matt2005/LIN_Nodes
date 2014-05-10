@@ -88,6 +88,10 @@ protected:
     ///
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame);
     
+    /// Called when a response has been sent
+    ///
+    virtual void    responseSent();
+
     /// Wait until the LBUSY bit is cleared
     ///
     void            waitBusy() const { while (LINSIR & (1 << LBUSY)) {} }

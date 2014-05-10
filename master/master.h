@@ -41,8 +41,13 @@ private:
     Timer           _eventTimer;
     uint8_t         _eventIndex;
 
+    uint8_t         _configParam;
+
     volatile bool   _sendRequest:1;
     volatile bool   _getResponse:1;
+    volatile bool   _sendConfigResponseHeader:1;
+    volatile bool   _sendConfigResponseFrame:1;
+
 
     /// Event initiator
     static void     event(void *arg);
@@ -51,6 +56,11 @@ private:
     /// Internal waiter for doRequest/doRequestResponse.
     ///
     bool            waitRequest();
+
+    /// Config request handler
+    ///
+    void            handleConfigRequest(LIN::ConfigFrame &frame);
+    void            handleConfigResponse();
 };
 
 extern Master gMaster;

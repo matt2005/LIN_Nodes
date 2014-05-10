@@ -121,7 +121,7 @@ LINDev::isrTC()
 
     if (LINSIR & (1 << LTXOK)) {
 
-        // XXX do not-transmitting-anymore work
+        responseSent();
 
         // and clear the interrupt
         Lin_clear_txok_it();
@@ -238,3 +238,9 @@ void
 LINDev::responseReceived(LIN::FID fid, LIN::Frame &frame)
 {
 }
+
+void
+LINDev::responseSent()
+{
+}
+

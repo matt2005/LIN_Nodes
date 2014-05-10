@@ -9,7 +9,8 @@ SRCS		 = main.cpp \
 		   m_top.cpp \
 		   m_explore.cpp \
 		   m_setup.cpp \
-		   m_test.cpp
+		   m_test.cpp \
+		   slave.cpp
 
 SRCS		+= board.cpp \
 		   lin_dev.cpp \

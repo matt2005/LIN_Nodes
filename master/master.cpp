@@ -56,23 +56,31 @@ Master::_event()
     // work out what header we should send now 
     do {
         switch (_eventIndex++) {
-        case 0:
-        case 2:
+        case 0 ... 3:
+            fid = LIN::kFIDRelays;
+            break;
+
         case 4:
-        case 6:
-            // send controls
-            fid = LIN::kFIDNonsense; //LIN::kFIDRelays;
+            // XXX reduce rate if programmer not present
+            fid = LIN::kFIDConfigRequest;
             break;
 
-        case 1:
-        case 3:
-        case 5:
-        case 7:
-            // read switches
-            fid = LIN::kFIDNonsense; //LIN::kFIDAuxSwitches;
+        case 5 ... 8:
+            fid = LIN::kFIDRelays;
             break;
 
-        case 8:
+        case 9:
+            if (_sendConfigResponseHeader) {
+                _sendConfigResponseHeader = false;
+                fid = LIN::kFIDConfigResponse;
+            }
+            break;
+
+        case 10 ... 13:
+            fid = LIN::kFIDRelays;
+            break;
+
+        case 14:
             // MasterRequest/SlaveResponse
             if (_sendRequest) {
                 fid = LIN::kFIDMasterRequest;
@@ -123,6 +131,9 @@ Master::headerReceived(LIN::FID fid)
         sendResponse(relayFrame, 8);
         break;
 
+    case LIN::kFIDConfigResponse:
+        handleConfigResponse();
+
     case LIN::kFIDMasterRequest:
         // if we have a request to send, commit it to the wire
         if (_sendRequest) {
@@ -147,6 +158,10 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
 {
     switch (fid) {
 
+    case LIN::kFIDConfigRequest:
+        handleConfigRequest(reinterpret_cast<LIN::ConfigFrame &>(frame));
+        break;
+
     case LIN::kFIDSlaveResponse:
         // if we are expecting a response, copy it back
         if (_getResponse) {
@@ -158,4 +173,42 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
     default:
         break;
     }
+}
+
+void
+Master::handleConfigRequest(LIN::ConfigFrame &frame)
+{
+    // we will want to send a ConfigResponse header later
+    _sendConfigResponseHeader = true;
+
+    if (frame.nad() != LIN::kNADMaster) {
+        return;
+    }
+    if (frame.flavour() == LIN::kCFGetParam) {
+        _configParam = frame.param();
+        _sendConfigResponseFrame = true;
+        return;
+    }
+    if (frame.flavour() == LIN::kCFSetParam) {
+        Parameter(frame.param()).set(frame.value());
+        return;
+    }
+}
+
+void
+Master::handleConfigResponse()
+{
+    if (!_sendConfigResponseFrame) {
+        return;
+    }
+    _sendConfigResponseFrame = false;
+
+    LIN::ConfigFrame f;
+
+    f.nad() = LIN::kNADMaster;
+    f.flavour() = LIN::kCFGetParam;
+    f.param() = _configParam;
+    f.value() = Parameter(_configParam).get();
+
+    sendResponse(f, 8);
 }

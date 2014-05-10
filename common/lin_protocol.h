@@ -20,6 +20,9 @@ enum FrameID : uint8_t
     kFIDNone            = 0,
     kFIDRelays          = 1,
 
+    kFIDConfigRequest   = 0x2c,
+    kFIDConfigResponse  = 0x2d,
+
     kFIDMasterRequest   = 0x3c,
     kFIDSlaveResponse   = 0x3d,
 
@@ -87,7 +90,8 @@ enum NodeAddress : uint8_t
 
     kNADMaster          = 1,    //< always NAD 1
     kNADPowerBase       = 2,    //< 16 of these (board ID 0-15)
-    kNADProgrammer      = 18,
+
+    kNADProgrammer      = 120,  //< plug-in programmer
 
     kNADFunctional      = 126,
     kNADBroadcast       = 127,
@@ -111,15 +115,6 @@ enum ReadByID : uint8_t {
     kRBIProductID       = 0,
     kRBISerialNumber    = 1,
     kRBIErrorCounters   = 32,
-};
-
-enum DDID : uint8_t {
-    kDDIDGetParameter   = 1,    //< request, arg is parameter id
-    kDDIDReportParameter = 2,   //< response, args are parameter id and value
-    kDDIDSetParameter   = 3,    //< request, args are parameter id and value
-    kDDIDGetRequest     = 4,    //< request to programmer
-    kDDIDReportRequest  = 5,    //< response from programmer, args are operation,
-                                //< parameter and value (if required)
 };
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
@@ -233,6 +228,21 @@ public:
     }
 };
 
+enum ConfigFlavour : uint8_t {
+    kCFGetParam,
+    kCFSetParam,
+};
+
+class ConfigFrame : public Frame
+{
+public:
+
+    volatile uint8_t    &nad()     volatile { return (*this)[0]; }
+    volatile uint8_t    &flavour() volatile { return (*this)[1]; }
+    volatile uint8_t    &param()   volatile { return (*this)[2]; }
+    volatile uint8_t    &value()   volatile { return (*this)[3]; }
+
+};
 
 } // namespace LIN
 

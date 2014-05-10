@@ -91,7 +91,9 @@ enum NodeAddress : uint8_t
     kNADMaster          = 1,    //< always NAD 1
     kNADPowerBase       = 2,    //< 16 of these (board ID 0-15)
 
-    kNADProgrammer      = 120,  //< plug-in programmer
+    kNADProgrammer      = 20,  //< plug-in programmer
+
+    kNADMaxAssigned,
 
     kNADFunctional      = 126,
     kNADBroadcast       = 127,

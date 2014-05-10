@@ -1,5 +1,7 @@
+#include <avr/wdt.h>
 
 #include "lin_protocol.h"
+#include "board.h"
 
 #include "m_explore.h"
 #include "m_top.h"
@@ -18,7 +20,14 @@ void
 ExploreMode::enter(Mode *from)
 {
     gDisplay.clear();
-    _node = LIN::kNADMaster;
+    if (!nodePresent(LIN::kNADMaster)) {
+        gDisplay.clear();
+        gDisplay.printf(PSTR("Master node not found"));
+        Board::msDelay(5000);
+        _node = 0;
+    } else {
+        _node = LIN::kNADMaster;
+    }
     draw();
 }
 
@@ -30,11 +39,13 @@ ExploreMode::action(Encoder::Event bp)
     switch (bp) {
     
     case Encoder::kEventDown:
-        wantDraw = searchDown();
+        searchDown();
+        wantDraw = true;
         break;
 
     case Encoder::kEventUp:
-        wantDraw = searchUp();
+        searchUp();
+        wantDraw = true;
         break;
 
     case Encoder::kEventPress:
@@ -69,7 +80,8 @@ ExploreMode::draw()
 bool
 ExploreMode::searchUp()
 {
-    for (uint8_t newNode = _node + 1; newNode < LIN::kNADFunctional; newNode ++) {
+    for (uint8_t newNode = _node + 1; newNode < LIN::kNADMaxAssigned; newNode ++) {
+        wdt_reset();
         if (nodePresent(newNode)) {
             _node = newNode;
             return true;
@@ -86,6 +98,7 @@ ExploreMode::searchDown()
     }
     uint8_t newNode;
     for (newNode = _node - 1; newNode > 0; newNode--) {
+        wdt_reset();
         if (nodePresent(newNode)) {
             break;
         }
@@ -98,6 +111,9 @@ bool
 ExploreMode::nodePresent(uint8_t node)
 {
     uint8_t dummy;
+
+    gDisplay.clear();
+    gDisplay.printf(PSTR("searching %u"), node);
 
     return gSlave.getParameter(node, 0, dummy);
 }

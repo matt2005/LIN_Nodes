@@ -14,9 +14,9 @@ public:
     virtual Mode    *action(Encoder::Event bp);
 
 private:
-    Mode            *_from;
-
     uint8_t         _param;
+    uint8_t         _value;
+    bool            _editing;
 
     void            draw();
 };

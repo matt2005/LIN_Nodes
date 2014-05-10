@@ -72,10 +72,19 @@ void
 ExploreMode::draw()
 {
     gDisplay.clear();
-    if (_node == 0) {
-        gDisplay.printf(PSTR("Main Menu"));
-    } else {
+    switch (_node) {
+    case 0:
+        gDisplay.printf(PSTR(">back"));
+        break;
+    case 1:
+        gDisplay.printf(PSTR("Master Node"));
+        break;
+    case 2 ... 17:
+        gDisplay.printf(PSTR("Relay Node %2u"), _node - 1);
+        break;
+    default:
         gDisplay.printf(PSTR("Node %2u"), _node);
+        break;
     }
 }
 

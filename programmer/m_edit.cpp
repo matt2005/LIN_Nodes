@@ -19,39 +19,22 @@ void
 EditMode::enter(Mode *from)
 {
     _from = from;
-    if (*_value < _min) {
-        *_value = _min;
-    } else if (*_value > _max) {
-        *_value = _max;
-    }
     draw();
 }
 
 Mode *
 EditMode::action(Encoder::Event bp)
 {
-    bool wantDraw = false;
-
     switch (bp) {
 
     case Encoder::kEventDown:
-        if (*_value > _min) {
-            (*_value)--;
-            wantDraw = true;
-        } else if (*_value == _min) {
-            *_value = _max;
-            wantDraw = true;
-        }
+        decrement();
+        draw();
         break;
 
     case Encoder::kEventUp:
-        if (*_value < _max) {
-            (*_value)++;
-            wantDraw = true;
-        } else if (*_value == _max) {
-            *_value = _min;
-            wantDraw = true;
-        }
+        increment();
+        draw();
         break;
 
     case Encoder::kEventPress:
@@ -61,21 +44,50 @@ EditMode::action(Encoder::Event bp)
         break;
     }
 
-    if (wantDraw) {
-        draw();
-    }
-
     return this;
+}
+
+void
+EditMode::increment()
+{
+    if (_stringtab == nullptr) {
+        if ((*_value) < _max) {
+            (*_value)++;
+        } else if ((*_value) == _max) {
+            (*_value) = _min;
+        }
+    } else {
+        if ((*_value) < (Util::strtablen(_stringtab) - 1)) {
+            (*_value)++;
+        } else {
+            (*_value) = 0;
+        }
+    }
+}
+
+void
+EditMode::decrement()
+{
+    if ((*_value) > 0) {
+        (*_value)--;
+    } else {
+        if (_stringtab == nullptr) {
+            (*_value) = _max;
+        } else {
+            (*_value) = Util::strtablen(_stringtab) - 1;
+        }
+    }
 }
 
 void
 EditMode::draw()
 {
     gDisplay.move(_x, _y);
-    if (_strings == nullptr) {
-        gDisplay.printf(_fmt, *_value);
+
+    if (_stringtab == nullptr) {
+        gDisplay.printf(_fmt, (*_value));
     } else {
-        gDisplay.printf(_fmt, _strings + *_value);
+        gDisplay.printf(_fmt, Util::strtab(_stringtab, (*_value)));
     }
 }
 

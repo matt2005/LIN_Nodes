@@ -10,50 +10,60 @@
 bool
 ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
 {
-    cli();
-    _nodeAddress = nad;
-    _paramIndex = param;
-    _paramValue = value;
-    _state = kStateSetWaitRequest;
-    sei();
+    for (uint8_t tries = 0; tries < 3; tries++) {
+        cli();
+        _nodeAddress = nad;
+        _paramIndex = param;
+        _paramValue = value;
+        _state = kStateSetWaitRequest;
+        sei();
 
-    // wait 100ms for the transaction to complete
-    Timestamp t;
-    while (_state != kStateIdle) {
-        wdt_reset();
-        if (t.isOlderThan(300)) {
-            debug("set timed out with state %u", _state);
-            return false;
+        // wait 100ms for the transaction to complete
+        Timestamp t;
+        while (!t.isOlderThan(300)) {
+            wdt_reset();
+            if (_state == kStateIdle) {
+                uint8_t readback;
+
+                if (getParameter(nad, param, readback) && (readback == value)) {
+                    return true;
+                } else {
+                    debug("set: readback %u not %u", readback, value);
+                }
+            }
         }
+        debug("set: timed out in state %u", _state);
     }
-    return true;
+    debug("set: failed");
+    return false;
 }
 
 bool
 ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
 {
-    cli();
-    _nodeAddress = nad;
-    _paramIndex = param;
-    _state = kStateGetWaitRequest;
-    sei();
+    for (uint8_t tries = 0; tries < 3; tries++) {
+        cli();
+        _nodeAddress = nad;
+        _paramIndex = param;
+        _state = kStateGetWaitRequest;
+        sei();
 
-    // wait 100ms for the transaction to complete
-    Timestamp t;
-    while (_state != kStateGetComplete) {
-        wdt_reset();
-        if (t.isOlderThan(300)) {
-            debug("get timed out with state %u", _state);
-            return false;
-        }        
-        if (_state == kStateError) {
-            debug("get failed due to error");
-            return false;
-        }        
+        // wait 100ms for the transaction to complete
+        Timestamp t;
+        while (!t.isOlderThan(300)) {
+            wdt_reset();
+            if (_state == kStateGetComplete) {
+                value = _paramValue;
+                _state = kStateIdle;
+                return true;
+            }
+            if (_state == kStateError) {
+                break;
+            }
+        }
+        debug("get: timed out in state %u", _state);
     }
-    value = _paramValue;
-    _state = kStateIdle;
-    return true;
+    return false;
 }
 
 void
@@ -113,7 +123,7 @@ ProgrammerSlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
             _state = kStateGetComplete;
         }
     } else {
-        debug("unexpected response");
+        debug("unexpected response %u in state %u", fid, _state);
     }
 }
 

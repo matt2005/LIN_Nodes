@@ -19,6 +19,11 @@ void
 EditMode::enter(Mode *from)
 {
     _from = from;
+    if (*_value < _min) {
+        *_value = _min;
+    } else if (*_value > _max) {
+        *_value = _max;
+    }
     draw();
 }
 
@@ -33,12 +38,18 @@ EditMode::action(Encoder::Event bp)
         if (*_value > _min) {
             (*_value)--;
             wantDraw = true;
+        } else if (*_value == _min) {
+            *_value = _max;
+            wantDraw = true;
         }
         break;
 
     case Encoder::kEventUp:
         if (*_value < _max) {
             (*_value)++;
+            wantDraw = true;
+        } else if (*_value == _max) {
+            *_value = _min;
             wantDraw = true;
         }
         break;

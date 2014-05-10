@@ -77,6 +77,18 @@ private:
     static volatile Timeval _now;
 };
 
+class Timestamp
+{
+public:
+    Timestamp() : _taken(Timer::timeNow()) {}
+
+    Timer::Timeval  timeSince() const { return Timer::timeSince(_taken); }
+    bool            isOlderThan(Timer::Timeval interval) const { return timeSince() > interval; }
+
+private:
+    volatile Timer::Timeval _taken;
+};
+
 class Decrementer
 {
 public:

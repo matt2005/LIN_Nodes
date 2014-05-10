@@ -10,12 +10,15 @@ class ProgrammerSlave : public Slave
 public:
     ProgrammerSlave() : Slave(LIN::kNADProgrammer) {}
 
+    void            reset()         { _state = kStateIdle; }
+
     void            setParameter(LIN::NodeAddress nad, uint8_t param, uint8_t value);
     void            requestParameter(LIN::NodeAddress nad, uint8_t param);
-    uint8_t         getParameter() const { return _paramValue; }
-    void            reset() { _state = kStateIdle; }
-    bool            isError() const { return _state == kStateError; }
-    bool            isParamAvailable() const { return _state == kStateGetComplete; }
+
+    uint8_t         getParameter()          const { return _paramValue; }
+    bool            isIdle()                const { return _state == kStateIdle; }
+    bool            isError()               const { return _state == kStateError; }
+    bool            isParameterAvailable()  const { return _state == kStateGetComplete; }
 
 protected:
     virtual void    headerReceived(LIN::FID fid) override;
@@ -31,15 +34,14 @@ private:
 
         kStateGetWaitRequest,
         kStateGetWaitSlaveResponse,
-        kStateGetWaitSlaveResponseData,
         kStateGetComplete,
 
         kStateError
     };
 
     volatile State      _state;
-    uint8_t             _nodeAddress;
-    volatile uint8_t    _paramIndex;
     volatile uint8_t    _paramValue;
 
+    uint8_t             _nodeAddress;
+    uint8_t             _paramIndex;
 };

@@ -97,7 +97,7 @@ Master::_event()
     } while (fid == LIN::kFIDNone);
 
     // stubbed out noise packets
-    if (fid == LIN::kFIDNonsense)
+    if (fid == LIN::kFIDRelays)
         return;
 
     // turn on the LIN driver
@@ -130,8 +130,13 @@ Master::headerReceived(LIN::FID fid)
         sendResponse(relayFrame, 8);
         break;
 
+    case LIN::kFIDConfigRequest:
+        requestResponse(8);
+        break;
+
     case LIN::kFIDConfigResponse:
         handleConfigResponse();
+        break;
 
     case LIN::kFIDMasterRequest:
         // if we have a request to send, commit it to the wire

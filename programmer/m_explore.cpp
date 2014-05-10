@@ -6,6 +6,7 @@
 #include "m_explore.h"
 #include "m_top.h"
 #include "m_setup_master.h"
+#include "m_setup_power.h"
 #include "slave.h"
 
 namespace Menu
@@ -50,12 +51,17 @@ ExploreMode::action(Encoder::Event bp)
         break;
 
     case Encoder::kEventPress:
-        if (_node == 0) {
+        switch (_node) {
+        case 0:
             return &modeTop;
-        } else if (_node == LIN::kNADMaster) {
+        case LIN::kNADMaster:
             return &modeSetupMaster;
+        case LIN::kNADPowerBase ... (LIN::kNADPowerBase + 15):
+            modeSetupPower.init(_node);
+            return &modeSetupPower;
+        default:
+            break;
         }
-        // XXX configure other nodes
         break;
 
     default:
@@ -80,7 +86,7 @@ ExploreMode::draw()
         gDisplay.printf(PSTR("Master Node"));
         break;
     case 2 ... 17:
-        gDisplay.printf(PSTR("Relay Node %2u"), _node - 1);
+        gDisplay.printf(PSTR("Power Node %2u"), _node - 1);
         break;
     default:
         gDisplay.printf(PSTR("Node %2u"), _node);

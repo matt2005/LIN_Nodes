@@ -4,7 +4,7 @@
 #include "board.h"
 
 #include "m_setup_master.h"
-#include "m_top.h"
+#include "m_explore.h"
 #include "m_edit.h"
 #include "slave.h"
 
@@ -87,7 +87,7 @@ SetupMasterMode::action(Encoder::Event bp)
     case Encoder::kEventPress:
         switch (_param) {
         case 0:
-            return &modeTop;
+            return &modeExplore;
 
         case 1 ... 21:
             _editing = true;

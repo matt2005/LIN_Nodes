@@ -24,15 +24,6 @@ protected:
 
     LIN::NodeAddress _nad;               //< node address 
 
-    /// Prepare a response to the LIN::kSlaveResponse message.
-    ///
-    /// @param frame            The frame to send in response.
-    ///
-    void            prepareSlaveResponse(const LIN::Frame &frame) 
-    {
-        _slaveResponse.copy(frame);
-    }
-
     /// Called when a header has been received.
     ///
     /// Must be implemented by the subclass.
@@ -67,9 +58,26 @@ protected:
     ///
     virtual void    masterRequest(LIN::Frame &frame);
 
+    /// Prepare a response to the LIN::kSlaveResponse message.
+    ///
+    /// @param frame            The frame to send in response.
+    ///
+    void            slaveResponse(const LIN::Frame &frame) 
+    {
+        _response.copy(frame);
+        _sendSlaveResponse = true;
+    }
+
 private:
     Timer           _idleTimer;         //< Bus idle timer
-    LIN::Frame      _slaveResponse;     //< slave response from previous master request
+    LIN::Frame      _response;          //< canned response frame
+    uint8_t         _configParam;       //< parameter to send for ConfigResponse
+
+    bool            _sendSlaveResponse:1;
+    bool            _sendConfigResponse:1;
 
     static void     idleTimeout(void *arg); //< idle timeout callback
+
+    void            configRequest(LIN::ConfigFrame &frame);
+    void            configResponse();
 };

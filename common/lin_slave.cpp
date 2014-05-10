@@ -23,14 +23,19 @@ void
 Slave::headerReceived(LIN::FID fid)
 {
     switch (fid) {
+    case LIN::kFIDConfigRequest:
     case LIN::kFIDMasterRequest:
         requestResponse(8);
         break;
 
+    case LIN::kFIDConfigResponse:
+        configResponse();
+        break;
+
     case LIN::kFIDSlaveResponse:
-        if (_slaveResponse.sid() & LIN::kSIDResponseOffset) {
-            sendResponse(_slaveResponse, 8);
-            _slaveResponse.sid() = 0;
+        if (_sendSlaveResponse) {
+            sendResponse(_response, 8);
+            _sendSlaveResponse = false;
         }
         break;
 
@@ -46,6 +51,10 @@ void
 Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 {
     switch (fid) {
+    case LIN::kFIDConfigRequest:
+        configRequest(reinterpret_cast<LIN::ConfigFrame &>(frame));
+        break;
+
     case LIN::kFIDMasterRequest:
         // check for broadcast sleep request
         if (frame.nad() == LIN::kNADSleep) {
@@ -103,6 +112,41 @@ Slave::masterRequest(LIN::Frame &frame)
             // nothing to do here
             return;
         }
-        prepareSlaveResponse(frame);
+        slaveResponse(frame);
     }
+}
+
+void
+Slave::configRequest(LIN::ConfigFrame &frame)
+{
+    if (frame.nad() != _nad) {
+        return;
+    }
+    if (frame.flavour() == LIN::kCFGetParam) {
+        _configParam = frame.param();
+        _sendConfigResponse = true;
+        return;
+    }
+    if (frame.flavour() == LIN::kCFSetParam) {
+        Parameter(frame.param()).set(frame.value());
+        return;
+    }
+}
+
+void
+Slave::configResponse()
+{
+    if (!_sendConfigResponse) {
+        return;
+    }
+    _sendConfigResponse = false;
+
+    LIN::ConfigFrame f;
+
+    f.nad() = _nad;
+    f.flavour() = LIN::kCFGetParam;
+    f.param() = _configParam;
+    f.value() = Parameter(_configParam).get();
+
+    sendResponse(f, 8);  
 }

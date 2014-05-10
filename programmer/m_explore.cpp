@@ -73,7 +73,7 @@ ExploreMode::draw()
     if (_node == 0) {
         gDisplay.printf(PSTR("Main Menu"));
     } else {
-        gDisplay.printf(PSTR("Node %u"), _node);
+        gDisplay.printf(PSTR("Node %2u"), _node);
     }
 }
 
@@ -113,7 +113,7 @@ ExploreMode::nodePresent(uint8_t node)
     uint8_t dummy;
 
     gDisplay.clear();
-    gDisplay.printf(PSTR("searching %u"), node);
+    gDisplay.printf(PSTR("scan %2u"), node);
 
     return gSlave.getParameter(node, 0, dummy);
 }

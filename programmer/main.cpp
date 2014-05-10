@@ -32,6 +32,8 @@ main(void)
     Encoder::init();
     gSlave.init();
 
+    debug("programmer starting");
+
     sei();
 
     for (;;) {

@@ -1,6 +1,8 @@
 
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 
+#include "board.h"
 #include "timer.h"
 
 #include "slave.h"
@@ -18,7 +20,9 @@ ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
     // wait 100ms for the transaction to complete
     Timestamp t;
     while (_state != kStateIdle) {
-        if (t.isOlderThan(100)) {
+        wdt_reset();
+        if (t.isOlderThan(300)) {
+            debug("set timed out with state %u", _state);
             return false;
         }
     }
@@ -37,7 +41,13 @@ ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
     // wait 100ms for the transaction to complete
     Timestamp t;
     while (_state != kStateGetComplete) {
-        if (t.isOlderThan(100) || (_state == kStateError)) {
+        wdt_reset();
+        if (t.isOlderThan(300)) {
+            debug("get timed out with state %u", _state);
+            return false;
+        }        
+        if (_state == kStateError) {
+            debug("get failed due to error");
             return false;
         }        
     }
@@ -69,12 +79,12 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
             f.param() = _paramIndex;
 
             sendResponse(f, 8);
-            _state = kStateGetWaitSlaveResponse;
+            _state = kStateGetWaitResponse;
         }
         break;
 
     case LIN::kFIDConfigResponse:
-        if (_state == kStateGetWaitSlaveResponse) {
+        if (_state == kStateGetWaitResponse) {
             requestResponse(8);
         }
         break;
@@ -89,7 +99,7 @@ ProgrammerSlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 {
     // slave responding to a parameter request?
     if ((fid == LIN::kFIDConfigResponse) &&
-        (_state == kStateGetWaitSlaveResponse)) {
+        (_state == kStateGetWaitResponse)) {
 
         auto cf = reinterpret_cast<LIN::ConfigFrame &>(frame);
 
@@ -102,6 +112,8 @@ ProgrammerSlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
             _paramValue = cf.value();
             _state = kStateGetComplete;
         }
+    } else {
+        debug("unexpected response");
     }
 }
 

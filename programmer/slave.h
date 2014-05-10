@@ -26,15 +26,14 @@ protected:
 private:
     enum State : uint8_t {
         kStateIdle,
+        kStateError,
 
         kStateSetWaitRequest,
         kStateSetWaitSent,
 
         kStateGetWaitRequest,
-        kStateGetWaitSlaveResponse,
+        kStateGetWaitResponse,
         kStateGetComplete,
-
-        kStateError
     };
 
     volatile State      _state;

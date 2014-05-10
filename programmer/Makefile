@@ -8,6 +8,7 @@ SRCS		 = main.cpp \
 		   m_edit.cpp \
 		   m_top.cpp \
 		   m_explore.cpp \
+		   m_setup_master.cpp \
 		   m_test.cpp \
 		   slave.cpp
 
@@ -16,7 +17,8 @@ SRCS		+= board.cpp \
 		   lin_slave.cpp \
 		   print.cpp \
 		   softserial.cpp \
-		   timer.cpp
+		   timer.cpp \
+		   util.cpp
 
 BOARD		 = PROGRAMMER_V1
 

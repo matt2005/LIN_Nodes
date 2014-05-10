@@ -5,6 +5,7 @@
 
 #include "m_explore.h"
 #include "m_top.h"
+#include "m_setup_master.h"
 #include "slave.h"
 
 namespace Menu
@@ -51,9 +52,10 @@ ExploreMode::action(Encoder::Event bp)
     case Encoder::kEventPress:
         if (_node == 0) {
             return &modeTop;
-        } else {
-            // XXX configure node
+        } else if (_node == LIN::kNADMaster) {
+            return &modeSetupMaster;
         }
+        // XXX configure other nodes
         break;
 
     default:

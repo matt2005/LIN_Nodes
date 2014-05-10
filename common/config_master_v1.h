@@ -37,8 +37,8 @@
 
 #define pinDebugTX     portA[7]
 
-#define paramSPAssign(_n)          (LIN::SwitchID)Parameter(_n)
-#define paramSGAssign(_n)          (LIN::SwitchID)Parameter(8 + _n)
+#define paramSPAssign(_n)          (LIN::SwitchID)Parameter(_n)     // 1...7
+#define paramSGAssign(_n)          (LIN::SwitchID)Parameter(8 + _n) // 8...21
 #define paramTurnBlinkPeriod       Parameter(22)
 #define paramPassingBlinkCount     Parameter(23)
 #define paramPathLightPeriod       Parameter(24)

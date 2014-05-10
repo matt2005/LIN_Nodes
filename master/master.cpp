@@ -112,7 +112,7 @@ Master::waitRequest()
 {
     // spin for 100ms waiting for the frame to be sent
     Timestamp t;
-    while (!t.olderThan(100)) {
+    while (!t.isOlderThan(100)) {
         if (!_sendRequest && !_getResponse) {
             return true;
         }

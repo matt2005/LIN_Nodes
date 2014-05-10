@@ -8,7 +8,6 @@ SRCS		 = main.cpp \
 		   m_edit.cpp \
 		   m_top.cpp \
 		   m_explore.cpp \
-		   m_setup.cpp \
 		   m_test.cpp \
 		   slave.cpp
 

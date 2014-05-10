@@ -18,9 +18,11 @@
 #include "hd44780.h"
 #include "menu.h"
 #include "encoder.h"
+#include "slave.h"
 
 HD44780 lcd;
 Display &gDisplay = lcd;
+ProgrammerSlave gSlave;
 
 void
 main(void)
@@ -28,6 +30,7 @@ main(void)
     Board::init();
     lcd.init();
     Encoder::init();
+    gSlave.init();
 
     sei();
 

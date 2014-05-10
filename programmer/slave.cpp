@@ -1,10 +1,12 @@
 
 #include <avr/interrupt.h>
 
+#include "timer.h"
+
 #include "slave.h"
 
-void
-ProgrammerSlave::setParameter(LIN::NodeAddress nad, uint8_t param, uint8_t value)
+bool
+ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
 {
     cli();
     _nodeAddress = nad;
@@ -12,16 +14,36 @@ ProgrammerSlave::setParameter(LIN::NodeAddress nad, uint8_t param, uint8_t value
     _paramValue = value;
     _state = kStateSetWaitRequest;
     sei();
+
+    // wait 100ms for the transaction to complete
+    Timestamp t;
+    while (_state != kStateIdle) {
+        if (t.isOlderThan(100)) {
+            return false;
+        }
+    }
+    return true;
 }
 
-void
-ProgrammerSlave::requestParameter(LIN::NodeAddress nad, uint8_t param)
+bool
+ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
 {
     cli();
     _nodeAddress = nad;
     _paramIndex = param;
     _state = kStateGetWaitRequest;
     sei();
+
+    // wait 100ms for the transaction to complete
+    Timestamp t;
+    while (_state != kStateGetComplete) {
+        if (t.isOlderThan(100) || (_state == kStateError)) {
+            return false;
+        }        
+    }
+    value = _paramValue;
+    _state = kStateIdle;
+    return true;
 }
 
 void

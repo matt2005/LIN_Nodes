@@ -6,7 +6,6 @@
 #include "hd44780.h"
 #include "m_top.h"
 #include "m_explore.h"
-#include "m_setup.h"
 #include "m_test.h"
 
 namespace Menu
@@ -20,13 +19,11 @@ struct topNode
     Mode *const mode;
 };
 
-static PROGMEM const char sSetup[] = "Setup";
-static PROGMEM const char sExplore[] = "Explore";
+static PROGMEM const char sExplore[] = "Configure";
 static PROGMEM const char sTest[] = "Test";
 
 static PROGMEM const topNode nodes[] = 
 {
-    {sSetup,    &modeSetup},
     {sExplore,  &modeExplore},
     {sTest,     &modeTest}
 };

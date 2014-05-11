@@ -21,7 +21,15 @@ static Debounce         _state[LIN::kSWMax];
 void
 init()
 {
-    MC33972::configure();    
+    MC33972::configure();
+#ifdef DEBUG
+    for (uint8_t sw = 1; sw <=7; sw++) {
+        debug("SP%2u: %2u", sw, paramSPAssign(sw).get());
+    }
+    for (uint8_t sw = 0; sw <= 13; sw++) {
+        debug("SG%2u: %2u", sw, paramSGAssign(sw).get());
+    }    
+#endif
 }
 
 bool

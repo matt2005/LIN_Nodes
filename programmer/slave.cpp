@@ -20,7 +20,7 @@ ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
 
         // wait 100ms for the transaction to complete
         Timestamp t;
-        while (!t.isOlderThan(300)) {
+        while (!t.isOlderThan(60)) {
             wdt_reset();
             if (_state == kStateIdle) {
                 uint8_t readback;
@@ -50,7 +50,7 @@ ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
 
         // wait 100ms for the transaction to complete
         Timestamp t;
-        while (!t.isOlderThan(300)) {
+        while (!t.isOlderThan(60)) {
             wdt_reset();
             if (_state == kStateGetComplete) {
                 value = _paramValue;
@@ -90,6 +90,13 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
 
             sendResponse(f, 8);
             _state = kStateGetWaitResponse;
+        } else {
+            LIN::ConfigFrame f;
+
+            f.nad() = 0;
+            f.flavour() = LIN::kCFNop;
+
+            sendResponse(f, 8);
         }
         break;
 

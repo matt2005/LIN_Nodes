@@ -233,6 +233,7 @@ public:
 enum ConfigFlavour : uint8_t {
     kCFGetParam,
     kCFSetParam,
+    kCFNop = 0xff
 };
 
 class ConfigFrame : public Frame

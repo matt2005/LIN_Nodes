@@ -6,6 +6,43 @@
 #include "board.h"
 #include "master.h"
 
+// Schedule used in normal operation
+//
+PROGMEM const LIN::FrameID Master::normalSchedule[] = {
+    LIN::kFIDRelays,
+    LIN::kFIDRelays,
+    LIN::kFIDRelays,
+    LIN::kFIDRelays,
+    LIN::kFIDConfigRequest, // sniff for the programmer
+    LIN::kFIDRelays,
+    LIN::kFIDRelays,
+    LIN::kFIDRelays,
+    LIN::kFIDRelays,
+    LIN::kFIDMasterRequest, // skipped if no work
+    LIN::kFIDSlaveResponse, // skipped if no work
+    LIN::kFIDNone
+};
+
+// Schedule used when the programmer has been seen - should never
+// be more than 50ms between the programmer being ready to send a
+// request and the response being posted
+//
+PROGMEM const LIN::FrameID Master::configSchedule[] = {
+    LIN::kFIDRelays,
+    LIN::kFIDConfigRequest,
+    LIN::kFIDConfigResponse,// skipped if no work
+    LIN::kFIDRelays,
+    LIN::kFIDConfigRequest,
+    LIN::kFIDConfigResponse,// skipped if no work
+    LIN::kFIDMasterRequest, // skipped if no work
+    LIN::kFIDConfigRequest,
+    LIN::kFIDConfigResponse,// skipped if no work
+    LIN::kFIDSlaveResponse, // skipped if no work
+    LIN::kFIDConfigRequest,
+    LIN::kFIDConfigResponse,// skipped if no work
+    LIN::kFIDNone
+};
+
 Master::Master() :
     _eventTimer((Timer::Callback)Master::event, this, 10),
     _eventIndex(0)
@@ -51,54 +88,32 @@ Master::event(void *arg)
 void
 Master::_event()
 {
-    LIN::FrameID fid = LIN::kFIDNone;
+    LIN::FrameID fid;
 
-    // work out what header we should send now 
     do {
-        switch (_eventIndex++) {
-        case 0 ... 3:
-            fid = LIN::kFIDRelays;
-            break;
 
-        case 4:
-            // XXX reduce rate if programmer not present
-            fid = LIN::kFIDConfigRequest;
-            break;
+        fid = (LIN::FrameID)pgm_read_byte((_configDecayTimer > 0) ? 
+                                           &configSchedule[_eventIndex] :
+                                           &normalSchedule[_eventIndex]);
+        _eventIndex++;
 
-        case 5 ... 8:
-            fid = LIN::kFIDRelays;
-            break;
-
-        case 9:
-            if (_sendConfigResponseHeader) {
-                _sendConfigResponseHeader = false;
-                fid = LIN::kFIDConfigResponse;
+        if (fid == LIN::kFIDNone) {
+            if (_configDecayTimer > 0) {
+                _configDecayTimer--;
             }
-            break;
-
-        case 10 ... 13:
-            fid = LIN::kFIDRelays;
-            break;
-
-        case 14:
-            // MasterRequest/SlaveResponse
-            if (_sendRequest) {
-                fid = LIN::kFIDMasterRequest;
-            } else if (_getResponse) {
-                fid = LIN::kFIDSlaveResponse;
-            }
-            break;
-
-        default:
-            // wrap
             _eventIndex = 0;
-            break;
+            continue;
         }
-    } while (fid == LIN::kFIDNone);
-
-    // stubbed out noise packets
-    if (fid == LIN::kFIDRelays)
-        return;
+        if ((fid == LIN::kFIDConfigResponse) && !_sendConfigResponseHeader) {
+            continue;
+        }
+        if ((fid == LIN::kFIDMasterRequest) && !_sendRequest) {
+            continue;
+        }
+        if ((fid == LIN::kFIDSlaveResponse) && !_getResponse) {
+            continue;
+        }
+    } while(0);
 
     // turn on the LIN driver
     Board::linCS(true);
@@ -182,6 +197,14 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
 void
 Master::handleConfigRequest(LIN::ConfigFrame &frame)
 {
+    // reset the decay timer so that we stay on the config schedule
+    _configDecayTimer = 20;
+
+    // ignore this frame?
+    if (frame.flavour() == LIN::kCFNop) {
+        return;
+    }
+
     // we will want to send a ConfigResponse header later
     _sendConfigResponseHeader = true;
 

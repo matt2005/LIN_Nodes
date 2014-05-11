@@ -38,16 +38,19 @@ protected:
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
 
 private:
+    static const LIN::FrameID normalSchedule[];
+    static const LIN::FrameID configSchedule[];
+
     Timer           _eventTimer;
     uint8_t         _eventIndex;
 
     uint8_t         _configParam;
+    uint8_t         _configDecayTimer;
 
     volatile bool   _sendRequest:1;
     volatile bool   _getResponse:1;
     volatile bool   _sendConfigResponseHeader:1;
     volatile bool   _sendConfigResponseFrame:1;
-
 
     /// Event initiator
     static void     event(void *arg);

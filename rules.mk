@@ -13,8 +13,8 @@ AVRDUDE		 = avrdude
 MCU		 = attiny167
 
 # default fusing is for the internal oscillator
-OSC_FUSES	 = -U hfuse:w:0xdf:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
-RES_FUSES	 = -U hfuse:w:0xdf:m -U efuse:w:0xff:m -U lfuse:w:0x6c:m
+OSC_FUSES	 = -U hfuse:w:0xd7:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
+RES_FUSES	 = -U hfuse:w:0xd7:m -U efuse:w:0xff:m -U lfuse:w:0x6c:m
 FUSES		?= $(OSC_FUSES)
 
 ARCHFLAGS	 = -mmcu=$(MCU)

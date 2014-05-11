@@ -92,7 +92,7 @@ private:
 class Decrementer
 {
 public:
-    Decrementer();
+    Decrementer(Timer::Timeval initialCount = 0);
 
     void        setMilliseconds(uint16_t msec) { _count = msec; }
     void        setSeconds(uint8_t sec) { _count = sec * 1000U; }

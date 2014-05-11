@@ -33,6 +33,22 @@ public:
     ///
     bool            doRequestResponse(LIN::Frame &frame);
 
+    /// Enable / disable sleep
+    ///
+    /// @param enable           If true, sleep is enabled. The master will enter
+    ///                         sleep mode at the end of the current schedule loop
+    ///                         if it is not in config mode.
+    ///                         If false, sleep is inhibited.
+    ///
+    void            setSleep(bool enable) 
+    {
+        _sleepEnable = enable; 
+        if (!enable) {
+            _sleepActive = false;
+        }
+    }
+
+
 protected:
     virtual void    headerReceived(LIN::FID fid) override;
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
@@ -51,6 +67,8 @@ private:
     volatile bool   _getResponse:1;
     volatile bool   _sendConfigResponseHeader:1;
     volatile bool   _sendConfigResponseFrame:1;
+    bool            _sleepEnable:1;
+    bool            _sleepActive:1;
 
     /// Event initiator
     static void     event(void *arg);

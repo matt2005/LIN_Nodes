@@ -77,8 +77,8 @@ Timer::tick()
 
 Decrementer *Decrementer::_first;
 
-Decrementer::Decrementer() :
-    _count(0),
+Decrementer::Decrementer(Timer::Timeval initialCount) :
+    _count(initialCount),
     _next(_first)
 {
     if (_first == nullptr) {

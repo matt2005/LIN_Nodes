@@ -90,6 +90,11 @@ Master::_event()
 {
     LIN::FrameID fid;
 
+    // if sleep is active, send nothing
+    if (_sleepActive) {
+        return;
+    }
+
     do {
 
         fid = (LIN::FrameID)pgm_read_byte((_configDecayTimer > 0) ? 
@@ -100,6 +105,10 @@ Master::_event()
         if (fid == LIN::kFIDNone) {
             if (_configDecayTimer > 0) {
                 _configDecayTimer--;
+            }
+            if ((_configDecayTimer == 0) && _sleepEnable) {
+                _sleepActive = true;
+                return;
             }
             _eventIndex = 0;
             continue;

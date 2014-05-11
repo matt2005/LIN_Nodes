@@ -67,7 +67,9 @@ private:
 static TurnBlinker     turnBlinker;
 static BrakeBlinker    brakeBlinker;
 
-static Decrementer     awakeDelay;
+
+static const Timer::Timeval kStayAwakeTime = 10000;   // XXX 10 seconds is too short
+static Decrementer     awakeDelay(kStayAwakeTime);
 static Decrementer     interiorLightsDelay;
 static Decrementer     pathwayLightingDelay;
 
@@ -277,6 +279,25 @@ pathLights(LIN::RelayFrame &f)
 void
 tick()
 {
+    // Reset the awake timer if:
+    // - ignition is on
+    // - doors are open
+    // - remote lock/unlock signal just changed
+    if (Switches::test(LIN::kSWIgnition) ||
+        Switches::test(LIN::kSWDoor) ||
+        Switches::changed(LIN::kSWDoorUnlock)) {
+
+        awakeDelay.setMilliseconds(kStayAwakeTime);
+        gMaster.setSleep(false);
+
+    } else {
+        // If the awake timer has expired, allow the master
+        // to sleep.
+        if (awakeDelay.expired()) {
+            gMaster.setSleep(true);
+        }
+    }
+
     // update the relays frame by looking at switches
     LIN::RelayFrame f;
 
@@ -289,6 +310,7 @@ tick()
 
     // update the copy we are sending to nodes
     gMaster.relayFrame.copy(f);
+
 }
 
 } // namespace Relays

@@ -102,11 +102,26 @@ getMode()
 void
 sleep()
 {
-    // by the time LINCS and LINTX are both driving 0, the board will power off
-    pinLINCS.clear();
-    pinLINTX.clear();
-    pinLINCS.cfgOutput();
-    pinLINTX.cfgOutput();
+    // Put the board to sleep.
+    //
+    for (;;) {
+        LINCR = LSWRES;
+        msDelay(1);
+        pinLINTX.set();
+        msDelay(1);
+        pinLINCS.set();
+        msDelay(1);
+        pinLINCS.cfgOutput();
+        msDelay(1);
+        pinLINTX.cfgOutput();
+        msDelay(1);
+        pinLINTX.clear();
+        msDelay(1);
+        pinLINCS.clear();
+        msDelay(10);
+        // if we failed to go to sleep, the watchdog will pull us
+        // back out via the reset path
+    }
 }
 
 void

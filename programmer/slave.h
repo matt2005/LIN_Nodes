@@ -18,10 +18,13 @@ public:
     bool            isIdle()                const { return _state == kStateIdle; }
     bool            isError()               const { return _state == kStateError; }
 
+    void            setSuspend(bool suspended) { _suspended = suspended; }
+
 protected:
     virtual void    headerReceived(LIN::FID fid) override;
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
     virtual void    responseSent() override;
+    virtual void    sleepRequested(SleepType type);
 
 private:
     enum State : uint8_t {
@@ -41,6 +44,8 @@ private:
 
     uint8_t             _nodeAddress;
     uint8_t             _paramIndex;
+
+    bool                _suspended;
 };
 
 extern ProgrammerSlave gSlave;

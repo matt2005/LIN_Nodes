@@ -6,6 +6,7 @@
 #include "hd44780.h"
 #include "m_test.h"
 #include "m_top.h"
+#include "slave.h"
 
 namespace Menu
 {
@@ -13,12 +14,15 @@ namespace Menu
 TestMode modeTest;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Test menu mode
+// Test mode
 //
 
 void
 TestMode::enter(Mode *from)
 {
+    gDisplay.clear();
+    gDisplay.printf(PSTR(">back"));
+    gSlave.setSuspend(true);
 }
 
 Mode *
@@ -26,13 +30,8 @@ TestMode::action(Encoder::Event bp)
 {
     switch (bp) {
 
-    case Encoder::kEventDown:
-        break;
-
-    case Encoder::kEventUp:
-        break;
-
     case Encoder::kEventPress:
+        gSlave.setSuspend(false);
         return &modeTop;
 
     default:

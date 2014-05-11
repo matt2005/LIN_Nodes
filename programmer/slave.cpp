@@ -90,7 +90,7 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
 
             sendResponse(f, 8);
             _state = kStateGetWaitResponse;
-        } else {
+        } else if (!_suspended) {
             LIN::ConfigFrame f;
 
             f.nad() = 0;
@@ -140,4 +140,10 @@ ProgrammerSlave::responseSent()
     if (_state == kStateSetWaitSent) {
         _state = kStateIdle;
     }
+}
+
+void
+ProgrammerSlave::sleepRequested(SleepType type)
+{
+    // XXX never sleep
 }

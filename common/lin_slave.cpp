@@ -17,6 +17,8 @@ Slave::Slave(LIN::NodeAddress nad) :
     _nad(nad),
     _idleTimer(&Slave::idleTimeout, this)
 {
+    // start the idle timeout
+    _idleTimer.setRemaining(kIdleTimeout);
 }
 
 void

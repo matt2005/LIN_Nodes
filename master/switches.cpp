@@ -104,9 +104,6 @@ scan()
     // debounce raw state
     for (uint8_t i = 0; i < LIN::kSWMax; i++) {
 
-        _state[i].state = GET(i);
-        continue;
-
         // if no change, reset debounce timer (also clears
         // 'changed' state
         if (_state[i].state == GET(i)) {

@@ -45,6 +45,18 @@ changed(uint8_t id)
 }
 
 bool
+changedToOn(uint8_t id)
+{
+    return changed(id) && test(id);
+}
+
+bool
+changedToOff(uint8_t id)
+{
+    return changed(id) && !test(id);
+}
+
+bool
 changed()
 {
     for (uint8_t id = 0; id < LIN::kSWMax; id++) {

@@ -35,23 +35,23 @@ enum FrameID : uint8_t
 //
 enum SwitchID : uint8_t
 {
-    kSWIgnition,
-    kSWStart,
-    kSWMarkerLights,
-    kSWHeadLights,
-    kSWHighBeam,
-    kSWHighBeamToggle,
-    kSWFogLight,
-    kSWLeftTurn,
-    kSWRightTurn,
-    kSWBrake,
-    kSWReverse,
-    kSWDoor,
-    kSWInteriorLight,
-    kSWHazard,
-    kSWDoorUnlock,
-    kSWLightsUp,
-    kSWDemoMode,
+    kSWIgnition,                // ignition is 'on'
+    kSWStart,                   // ignition in 'start'
+    kSWMarkerLights,            // first light switch detent (parking/markers/city lights)
+    kSWHeadLights,              // headlights or low-beam headlights (second detent)
+    kSWHighBeam,                // high beam headlights
+    kSWHighBeamToggle,          // momentary low/high beam toggle switch
+    kSWFogLight,                // fog light switch
+    kSWLeftTurn,                // left turn signal, ext. blinker or permanent contact
+    kSWRightTurn,               // right turn signal, ext. blinker or permanent contact
+    kSWBrake,                   // brake pedal switch
+    kSWReverse,                 // reverse switch
+    kSWDoor,                    // door pin switch(es)
+    kSWInteriorLight,           // manual interior light switch
+    kSWHazard,                  // hazard signal, ext. blinker or permanent contact
+    kSWDoorUnlock,              // door lock/unlock relay (unlock only real important signal)
+    kSWLightsUp,                // manual pop-up lights activator
+    kSWDemoMode,                // party time
 
     kSWMax,
     kSWNone             = 0xff
@@ -62,20 +62,22 @@ enum SwitchID : uint8_t
 //
 enum RelayID : uint8_t
 {
-    kRelayIgnition,
-    kRelayStart,
-    kRelayLightsUp,
-    kRelayLightsDown,
-    kRelayHeadLights,
-    kRelayLowBeam,
-    kRelayHighBeam,
-    kRelayFogLights,
-    kRelayMarkers,
-    kRelayLeftTurn,
-    kRelayRightTurn,
-    kRelayBrake,
-    kRelayReverse,
-    kRelayInteriorLight,
+    kRelayIgnition,             // on when ignition power is on
+    kRelayStart,                // on when key in start
+    kRelayLightsUp,             // pop-up lights should move to up position
+    kRelayLightsDown,           // pop-up lights should move to down position
+    kRelayHeadLights,           // any headlight
+    kRelayLowBeam,              // low-beam headlights
+    kRelayHighBeam,             // high-beam headlights
+    kRelayFogLights,            // fog lights
+    kRelayMarkers,              // marker/running/city lights
+    kRelayLeftTurn,             // left turn signal
+    kRelayLeftTurnMarker,       // marker light, off when left turn signal is on
+    kRelayRightTurn,            // right turn signal
+    kRelayRightTurnMarker,      // marker light, off when right turn signal is on
+    kRelayBrake,                // brake lights
+    kRelayReverse,              // reverse lights
+    kRelayInteriorLight,        // cabin interior illumination
 
     kRelayMax,
     kRelayNone          = 0xff

@@ -230,6 +230,11 @@ public:
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] &= ~bit;
     }
+    bool        test(RelayID relay) volatile {
+        uint8_t index = relay / 8;
+        uint8_t bit = 1 << (relay & 0x7);
+        return (*this)[index] & bit;
+    }
 };
 
 enum ConfigFlavour : uint8_t {

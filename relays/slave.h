@@ -9,7 +9,7 @@ public:
 
     bool            testRelay(LIN::RelayID id) 
     {
-        return (id < LIN::kRelayMax) && (relayFrame[id / 8] & (1 << id & 0x7));
+        return (id < LIN::kRelayMax) && (relayFrame.test(id));
     }
 
 protected:
@@ -17,5 +17,5 @@ protected:
     virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
 
 private:
-    volatile LIN::Frame relayFrame;
+    volatile LIN::RelayFrame relayFrame;
 };

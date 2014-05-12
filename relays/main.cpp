@@ -18,10 +18,10 @@ main(void)
 
 #ifdef DEBUG
     OSCCAL += 7;    // XXX test board's osc is slow
-    debug("1: %2u", paramRelay1Assign.get());
-    debug("2: %2u", paramRelay2Assign.get());
-    debug("3: %2u", paramRelay3Assign.get());
-    debug("4: %2u", paramRelay4Assign.get());
+    debug("1: %u", paramRelay1Assign.get());
+    debug("2: %u", paramRelay2Assign.get());
+    debug("3: %u", paramRelay3Assign.get());
+    debug("4: %u", paramRelay4Assign.get());
 #endif
 
     // power switch control pins

@@ -24,11 +24,13 @@ static PROGMEM const char relayNames[] =
     "FogLights      \0"
     "Markers        \0"
     "LeftTurn       \0"
+    "LeftTurnMarker \0"
     "RightTurn      \0"
+    "RightTurnMarker\0"
     "Brake          \0"
     "Reverse        \0"
     "InteriorLight  \0"
-    "Unassigned    \0"
+    "Unassigned     \0"
     "\0";
 
 
@@ -36,6 +38,13 @@ void
 SetupPowerMode::enter(Mode *from)
 {
     gDisplay.clear();
+
+#ifdef DEBUG
+    if (Util::strtablen(relayNames) != (LIN::kRelayMax + 1)) {
+        debug("Menu::relayNames %u out of sync with LIN::RelayID %u", Util::strtablen(relayNames), LIN::kRelayMax + 1);
+        Board::panic(Board::kPanicAssert);
+    }
+#endif
 
     if (_editing) {
         _editing = false;

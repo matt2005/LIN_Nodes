@@ -343,11 +343,15 @@ interiorLights(LIN::RelayFrame &f)
         interiorLightsDelay.setSeconds(paramInteriorLightPeriod.get());
     }
 
+    // if ignition is on, cancel interior light timer
+    if (Switches::test(LIN::kSWIgnition)) {
+        interiorLightsDelay.clear();
+    }
+
     // interior light on?
     if (Switches::test(LIN::kSWDoor) ||          // door open or
         Switches::test(LIN::kSWInteriorLight) || // light switch on or
-        (!Switches::test(LIN::kSWIgnition) &&    // ignition off
-         !interiorLightsDelay.expired())) {      // ... and timer not expired
+        !interiorLightsDelay.expired()) {        // timer not expired
 
         awakeDelay.reset();                     // lights are on, stay awake
 

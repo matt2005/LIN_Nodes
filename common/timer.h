@@ -95,14 +95,14 @@ public:
     Decrementer(Timer::Timeval initialCount = 0);
 
     void        setMilliseconds(uint16_t msec) { _count = msec; }
-    void        setSeconds(uint8_t sec) { _count = sec * 1000U; }
-    void        clear() { _count = 0; }
+    void        setSeconds(uint8_t sec)        { _count = sec * 1000U; }
+    void        clear()                        { _count = 0; }
     bool        expired() const { return _count == 0; }
 
     static void tick();
 
 private:
-    Timer::Timeval      _count;
+    volatile Timer::Timeval _count;
     Decrementer         *_next;
 
     static Decrementer  *_first;

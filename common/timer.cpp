@@ -81,9 +81,7 @@ Decrementer::Decrementer(Timer::Timeval initialCount) :
     _count(initialCount),
     _next(_first)
 {
-    if (_first == nullptr) {
-        _first = this;
-    }
+    _first = this;
 }
 
 void

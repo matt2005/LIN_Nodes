@@ -220,17 +220,20 @@ private:
 class RelayFrame : public Frame
 {
 public:
-    void        set(RelayID relay) {
+    void        set(RelayID relay) 
+    {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] |= bit;
     }
-    void        clear(RelayID relay) {
+    void        clear(RelayID relay) 
+    {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] &= ~bit;
     }
-    bool        test(RelayID relay) volatile {
+    bool        test(RelayID relay) volatile 
+    {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);
         return (*this)[index] & bit;

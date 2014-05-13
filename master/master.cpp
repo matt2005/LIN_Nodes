@@ -92,6 +92,7 @@ Master::_event()
 
     // if sleep is active, send nothing
     if (_sleepActive) {
+        Board::linCS(false);
         return;
     }
 

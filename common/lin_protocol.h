@@ -53,7 +53,7 @@ enum SwitchID : uint8_t
     kSWLightsUp,                // manual pop-up lights activator
     kSWDemoMode,                // party time
 
-    kSWMax,
+    kSWMax,                     // unassigned
     kSWNone             = 0xff
 };
 
@@ -79,7 +79,7 @@ enum RelayID : uint8_t
     kRelayReverse,              // reverse lights
     kRelayInteriorLight,        // cabin interior illumination
 
-    kRelayMax,
+    kRelayMax,                  // unassigned
     kRelayNone          = 0xff
 };
 

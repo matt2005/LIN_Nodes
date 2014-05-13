@@ -20,7 +20,7 @@ public:
         _state = true;
         _active = true;
         _count = paramPassingBlinkCount.get();
-        _remaining = _interval = paramTurnBlinkPeriod.get() * 100;
+        _remaining = _interval = paramTurnBlinkPeriod.get() * 10U;
     }
     void        stop() {
         _active = false;

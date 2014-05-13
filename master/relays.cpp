@@ -369,7 +369,8 @@ pathLights(LIN::RelayFrame &f)
 
         // door already open?
         if (Switches::test(LIN::kSWDoor)) {
-            pathLightingStart = true;
+            // path lighting
+            pathwayLightingDelay.setSeconds(paramPathLightPeriod.get());
         } else {
             ignitionWasOn = true;
         }

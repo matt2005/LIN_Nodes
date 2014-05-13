@@ -87,7 +87,6 @@ SetupPowerMode::action(Encoder::Event bp)
 
         default:
             _editing = true;
-            modeEdit.init(&_value, 0, 1, relayNames, PSTR("%s"));
             return &modeEdit;
         }
         break;
@@ -111,19 +110,13 @@ SetupPowerMode::draw()
         gDisplay.printf(PSTR(">back"));
         return;
     }
-
     if (!gSlave.getParameter(_node, _param, _value)) {
         gDisplay.printf(PSTR("param %2u read error"), _param);
-    } else {
-        const char *str;
-
-        gDisplay.printf(PSTR("Relay %2u"), _param);
-        if ((str = Util::strtab(relayNames, _value)) == nullptr) {
-            str = PSTR("<unset>");
-        }
-        gDisplay.move(0, 1);
-        gDisplay.printf(str);
+        return;
     }
+    gDisplay.printf(PSTR("Relay %2u"), _param);
+    modeEdit.init(&_value, 0, 1, relayNames, PSTR("%s"));
+    modeEdit.draw();
 }
 
 } // namespace Menu

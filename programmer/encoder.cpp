@@ -50,6 +50,12 @@ event()
     return kEventNone;
 }
 
+void
+discard()
+{
+    turnCount = buttonCount = 0;
+}
+
 static void
 buttonTimeout(void *arg)
 {

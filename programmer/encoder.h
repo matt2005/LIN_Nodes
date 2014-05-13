@@ -14,5 +14,6 @@ enum Event : uint8_t {
 
 void init();
 Event event();
+void discard();
 
 } // namespace Encoder

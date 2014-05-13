@@ -42,11 +42,13 @@ ExploreMode::action(Encoder::Event bp)
     
     case Encoder::kEventDown:
         searchDown();
+        Encoder::discard();
         wantDraw = true;
         break;
 
     case Encoder::kEventUp:
         searchUp();
+        Encoder::discard();
         wantDraw = true;
         break;
 

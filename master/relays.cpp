@@ -411,10 +411,15 @@ tick()
 {
     // Wake up and reset the awake timer if:
     // - ignition is on
+    // - hazard warning signals are on
+    // - left or right parking markers are on
     // - doors are open
     // - remote lock/unlock signal changed
     //
     if (Switches::test(LIN::kSWIgnition) ||
+        Switches::test(LIN::kSWHazard) ||
+        Switches::test(LIN::kSWLeftTurn) ||
+        Switches::test(LIN::kSWRightTurn) ||
         Switches::test(LIN::kSWDoor) ||
         Switches::changed(LIN::kSWDoorUnlock)) {
 

@@ -1,4 +1,4 @@
-DIRS		 = master relays programmer
+DIRS		 = $(dir $(wildcard */Makefile))
 MAKECMDGOALS	?= build
 TARGETS		:= $(foreach dir,$(DIRS),$(addsuffix -$(dir),$(MAKECMDGOALS)))
 

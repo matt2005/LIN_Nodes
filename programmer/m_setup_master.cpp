@@ -34,16 +34,27 @@ static PROGMEM const char switchNames[] =
     "Unassigned    \0"
     "\0";
 
-static PROGMEM const char paramNames[] =
-    "TurnBlinkPeriod\0"
-    "PassingBlinkCount\0"
-    "PathLightPeriod\0"
-    "InteriorLightPeriod\0"
-    "WelcomeLightPeriod\0"
-    "BrakeBlinkPeriod\0"
-    "BrakeBlinkCount\0"
+static PROGMEM const char paramInfo[] =
+    "TurnBlinkPeriod\0"     "%3u0ms\0"
+    "PassingBlinkCount\0"   "%3u blinks\0"
+    "PathLightPeriod\0"     "%3us\0"
+    "InteriorLightPeriod\0" "%3us\0"
+    "WelcomeLightPeriod\0"  "%3us\0"
+    "BrakeBlinkPeriod\0"    "%3u0ms\0"
+    "BrakeBlinkCount\0"     "%3u blinks\0"
     "\0";
 
+static const char *
+paramName(uint8_t index)
+{
+    return Util::strtab(paramInfo, index * 2);
+}
+
+static const char *
+paramFormat(uint8_t index)
+{
+    return Util::strtab(paramInfo, index * 2 + 1);
+}
 
 void
 SetupMasterMode::enter(Mode *from)
@@ -67,21 +78,21 @@ SetupMasterMode::enter(Mode *from)
 Mode *
 SetupMasterMode::action(Encoder::Event bp)
 {
-    bool wantDraw = false;
+    bool indexChanged = false;
 
     switch (bp) {
     case Encoder::kEventDown:
         if (_param > 0) {
             _param--;
         }
-        wantDraw = true;
+        indexChanged = true;
         break;
 
     case Encoder::kEventUp:
-        if (_param < (21 + Util::strtablen(paramNames))) {
+        if (pgm_read_byte(paramName(_param + 1)) != '\0') {
             _param++;
         }
-        wantDraw = true;
+        indexChanged = true;
         break;
 
     case Encoder::kEventPress:
@@ -89,14 +100,8 @@ SetupMasterMode::action(Encoder::Event bp)
         case 0:
             return &modeExplore;
 
-        case 1 ... 21:
-            _editing = true;
-            modeEdit.init(&_value, 0, 1, switchNames, PSTR("%s"));
-            return &modeEdit;
-
         default:
             _editing = true;
-            modeEdit.init(&_value, 0, 1);
             return &modeEdit;
         }
         break;
@@ -105,7 +110,7 @@ SetupMasterMode::action(Encoder::Event bp)
         break;
     }
 
-    if (wantDraw) {
+    if (indexChanged) {
         draw();
     }
     return this;
@@ -114,34 +119,22 @@ SetupMasterMode::action(Encoder::Event bp)
 void
 SetupMasterMode::draw()
 {
-    gDisplay.clear();
-
-    if (_param == 0) {
+    switch (_param) {
+    case 0:
         gDisplay.printf(PSTR(">back"));
-        return;
-    }
+        break;
 
-    if (!gSlave.getParameter(LIN::kNADMaster, _param, _value)) {
-        gDisplay.printf(PSTR("param %2u read error"), _param);
-    } else {
-        const char *str;
+    case 1 ... 22:      // paramSGAssign(14).index()
+        gDisplay.printf(PSTR("Input %2u"), _param);
+        modeEdit.init(&_value, 0, 1, switchNames, PSTR("%s"));
+        modeEdit.draw();
+        break;
 
-        switch (_param) {
-        case 1 ... 21:
-            gDisplay.printf(PSTR("Input %2u"), _param);
-            if ((str = Util::strtab(switchNames, _value)) == nullptr) {
-                str = PSTR("<unset>");
-            }
-            gDisplay.move(0, 1);
-            gDisplay.printf(str);
-            break;
-
-        default:
-            gDisplay.printf(PSTR("%s"), Util::strtab(paramNames, _param - 22));
-            gDisplay.move(0, 1);
-            gDisplay.printf(PSTR("%3u"), _value);
-            break;
-        }
+    default:
+        gDisplay.printf(PSTR("%s"), paramName(_param));
+        modeEdit.init(&_value, 0, 1, 0, 255, paramFormat(_param));
+        modeEdit.draw();
+        break;
     }
 }
 

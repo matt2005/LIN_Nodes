@@ -55,6 +55,7 @@ public:
 
     virtual void    enter(Mode *from) override;
     virtual Mode    *action(Encoder::Event bp);
+    void            draw();
 
 private:
     Mode            *_from;
@@ -68,7 +69,6 @@ private:
 
     void            increment();
     void            decrement();
-    void            draw();
 };
 
 extern EditMode  modeEdit;

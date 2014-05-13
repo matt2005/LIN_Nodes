@@ -3,6 +3,8 @@
 // v1 programmer module using the generic node board
 //
 
+#define BOARD_FUNCTION_ID   2
+
 #define portLCD         portB
 
 // rotary encoder pins

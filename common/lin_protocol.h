@@ -117,7 +117,6 @@ enum ServiceID : uint8_t
 //
 enum ReadByID : uint8_t {
     kRBIProductID       = 0,
-    kRBISerialNumber    = 1,
     kRBIErrorCounters   = 32,
 };
 

@@ -3,6 +3,8 @@
 // v1 master using the generic node board
 //
 
+#define BOARD_FUNCTION_ID   0
+
 #define pinP0          portB[0]
 #define pinP1          portB[1]
 #define pinP2          portB[2]

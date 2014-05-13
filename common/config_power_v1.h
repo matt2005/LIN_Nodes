@@ -4,6 +4,8 @@
 // v1 relay node
 //
 
+#define BOARD_FUNCTION_ID   1
+
 #define pinOUT1        portB[0]
 #define pinSTATUS1     portB[1]
 #define pinOUT2        portB[2]

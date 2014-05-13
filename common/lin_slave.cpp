@@ -91,29 +91,35 @@ Slave::masterRequest(LIN::Frame &frame)
 {
     // ReadByID
     if (frame.sid() == LIN::kSIDReadByID) {
-        // product ID
-        if (frame.d1() == 0) {
-                frame.pci() = 6;
-                frame.sid() |= LIN::kSIDResponseOffset;
-                frame.d1() = LIN::kSupplierID & 0xff;
-                frame.d2() = LIN::kSupplierID >> 8;
-                frame.d3() = 1;
-                frame.d4() = 0;
-                frame.d5() = 0;
-
-        // serial number    
-        } else if (frame.d1() == 1) {
-            frame.pci() = 5;
+        switch (frame.d1()) {
+        case LIN::kRBIProductID:
+            frame.pci() = 6;
             frame.sid() |= LIN::kSIDResponseOffset;
-            frame.d1() = 0x01;
-            frame.d2() = 0x02;
-            frame.d3() = 0x03;
-            frame.d4() = 0x04;
-            frame.d5() = 0xff;
-        } else {
-            // nothing to do here
+            frame.d1() = LIN::kSupplierID & 0xff;
+            frame.d2() = LIN::kSupplierID >> 8;
+            frame.d3() = BOARD_FUNCTION_ID;
+            frame.d4() = Board::getMode();
+            frame.d5() = 0;
+            break;
+
+        case LIN::kRBIErrorCounters:
+            frame.pci() = 6;
+            frame.sid() |= LIN::kSIDResponseOffset;
+            frame.d1() = errors[kErrLine];
+            frame.d2() = errors[kErrChecksum] + 
+                         errors[kErrParity] + 
+                         errors[kErrFraming] +
+                         errors[kErrSynchronisation];
+            frame.d3() = errors[kErrProtocol];
+            frame.d4() = errors[kErrSlave1];
+            frame.d5() = errors[kErrSlave2];
+            break;
+
+        default:
+            // ignore it
             return;
         }
+
         slaveResponse(frame);
     }
 }

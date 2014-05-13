@@ -32,6 +32,8 @@ public:
         kErrFraming,                    //< framing error
         kErrSynchronisation,            //< bitrate synchronisation error
         kErrProtocol,                   //< slave protocol error
+        kErrSlave1,                     //< slave private error 1
+        kErrSlave2,                     //< slave private error 2
         kErrMax
     };
 

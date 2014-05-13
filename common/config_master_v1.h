@@ -48,3 +48,4 @@
 #define paramWelcomeLightPeriod    Parameter(26, 10)
 #define paramBrakeBlinkPeriod      Parameter(27, 0)
 #define paramBrakeBlinkCount       Parameter(28, 0)
+#define paramWiperInterval         Parameter(29, 0)

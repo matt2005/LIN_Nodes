@@ -30,6 +30,11 @@ static PROGMEM const char relayNames[] =
     "Brake          \0"
     "Reverse        \0"
     "InteriorLight  \0"
+    "CabinFan1      \0"
+    "CabinFan2      \0"
+    "CabinFan3      \0"
+    "WiperLow       \0"
+    "WiperHigh      \0"
     "Unassigned     \0"
     "\0";
 

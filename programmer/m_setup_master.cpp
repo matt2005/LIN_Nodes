@@ -30,7 +30,12 @@ static PROGMEM const char switchNames[] =
     "Hazard        \0"
     "DoorUnlock    \0"
     "LightsUp      \0"
-    "DemoMode      \0"
+    "CabinFan1     \0"
+    "CabinFan2     \0"
+    "CabinFan3     \0"
+    "WiperInt      \0"
+    "WiperLow      \0"
+    "WiperHigh     \0"
     "Unassigned    \0"
     "\0";
 
@@ -42,6 +47,7 @@ static PROGMEM const char paramInfo[] =
     "WelcomeLightPeriod\0"  "%3us\0"
     "BrakeBlinkPeriod\0"    "%3u0ms\0"
     "BrakeBlinkCount\0"     "%3u blinks\0"
+    "WiperInterval\0"       "%3u00ms\0"
     "\0";
 
 static const char *

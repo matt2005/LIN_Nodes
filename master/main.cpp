@@ -40,6 +40,7 @@ main(void)
     paramWelcomeLightPeriod.init();
     paramBrakeBlinkPeriod.init();
     paramBrakeBlinkCount.init();
+    paramWiperInterval.init();
 
     // initialisation
     gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS

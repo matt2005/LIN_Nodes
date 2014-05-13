@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "util.h"
+
 namespace LIN
 {
 
@@ -51,7 +53,13 @@ enum SwitchID : uint8_t
     kSWHazard,                  // hazard signal, ext. blinker or permanent contact
     kSWDoorUnlock,              // door lock/unlock relay (unlock only real important signal)
     kSWLightsUp,                // manual pop-up lights activator
-    kSWDemoMode,                // party time
+    kSWCabinFan1,               // cabin fan '1' position
+    kSWCabinFan2,               // cabin fan '2' position
+    kSWCabinFan3,               // cabin fan '3' position
+    kSWWiperInt,                // windshield wiper intermittent mode
+    kSWWiperLow,                // windshield wiper low speed mode
+    kSWWiperHigh,               // windshield wiper high speed mode
+    kSWRearDefrost,             // rear window defrost
 
     kSWMax,                     // unassigned
     kSWNone             = 0xff
@@ -78,6 +86,12 @@ enum RelayID : uint8_t
     kRelayBrake,                // brake lights
     kRelayReverse,              // reverse lights
     kRelayInteriorLight,        // cabin interior illumination
+    kRelayCabinFan1,            // cabin fan '1' winding
+    kRelayCabinFan2,            // cabin fan '2' winding
+    kRelayCabinFan3,            // cabin fan '3' winding
+    kRelayWiperLow,             // wiper low speed winding
+    kRelayWiperHigh,            // wiper high speed winding
+    kRelayRearDefrost,          // rear window defrost
 
     kRelayMax,                  // unassigned
     kRelayNone          = 0xff
@@ -167,6 +181,18 @@ public:
         _b[5] = f._b[5];
         _b[6] = f._b[6];
         _b[7] = f._b[7];
+    }
+
+    void                copy(const Util::Bitarray<64> &array) volatile
+    {
+        _b[0] = array[0];
+        _b[1] = array[1];
+        _b[2] = array[2];
+        _b[3] = array[3];
+        _b[4] = array[4];
+        _b[5] = array[5];
+        _b[6] = array[6];
+        _b[7] = array[7];        
     }
 
     void                clear(const volatile Frame &f) volatile 

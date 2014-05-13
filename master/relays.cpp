@@ -1,11 +1,14 @@
 
 #include "board.h"
+#include "util.h"
 
 #include "switches.h"
 #include "master.h"
 
 namespace Relays
 {
+
+typedef Util::Bitarray<64> RelayBits;
 
 class TurnBlinker : public Timer
 {
@@ -73,7 +76,7 @@ public:
     void        start() 
     {
         _state = true;
-        _remaining = _interval = paramBrakeBlinkPeriod.get() * 100;
+        _remaining = _interval = paramBrakeBlinkPeriod.get() * 10U;
         _count = paramBrakeBlinkCount.get();
     }
 
@@ -100,6 +103,41 @@ private:
     }
 };
 
+class WiperDelay : public Timer
+{
+public:
+    WiperDelay() :
+        Timer(swap, this),
+        _state(false)
+    {}
+
+    void        reset() { _state = true; _swap(); }
+    bool        state() const { return _state; }
+
+private:
+    bool        _state;
+
+    static void swap(void *arg)
+    {
+        auto t = reinterpret_cast<WiperDelay *>(arg);
+        t->_swap();
+    }
+    void        _swap()
+    {
+        if (_state) {
+            // wiper control signal off for the specified interval
+            // XXX as feature, this should be based on an analog input...
+            _remaining = paramWiperInterval.get() * 100U;
+            _state = false;
+        } else {
+            // wiper control signal on for 1/2 second, motor responsible
+            // for completing wipe & parking
+            _remaining = 500U;
+            _state = true;
+        }
+    }
+};
+
 class StayAwakeTimer : public Decrementer
 {
 public:
@@ -112,10 +150,9 @@ private:
 };
 
 static TurnBlinker      turnBlinker;
-
 static BrakeBlinker     brakeBlinker;
-
 static StayAwakeTimer   awakeDelay;
+static WiperDelay       wiperDelay;
 static Decrementer      interiorLightsDelay;
 static Decrementer      pathwayLightingDelay;
 
@@ -139,7 +176,7 @@ static Decrementer      pathwayLightingDelay;
 // kRelayInteriorLight      interiorLights
 
 static void
-powerSignals(LIN::RelayFrame &f)
+powerSignals(RelayBits &f)
 {
     // ignition on?
     if (Switches::test(LIN::kSWIgnition)) {
@@ -153,7 +190,7 @@ powerSignals(LIN::RelayFrame &f)
 }
 
 static void
-markerLights(LIN::RelayFrame &f)
+markerLights(RelayBits &f)
 {
     // markers and city lights?
     if (Switches::test(LIN::kSWMarkerLights)) {
@@ -169,7 +206,7 @@ markerLights(LIN::RelayFrame &f)
 }
 
 static void
-turnSignals(LIN::RelayFrame &f)
+turnSignals(RelayBits &f)
 {
     // Note: if turnBlinker is disabled (period is zero) then
     // we assume that there is an external flasher in use, and
@@ -252,7 +289,7 @@ turnSignals(LIN::RelayFrame &f)
 }
 
 static void
-headLights(LIN::RelayFrame &f)
+headLights(RelayBits &f)
 {
     static bool highBeamToggle;
 
@@ -313,7 +350,7 @@ headLights(LIN::RelayFrame &f)
 }
 
 static void
-tailLights(LIN::RelayFrame &f)
+tailLights(RelayBits &f)
 {
     // brake lights
     if (Switches::test(LIN::kSWBrake)) {
@@ -336,7 +373,7 @@ tailLights(LIN::RelayFrame &f)
 }
 
 static void
-interiorLights(LIN::RelayFrame &f)
+interiorLights(RelayBits &f)
 {
     // door just closed - start interior lighting timer
     if (Switches::changedToOff(LIN::kSWDoor)) {
@@ -360,7 +397,7 @@ interiorLights(LIN::RelayFrame &f)
 }
 
 static void
-pathLights(LIN::RelayFrame &f)
+pathLights(RelayBits &f)
 {
     static bool ignitionWasOn;
 
@@ -406,6 +443,49 @@ pathLights(LIN::RelayFrame &f)
     }
 }
 
+static void
+climateControl(RelayBits f)
+{
+    if (Switches::test(LIN::kSWIgnition) &&
+        !Switches::test(LIN::kSWStart)) {
+        if (Switches::test(LIN::kSWCabinFan1)) {
+            f.set(LIN::kRelayCabinFan1);
+        }
+        if (Switches::test(LIN::kSWCabinFan2)) {
+            f.set(LIN::kRelayCabinFan2);
+        }
+        if (Switches::test(LIN::kSWCabinFan3)) {
+            f.set(LIN::kRelayCabinFan3);
+        }
+        if (Switches::test(LIN::kSWRearDefrost)) {
+            f.set(LIN::kRelayRearDefrost);
+        }
+    }
+}
+
+static void
+windowWipers(RelayBits f)
+{
+    if (Switches::test(LIN::kSWIgnition) &&
+        !Switches::test(LIN::kSWStart)) {
+
+        // avoid issues with overlap between wiper switch settings
+        if (Switches::changedToOn(LIN::kSWWiperInt)) {
+            wiperDelay.reset();
+        }
+
+        if (Switches::test(LIN::kSWWiperHigh)) {
+            f.set(LIN::kRelayWiperHigh);
+        } else if (Switches::test(LIN::kSWWiperLow)) {
+            f.set(LIN::kRelayWiperLow);
+        } else if (Switches::test(LIN::kSWWiperInt)) {
+            if (wiperDelay.state()) {
+                f.set(LIN::kRelayWiperLow);                
+            }
+        }
+    }
+}
+
 void
 tick()
 {
@@ -435,7 +515,8 @@ tick()
     }
 
     // update the relays frame by looking at switches
-    LIN::RelayFrame f;
+    RelayBits f;
+    f.reset();
 
     // order here is important
     powerSignals(f);
@@ -445,6 +526,8 @@ tick()
     tailLights(f);
     interiorLights(f);
     pathLights(f);
+    climateControl(f);
+    windowWipers(f);
 
     // update the copy we are sending to nodes
     gMaster.relayFrame.copy(f);

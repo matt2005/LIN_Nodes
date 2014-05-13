@@ -20,8 +20,9 @@ public:
     void            clear(uint8_t n) volatile    { _bytes[index(n)] &= ~(bit(n)); }
     bool            test(uint8_t n) const { return _bytes[index(n)] &   (bit(n)); }
 
-    uint8_t &operator[](uint8_t n) volatile { return _bytes[n]; }
     uint8_t &operator[](uint8_t n)          { return _bytes[n]; }
+    uint8_t &operator[](uint8_t n) volatile { return _bytes[n]; }
+    uint8_t operator[](uint8_t n) const     { return _bytes[n]; }
 
 private:
     static const uint8_t    _nBytes = (N + 7) / 8;

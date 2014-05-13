@@ -2,6 +2,7 @@
 
 #include "lin_protocol.h"
 #include "board.h"
+#include "util.h"
 
 #include "m_explore.h"
 #include "m_top.h"
@@ -14,6 +15,8 @@ namespace Menu
 
 ExploreMode modeExplore;
 
+Util::Bitarray<LIN::kNADMaxAssigned> presentMask;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Explore mode
 //
@@ -22,10 +25,21 @@ void
 ExploreMode::enter(Mode *from)
 {
     gDisplay.clear();
-    if (!nodePresent(LIN::kNADMaster)) {
+    presentMask.reset();
+    for (uint8_t i = LIN::kNADMaster; i < LIN::kNADMaxAssigned; i++) {
+        gDisplay.clear();
+        gDisplay.printf(PSTR("Scan...%2u"), i);
+
+        uint8_t dummy;
+        if (gSlave.getParameter(i, 0, dummy)) {
+            presentMask.set(i);
+        }
+    }
+
+    if (!presentMask.test(LIN::kNADMaster)) {
         gDisplay.clear();
         gDisplay.printf(PSTR("Master node not found"));
-        Board::msDelay(5000);
+        Board::msDelay(3000);
         _node = 0;
     } else {
         _node = LIN::kNADMaster;
@@ -99,9 +113,8 @@ ExploreMode::draw()
 bool
 ExploreMode::searchUp()
 {
-    for (uint8_t newNode = _node + 1; newNode < LIN::kNADMaxAssigned; newNode ++) {
-        wdt_reset();
-        if (nodePresent(newNode)) {
+    for (uint8_t newNode = _node + 1; newNode < LIN::kNADMaxAssigned; newNode++) {
+        if (presentMask.test(newNode)) {
             _node = newNode;
             return true;
         }
@@ -118,23 +131,12 @@ ExploreMode::searchDown()
     uint8_t newNode;
     for (newNode = _node - 1; newNode > 0; newNode--) {
         wdt_reset();
-        if (nodePresent(newNode)) {
+        if (presentMask.test(newNode)) {
             break;
         }
     }
     _node = newNode;
     return true;
-}
-
-bool
-ExploreMode::nodePresent(uint8_t node)
-{
-    uint8_t dummy;
-
-    gDisplay.clear();
-    gDisplay.printf(PSTR("scan %2u"), node);
-
-    return gSlave.getParameter(node, 0, dummy);
 }
 
 } // namespace Menu

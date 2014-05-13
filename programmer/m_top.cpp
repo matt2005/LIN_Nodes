@@ -86,7 +86,7 @@ TopMode::draw()
 
 #ifdef DEBUG
     gDisplay.move(8, 1);
-    gDisplay.printf(PSTR("%u free %3u"), (unsigned)_index, Board::freemem());
+    gDisplay.printf(PSTR(" free %3u"), Board::freemem());
 #endif
 }
 

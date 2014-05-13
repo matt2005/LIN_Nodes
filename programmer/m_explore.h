@@ -18,7 +18,6 @@ private:
     void            draw();
     bool            searchUp();
     bool            searchDown();
-    bool            nodePresent(uint8_t node);
 };
 
 extern ExploreMode modeExplore;

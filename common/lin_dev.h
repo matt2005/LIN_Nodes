@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "util.h"
 #include "lin_drv.h"
 #include "lin_protocol.h"
 
@@ -37,7 +38,7 @@ public:
         kErrMax
     };
 
-    uint16_t        errors[kErrMax];     //< error counters
+    Util::Counter8  errors[kErrMax];     //< error counters
 
 protected:
     /// Ask the driver to pay attention to the next response that it sees.

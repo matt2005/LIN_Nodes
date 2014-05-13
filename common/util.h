@@ -31,4 +31,17 @@ private:
     static uint8_t          bit(uint8_t n)   { return (1 << (n & 0x7)); }
 };
 
+class Counter8
+{
+public:
+    void            reset() { _value = 0; }
+    void            increment() { if (_value < 255) _value++; }
+
+    operator uint8_t & ()           { return _value; }
+    uint8_t & operator++()          { increment(); return _value; }
+
+private:
+    uint8_t         _value;
+};
+
 } // namespace Util

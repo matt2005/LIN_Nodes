@@ -363,7 +363,6 @@ static void
 pathLights(LIN::RelayFrame &f)
 {
     static bool ignitionWasOn;
-    bool pathLightingStart = false;
 
     // detect ignition transition to off
     if (Switches::changedToOff(LIN::kSWIgnition)) {
@@ -379,21 +378,21 @@ pathLights(LIN::RelayFrame &f)
     // door opens after ignition off
     if (Switches::changedToOn(LIN::kSWDoor) &&
         ignitionWasOn) {
-        pathLightingStart = true;
+
+        // path lighting
+        pathwayLightingDelay.setSeconds(paramPathLightPeriod.get());
+
+        // XXX no path lighting after a 'false alarm' door opening
+        //     might want to keep this set until sleep?
+        ignitionWasOn = false;
     }
 
     // ignition off and alarm unlock changed?
     if (!Switches::test(LIN::kSWIgnition) &&
         Switches::changed(LIN::kSWDoorUnlock)) {
-        pathLightingStart = true;
-    }
 
-    // start path lighting?
-    if (pathLightingStart) {
-        pathLightingStart = false;
-        ignitionWasOn = false;
-
-        pathwayLightingDelay.setSeconds(paramPathLightPeriod.get());
+        // welcome lighting
+        pathwayLightingDelay.setSeconds(paramWelcomeLightPeriod.get());
     }
 
     // path lights on?
@@ -402,7 +401,7 @@ pathLights(LIN::RelayFrame &f)
         awakeDelay.reset();                     // path lights are on, stay awake
 
         f.set(LIN::kRelayMarkers);
-        // XXX other pathway lights?
+        // XXX other pathway lights? town lights?
     }
 }
 

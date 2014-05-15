@@ -12,13 +12,15 @@ namespace Menu
 class EditMode : public Mode
 {
 public:
-    void    init(uint8_t *value,
+    void    init(Mode *parent,
+                 uint8_t *value,
                  uint8_t x,
                  uint8_t y,
                  uint8_t min = 0,
                  uint8_t max = 255,
                  const char *fmt = nullptr)
     {
+        _from = parent;
         _value = value;
         _x = x;
         _y = y;
@@ -34,12 +36,14 @@ public:
         }
     }
 
-    void    init(uint8_t *value,
+    void    init(Mode *parent,
+                 uint8_t *value,
                  uint8_t x,
                  uint8_t y,
                  const char *stringtab,
                  const char *fmt = nullptr) 
     {
+        _from = parent;
         _value = value;
         _x = x;
         _y = y;
@@ -53,8 +57,7 @@ public:
         }
     }
 
-    virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Encoder::Event bp);
+    virtual Mode    *action(Encoder::Event bp) override;
     void            draw();
 
 private:

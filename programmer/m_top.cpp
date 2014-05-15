@@ -37,13 +37,6 @@ static const uint8_t kMaxNode = sizeof(nodes) / sizeof(nodes[0]) - 1;
 // Top menu mode
 //
 
-void
-TopMode::enter(Mode *from)
-{
-    _index = 0;
-    draw();    
-}
-
 Mode *
 TopMode::action(Encoder::Event bp)
 {
@@ -66,6 +59,11 @@ TopMode::action(Encoder::Event bp)
 
     case Encoder::kEventPress:
         return reinterpret_cast<Mode *>(pgm_read_ptr(&nodes[_index]));
+
+    case Encoder::kEventActivate:
+        _index = 0;
+        wantDraw = true;
+        break;
 
     default:
         break;

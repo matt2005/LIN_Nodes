@@ -14,29 +14,29 @@ namespace Menu
 SetupMasterMode modeSetupMaster;
 
 static PROGMEM const char switchNames[] = 
-    "Ignition      \0"
-    "Start         \0"
-    "MarkerLights  \0"
-    "HeadLights    \0"
-    "HighBeam      \0"
+    "Ignition\0"
+    "Start\0"
+    "MarkerLights\0"
+    "HeadLights\0"
+    "HighBeam\0"
     "HighBeamToggle\0"
-    "FogLight      \0"
-    "LeftTurn      \0"
-    "RightTurn     \0"
-    "Brake         \0"
-    "Reverse       \0"
-    "Door          \0"
-    "InteriorLight \0"
-    "Hazard        \0"
-    "DoorUnlock    \0"
-    "LightsUp      \0"
-    "CabinFan1     \0"
-    "CabinFan2     \0"
-    "CabinFan3     \0"
-    "WiperInt      \0"
-    "WiperLow      \0"
-    "WiperHigh     \0"
-    "Unassigned    \0"
+    "FogLight\0"
+    "LeftTurn\0"
+    "RightTurn\0"
+    "Brake\0"
+    "Reverse\0"
+    "Door\0"
+    "InteriorLight\0"
+    "Hazard\0"
+    "DoorUnlock\0"
+    "LightsUp\0"
+    "CabinFan1\0"
+    "CabinFan2\0"
+    "CabinFan3\0"
+    "WiperInt\0"
+    "WiperLow\0"
+    "WiperHigh\0"
+    "Unassigned\0"
     "\0";
 
 static PROGMEM const char paramInfo[] =
@@ -60,25 +60,6 @@ static const char *
 paramFormat(uint8_t index)
 {
     return Util::strtab(paramInfo, index * 2 + 1);
-}
-
-void
-SetupMasterMode::enter(Mode *from)
-{
-    gDisplay.clear();
-
-    if (_editing) {
-        _editing = false;
-        if (!gSlave.setParameter(LIN::kNADMaster, _param, _value)) {
-            gDisplay.printf(PSTR("param %2u write error"), _param);
-            Board::msDelay(5000);
-            gDisplay.clear();
-        }
-    } else {
-        _param = 1;
-    }
-
-    draw();
 }
 
 Mode *
@@ -112,6 +93,21 @@ SetupMasterMode::action(Encoder::Event bp)
         }
         break;
 
+    case Encoder::kEventActivate:
+        if (_editing) {
+            _editing = false;
+            if (!gSlave.setParameter(LIN::kNADMaster, _param, _value)) {
+                gDisplay.clear();
+                gDisplay.printf(PSTR("%2u write err"), _param);
+                Board::msDelay(5000);
+                gDisplay.clear();
+            }
+        } else {
+            _param = 1;
+        }
+        indexChanged = true;
+        break;
+
     default:
         break;
     }
@@ -125,6 +121,8 @@ SetupMasterMode::action(Encoder::Event bp)
 void
 SetupMasterMode::draw()
 {
+    gDisplay.clear();
+
     switch (_param) {
     case 0:
         gDisplay.printf(PSTR(">back"));
@@ -132,13 +130,13 @@ SetupMasterMode::draw()
 
     case 1 ... 22:      // paramSGAssign(14).index()
         gDisplay.printf(PSTR("Input %2u"), _param);
-        modeEdit.init(&_value, 0, 1, switchNames, PSTR("%s"));
+        modeEdit.init(this, &_value, 0, 1, switchNames, PSTR("%16s"));
         modeEdit.draw();
         break;
 
     default:
         gDisplay.printf(PSTR("%s"), paramName(_param));
-        modeEdit.init(&_value, 0, 1, 0, 255, paramFormat(_param));
+        modeEdit.init(this,&_value, 0, 1, 0, 255, paramFormat(_param));
         modeEdit.draw();
         break;
     }

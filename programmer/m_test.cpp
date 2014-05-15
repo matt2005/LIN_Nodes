@@ -17,14 +17,6 @@ TestMode modeTest;
 // Test mode
 //
 
-void
-TestMode::enter(Mode *from)
-{
-    gDisplay.clear();
-    gDisplay.printf(PSTR(">back"));
-    gSlave.setSuspend(true);
-}
-
 Mode *
 TestMode::action(Encoder::Event bp)
 {
@@ -33,6 +25,12 @@ TestMode::action(Encoder::Event bp)
     case Encoder::kEventPress:
         gSlave.setSuspend(false);
         return &modeTop;
+
+    case Encoder::kEventActivate:
+        gDisplay.clear();
+        gDisplay.printf(PSTR(">back"));
+        gSlave.setSuspend(true);
+        break;
 
     default:
         break;

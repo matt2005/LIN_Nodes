@@ -21,32 +21,6 @@ Util::Bitarray<LIN::kNADMaxAssigned> presentMask;
 // Explore mode
 //
 
-void
-ExploreMode::enter(Mode *from)
-{
-    gDisplay.clear();
-    presentMask.reset();
-    for (uint8_t i = LIN::kNADMaster; i < LIN::kNADMaxAssigned; i++) {
-        gDisplay.clear();
-        gDisplay.printf(PSTR("Scan...%2u"), i);
-
-        uint8_t dummy;
-        if (gSlave.getParameter(i, 0, dummy)) {
-            presentMask.set(i);
-        }
-    }
-
-    if (!presentMask.test(LIN::kNADMaster)) {
-        gDisplay.clear();
-        gDisplay.printf(PSTR("Master node not found"));
-        Board::msDelay(3000);
-        _node = 0;
-    } else {
-        _node = LIN::kNADMaster;
-    }
-    draw();
-}
-
 Mode *
 ExploreMode::action(Encoder::Event bp)
 {
@@ -78,6 +52,30 @@ ExploreMode::action(Encoder::Event bp)
         default:
             break;
         }
+        break;
+
+    case Encoder::kEventActivate:
+        gDisplay.clear();
+        presentMask.reset();
+        for (uint8_t i = LIN::kNADMaster; i < LIN::kNADMaxAssigned; i++) {
+            gDisplay.clear();
+            gDisplay.printf(PSTR("Scan...%2u"), i);
+
+            uint8_t dummy;
+            if (gSlave.getParameter(i, 0, dummy)) {
+                presentMask.set(i);
+            }
+        }
+
+        if (!presentMask.test(LIN::kNADMaster)) {
+            gDisplay.clear();
+            gDisplay.printf(PSTR("Master node not found"));
+            Board::msDelay(3000);
+            _node = 0;
+        } else {
+            _node = LIN::kNADMaster;
+        }
+        wantDraw = true;
         break;
 
     default:

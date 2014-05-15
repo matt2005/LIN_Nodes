@@ -15,18 +15,10 @@ EditMode modeEdit;
 // Value edit mode
 //
 
-void
-EditMode::enter(Mode *from)
-{
-    _from = from;
-    draw();
-}
-
 Mode *
 EditMode::action(Encoder::Event bp)
 {
     switch (bp) {
-
     case Encoder::kEventDown:
         decrement();
         draw();
@@ -40,8 +32,11 @@ EditMode::action(Encoder::Event bp)
     case Encoder::kEventPress:
         return _from;
 
-    default:
+    case Encoder::kEventNone:
         break;
+
+    default:
+        draw();
     }
 
     return this;

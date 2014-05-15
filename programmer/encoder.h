@@ -6,10 +6,12 @@ namespace Encoder
 {
 
 enum Event : uint8_t {
-    kEventNone,
-    kEventDown,
-    kEventUp,
-    kEventPress
+    kEventNone,         // no event
+    kEventDown,         // encoder 'down'
+    kEventUp,           // encoder 'up'
+    kEventPress,        // encoder button press
+
+    kEventActivate      // meta-event for mode entry
 };
 
 void init();

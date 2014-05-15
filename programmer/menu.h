@@ -16,14 +16,9 @@ void tick();
 class Mode
 {
 public:
-    /// Called when the mode is activated.
-    ///
-    virtual void    enter(Mode *from) = 0;
-
     /// Called to give the mode CPU cycles
     Mode            *tick();
 
-protected:
     /// Kick the mode state machine.
     ///
     /// @param disp     The display the mode is using.

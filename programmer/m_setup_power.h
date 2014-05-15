@@ -12,8 +12,7 @@ class SetupPowerMode : public Mode
 public:
     void            init(uint8_t node) { _node = node; }
 
-    virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Encoder::Event bp);
+    virtual Mode    *action(Encoder::Event bp) override;
 
 private:
     uint8_t         _node;

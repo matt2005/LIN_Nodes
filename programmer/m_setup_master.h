@@ -10,8 +10,7 @@ namespace Menu
 class SetupMasterMode : public Mode
 {
 public:
-    virtual void    enter(Mode *from) override;
-    virtual Mode    *action(Encoder::Event bp);
+    virtual Mode    *action(Encoder::Event bp) override;
 
 private:
     uint8_t         _param;

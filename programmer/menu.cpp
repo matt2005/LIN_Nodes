@@ -20,18 +20,18 @@ static Mode         *_mode;     ///< current mode
 void
 tick()
 {
-    // lazily init to idle mode
-    if (_mode == nullptr) {
-        _mode = &modeTop;
-        _mode->enter(nullptr);
-    }
+    Mode *newmode;
 
     // kick the mode state machine
-    Mode *newmode = _mode->tick();
+    if (_mode != nullptr) {
+        newmode = _mode->tick();
+    } else {
+        newmode = &modeTop;
+    }
 
     // mode change?
     if (newmode != _mode) {
-        newmode->enter(_mode);
+        newmode->action(Encoder::kEventActivate);
         _mode = newmode;
     }
 }

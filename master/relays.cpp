@@ -15,7 +15,9 @@ class TurnBlinker : public Timer
 public:
     TurnBlinker() :
         Timer(blink, this),
-        _state(true)
+        _state(false),
+        _active(false),
+        _count(0)
     {}
     bool        state() const { return _state; }
     void        start() 
@@ -68,7 +70,7 @@ class BrakeBlinker : public Timer
 public:
     BrakeBlinker() :
         Timer(blink, this),
-        _state(true),
+        _state(false),
         _count(0)
     {}
 
@@ -81,7 +83,7 @@ public:
     }
 
 private:
-    volatile bool       _state;
+    volatile bool       _state:1;
     uint8_t             _count;
 
     static void blink(void *arg) 
@@ -115,7 +117,7 @@ public:
     bool        state() const { return _state; }
 
 private:
-    bool        _state;
+    bool        _state:1;
 
     static void swap(void *arg)
     {
@@ -155,25 +157,6 @@ static StayAwakeTimer   awakeDelay;
 static WiperDelay       wiperDelay;
 static Decrementer      interiorLightsDelay;
 static Decrementer      pathwayLightingDelay;
-
-// relay                    set in
-// ---------------------------------------------------
-// kRelayIgnition           powerSignals
-// kRelayStart              powerSignals
-// kRelayLightsUp           headLights
-// kRelayLightsDown         headLights
-// kRelayHeadLights         headLights
-// kRelayLowBeam            headLights
-// kRelayHighBeam           headLights
-// kRelayFogLights          headLights
-// kRelayMarkers            headLights markerLights
-// kRelayLeftTurn           turnSignals
-// kRelayLeftTurnMarker     markerLights turnSignals
-// kRelayRightTurn          turnSignals
-// kRelayRightTurnMarker    markerLights turnSignals
-// kRelayBrake              tailLights
-// kRelayReverse            tailLights
-// kRelayInteriorLight      interiorLights
 
 static void
 powerSignals(RelayBits &f)
@@ -225,7 +208,7 @@ turnSignals(RelayBits &f)
            f.clear(LIN::kRelayRightTurnMarker);
        }
        return;
-    } 
+    }
 
     // smart hazard warning lights?
     if (Switches::test(LIN::kSWHazard)) {
@@ -243,6 +226,15 @@ turnSignals(RelayBits &f)
             f.set(LIN::kRelayRightTurn);
         }
         return;
+    } else {
+
+        // hazard blinker just turned off?
+        if (Switches::changed(LIN::kSWHazard)) {
+            turnBlinker.cancel();
+        }
+
+        // XXX this isn't quite right; if a smart turn signal was engaged while
+        //     hazards were on, we will miss it...
     }
 
     // parking markers?

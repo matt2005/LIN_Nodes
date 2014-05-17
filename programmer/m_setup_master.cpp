@@ -40,20 +40,43 @@ static PROGMEM const char switchNames[] =
     "\0";
 
 static PROGMEM const char paramInfo[] =
-    "TurnBlinkPeriod\0"     "%3u0ms\0"
-    "PassingBlinkCount\0"   "%3u blinks\0"
-    "PathLightPeriod\0"     "%3us\0"
-    "InteriorLightPeriod\0" "%3us\0"
-    "WelcomeLightPeriod\0"  "%3us\0"
+    " \0"                   " \0"
+    "SP1\0"                 " \0"
+    "SP2\0"                 " \0"
+    "SP3\0"                 " \0"
+    "SP4\0"                 " \0"
+    "SP5\0"                 " \0"
+    "SP6\0"                 " \0"
+    "SP7\0"                 " \0"
+    "SG1\0"                 " \0"
+    "SG2\0"                 " \0"
+    "SG3\0"                 " \0"
+    "SG4\0"                 " \0"
+    "SG5\0"                 " \0"
+    "SG6\0"                 " \0"
+    "SG7\0"                 " \0"
+    "SG8\0"                 " \0"
+    "SG9\0"                 " \0"
+    "SG10\0"                " \0"
+    "SG11\0"                " \0"
+    "SG12\0"                " \0"
+    "SG13\0"                " \0"
+    "SG14\0"                " \0"
+     ////////////////
+    "TurnBlinkPeriod \0"    "%3u0ms\0"
+    "PassBlinkCount  \0"    "%3u blinks\0"
+    "PathLightTime   \0"    "%3us\0"
+    "InsideLightTime \0"    "%3us\0"
+    "WelcomeLightTime\0"    "%3us\0"
     "BrakeBlinkPeriod\0"    "%3u0ms\0"
-    "BrakeBlinkCount\0"     "%3u blinks\0"
-    "WiperInterval\0"       "%3u00ms\0"
+    "BrakeBlinkCount \0"    "%3u blinks\0"
+    "WiperInterval   \0"    "%3u00ms\0"
     "\0";
 
 static const char *
 paramName(uint8_t index)
 {
-    return Util::strtab(paramInfo, index * 2);
+        return Util::strtab(paramInfo, index * 2);
 }
 
 static const char *
@@ -76,7 +99,7 @@ SetupMasterMode::action(Encoder::Event bp)
         break;
 
     case Encoder::kEventUp:
-        if (pgm_read_byte(paramName(_param + 1)) != '\0') {
+        if (paramName(_param + 2) != nullptr) {
             _param++;
         }
         indexChanged = true;
@@ -123,22 +146,21 @@ SetupMasterMode::draw()
 {
     gDisplay.clear();
 
-    switch (_param) {
-    case 0:
+    if (_param == 0) {
         gDisplay.printf(PSTR(">back"));
-        break;
+    } else {
+        if (!gSlave.getParameter(LIN::kNADMaster, _param, _value)) {
+            gDisplay.printf(PSTR("param %2u read error"), _param);
+        } else {
+            gDisplay.printf(PSTR("%s"), paramName(_param));
 
-    case 1 ... 22:      // paramSGAssign(14).index()
-        gDisplay.printf(PSTR("Input %2u"), _param);
-        modeEdit.init(this, &_value, 0, 1, switchNames, PSTR("%16s"));
-        modeEdit.draw();
-        break;
-
-    default:
-        gDisplay.printf(PSTR("%s"), paramName(_param));
-        modeEdit.init(this,&_value, 0, 1, 0, 255, paramFormat(_param));
-        modeEdit.draw();
-        break;
+            if (pgm_read_byte(paramFormat(_param)) == ' ') {
+                modeEdit.init(this, &_value, 0, 1, switchNames, PSTR("%16s"));
+            } else {
+                modeEdit.init(this, &_value, 0, 1, 0, 255, paramFormat(_param));
+            }
+            modeEdit.draw();
+        }
     }
 }
 

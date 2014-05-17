@@ -13,33 +13,6 @@ namespace Menu
 
 SetupMasterMode modeSetupMaster;
 
-static PROGMEM const char switchNames[] = 
-    "Ignition\0"
-    "Start\0"
-    "MarkerLights\0"
-    "HeadLights\0"
-    "HighBeam\0"
-    "HighBeamToggle\0"
-    "FogLight\0"
-    "LeftTurn\0"
-    "RightTurn\0"
-    "Brake\0"
-    "Reverse\0"
-    "Door\0"
-    "InteriorLight\0"
-    "Hazard\0"
-    "DoorUnlock\0"
-    "LightsUp\0"
-    "CabinFan1\0"
-    "CabinFan2\0"
-    "CabinFan3\0"
-    "WiperInt\0"
-    "WiperLow\0"
-    "WiperHigh\0"
-    "RearDefrost\0"
-    "Unassigned\0"
-    "\0";
-
 static PROGMEM const char paramInfo[] =
     " \0"                   " \0"
     "SP1\0"                 " \0"

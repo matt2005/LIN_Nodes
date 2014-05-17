@@ -13,32 +13,6 @@ namespace Menu
 
 SetupPowerMode modeSetupPower;
 
-static PROGMEM const char relayNames[] = 
-    "Ignition\0"
-    "Start\0"
-    "LightsUp\0"
-    "LightsDown\0"
-    "HeadLights\0"
-    "LowBeam\0"
-    "HighBeam\0"
-    "FogLights\0"
-    "Markers\0"
-    "LeftTurn\0"
-    "LeftTurnMarker\0"
-    "RightTurn\0"
-    "RightTurnMarker\0"
-    "Brake\0"
-    "Reverse\0"
-    "InteriorLight\0"
-    "CabinFan1\0"
-    "CabinFan2\0"
-    "CabinFan3\0"
-    "WiperLow\0"
-    "WiperHigh\0"
-    "RearDefrost\0"
-    "Unassigned\0"
-    "\0";
-
 Mode *
 SetupPowerMode::action(Encoder::Event bp)
 {

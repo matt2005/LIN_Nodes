@@ -2,12 +2,15 @@
 ///
 /// Common LIN protocol definitions.
 ///
+/// See also protocol.txt, .awk and .h
+///
 #pragma once
 
 #include <stdint.h>
 #include <string.h>
 
 #include "util.h"
+#include "protocol.h"
 
 namespace LIN
 {
@@ -30,71 +33,6 @@ enum FrameID : uint8_t
 
     kFIDTest            = 0x14,
     kFIDNonsense        = 0xff
-};
-
-//
-// Switch IDs
-//
-enum SwitchID : uint8_t
-{
-    kSWIgnition,                // ignition is 'on'
-    kSWStart,                   // ignition in 'start'
-    kSWMarkerLights,            // first light switch detent (parking/markers/city lights)
-    kSWHeadLights,              // headlights or low-beam headlights (second detent)
-    kSWHighBeam,                // high beam headlights
-    kSWHighBeamToggle,          // momentary low/high beam toggle switch
-    kSWFogLight,                // fog light switch
-    kSWLeftTurn,                // left turn signal, ext. blinker or permanent contact
-    kSWRightTurn,               // right turn signal, ext. blinker or permanent contact
-    kSWBrake,                   // brake pedal switch
-    kSWReverse,                 // reverse switch
-    kSWDoor,                    // door pin switch(es)
-    kSWInteriorLight,           // manual interior light switch
-    kSWHazard,                  // hazard signal, ext. blinker or permanent contact
-    kSWDoorUnlock,              // door lock/unlock relay (unlock only real important signal)
-    kSWLightsUp,                // manual pop-up lights activator
-    kSWCabinFan1,               // cabin fan '1' position
-    kSWCabinFan2,               // cabin fan '2' position
-    kSWCabinFan3,               // cabin fan '3' position
-    kSWWiperInt,                // windshield wiper intermittent mode
-    kSWWiperLow,                // windshield wiper low speed mode
-    kSWWiperHigh,               // windshield wiper high speed mode
-    kSWRearDefrost,             // rear window defrost
-
-    kSWMax,                     // unassigned
-    kSWNone             = 0xff
-};
-
-//
-// Relay IDs for Relays
-//
-enum RelayID : uint8_t
-{
-    kRelayIgnition,             // on when ignition power is on
-    kRelayStart,                // on when key in start
-    kRelayLightsUp,             // pop-up lights should move to up position
-    kRelayLightsDown,           // pop-up lights should move to down position
-    kRelayHeadLights,           // any headlight
-    kRelayLowBeam,              // low-beam headlights
-    kRelayHighBeam,             // high-beam headlights
-    kRelayFogLights,            // fog lights
-    kRelayMarkers,              // marker/running/city lights
-    kRelayLeftTurn,             // left turn signal
-    kRelayLeftTurnMarker,       // marker light, off when left turn signal is on
-    kRelayRightTurn,            // right turn signal
-    kRelayRightTurnMarker,      // marker light, off when right turn signal is on
-    kRelayBrake,                // brake lights
-    kRelayReverse,              // reverse lights
-    kRelayInteriorLight,        // cabin interior illumination
-    kRelayCabinFan1,            // cabin fan '1' winding
-    kRelayCabinFan2,            // cabin fan '2' winding
-    kRelayCabinFan3,            // cabin fan '3' winding
-    kRelayWiperLow,             // wiper low speed winding
-    kRelayWiperHigh,            // wiper high speed winding
-    kRelayRearDefrost,          // rear window defrost
-
-    kRelayMax,                  // unassigned
-    kRelayNone          = 0xff
 };
 
 //

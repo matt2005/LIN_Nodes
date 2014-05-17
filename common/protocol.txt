@@ -1,0 +1,49 @@
+Switches:
+    Ignition
+    Start
+    MarkerLights
+    HeadLights
+    HighBeam
+    HighBeamToggle
+    FogLight
+    LeftTurn
+    RightTurn
+    Brake
+    Reverse
+    Door
+    InteriorLight
+    Hazard
+    DoorUnlock
+    LightsUp
+    CabinFan1
+    CabinFan2
+    CabinFan3
+    WiperInt
+    WiperLow
+    WiperHigh
+    RearDefrost
+
+Relays:
+    Ignition
+    Start
+    LightsUp
+    LightsDown
+    HeadLights
+    LowBeam
+    HighBeam
+    FogLights
+    Markers
+    LeftTurn
+    LeftTurnMarker
+    RightTurn
+    RightTurnMarker
+    Brake
+    Reverse
+    InteriorLight
+    CabinFan1
+    CabinFan2
+    CabinFan3
+    WiperLow
+    WiperHigh
+    RearDefrost
+    

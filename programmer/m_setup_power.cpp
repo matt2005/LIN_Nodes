@@ -45,13 +45,6 @@ SetupPowerMode::action(Encoder::Event bp)
         break;
 
     case Encoder::kEventActivate:
-#ifdef DEBUG
-        if (Util::strtablen(relayNames) != (LIN::kRelayMax + 1)) {
-            gDisplay.clear();
-            debug("Menu::relayNames %u out of sync with LIN::RelayID %u", Util::strtablen(relayNames), LIN::kRelayMax + 1);
-            Board::panic(Board::kPanicAssert);
-        }
-#endif
         if (_editing) {
             _editing = false;
             if (!gSlave.setParameter(_node, _param, _value)) {

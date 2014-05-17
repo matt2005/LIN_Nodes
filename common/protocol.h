@@ -27,6 +27,7 @@ enum SwitchID : uint8_t {
     kSWWiperLow = 20,
     kSWWiperHigh = 21,
     kSWRearDefrost = 22,
+    kSWUnassigned = 23,
     kSWMax,
     kSWNone = 0xff,
 };
@@ -54,6 +55,7 @@ enum RelayID : uint8_t {
     kRelayWiperLow = 19,
     kRelayWiperHigh = 20,
     kRelayRearDefrost = 21,
+    kRelayUnassigned = 22,
     kRelayMax,
     kRelayNone = 0xff,
 };
@@ -84,6 +86,7 @@ static PROGMEM const char switchNames[] =
     "WiperLow\0"
     "WiperHigh\0"
     "RearDefrost\0"
+    "Unassigned\0"
     "\0";
 
 static PROGMEM const char relayNames[] = 
@@ -109,5 +112,6 @@ static PROGMEM const char relayNames[] =
     "WiperLow\0"
     "WiperHigh\0"
     "RearDefrost\0"
+    "Unassigned\0"
     "\0";
 

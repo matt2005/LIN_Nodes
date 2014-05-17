@@ -22,6 +22,7 @@ Switches:
     WiperLow
     WiperHigh
     RearDefrost
+    Unassigned
 
 Relays:
     Ignition
@@ -46,4 +47,4 @@ Relays:
     WiperLow
     WiperHigh
     RearDefrost
-    
+    Unassigned

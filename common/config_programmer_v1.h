@@ -6,6 +6,9 @@
 #define BOARD_FUNCTION_ID   2
 
 #define portLCD         portB
+#define lcdBitE         (1<<6)
+#define lcdBitRnW       (1<<5)
+#define lcdBitDnC       (1<<4)
 
 // rotary encoder pins
 #define ENC_INT_REG     PCMSK0

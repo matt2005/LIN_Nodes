@@ -21,9 +21,9 @@ protected:
     virtual void    _write(uint8_t c) override;
     
 private:
-    static const uint8_t    bitE   = (1<<6);
-    static const uint8_t    bitRnW = (1<<5);
-    static const uint8_t    bitDnC = (1<<4);
+    static const uint8_t    bitE   = lcdBitE;
+    static const uint8_t    bitRnW = lcdBitRnW;
+    static const uint8_t    bitDnC = lcdBitDnC;
 
     static void     sendCmd(uint8_t cmd);
     static void     sendData(uint8_t cmd);

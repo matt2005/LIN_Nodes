@@ -36,6 +36,7 @@ static PROGMEM const char switchNames[] =
     "WiperInt\0"
     "WiperLow\0"
     "WiperHigh\0"
+    "RearDefrost\0"
     "Unassigned\0"
     "\0";
 

@@ -20,21 +20,6 @@ namespace LIN
 //
 typedef uint8_t FID;
 
-enum FrameID : uint8_t
-{
-    kFIDNone            = 0,
-    kFIDRelays          = 1,
-
-    kFIDConfigRequest   = 0x2c,
-    kFIDConfigResponse  = 0x2d,
-
-    kFIDMasterRequest   = 0x3c,
-    kFIDSlaveResponse   = 0x3d,
-
-    kFIDTest            = 0x14,
-    kFIDNonsense        = 0xff
-};
-
 //
 // LIN node addresses for MasterRequest/SlaveResponse
 //

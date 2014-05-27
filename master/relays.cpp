@@ -385,6 +385,9 @@ interiorLights(RelayBits &f)
         awakeDelay.reset();                     // lights are on, stay awake
 
         f.set(LIN::kRelayInteriorLight);
+
+        // XXX nice to have a time limit on the interior light when
+        //     ignition is off to prevent battery drain 
     }
 }
 

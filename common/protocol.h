@@ -1,7 +1,31 @@
 // AUTOMATICALLY GENERATED - DO NOT EDIT
-#include <avr/pgmspace.h>
+#ifdef __AVR__
+# include <avr/pgmspace.h>
+#else
+# define PROGMEM
+#endif
+#include <stdint.h>
 
 namespace LIN {
+
+static const uint8_t protocolRevision = 1;
+
+enum FrameID : uint8_t {
+    kFIDNone = 0x00,
+    kFIDRelays = 0x01,
+    kFIDConfigRequest = 0x2c,
+    kFIDConfigResponse = 0x2d,
+    kFIDMasterRequest = 0x3c,
+    kFIDMasterResponse = 0x3d,
+};
+
+enum FrameLen : uint8_t {
+    kFLenRelays = 0x08,
+    kFLenConfigRequest = 0x08,
+    kFLenConfigResponse = 0x08,
+    kFLenMasterRequest = 0x08,
+    kFLenMasterResponse = 0x08,
+};
 
 enum SwitchID : uint8_t {
     kSWIgnition = 0,

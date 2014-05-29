@@ -49,6 +49,7 @@ $1 == "Relays:" {
 }
 
 END {
+    printf "#pragma once\n"
     printf "#ifdef __AVR__\n"
     printf "# include <avr/pgmspace.h>\n"
     printf "#else\n"

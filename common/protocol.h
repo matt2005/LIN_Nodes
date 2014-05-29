@@ -1,4 +1,5 @@
 // AUTOMATICALLY GENERATED - DO NOT EDIT
+#pragma once
 #ifdef __AVR__
 # include <avr/pgmspace.h>
 #else

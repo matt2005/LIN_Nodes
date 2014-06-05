@@ -17,7 +17,8 @@ enum FrameID : uint8_t {
     kFIDConfigRequest = 0x2c,
     kFIDConfigResponse = 0x2d,
     kFIDMasterRequest = 0x3c,
-    kFIDMasterResponse = 0x3d,
+    kFIDSlaveResponse = 0x3d,
+    kFIDTest = 0x3f,
 };
 
 enum FrameLen : uint8_t {
@@ -25,7 +26,8 @@ enum FrameLen : uint8_t {
     kFLenConfigRequest = 0x08,
     kFLenConfigResponse = 0x08,
     kFLenMasterRequest = 0x08,
-    kFLenMasterResponse = 0x08,
+    kFLenSlaveResponse = 0x08,
+    kFLenTest = 0x08,
 };
 
 enum SwitchID : uint8_t {

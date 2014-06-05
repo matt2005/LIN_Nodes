@@ -5,8 +5,8 @@ Frames:
     ConfigRequest   0x2c    8
     ConfigResponse  0x2d    8
     MasterRequest   0x3c    8
-    MasterResponse  0x3d    8
-
+    SlaveResponse   0x3d    8
+    Test            0x3f    8
 
 Switches:
     Ignition

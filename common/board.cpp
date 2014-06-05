@@ -31,12 +31,10 @@ void init()
     wdt_enable(WDTO_500MS);
 
     // fill (most of) the stack with 0xff for sniffing purposes
-    {
-        volatile uint8_t *p = &_end;
+    volatile uint8_t *p = &_end;
 
-        while (p < (uint8_t *)SP) {
-            *p++ = 0xff;
-        }
+    while (p < (uint8_t *)SP) {
+        *p++ = 0xff;
     }
 }
 
@@ -77,25 +75,41 @@ getMode()
 {
     uint8_t mode = 0;
 
-#ifdef pinMode1
     // configure Mode pins for reading
+#ifdef pinMode1
     pinMode1.cfgInputPullUp();
+#ifdef pinMode2
     pinMode2.cfgInputPullUp();
+#ifdef pinMode4
     pinMode4.cfgInputPullUp();
+#ifdef pinMode8
     pinMode8.cfgInputPullUp();
+#endif
+#endif
+#endif
+#endif
+
 
     // sample the mode pins
     msDelay(10);                // allow inputs to settle
 
+#ifdef pinMode1
     if (!pinMode1.get())        // 1 bits are pulled low
         mode |= 1;
+#ifdef pinMode2
     if (!pinMode2.get())
         mode |= 2;
+#ifdef pinMode4
     if (!pinMode4.get())
         mode |= 4;
+#ifdef pinMode8
     if (!pinMode8.get())
         mode |= 8;
 #endif
+#endif
+#endif
+#endif
+
     return mode;
 }
 

@@ -78,16 +78,32 @@ PanelV2PIO::line_update(unsigned row, unsigned slot, FrameBuffer &buffer)
         unsigned row_address = row * buffer.columns();
         const unsigned offset = buffer.rows() / 2 * buffer.columns();
 
-        for (unsigned col = 0; col < buffer.columns(); col++) {
-                
-                unsigned low_slice = buffer.subCell(row_address + col).getRGB().slice(slot);
-                unsigned high_slice = buffer.subCell(row_address + offset + col).getRGB().slice(slot);
+//        for (unsigned col = 0; col < buffer.columns(); col++) {
+//                
+//                unsigned low_slice = buffer.subCell(row_address + col).getRGB().slice(slot);
+//                unsigned high_slice = buffer.subCell(row_address + offset + col).getRGB().slice(slot);
+//
+//                GPIO_CLK_BITS = 0;                              // CLK low
+//                GPIO_RGB_BITS = low_slice | (high_slice << 6);  // present data
+//                GPIO_CLK_BITS = _bCLK;                          // latch on rising edge
+//
+//        }
 
+        // ~33us for 32 columns
+        for (unsigned col = 0; col < buffer.columns(); col += Cell::stride()) {
+            uint32_t low_cell = buffer.cell(row_address + col).raw();
+            uint32_t high_cell = buffer.cell(row_address + offset + col).raw();
+
+            // ~42 cycles per iteration
+            for (unsigned subcol = 0; subcol < 8; subcol++) {
                 GPIO_CLK_BITS = 0;                              // CLK low
-                GPIO_RGB_BITS = low_slice | (high_slice << 6);  // present data
+                GPIO_RGB_BITS = palette[low_cell & 0xf].slice(slot) | (palette[high_cell & 0xf].slice(slot) << 6);
+                low_cell >>= 4;
+                high_cell >>= 4;
                 GPIO_CLK_BITS = _bCLK;                          // latch on rising edge
-
+            }
         }
+
         GPIO_LAT_BITS = _bLAT;                                  // lat high to latch row
         GPIO_CTL_BITS = 0;                                      // oe, clk, lat low to enable display
 }

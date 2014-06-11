@@ -93,7 +93,7 @@ private:
 typedef uint8_t                 Colour;
 extern const PaletteEntry       palette[16];
 
-/* palette colours */
+/* palette indices */
 #define Black           0
 #define Red             1
 #define DimRed          2
@@ -161,6 +161,11 @@ public:
         {
                 unsigned address = p.y * COLUMNS + p.x;
                 return subCell(address);
+        }
+
+        Cell            cell(unsigned address)
+        {
+                return _buffer[address / Cell::stride()];
         }
 
         constexpr static unsigned rows() { return ROWS; }

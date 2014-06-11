@@ -11,7 +11,7 @@
                                             GPIO_IO_P7 | \
                                             GPIO_IO_P8)
 
-#define GPIO_ADDR_BITS      GPIO_GPIO0_BITS(GPIO_IO_P3 | GPIO_IO_P9 | GPIO_IO_P11 | GPIO_IO_P8)
+#define GPIO_ADDR_BITS      GPIO_GPIO0_BITS(GPIO_IO_P3 | GPIO_IO_P9 | GPIO_IO_P11 | GPIO_IO_P6)
 
 #define GPIO_CLK_BITS       GPIO_GPIO1_BITS(GPIO_IO_P4)
 #define GPIO_LAT_BITS       GPIO_GPIO1_BITS(GPIO_IO_P5)
@@ -25,9 +25,9 @@ PanelV2PIO::PanelV2PIO()
     IOCON_nRESET_PIO0_0 = IOCON_nRESET_PIO0_0_FUNC_GPIO;            // R1
     IOCON_PIO0_1 = IOCON_PIO0_1_FUNC_GPIO;                          // G1
     IOCON_PIO0_2 = IOCON_PIO0_2_FUNC_GPIO;                          // B1
-    IOCON_PIO0_6 = IOCON_PIO0_6_FUNC_GPIO;                          // R2
+    IOCON_PIO0_6 = IOCON_PIO0_6_FUNC_GPIO;                          // R2 / D
     IOCON_PIO0_7 = IOCON_PIO0_7_FUNC_GPIO;                          // G2
-    IOCON_PIO0_8 = IOCON_PIO0_8_FUNC_GPIO;                          // B2 / D
+    IOCON_PIO0_8 = IOCON_PIO0_8_FUNC_GPIO;                          // B2
     IOCON_PIO0_3 = IOCON_PIO0_3_FUNC_GPIO;                          // A
     IOCON_PIO0_9 = IOCON_PIO0_9_FUNC_GPIO;                          // B
     IOCON_JTAG_TDI_PIO0_11 = IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO |     // C

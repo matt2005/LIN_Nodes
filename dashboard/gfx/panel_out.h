@@ -29,7 +29,7 @@ private:
     static const uint16_t   _bA = GPIO_IO_P3;   // to be shared with R1
     static const uint16_t   _bB = GPIO_IO_P9;   // to be shared with G1
     static const uint16_t   _bC = GPIO_IO_P11;  // to be shared with B1
-    static const uint16_t   _bD = _bB2;   // shared with B2
+    static const uint16_t   _bD = _bR2;         // shared with R2
 
     static const uint16_t   _bCLK = GPIO_IO_P4;
     static const uint16_t   _bLAT = GPIO_IO_P5;

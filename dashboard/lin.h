@@ -21,7 +21,7 @@ public:
 	bool		ttHighBeam	= false;
 
 	unsigned	roadSpeed	= 88;
-	unsigned	engineRPM	= 0;
+	unsigned	engineRPM	= 8765;
 
 private:
 	enum State {

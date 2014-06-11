@@ -87,8 +87,8 @@ static GlyphIcon	tt_right_turn  (gDash, Position(29, 0), g_right_triangle, Green
 static GlyphIcon	tt_high_beam   (gDash, Position(9, 0),  g_telltale,       Blue,   gLIN.ttHighBeam);
 static GlyphIcon	tt_low_beam    (gDash, Position(9, 0),  g_telltale,       Green,  gLIN.ttLowBeam);
 
-static GlyphNumber	num_speed(gDash, Position(40, 20), font_Misc_Fixed_Medium_9x15, 2, DimCyan, gLIN.roadSpeed);
-static GlyphNumber	num_rpm  (gDash, Position(10, 20), font_Misc_Fixed_Bold_7x14,  4, DimCyan, gLIN.engineRPM);
+static GlyphNumber	num_speed(gDash, Position(40, 12), font_Misc_Fixed_Bold_9x18, 2, DimCyan, gLIN.roadSpeed);
+static GlyphNumber	num_rpm  (gDash, Position(0, 12), font_Misc_Fixed_Bold_7x14,  4, DimCyan, gLIN.engineRPM);
 //static GlyphBar		bar_rpm  (gDash, Region(0, 6, 15, 3), GlyphBar::O_HORIZONTAL, 0, 600, DimGreen, gLIN.engineRPM);
 
 

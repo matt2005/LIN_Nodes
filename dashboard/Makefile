@@ -29,7 +29,7 @@ ARCHFLAGS	 = -g					\
 		   -mcpu=cortex-m0
 
 FLAGS		 = $(ARCHFLAGS)				\
-		   -O2					\
+		   -O3					\
 		   -Wall				\
 		   -Wextra				\
 		   -Werror				\

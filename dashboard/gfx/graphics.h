@@ -81,7 +81,7 @@ public:
         unsigned        slice(unsigned shift) const { return (_raw >> (shift * 3)) & 0x7; }
 
 private:
-        uint16_t        _raw;
+        const uint16_t  _raw;
 
         static constexpr unsigned       primaryBit(uint8_t primary, unsigned bit, unsigned shift) 
         {
@@ -124,7 +124,7 @@ struct Cell
                 _raw = (_raw & mask(index)) | ((Raw)val << shift(index));
         }
 
-        Raw             raw() const { return _raw; }
+        Raw             &raw() { return _raw; }
 
 private:
         Raw             _raw;
@@ -163,7 +163,7 @@ public:
                 return subCell(address);
         }
 
-        Cell            cell(unsigned address)
+        Cell            &cell(unsigned address)
         {
                 return _buffer[address / Cell::stride()];
         }

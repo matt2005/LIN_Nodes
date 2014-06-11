@@ -11,6 +11,15 @@
                                             GPIO_IO_P7 | \
                                             GPIO_IO_P8)
 
+#define GPIO_RGB1_BITS      GPIO_GPIO0_BITS(GPIO_IO_P0 | \
+                                            GPIO_IO_P1 | \
+                                            GPIO_IO_P2)
+
+#define GPIO_RGB2_BITS      GPIO_GPIO0_BITS(GPIO_IO_P6 | \
+                                            GPIO_IO_P7 | \
+                                            GPIO_IO_P8)
+
+
 #define GPIO_ADDR_BITS      GPIO_GPIO0_BITS(GPIO_IO_P3 | GPIO_IO_P9 | GPIO_IO_P11 | GPIO_IO_P6)
 
 #define GPIO_CLK_BITS       GPIO_GPIO1_BITS(GPIO_IO_P4)
@@ -71,31 +80,24 @@ PanelV2PIO::line_update(unsigned row, unsigned slot, FrameBuffer &buffer)
 {
         line_off();
 
-        unsigned row_address = row * buffer.columns();
-        const unsigned offset = buffer.rows() / 2 * buffer.columns();
-
-//        for (unsigned col = 0; col < buffer.columns(); col++) {
-//                
-//                unsigned low_slice = buffer.subCell(row_address + col).getRGB().slice(slot);
-//                unsigned high_slice = buffer.subCell(row_address + offset + col).getRGB().slice(slot);
-//
-//                GPIO_CLK_BITS = 0;                              // CLK low
-//                GPIO_RGB_BITS = low_slice | (high_slice << 6);  // present data
-//                GPIO_CLK_BITS = _bCLK;                          // latch on rising edge
-//
-//        }
+        uint32_t *lcp = &buffer.cell(row * buffer.columns()).raw();
+        uint32_t *hcp = lcp + buffer.rows() / 2 * buffer.columns() / Cell::stride();
 
         // ~33us for 32 columns
         for (unsigned col = 0; col < buffer.columns(); col += Cell::stride()) {
-            uint32_t low_cell = buffer.cell(row_address + col).raw();
-            uint32_t high_cell = buffer.cell(row_address + offset + col).raw();
+            uint32_t low_cell = *lcp++;
+            uint32_t high_cell = *hcp++;
 
             // ~42 cycles per iteration
             for (unsigned subcol = 0; subcol < 8; subcol++) {
                 GPIO_CLK_BITS = 0;                              // CLK low
-                GPIO_RGB_BITS = palette[low_cell & 0xf].slice(slot) | (palette[high_cell & 0xf].slice(slot) << 6);
+
+                GPIO_RGB1_BITS = palette[low_cell & 0xf].slice(slot);
+                GPIO_RGB2_BITS = palette[high_cell & 0xf].slice(slot) << 6;
+                //GPIO_RGB_BITS = palette[low_cell & 0xf].slice(slot) | (palette[high_cell & 0xf].slice(slot) << 6);
                 low_cell >>= 4;
                 high_cell >>= 4;
+
                 GPIO_CLK_BITS = _bCLK;                          // latch on rising edge
             }
         }

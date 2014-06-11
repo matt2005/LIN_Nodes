@@ -58,7 +58,8 @@ private:
 	// Brightness is expressed in terms of the on period for the LSB.
 	// Assuming a frame time of ~16ms, two rows per line and linear 
 	// brightness scaling, determine the LSB period for the given depth.
-	static const unsigned _max_brightness = ((16384 / (FrameBuffer::rows() / 2)) >> _depth);
+	// Adjust the 16ms value for the ~6ms worth of pixel transfer time...
+	static const unsigned _max_brightness = ((10000 / (FrameBuffer::rows() / 2)) >> _depth);
 
 	static void	tick(void *arg);
 	void		_tick();

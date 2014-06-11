@@ -7,7 +7,8 @@ ENTRY(_start)
 
 SECTIONS {
 	. = 0;
-	
+
+/*	
 	.vectors : ALIGN(16) SUBALIGN(16) {
 		KEEP(*(.vectors))
 	} > flash
@@ -18,8 +19,15 @@ SECTIONS {
 		KEEP(*(.init_array))
 		PROVIDE(_init_array_end = .);
 	} > flash
-	
+*/	
 	.text : ALIGN(4) SUBALIGN(4) {
+		KEEP(*(.vectors))
+
+		PROVIDE(_init_array_start = .);
+		KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*)))
+		KEEP(*(.init_array))
+		PROVIDE(_init_array_end = .);
+
 		*(.text.startup.*)
 		*(.text)
 		*(.text.*)

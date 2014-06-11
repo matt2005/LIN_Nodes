@@ -20,7 +20,7 @@ public:
 	bool		ttLowBeam	= false;
 	bool		ttHighBeam	= false;
 
-	unsigned	roadSpeed	= 0;
+	unsigned	roadSpeed	= 88;
 	unsigned	engineRPM	= 0;
 
 private:

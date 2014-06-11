@@ -60,19 +60,6 @@ private:
 	// brightness scaling, determine the LSB period for the given depth.
 	static const unsigned _max_brightness = ((16384 / (FrameBuffer::rows() / 2)) >> _depth);
 
-	// Two phases for each bit (one on, one off), for each display row
-	static const unsigned _max_phase = 2 * _depth * (FrameBuffer::rows() / 2);
-
-	// LSB of the phase count is on / off indicator; odd phases are
-	// skipped at max brightness.
-	bool		_phase_is_dimming() const { return (_phase & 0x1); }
-
-	// Extract the row number from the phase
-	unsigned	_phase_row() const { return (_phase / 2) & ((FrameBuffer::rows() / 2) - 1); }
-
-	// Extract the slot (plane) from the phase
-	unsigned	_phase_slot() const { return (_phase / (2 * (FrameBuffer::rows() / 2))) & ((1 << _depth) - 1); }
-
 	static void	tick(void *arg);
 	void		_tick();
 	Timer::Interval	_phase_advance();
@@ -82,7 +69,14 @@ private:
 	Timer		_timer;
 	PanelOut	&_driver;
 
-	unsigned	_phase;
+	union {
+		unsigned		counter;
+		struct {
+			unsigned	is_dimming:1;
+			unsigned 	row:31-__builtin_clz(FrameBuffer::rows()/2);
+			unsigned	slot:32-__builtin_clz(PaletteEntry::depth);
+		};
+	} 			_phase;
 	unsigned	_dim_level;
 
 	PerfInterval	_perf_line_update;		// line update time

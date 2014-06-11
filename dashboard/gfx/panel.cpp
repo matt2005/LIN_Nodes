@@ -16,11 +16,11 @@ extern Panel gPanel;
 Panel::Panel(PanelOut &driver) :
 	_timer(&Panel::tick, this),
 	_driver(driver),
-	_phase(0),
 	_dim_level(0),
 	_perf_line_update("line update"),
 	_load("panel")
 {
+	_phase.counter = 0;
 	_timer.callAfter(5000);		// wait a few milliseconds before we start
 }
 
@@ -65,14 +65,14 @@ void
 Panel::_tick()
 {
 	_load.start();
-	if (_phase_is_dimming()) {
+	if (_phase.is_dimming) {
 
 		_driver.line_off();
 
 	} else {
 		_perf_line_update.start();
 
-		_driver.line_update(_phase_row(), _phase_slot(), _buffer);
+		_driver.line_update(_phase.row, _phase.slot, _buffer);
 
 		_perf_line_update.stop();
 	}
@@ -88,12 +88,12 @@ Panel::_tick()
 Timer::Interval
 Panel::_phase_advance()
 {
-	unsigned bit_period = _max_brightness << _phase_slot();
+	unsigned bit_period = _max_brightness << _phase.slot;
 	unsigned on_time = bit_period >> _dim_level;
 	Timer::Interval interval;
 
 	/* interval to next tick is based on current phase & brightness */
-	if (_phase_is_dimming()) {
+	if (_phase.is_dimming) {
 		/* dimming phase - consume the remainder of the slot time */
 		interval = bit_period - on_time;
 	} else {
@@ -102,11 +102,11 @@ Panel::_phase_advance()
 	}
 
 	/* at max brightness, skip the dimming phase */
-	_phase += (_dim_level > 0) ? 1 : 2;
+	_phase.counter += (_dim_level > 0) ? 1 : 2;
 
 	/* at phase wrap, we are in either the display or dimming phase of the last row */
-	if (_phase >= _max_phase) {
-		_phase = 0;
+	if (_phase.slot >= PaletteEntry::depth) {
+		_phase.counter = 0;
 	}
 
 	return interval;

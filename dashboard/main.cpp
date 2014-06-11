@@ -43,28 +43,28 @@ Panel			gPanel(PanelDriver);
 // rotary encoder
 Encoder			gEncoder;
 
-#define COLOUR_TEST
+//#define COLOUR_TEST
 
 Scene			gDash(gPanel);
 
 #if defined(COLOUR_TEST)
 
-static GlyphIcon	ct_red		(gDash, Position( 0,  0), g_telltale, Red);
-static GlyphIcon	ct_dimred	(gDash, Position( 4,  0), g_telltale, DimRed);
-static GlyphIcon	ct_green	(gDash, Position( 8,  0), g_telltale, Green);
-static GlyphIcon	ct_dimgreen	(gDash, Position(12,  0), g_telltale, DimGreen);
-static GlyphIcon	ct_blue		(gDash, Position(16,  0), g_telltale, Blue);
-static GlyphIcon	ct_dimblue	(gDash, Position(20,  0), g_telltale, Blue);
-static GlyphIcon	ct_cyan		(gDash, Position(24,  0), g_telltale, Cyan);
-static GlyphIcon	ct_dimcyan	(gDash, Position(28,  0), g_telltale, DimCyan);
+static GlyphIcon	ct_red			(gDash, Position( 0,  0), g_telltale, Red);
+static GlyphIcon	ct_dimred		(gDash, Position( 4,  0), g_telltale, DimRed);
+static GlyphIcon	ct_green		(gDash, Position( 8,  0), g_telltale, Green);
+static GlyphIcon	ct_dimgreen		(gDash, Position(12,  0), g_telltale, DimGreen);
+static GlyphIcon	ct_blue			(gDash, Position(16,  0), g_telltale, Blue);
+static GlyphIcon	ct_dimblue		(gDash, Position(20,  0), g_telltale, Blue);
+static GlyphIcon	ct_cyan			(gDash, Position(24,  0), g_telltale, Cyan);
+static GlyphIcon	ct_dimcyan		(gDash, Position(28,  0), g_telltale, DimCyan);
 
-static GlyphIcon	ct_magenta	(gDash, Position( 0,  4), g_telltale, Magenta);
-static GlyphIcon	ct_dimmagenta	(gDash, Position( 4,  4), g_telltale, DimMagenta);
-static GlyphIcon	ct_yellow	(gDash, Position( 8,  4), g_telltale, Yellow);
-static GlyphIcon	ct_dimyellow	(gDash, Position(12,  4), g_telltale, DimYellow);
-static GlyphIcon	ct_amber	(gDash, Position(16,  4), g_telltale, Amber);
-static GlyphIcon	ct_white	(gDash, Position(20,  4), g_telltale, White);
-static GlyphIcon	ct_dimwhite	(gDash, Position(24,  4), g_telltale, DimWhite);
+static GlyphIcon	ct_magenta		(gDash, Position( 0,  16), g_telltale, Magenta);
+static GlyphIcon	ct_dimmagenta	(gDash, Position( 4,  16), g_telltale, DimMagenta);
+static GlyphIcon	ct_yellow		(gDash, Position( 8,  16), g_telltale, Yellow);
+static GlyphIcon	ct_dimyellow	(gDash, Position(12,  16), g_telltale, DimYellow);
+static GlyphIcon	ct_amber		(gDash, Position(16,  16), g_telltale, Amber);
+static GlyphIcon	ct_white		(gDash, Position(20,  16), g_telltale, White);
+static GlyphIcon	ct_dimwhite		(gDash, Position(24,  16), g_telltale, DimWhite);
 
 
 
@@ -87,9 +87,9 @@ static GlyphIcon	tt_right_turn  (gDash, Position(29, 0), g_right_triangle, Green
 static GlyphIcon	tt_high_beam   (gDash, Position(9, 0),  g_telltale,       Blue,   gLIN.ttHighBeam);
 static GlyphIcon	tt_low_beam    (gDash, Position(9, 0),  g_telltale,       Green,  gLIN.ttLowBeam);
 
-static GlyphNumber	num_speed(gDash, Position(17, 5), font_Misc_Fixed_Medium_8x13, 2, DimCyan, gLIN.roadSpeed);
-static GlyphNumber	num_rpm  (gDash, Position(0, 10), font_Misc_Fixed_Medium_4x6,  4, DimCyan, gLIN.engineRPM);
-static GlyphBar		bar_rpm  (gDash, Region(0, 6, 15, 3), GlyphBar::O_HORIZONTAL, 0, 600, DimGreen, gLIN.engineRPM);
+static GlyphNumber	num_speed(gDash, Position(40, 20), font_Misc_Fixed_Medium_9x15, 2, DimCyan, gLIN.roadSpeed);
+static GlyphNumber	num_rpm  (gDash, Position(10, 20), font_Misc_Fixed_Bold_7x14,  4, DimCyan, gLIN.engineRPM);
+//static GlyphBar		bar_rpm  (gDash, Region(0, 6, 15, 3), GlyphBar::O_HORIZONTAL, 0, 600, DimGreen, gLIN.engineRPM);
 
 
 
@@ -107,19 +107,19 @@ main(void)
 	// things happen if we start drawing...
 	__asm__ volatile("wfi");
 
-	gDash.render();
+	//gDash.render();
 
 	//gPanel.clear();
 	//gPanel.fill(Red);
-	//gPanel.draw(Position(0, 8), Blue);
+	//gPanel.draw(Position(0, 9), Blue);
 
 	// spin doing main loop things
 	for (;;) {
 		perf_mainloop.start();
 
-		//if (refreshTicker.didTick()) {
-		//	gDash.render();
-		//}
+		if (refreshTicker.didTick()) {
+			gDash.render();
+		}
 
 		// idle and wait for an interrupt
 		perf_mainloop.stop();

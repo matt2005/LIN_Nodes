@@ -176,7 +176,7 @@ private:
 };
 
 // XXX should parameterise the framebuffer dimensions
-typedef FrameBufferTemplate<16, 32>     FrameBuffer;
+typedef FrameBufferTemplate<32, 64>     FrameBuffer;
 
 /* base class for a drawable thing */
 class Glyph

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graphics.h"
+#include "lpc111x.h"
 
 class Panel;
 
@@ -12,10 +13,24 @@ public:
 	virtual void	line_update(unsigned row, unsigned slot, FrameBuffer &buffer) = 0;
 };
 
-class PanelV1PIO : public PanelOut
+class PanelV2PIO : public PanelOut
 {
 public:
-	PanelV1PIO();
+	PanelV2PIO();
 	virtual void	line_off() override;
 	virtual void	line_update(unsigned row, unsigned slot, FrameBuffer &buffer) override;
+private:
+    static const uint16_t   _bR1 = GPIO_IO_P0;
+    static const uint16_t   _bG1 = GPIO_IO_P1;
+    static const uint16_t   _bB1 = GPIO_IO_P2;
+    static const uint16_t   _bR2 = GPIO_IO_P6;
+    static const uint16_t   _bG2 = GPIO_IO_P7;
+    static const uint16_t   _bB2 = GPIO_IO_P8;
+    static const uint16_t   _bA = GPIO_IO_P3;
+    static const uint16_t   _bB = GPIO_IO_P9;
+    static const uint16_t   _bC = GPIO_IO_P11;
+
+    static const uint16_t   _bCLK = GPIO_IO_P4;
+    static const uint16_t   _bLAT = GPIO_IO_P5;
+    static const uint16_t   _bOE = GPIO_IO_P8;
 };

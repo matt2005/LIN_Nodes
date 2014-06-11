@@ -37,7 +37,7 @@ const PaletteEntry palette[16] = {
 LINDev			gLIN(19200);
 
 // Display
-PanelV1PIO		PanelDriver;
+PanelV2PIO		PanelDriver;
 Panel			gPanel(PanelDriver);
 
 // rotary encoder
@@ -103,9 +103,14 @@ main(void)
 	// main loop load counter
 	PerfLoad perf_mainloop("mainloop");
 
+	// XXX voodoo - must wait for the first timer interrupt or terrible
+	// things happen if we start drawing...
+	__asm__ volatile("wfi");
+
 	gDash.render();
 
-	//gPanel.fill(Blue);
+	//gPanel.clear();
+	//gPanel.fill(Red);
 	//gPanel.draw(Position(0, 8), Blue);
 
 	// spin doing main loop things

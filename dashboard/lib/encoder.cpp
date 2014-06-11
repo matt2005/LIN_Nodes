@@ -17,28 +17,23 @@ Encoder::Encoder() :
 
 	SCB_SYSAHBCLKCTRL |= SCB_SYSAHBCLKCTRL_GPIO | SCB_SYSAHBCLKCTRL_IOCON;
 
-	// button
-	IOCON_PIO0_1 = IOCON_PIO0_1_FUNC_GPIO | IOCON_PIO0_1_MODE_PULLUP;
-	GPIO_GPIO0DIR &= ~(GPIO_IO_P1);			// input
-	GPIO_GPIO0IS  &= ~(GPIO_IO_P1);			// edge-sensitive
-	GPIO_GPIO0IBE |=   GPIO_IO_P1;			// both edges (for debounce)
-	GPIO_GPIO0IE  |=   GPIO_IO_P1;			// interrupt enabled
-
 	// encoder A/B
+	IOCON_JTAG_TMS_PIO1_0 = IOCON_JTAG_TMS_PIO1_0_FUNC_GPIO |
+				IOCON_JTAG_TMS_PIO1_0_MODE_PULLUP |
+				IOCON_JTAG_TMS_PIO1_0_ADMODE_DIGITAL;		// button
 	IOCON_JTAG_TDO_PIO1_1 = IOCON_JTAG_TDO_PIO1_1_FUNC_GPIO |
 				IOCON_JTAG_TDO_PIO1_1_MODE_PULLUP |
 				IOCON_JTAG_TDO_PIO1_1_ADMODE_DIGITAL;		// A
 	IOCON_JTAG_nTRST_PIO1_2 = IOCON_JTAG_nTRST_PIO1_2_FUNC_GPIO |
 				IOCON_JTAG_nTRST_PIO1_2_MODE_PULLUP |
 				IOCON_JTAG_nTRST_PIO1_2_ADMODE_DIGITAL;		// B
-	GPIO_GPIO1DIR &= ~(GPIO_IO_P1 | GPIO_IO_P2);	// input
-	GPIO_GPIO1IS  &= ~(GPIO_IO_P1 | GPIO_IO_P2);	// edge-sensitive
-	GPIO_GPIO1IBE |=  (GPIO_IO_P1 | GPIO_IO_P2);	// both edges
-	GPIO_GPIO1IE  |=  (GPIO_IO_P1 | GPIO_IO_P2);	// interrupt enabled
+	GPIO_GPIO1DIR &= ~(GPIO_IO_P0 | GPIO_IO_P1 | GPIO_IO_P2);	// input
+	GPIO_GPIO1IS  &= ~(GPIO_IO_P0 | GPIO_IO_P1 | GPIO_IO_P2);	// edge-sensitive
+	GPIO_GPIO1IBE |=  (GPIO_IO_P0 | GPIO_IO_P1 | GPIO_IO_P2);	// both edges
+	GPIO_GPIO1IE  |=  (GPIO_IO_P0 | GPIO_IO_P1 | GPIO_IO_P2);	// interrupt enabled
 
 
-	// enable pin-change interrupts
-	NVIC_EnableIRQ(EINT0_IRQn);
+	// enable pin-change interrupt
 	NVIC_EnableIRQ(EINT1_IRQn);
 }
 
@@ -66,11 +61,10 @@ Encoder::interrupt()
 	ints++;
 	
 	// clear interrupt states
-	GPIO_GPIO0IC = GPIO_IO_P1;
-	GPIO_GPIO1IC = GPIO_IO_P1 | GPIO_IO_P2;
+	GPIO_GPIO1IC = GPIO_IO_P0 | GPIO_IO_P1 | GPIO_IO_P2;
 
 	// look at current pin state
-	bool button = !!(GPIO_GPIO0DATA & GPIO_IO_P1);
+	bool button = !!(GPIO_GPIO1DATA & GPIO_IO_P0);
 	bool encA = !!(GPIO_GPIO1DATA & GPIO_IO_P1);
 	bool encB = !!(GPIO_GPIO1DATA & GPIO_IO_P2);
 
@@ -113,13 +107,7 @@ Encoder::_debounceTimeout()
 	}
 }
 
-extern "C" void EINT0_Handler(void);
 extern "C" void EINT1_Handler(void);
-
-void EINT0_Handler(void)
-{
-	_encoder->interrupt();
-}
 
 void EINT1_Handler(void)
 {

@@ -17,7 +17,8 @@ CC	 	 = $(TOOLPREFIX)-gcc
 OBJCOPY		 = $(TOOLPREFIX)-objcopy
 SIZE		 = $(TOOLPREFIX)-size
 UPLOAD		 = lpc21isp
-SERIALPORT	 = /dev/cu.usbserial-AE01AO9V
+#SERIALPORT	 = /dev/cu.usbserial-AE01AO9V
+SERIALPORT	 = /dev/cu.SLAB_USBtoUART
 
 
 #
@@ -92,7 +93,7 @@ $(BIN) $(ELF) $(OBJS):	$(MAKEFILE_LIST)
 build:	$(BIN)
 
 prog:	$(BIN)
-	$(UPLOAD) -bin $(BIN) $(SERIALPORT) 115200 12000
+	$(UPLOAD) -control -bin $(BIN) $(SERIALPORT) 115200 12000
 
 #.INTERMEDIATE:	$(COBJ) $(CPPOBJ) fonts.c fonts.h
 
@@ -100,7 +101,7 @@ $(BIN):	$(ELF)
 	$(OBJCOPY) -Obinary $< $@
 
 $(ELF):	$(OBJS)
-	$(CC) -o $@ $(MBEDOBJS) $(OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 	$(SIZE) $@
 
 $(filter %.c.o,$(OBJS)): build/%.c.o: %.c

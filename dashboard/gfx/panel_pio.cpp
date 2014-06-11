@@ -1,126 +1,95 @@
 #include "panel_out.h"
 #include "lpc111x.h"
 
+#define GPIO_GPIO0_BITS(_x)     (*((REG32 *) (GPIO_GPIO0_BASE + ((_x) << 2))))
+#define GPIO_GPIO1_BITS(_x)     (*((REG32 *) (GPIO_GPIO1_BASE + ((_x) << 2))))
 
-PanelV1PIO::PanelV1PIO()
+#define GPIO_RGB_BITS       GPIO_GPIO0_BITS(GPIO_IO_P0 | \
+                                            GPIO_IO_P1 | \
+                                            GPIO_IO_P2 | \
+                                            GPIO_IO_P6 | \
+                                            GPIO_IO_P7 | \
+                                            GPIO_IO_P8)
+
+#define GPIO_ADDR_BITS      GPIO_GPIO0_BITS(GPIO_IO_P3 | GPIO_IO_P9 | GPIO_IO_P11)
+
+#define GPIO_CLK_BITS       GPIO_GPIO1_BITS(GPIO_IO_P4)
+#define GPIO_LAT_BITS       GPIO_GPIO1_BITS(GPIO_IO_P5)
+#define GPIO_OE_BITS        GPIO_GPIO1_BITS(GPIO_IO_P8)
+#define GPIO_CTL_BITS       GPIO_GPIO1_BITS(GPIO_IO_P4 | GPIO_IO_P5 | GPIO_IO_P8)
+
+PanelV2PIO::PanelV2PIO()
 {
-	SCB_SYSAHBCLKCTRL |= SCB_SYSAHBCLKCTRL_GPIO | SCB_SYSAHBCLKCTRL_IOCON;
+    SCB_SYSAHBCLKCTRL |= SCB_SYSAHBCLKCTRL_GPIO | SCB_SYSAHBCLKCTRL_IOCON;
 
-	IOCON_nRESET_PIO0_0 = IOCON_nRESET_PIO0_0_FUNC_GPIO;		// R1
-	IOCON_PIO0_2 = IOCON_PIO0_2_FUNC_GPIO;				// G1
-	IOCON_PIO0_3 = IOCON_PIO0_3_FUNC_GPIO;				// G2
-	IOCON_PIO0_6 = IOCON_PIO0_6_FUNC_GPIO;				// B2
-	IOCON_PIO0_7 = IOCON_PIO0_7_FUNC_GPIO;				// B1
-	IOCON_PIO0_8 = IOCON_PIO0_8_FUNC_GPIO;				// A
-	IOCON_PIO0_9 = IOCON_PIO0_9_FUNC_GPIO;				// B
-	IOCON_JTAG_TDI_PIO0_11 = IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO |	// C
-			IOCON_JTAG_TDI_PIO0_11_ADMODE_DIGITAL;
+    IOCON_nRESET_PIO0_0 = IOCON_nRESET_PIO0_0_FUNC_GPIO;            // R1
+    IOCON_PIO0_1 = IOCON_PIO0_1_FUNC_GPIO;                          // G1
+    IOCON_PIO0_2 = IOCON_PIO0_2_FUNC_GPIO;                          // B1
+    IOCON_PIO0_6 = IOCON_PIO0_6_FUNC_GPIO;                          // R2
+    IOCON_PIO0_7 = IOCON_PIO0_7_FUNC_GPIO;                          // B2
+    IOCON_PIO0_8 = IOCON_PIO0_8_FUNC_GPIO;                          // G2
+    IOCON_PIO0_3 = IOCON_PIO0_3_FUNC_GPIO;                          // A
+    IOCON_PIO0_9 = IOCON_PIO0_9_FUNC_GPIO;                          // B
+    IOCON_JTAG_TDI_PIO0_11 = IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO |     // C
+                             IOCON_JTAG_TDI_PIO0_11_ADMODE_DIGITAL;
 
-	unsigned p0bits = GPIO_IO_P0 |
-			GPIO_IO_P2 |
-			GPIO_IO_P3 |
-			GPIO_IO_P6 |
-			GPIO_IO_P7 |
-			GPIO_IO_P8 |
-			GPIO_IO_P9 |
-			GPIO_IO_P11;
+    unsigned p0bits = _bR1 |
+                      _bG1 |
+                      _bB1 |
+                      _bR2 |
+                      _bG2 |
+                      _bB2 |
+                      _bA  |
+                      _bB  |
+                      _bC;  // XXX _bD
+                      
+    GPIO_GPIO0DATA &= ~p0bits;
+    GPIO_GPIO0DIR |= p0bits;
 
-	GPIO_GPIO0DATA &= ~p0bits;
-	GPIO_GPIO0DIR |= p0bits;
+    IOCON_PIO1_4 = IOCON_PIO1_4_FUNC_GPIO |                         // CLK
+                   IOCON_PIO1_4_ADMODE_DIGITAL;
+    IOCON_PIO1_5 = IOCON_PIO1_5_FUNC_GPIO;                          // LAT
+    IOCON_PIO1_8 = IOCON_PIO1_8_FUNC_GPIO;                          // OE
 
+    unsigned p1bits = _bCLK |
+                      _bLAT |
+                      _bOE;
 
-	IOCON_PIO1_4 = IOCON_PIO1_4_FUNC_GPIO |	IOCON_PIO1_4_ADMODE_DIGITAL; // R2
-	IOCON_PIO1_5 = IOCON_PIO1_5_FUNC_GPIO;				// OE
-	IOCON_PIO1_8 = IOCON_PIO1_8_FUNC_GPIO;				// CLK
-	IOCON_PIO1_9 = IOCON_PIO1_9_FUNC_GPIO;				// LAT
-
-	unsigned p1bits = GPIO_IO_P4 |
-			GPIO_IO_P5 |
-			GPIO_IO_P8 |
-			GPIO_IO_P9;
-
-	GPIO_GPIO1DATA &= ~p1bits;
-	line_off();
-	GPIO_GPIO1DIR |= p1bits;
+    GPIO_GPIO1DATA &= ~p1bits;
+    line_off();
+    GPIO_GPIO1DIR |= p1bits;
 }
 
 void
-PanelV1PIO::line_off()
+PanelV2PIO::line_off()
 {
-	GPIO_GPIO1DATA |= GPIO_IO_P5;
+        GPIO_GPIO1DATA |= _bOE;
 }
-
-// optimised low-slice lookup table
-// XXX oddly, doing this for the high slab makes things slower
-// XXX -O2 gives best results for gcc 4.7.4
-static const unsigned v1lstab[] = {
-	0		| 0		| 0,
-	0		| 0		| GPIO_IO_P0,
-	0		| GPIO_IO_P2	| 0,
-	0		| GPIO_IO_P2	| GPIO_IO_P0,
-	GPIO_IO_P7	| 0		| 0,
-	GPIO_IO_P7	| 0		| GPIO_IO_P0,
-	GPIO_IO_P7	| GPIO_IO_P2	| 0,
-	GPIO_IO_P7	| GPIO_IO_P2	| GPIO_IO_P0,
-};
 
 void
-PanelV1PIO::line_update(unsigned row, unsigned slot, FrameBuffer &buffer)
+PanelV2PIO::line_update(unsigned row, unsigned slot, FrameBuffer &buffer)
 {
-	line_off();
+        line_off();
 
-	unsigned abits = GPIO_GPIO0DATA & ~(GPIO_IO_P8 | GPIO_IO_P9 | GPIO_IO_P11);
-	if (row & 1) {
-		abits |= GPIO_IO_P8;
-	}
-	if (row & 2) {
-		abits |= GPIO_IO_P9;
-	}
-	if (row & 4) {
-		abits |= GPIO_IO_P11;
-	}
-	GPIO_GPIO0DATA = abits;
+        GPIO_ADDR_BITS = ((row & 1) ? _bA : 0) | 
+                         ((row & 2) ? _bB : 0) | 
+                         ((row & 4) ? _bC : 0);
 
-	unsigned low_address = row * buffer.columns();
-	unsigned high_address = (row + buffer.rows() / 2) * buffer.columns();
+        unsigned row_address = row * buffer.columns();
+        const unsigned offset = buffer.rows() / 2 * buffer.columns();
 
-	for (unsigned col = 0; col < buffer.columns(); col++) {
-		
-		unsigned low_slice = buffer.subCell(low_address++).getRGB().slice(slot);
-		unsigned high_slice = buffer.subCell(high_address++).getRGB().slice(slot);
+        for (unsigned col = 0; col < buffer.columns(); col++) {
+                
+                unsigned low_slice = buffer.subCell(row_address + col).getRGB().slice(slot);
+                unsigned high_slice = buffer.subCell(row_address + offset + col).getRGB().slice(slot);
 
-		unsigned p0bits = GPIO_GPIO0DATA & ~(GPIO_IO_P0 |		// data and
-							GPIO_IO_P2 |
-							GPIO_IO_P3 |
-							GPIO_IO_P6 |
-							GPIO_IO_P7);
-		unsigned p1bits = GPIO_GPIO1DATA & ~(GPIO_IO_P4 | GPIO_IO_P8);	// clk bit all low
+                GPIO_CLK_BITS = 0;                              // CLK low
+                GPIO_RGB_BITS = low_slice | (high_slice << 6);  // present data
+                GPIO_CLK_BITS = _bCLK;                          // latch on rising edge
 
-		p0bits |= v1lstab[low_slice];
-
-//		if (low_slice & 1) {
-//			p0bits |= GPIO_IO_P4;
-//		}
-//		if (low_slice & 2) {
-//			p0bits |= GPIO_IO_P2;
-//		}
-//		if (low_slice & 4) {
-//			p0bits |= GPIO_IO_P7;
-//		}
-		if (high_slice & 1) {
-			p1bits |= GPIO_IO_P4;
-		}
-		if (high_slice & 2) {
-			p0bits |= GPIO_IO_P3;
-		}
-		if (high_slice & 4) {
-			p0bits |= GPIO_IO_P6;
-		}
-
-		GPIO_GPIO0DATA = p0bits;			// present data
-		GPIO_GPIO1DATA = p1bits;			// ... to shift register inputs
-		GPIO_GPIO1DATA = p1bits | GPIO_IO_P8;		// clk high to shift in
-	}
-	GPIO_GPIO1DATA |= GPIO_IO_P9;					// lat high to latch row
-	GPIO_GPIO1DATA &= ~(GPIO_IO_P8 | GPIO_IO_P9 | GPIO_IO_P5);	// oe, clk, lat low to enable display
+        }
+        GPIO_LAT_BITS = _bLAT;                                  // lat high to latch row
+        GPIO_CTL_BITS = 0;                                      // oe, clk, lat low to enable display
 }
+
+

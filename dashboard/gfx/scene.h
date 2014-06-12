@@ -34,8 +34,8 @@ public:
 	void		draw(Position p, Colour colour)
 	{
 		// XXX remove clipping test for performance?
-		if (_clip(p))
-			_panel.draw(p, colour);
+		if (_clip(p) && _current_framebuffer)
+			_current_framebuffer->draw(p, colour);
 	}
 
 	/**
@@ -49,10 +49,11 @@ public:
 	Position	centeredPosition(Dimension d);
 
 private:
-	Panel		&_panel;
+	Panel			&_panel;
 	const Dimension	_geometry;
 
-	Glyph		*_stack;
+	Glyph			*_stack;
+	FrameBuffer		*_current_framebuffer;
 	PerfInterval	_perf;
 
 	bool		_clip(Position p) { return ((p.x < _geometry.w) && (p.y < _geometry.h)); }

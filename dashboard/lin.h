@@ -13,7 +13,7 @@ public:
 	void		interrupt();
 
 	bool		warnSummary	= false;
-	bool		errorSummary	= false;
+	bool		errorSummary = false;
 
 	bool		ttLeftTurn	= false;
 	bool		ttRightTurn	= false;

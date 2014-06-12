@@ -10,7 +10,7 @@ class PanelOut
 {
 public:
 	virtual void	line_off() = 0;
-	virtual void	line_update(unsigned row, unsigned slot, FrameBuffer &buffer) = 0;
+	virtual void	line_update(unsigned row, unsigned slot, FrameBuffer *buffer) = 0;
 };
 
 class PanelV2PIO : public PanelOut
@@ -18,7 +18,7 @@ class PanelV2PIO : public PanelOut
 public:
 	PanelV2PIO();
 	virtual void	line_off() override;
-	virtual void	line_update(unsigned row, unsigned slot, FrameBuffer &buffer) override;
+	virtual void	line_update(unsigned row, unsigned slot, FrameBuffer *buffer) override;
 private:
     static const uint16_t   _bR1 = GPIO_IO_P0;
     static const uint16_t   _bG1 = GPIO_IO_P1;

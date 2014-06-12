@@ -171,6 +171,11 @@ public:
         constexpr static unsigned rows() { return ROWS; }
         constexpr static unsigned columns() { return COLUMNS; }
 
+        void            draw(Position p, Colour c)
+        {
+            subCell(p).set(c);
+        }
+
 private:
         Cell            _buffer[ROWS * COLUMNS / Cell::stride()];       
 };

@@ -12,6 +12,7 @@ Scene::Scene(Panel &p) :
 	_panel(p),
 	_geometry(p.dimension()),
 	_stack(nullptr),
+	_current_framebuffer(nullptr),
 	_perf("scene draw")
 {
 }
@@ -26,11 +27,18 @@ Scene::addGlyph(Glyph *g)
 void
 Scene::render()
 {
+	// cache the current draw buffer; bail out if we didn't get one
+	if ((_current_framebuffer = _panel.get_draw_buffer()) == nullptr) {
+		return;
+	}
+
 	_perf.start();
 
 	for (Glyph *g = _stack; g != nullptr; g = g->_next)
 		g->draw();
 
+	_panel.push_draw_buffer();
+	
 	_perf.stop();
 }
 

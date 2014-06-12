@@ -76,15 +76,15 @@ PanelV2PIO::line_off()
 }
 
 void
-PanelV2PIO::line_update(unsigned row, unsigned slot, FrameBuffer &buffer)
+PanelV2PIO::line_update(unsigned row, unsigned slot, FrameBuffer *buffer)
 {
         line_off();
 
-        uint32_t *lcp = &buffer.cell(row * buffer.columns()).raw();
-        uint32_t *hcp = lcp + buffer.rows() / 2 * buffer.columns() / Cell::stride();
+        uint32_t *lcp = &buffer->cell(row * FrameBuffer::columns()).raw();
+        uint32_t *hcp = lcp + FrameBuffer::rows() / 2 * FrameBuffer::columns() / Cell::stride();
 
         // ~33us for 32 columns
-        for (unsigned col = 0; col < buffer.columns(); col += Cell::stride()) {
+        for (unsigned col = 0; col < FrameBuffer::columns(); col += Cell::stride()) {
             uint32_t low_cell = *lcp++;
             uint32_t high_cell = *hcp++;
 

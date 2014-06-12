@@ -14,25 +14,30 @@ extern Panel gPanel;
  */
 
 Panel::Panel(PanelOut &driver) :
-	_timer(&Panel::tick, this),
-	_driver(driver),
-	_dim_level(0),
-	_perf_line_update("line update"),
-	_load("panel")
+    _timer(&Panel::tick, this),
+    _driver(driver),
+    _dim_level(0),
+    _fb_available(&_buffer[0]),
+    _fb_ready(nullptr),
+    _fb_active(&_buffer[1]),
+    _perf_line_update("line update"),
+    _load("panel")
 {
-	_phase.counter = 0;
-	_timer.callAfter(5000);		// wait a few milliseconds before we start
+    _phase.counter = 0;
+    _timer.callAfter(5000);     // wait a few milliseconds before we start
 }
 
 void
 Panel::fill(Colour colour)
 {
-	for (unsigned row = 0; row < _buffer.rows(); row++) {
-		for (unsigned column = 0; column < _buffer.columns(); column++) {
+    for (unsigned row = 0; row < FrameBuffer::rows(); row++) {
+        for (unsigned column = 0; column < FrameBuffer::columns(); column++) {
 
-			_buffer.subCell(Position(column, row)).set(colour);
-		}
-	}
+            if (_fb_active != nullptr) {
+                _fb_active->draw(Position(column, row), colour);
+            }
+        }
+    }
 }
 
 /*
@@ -58,57 +63,68 @@ Panel::fill(Colour colour)
 void
 Panel::tick(void *arg)
 {
-	reinterpret_cast<Panel *>(arg)->_tick();
+    reinterpret_cast<Panel *>(arg)->_tick();
 }
 
 void
 Panel::_tick()
 {
-	_load.start();
-	if (_phase.is_dimming) {
+    _load.start();
+    if (_phase.is_dimming) {
 
-		_driver.line_off();
+        _driver.line_off();
 
-	} else {
-		_perf_line_update.start();
+    } else {
+        _perf_line_update.start();
 
-		_driver.line_update(_phase.row, _phase.slot, _buffer);
+        _driver.line_update(_phase.row, _phase.slot, _fb_active);
 
-		_perf_line_update.stop();
-	}
+        _perf_line_update.stop();
+    }
 
-	/* advance to the next phase */
-	Timer::Interval interval = _phase_advance();
+    /* advance to the next phase */
+    Timer::Interval interval = _phase_advance();
 
-	/* schedule the next tick */
-	_timer.callAfter(interval);
-	_load.stop();
+    /* schedule the next tick */
+    _timer.callAfter(interval);
+    _load.stop();
 }
 
 Timer::Interval
 Panel::_phase_advance()
 {
-	unsigned bit_period = _max_brightness << _phase.slot;
-	unsigned on_time = bit_period >> _dim_level;
-	Timer::Interval interval;
+    unsigned bit_period = _max_brightness << _phase.slot;
+    unsigned on_time = bit_period >> _dim_level;
+    Timer::Interval interval;
 
-	/* interval to next tick is based on current phase & brightness */
-	if (_phase.is_dimming) {
-		/* dimming phase - consume the remainder of the slot time */
-		interval = bit_period - on_time;
-	} else {
-		/* display phase - time based on brightness */
-		interval = on_time;
-	}
+    /* interval to next tick is based on current phase & brightness */
+    if (_phase.is_dimming) {
+        /* dimming phase - consume the remainder of the slot time */
+        interval = bit_period - on_time;
+    } else {
+        /* display phase - time based on brightness */
+        interval = on_time;
+    }
 
-	/* at max brightness, skip the dimming phase */
-	_phase.counter += (_dim_level > 0) ? 1 : 2;
+    /* at max brightness, skip the dimming phase */
+    _phase.counter += (_dim_level > 0) ? 1 : 2;
 
-	/* at phase wrap, we are in either the display or dimming phase of the last row */
-	if (_phase.slot >= PaletteEntry::depth) {
-		_phase.counter = 0;
-	}
+    /* at phase wrap, we are in either the display or dimming phase of the last row */
+    if (_phase.slot >= PaletteEntry::depth) {
+        _phase.counter = 0;
 
-	return interval;
+        /* ready to flip framebuffers? */
+        if (_fb_ready != nullptr) {
+
+            /* active buffer -> available */
+            _fb_available = _fb_active;
+
+            /* ready buffer -> active */
+            _fb_active = _fb_ready;
+            _fb_ready = nullptr;
+        }
+    }
+
+    return interval;
 }
 

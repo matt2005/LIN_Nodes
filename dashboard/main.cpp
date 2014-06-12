@@ -24,11 +24,11 @@ const PaletteEntry palette[16] = {
 	PaletteEntry(0,   64,  0).raw(), 	// DimGreen
 	PaletteEntry(0,   128, 128).raw(), 	// Cyan
 	PaletteEntry(0,   32,  32).raw(), 	// DimCyan
-	PaletteEntry(128, 0,   128).raw(), 	// Magenta
-	PaletteEntry(32,  0,   32).raw(), 	// DimMagenta
-	PaletteEntry(128, 128, 0).raw(), 	// Yellow
-	PaletteEntry(32,  32,  0).raw(), 	// DimYellow
-	PaletteEntry(128, 32,  0).raw(), 	// Amber
+	PaletteEntry(128, 0,   128).raw(), 	// Magenta		avoid - visible components
+	PaletteEntry(32,  0,   32).raw(), 	// DimMagenta	avoid - visible components
+	PaletteEntry(128, 128, 0).raw(), 	// Yellow		avoid - visible components
+	PaletteEntry(32,  32,  0).raw(), 	// DimYellow	avoid - visible components
+	PaletteEntry(128, 32,  0).raw(), 	// Amber		avoid - visible components
 	PaletteEntry(64,  64,  64).raw(), 	// DimWhite
 	PaletteEntry(255, 255, 255).raw(), 	// White
 };
@@ -80,7 +80,7 @@ static const char	t_warn_link[] = "LINK";
 //static GlyphIcon	err_LIN (gDash, Position(12,4), g_denied, Red, gLIN.errorSummary);
 
 static const char	*t_warn = &t_warn_temp[0];
-static GlyphText	text_warn(gDash, Position(12, 0), font_Misc_Fixed_Medium_4x6, 4, Red, t_warn);
+static GlyphText	text_warn(gDash, Position(12, 0), font_Misc_Fixed_Medium_6x9, 4, Red, t_warn);
 
 static GlyphIcon	tt_left_turn   (gDash, Position(1, 0),  g_left_triangle,  Green,  gLIN.ttLeftTurn);
 static GlyphIcon	tt_right_turn  (gDash, Position(29, 0), g_right_triangle, Green,  gLIN.ttRightTurn);
@@ -88,7 +88,7 @@ static GlyphIcon	tt_high_beam   (gDash, Position(9, 0),  g_telltale,       Blue,
 static GlyphIcon	tt_low_beam    (gDash, Position(9, 0),  g_telltale,       Green,  gLIN.ttLowBeam);
 
 static GlyphNumber	num_speed(gDash, Position(40, 12), font_Misc_Fixed_Bold_9x15, 2, DimCyan, gLIN.roadSpeed);
-static GlyphNumber	num_rpm  (gDash, Position(0, 12), font_Misc_Fixed_Bold_6x13,  4, DimCyan, gLIN.engineRPM);
+static GlyphNumber	num_rpm  (gDash, Position(0, 12), font_Misc_Fixed_Medium_6x10,  4, DimCyan, gLIN.engineRPM);
 static GlyphBar		bar_rpm  (gDash, Region(0, 6, 15, 3), GlyphBar::O_HORIZONTAL, 0, 600, DimGreen, gLIN.engineRPM);
 
 

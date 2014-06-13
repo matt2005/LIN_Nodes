@@ -9,73 +9,75 @@
 #include "encoder.h"
 
 Scene::Scene(Panel &p) :
-	_panel(p),
-	_geometry(p.dimension()),
-	_stack(nullptr),
-	_current_framebuffer(nullptr),
-	_perf("scene draw")
+    _panel(p),
+    _geometry(p.dimension()),
+    _stack(nullptr),
+    _current_framebuffer(nullptr),
+    _perf("scene draw")
 {
 }
 
 void
 Scene::addGlyph(Glyph *g)
 {
-	g->_next = _stack;
-	_stack = g;
+    g->_next = _stack;
+    _stack = g;
 }
 
 void
 Scene::render()
 {
-	// cache the current draw buffer; bail out if we didn't get one
-	if ((_current_framebuffer = _panel.get_draw_buffer()) == nullptr) {
-		return;
-	}
+    // cache the current draw buffer; bail out if we didn't get one
+    if ((_current_framebuffer = _panel.get_draw_buffer()) == nullptr) {
+        return;
+    }
 
-	_perf.start();
+    _perf.start();
 
-	for (Glyph *g = _stack; g != nullptr; g = g->_next)
-		g->draw();
+    for (Glyph *g = _stack; g != nullptr; g = g->_next)
+        g->draw();
 
-	_panel.push_draw_buffer();
-	
-	_perf.stop();
+    _panel.push_draw_buffer();
+
+    _perf.stop();
 }
 
 bool
 Scene::event(Encoder::Event evt)
 {
-	return evt == Encoder::EVT_BUTTON;
+    return evt == Encoder::EVT_BUTTON;
 }
 
 void
 Scene::fill(Region r, Colour colour)
 {
-	unsigned tc = r.p.x + r.d.w;
-	unsigned tr = r.p.y + r.d.h;
+    unsigned tc = r.p.x + r.d.w;
+    unsigned tr = r.p.y + r.d.h;
 
-	if (tc > _geometry.w)
-		tc = _geometry.w;
-	if (tr > _geometry.h)
-		tr = _geometry.h;
+    if (tc > _geometry.w)
+        tc = _geometry.w;
 
-	for (unsigned row = r.p.y; row < tr; row++)
-		for (unsigned col = r.p.x; col < tc; col++)
-			draw(Position(col, row), colour);
+    if (tr > _geometry.h)
+        tr = _geometry.h;
+
+    for (unsigned row = r.p.y; row < tr; row++)
+        for (unsigned col = r.p.x; col < tc; col++)
+            draw(Position(col, row), colour);
 }
 
 Position
 Scene::centeredPosition(Dimension d)
 {
-	Position p;
+    Position p;
 
-	if (d.w > _geometry.w)
-		d.w = _geometry.w;
-	if (d.h > _geometry.h)
-		d.h = _geometry.h;
+    if (d.w > _geometry.w)
+        d.w = _geometry.w;
 
-	p.x = _geometry.w / 2 - d.w / 2;
-	p.y = _geometry.h / 2 - d.h / 2;
+    if (d.h > _geometry.h)
+        d.h = _geometry.h;
 
-	return p;
+    p.x = _geometry.w / 2 - d.w / 2;
+    p.y = _geometry.h / 2 - d.h / 2;
+
+    return p;
 }

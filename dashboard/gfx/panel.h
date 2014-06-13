@@ -23,6 +23,7 @@ public:
             _dim_level++;
             return true;
         }
+
         return false;
     }
 
@@ -35,6 +36,7 @@ public:
             _dim_level--;
             return true;
         }
+
         return false;
     }
 
@@ -44,7 +46,7 @@ public:
     unsigned    &dimming() { return _dim_level; }
 
     /*
-     * XXX come up with some form of raster-dodging or incremental drawing to 
+     * XXX come up with some form of raster-dodging or incremental drawing to
      *     avoid flicker from overlapping draw operations.
      */
     void        fill(Colour colour);
@@ -82,7 +84,7 @@ private:
     static const unsigned _depth = PaletteEntry::depth;
 
     // Brightness is expressed in terms of the on period for the LSB.
-    // Assuming a frame time of ~16ms, two rows per line and linear 
+    // Assuming a frame time of ~16ms, two rows per line and linear
     // brightness scaling, determine the LSB period for the given depth.
     // Adjust the 16ms value for the ~6ms worth of pixel transfer time...
     static const unsigned _max_brightness = ((10000 / (FrameBuffer::rows() / 2)) >> _depth);
@@ -99,9 +101,9 @@ private:
     union {
         unsigned        counter;
         struct {
-            unsigned    is_dimming:1;
-            unsigned    row:31-__builtin_clz(FrameBuffer::rows()/2);
-            unsigned    slot:32-__builtin_clz(PaletteEntry::depth);
+            unsigned    is_dimming: 1;
+            unsigned    row: 31 - __builtin_clz(FrameBuffer::rows() / 2);
+            unsigned    slot: 32 - __builtin_clz(PaletteEntry::depth);
         };
     }               _phase;
     unsigned        _dim_level;

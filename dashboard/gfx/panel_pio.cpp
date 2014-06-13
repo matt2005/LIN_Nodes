@@ -5,19 +5,19 @@
 #define GPIO_GPIO1_BITS(_x)     (*((REG32 *) (GPIO_GPIO1_BASE + ((_x) << 2))))
 
 #define GPIO_RGB_BITS       GPIO_GPIO0_BITS(GPIO_IO_P0 | \
-                                            GPIO_IO_P1 | \
-                                            GPIO_IO_P2 | \
-                                            GPIO_IO_P6 | \
-                                            GPIO_IO_P7 | \
-                                            GPIO_IO_P8)
+        GPIO_IO_P1 | \
+        GPIO_IO_P2 | \
+        GPIO_IO_P6 | \
+        GPIO_IO_P7 | \
+        GPIO_IO_P8)
 
 #define GPIO_RGB1_BITS      GPIO_GPIO0_BITS(GPIO_IO_P0 | \
-                                            GPIO_IO_P1 | \
-                                            GPIO_IO_P2)
+        GPIO_IO_P1 | \
+        GPIO_IO_P2)
 
 #define GPIO_RGB2_BITS      GPIO_GPIO0_BITS(GPIO_IO_P6 | \
-                                            GPIO_IO_P7 | \
-                                            GPIO_IO_P8)
+        GPIO_IO_P7 | \
+        GPIO_IO_P8)
 
 
 #define GPIO_ADDR_BITS      GPIO_GPIO0_BITS(GPIO_IO_P3 | GPIO_IO_P9 | GPIO_IO_P11 | GPIO_IO_P6)
@@ -51,7 +51,7 @@ PanelV2PIO::PanelV2PIO()
                       _bA  |
                       _bB  |
                       _bC;
-                      
+
     GPIO_GPIO0DATA &= ~p0bits;
     GPIO_GPIO0DIR |= p0bits;
 
@@ -72,43 +72,43 @@ PanelV2PIO::PanelV2PIO()
 void
 PanelV2PIO::line_off()
 {
-        GPIO_OE_BITS = _bOE;
+    GPIO_OE_BITS = _bOE;
 }
 
 void
 PanelV2PIO::line_update(unsigned row, unsigned slot, FrameBuffer *buffer)
 {
-        line_off();
+    line_off();
 
-        uint32_t *lcp = &buffer->cell(row * FrameBuffer::columns()).raw();
-        uint32_t *hcp = lcp + FrameBuffer::rows() / 2 * FrameBuffer::columns() / Cell::stride();
+    uint32_t *lcp = &buffer->cell(row * FrameBuffer::columns()).raw();
+    uint32_t *hcp = lcp + FrameBuffer::rows() / 2 * FrameBuffer::columns() / Cell::stride();
 
-        // ~33us for 32 columns
-        for (unsigned col = 0; col < FrameBuffer::columns(); col += Cell::stride()) {
-            uint32_t low_cell = *lcp++;
-            uint32_t high_cell = *hcp++;
+    // ~33us for 32 columns
+    for (unsigned col = 0; col < FrameBuffer::columns(); col += Cell::stride()) {
+        uint32_t low_cell = *lcp++;
+        uint32_t high_cell = *hcp++;
 
-            // ~42 cycles per iteration
-            for (unsigned subcol = 0; subcol < 8; subcol++) {
-                GPIO_CLK_BITS = 0;                              // CLK low
+        // ~42 cycles per iteration
+        for (unsigned subcol = 0; subcol < 8; subcol++) {
+            GPIO_CLK_BITS = 0;                              // CLK low
 
-                GPIO_RGB1_BITS = palette[low_cell & 0xf].slice(slot);
-                GPIO_RGB2_BITS = palette[high_cell & 0xf].slice(slot) << 6;
-                //GPIO_RGB_BITS = palette[low_cell & 0xf].slice(slot) | (palette[high_cell & 0xf].slice(slot) << 6);
-                low_cell >>= 4;
-                high_cell >>= 4;
+            GPIO_RGB1_BITS = palette[low_cell & 0xf].slice(slot);
+            GPIO_RGB2_BITS = palette[high_cell & 0xf].slice(slot) << 6;
+            //GPIO_RGB_BITS = palette[low_cell & 0xf].slice(slot) | (palette[high_cell & 0xf].slice(slot) << 6);
+            low_cell >>= 4;
+            high_cell >>= 4;
 
-                GPIO_CLK_BITS = _bCLK;                          // latch on rising edge
-            }
+            GPIO_CLK_BITS = _bCLK;                          // latch on rising edge
         }
+    }
 
-        GPIO_ADDR_BITS = ((row & 1) ? _bA : 0) |                // set row address
-                         ((row & 2) ? _bB : 0) | 
-                         ((row & 4) ? _bC : 0) |
-                         ((row & 8) ? _bD : 0);
+    GPIO_ADDR_BITS = ((row & 1) ? _bA : 0) |                // set row address
+                     ((row & 2) ? _bB : 0) |
+                     ((row & 4) ? _bC : 0) |
+                     ((row & 8) ? _bD : 0);
 
-        GPIO_LAT_BITS = _bLAT;                                  // lat high to latch row
-        GPIO_CTL_BITS = 0;                                      // oe, clk, lat low to enable display
+    GPIO_LAT_BITS = _bLAT;                                  // lat high to latch row
+    GPIO_CTL_BITS = 0;                                      // oe, clk, lat low to enable display
 }
 
 

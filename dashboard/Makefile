@@ -81,6 +81,7 @@ LDFLAGS		 = $(ARCHFLAGS)				\
 BIN		 = build/$(NAME).bin
 ELF		 = $(BIN:.bin=.elf)
 
+HDRS		 = $(foreach dir,$(wildcard $(DIRS)),$(wildcard $(dir)/*.h))
 SRCS		 = $(foreach dir,$(wildcard $(DIRS)),$(wildcard $(dir)/*.c $(dir)/*.cpp))
 
 OBJS		 = $(addprefix build/,$(addsuffix .o,$(SRCS)))
@@ -114,5 +115,8 @@ $(filter %.cpp.o,$(OBJS)): build/%.cpp.o: %.cpp
 
 clean:
 	@rm -rf build
+
+reformat:
+	@../etc/reformat.sh $(SRCS) $(HDRS)
 
 -include $(wildcard $(foreach dir,$(DIRS),build/$(dir)/*.d))

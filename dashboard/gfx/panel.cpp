@@ -43,7 +43,7 @@ Panel::fill(Colour colour)
 /*
  * Notes on panel updates.
  *
- * A complete panel update should be scheduled to take ~16ms. Each update is 
+ * A complete panel update should be scheduled to take ~16ms. Each update is
  * _depth time slots for each of the _rows/2 row pairs, with the time slot sizing in powers
  * of 2 (XXX tbd scaling) matching the significance of each bit.
  *
@@ -70,6 +70,7 @@ void
 Panel::_tick()
 {
     _load.start();
+
     if (_phase.is_dimming) {
 
         _driver.line_off();
@@ -101,6 +102,7 @@ Panel::_phase_advance()
     if (_phase.is_dimming) {
         /* dimming phase - consume the remainder of the slot time */
         interval = bit_period - on_time;
+
     } else {
         /* display phase - time based on brightness */
         interval = on_time;

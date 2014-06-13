@@ -12,16 +12,15 @@
 
 #include <stdint.h>
 
-struct glyph_info
-{
-	uint16_t info;
-	uint16_t data[];
+struct glyph_info {
+    uint16_t info;
+    uint16_t data[];
 };
 
-#define GLYPH_MONO(_rows, _columns)	((_rows << 8) | _columns)
-#define GLYPH_RGB(_rows, _columns)	(0x8000 | (_rows << 8) | _columns)
-#define GLYPH_WIDTH(_i)			(_i & 0xff)
-#define GLYPH_HEIGHT(_i)		((_i >> 8) & 0x7f)
+#define GLYPH_MONO(_rows, _columns) ((_rows << 8) | _columns)
+#define GLYPH_RGB(_rows, _columns)  (0x8000 | (_rows << 8) | _columns)
+#define GLYPH_WIDTH(_i)             (_i & 0xff)
+#define GLYPH_HEIGHT(_i)            ((_i >> 8) & 0x7f)
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +43,7 @@ extern const struct glyph_info g_right_triangle;
 extern const struct glyph_info g_W;
 extern const struct glyph_info g_V;
 extern const struct glyph_info g_O;
+extern const struct glyph_info g_E;
 extern const struct glyph_info g_degF;
 extern const struct glyph_info g_psi;
 

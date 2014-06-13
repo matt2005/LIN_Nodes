@@ -56,6 +56,6 @@ private:
     FrameBuffer     *_current_framebuffer;
     PerfInterval    _perf;
 
-    bool        _clip(Position p) { return ((p.x < _geometry.w) && (p.y < _geometry.h)); }
+    bool            _clip(Position p) { return ((p.x < _geometry.w) && (p.y < _geometry.h)); }
 };
 

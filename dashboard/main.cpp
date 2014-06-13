@@ -37,8 +37,7 @@ const PaletteEntry palette[16] = {
 LINDev			gLIN(19200);
 
 // Display
-PanelV2PIO		PanelDriver;
-Panel			gPanel(PanelDriver);
+Panel			gPanel;
 
 // rotary encoder
 Encoder			gEncoder;

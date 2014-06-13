@@ -1,5 +1,20 @@
-#include "panel_out.h"
+#include "panel.h"
 #include "lpc111x.h"
+
+static const uint16_t   _bR1 = GPIO_IO_P0;
+static const uint16_t   _bG1 = GPIO_IO_P1;
+static const uint16_t   _bB1 = GPIO_IO_P2;
+static const uint16_t   _bR2 = GPIO_IO_P6;
+static const uint16_t   _bG2 = GPIO_IO_P7;
+static const uint16_t   _bB2 = GPIO_IO_P8;
+static const uint16_t   _bA = GPIO_IO_P3;   // to be shared with R1
+static const uint16_t   _bB = GPIO_IO_P9;   // to be shared with G1
+static const uint16_t   _bC = GPIO_IO_P11;  // to be shared with B1
+static const uint16_t   _bD = _bR2;         // shared with R2
+
+static const uint16_t   _bCLK = GPIO_IO_P4;
+static const uint16_t   _bLAT = GPIO_IO_P5;
+static const uint16_t   _bOE = GPIO_IO_P8;
 
 #define GPIO_GPIO0_BITS(_x)     (*((REG32 *) (GPIO_GPIO0_BASE + ((_x) << 2))))
 #define GPIO_GPIO1_BITS(_x)     (*((REG32 *) (GPIO_GPIO1_BASE + ((_x) << 2))))
@@ -27,7 +42,8 @@
 #define GPIO_OE_BITS        GPIO_GPIO1_BITS(GPIO_IO_P8)
 #define GPIO_CTL_BITS       GPIO_GPIO1_BITS(GPIO_IO_P4 | GPIO_IO_P5 | GPIO_IO_P8)
 
-PanelV2PIO::PanelV2PIO()
+void
+Panel::line_init()
 {
     SCB_SYSAHBCLKCTRL |= SCB_SYSAHBCLKCTRL_GPIO | SCB_SYSAHBCLKCTRL_IOCON;
 
@@ -70,17 +86,17 @@ PanelV2PIO::PanelV2PIO()
 }
 
 void
-PanelV2PIO::line_off()
+Panel::line_off()
 {
     GPIO_OE_BITS = _bOE;
 }
 
 void
-PanelV2PIO::line_update(unsigned row, unsigned slot, FrameBuffer *buffer)
+Panel::line_update(unsigned row, unsigned slot)
 {
     line_off();
 
-    uint32_t *lcp = &buffer->cell(row * FrameBuffer::columns()).raw();
+    uint32_t *lcp = &select_buffer(_fb_active)->cell(row * FrameBuffer::columns()).raw();
     uint32_t *hcp = lcp + FrameBuffer::rows() / 2 * FrameBuffer::columns() / Cell::stride();
 
     // ~33us for 32 columns

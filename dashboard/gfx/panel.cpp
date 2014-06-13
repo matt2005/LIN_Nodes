@@ -13,38 +13,25 @@ extern Panel gPanel;
  * Minimum actual LED on time is dependent on interrupt latency; probably several microseconds.
  */
 
-Panel::Panel(PanelOut &driver) :
+Panel::Panel() :
     _timer(&Panel::tick, this),
-    _driver(driver),
-    _dim_level(0),
-    _fb_available(&_buffer[0]),
-    _fb_ready(nullptr),
-    _fb_active(&_buffer[1]),
     _perf_line_update("line update"),
-    _load("panel")
+    _load("panel"),
+    _fb_available(kBuf0),
+    _fb_ready(kNoBuf),
+    _fb_active(kBuf1),
+    _dim_level(0)
 {
     _phase.counter = 0;
+    line_init();
     _timer.callAfter(5000);     // wait a few milliseconds before we start
-}
-
-void
-Panel::fill(Colour colour)
-{
-    for (unsigned row = 0; row < FrameBuffer::rows(); row++) {
-        for (unsigned column = 0; column < FrameBuffer::columns(); column++) {
-
-            if (_fb_active != nullptr) {
-                _fb_active->draw(Position(column, row), colour);
-            }
-        }
-    }
 }
 
 /*
  * Notes on panel updates.
  *
  * A complete panel update should be scheduled to take ~16ms. Each update is
- * _depth time slots for each of the _rows/2 row pairs, with the time slot sizing in powers
+ * PaletteEntry::depth time slots for each of the _rows/2 row pairs, with the time slot sizing in powers
  * of 2 (XXX tbd scaling) matching the significance of each bit.
  *
  * Each time slot gets two ticks at brightness levels below max; one at the start
@@ -57,7 +44,7 @@ Panel::fill(Colour colour)
  * SSSRRRT
  *
  * Where T is 0 for the on toggle and 1 for the off toggle, RRR is the 3-bit current
- * row number, and SSS is the slot number from 0 .. _depth - 1.
+ * row number, and SSS is the slot number from 0 .. PaletteEntry::depth - 1.
  *
  */
 void
@@ -73,12 +60,12 @@ Panel::_tick()
 
     if (_phase.is_dimming) {
 
-        _driver.line_off();
+        line_off();
 
     } else {
         _perf_line_update.start();
 
-        _driver.line_update(_phase.row, _phase.slot, _fb_active);
+        line_update(_phase.row, _phase.slot);
 
         _perf_line_update.stop();
     }
@@ -116,14 +103,14 @@ Panel::_phase_advance()
         _phase.counter = 0;
 
         /* ready to flip framebuffers? */
-        if (_fb_ready != nullptr) {
+        if (_fb_ready != kNoBuf) {
 
             /* active buffer -> available */
             _fb_available = _fb_active;
 
             /* ready buffer -> active */
             _fb_active = _fb_ready;
-            _fb_ready = nullptr;
+            _fb_ready = kNoBuf;
         }
     }
 

@@ -69,7 +69,7 @@ protected:
     virtual void    report() override;
 
 private:
-    Timer::Time     _active;
-    Timer::Time     _inactive;
+    Timer::Interval _active;
+    Timer::Interval _inactive;
     Timer::Time     _changed;
 };

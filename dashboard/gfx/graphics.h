@@ -176,7 +176,7 @@ public:
     }
 
 private:
-    Cell            _buffer[ROWS *COLUMNS / Cell::stride()];
+    Cell            _buffer[ROWS * COLUMNS / Cell::stride()];
 };
 
 // XXX should parameterise the framebuffer dimensions

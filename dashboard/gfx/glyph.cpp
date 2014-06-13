@@ -6,11 +6,8 @@
 #include "scene.h"
 #include "glyphs.h"
 
-const bool Glyph::ENABLED = true;
-
-Glyph::Glyph(Scene &scene, Position p, Colour colour, const volatile bool &enable) :
+Glyph::Glyph(Scene &scene, Position p, Colour colour) :
     _next(nullptr),
-    _enable(enable),
     _p(p),
     _colour(colour)
 {
@@ -100,12 +97,15 @@ Glyph::drawChar(Scene *in_scene,
     }
 }
 
+const bool GlyphIcon::ENABLED = true;
+
 GlyphIcon::GlyphIcon(Scene &scene,
                      Position p,
                      const struct glyph_info &icon,
                      Colour colour,
                      const volatile bool &enable) :
-    Glyph(scene, p, colour, enable),
+    Glyph(scene, p, colour),
+    _enable(enable),
     _icon(icon),
     _d(Dimension(GLYPH_WIDTH(icon.info), GLYPH_HEIGHT(icon.info)))
 {
@@ -125,9 +125,8 @@ GlyphNumber::GlyphNumber(Scene &scene,
                          const uint8_t *font,
                          unsigned digits,
                          Colour colour,
-                         volatile unsigned &value,
-                         const volatile bool &enable) :
-    Glyph(scene, p, colour, enable),
+                         volatile unsigned &value) :
+    Glyph(scene, p, colour),
     _font(font),
     _digits(digits),
     _value(value)
@@ -137,9 +136,6 @@ GlyphNumber::GlyphNumber(Scene &scene,
 void
 GlyphNumber::draw(Scene *in_scene)
 {
-    if (!_enable)
-        return;
-
     unsigned w = _font[0];
     unsigned offset_x = _digits * w;
     unsigned v = _value;
@@ -167,9 +163,8 @@ GlyphText::GlyphText(Scene &scene,
                      const uint8_t *font,
                      unsigned width,
                      Colour colour,
-                     const char *&text,
-                     const volatile bool &enable) :
-    Glyph(scene, p, colour, enable),
+                     const char *&text) :
+    Glyph(scene, p, colour),
     _font(font),
     _width(width),
     _text(text)
@@ -179,9 +174,6 @@ GlyphText::GlyphText(Scene &scene,
 void
 GlyphText::draw(Scene *in_scene)
 {
-    if (!_enable)
-        return;
-
     if (_text == nullptr)
         return;
 
@@ -205,9 +197,8 @@ GlyphBar::GlyphBar(Scene &scene,
                    unsigned min,
                    unsigned max,
                    Colour colour,
-                   volatile unsigned &value,
-                   const volatile bool &enable) :
-    Glyph(scene, r.p, colour, enable),
+                   volatile unsigned &value) :
+    Glyph(scene, r.p, colour),
     _r(r),
     _o(o),
     _value(value),

@@ -20,7 +20,7 @@ Scene::Scene(Panel &p) :
 void
 Scene::addGlyph(Glyph *g)
 {
-    g->_next = _stack;
+    g->push(_stack);
     _stack = g;
 }
 
@@ -35,7 +35,7 @@ Scene::render()
     _perf.start();
 
     _current_framebuffer->clear();
-    for (Glyph *g = _stack; g != nullptr; g = g->_next)
+    for (Glyph *g = _stack; g != nullptr; g = g->next())
         g->draw(this);
 
     _panel.push_draw_buffer();

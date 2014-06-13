@@ -188,18 +188,16 @@ class Scene;
 class Glyph
 {
 public:
-    Glyph(Scene &scene, Position p, Colour colour, const volatile bool &enable = ENABLED);
+    Glyph(Scene &scene, Position p, Colour colour);
 
     virtual void    draw(Scene *in_scene);
     void            setColour(Colour colour) { _colour = colour; }
 
+    Glyph           *next() { return _next; }
+    void            push(Glyph *onto) { _next = onto; }
+
 protected:
-    friend class Scene;
-
-    static const bool ENABLED;
-
     Glyph           *_next;
-    const volatile bool &_enable;
     const Position  _p;
     Colour          _colour;
 
@@ -217,6 +215,9 @@ public:
     virtual void    draw(Scene *in_scene) override;
 
 protected:
+    static const bool ENABLED;
+
+    const volatile bool &_enable;
     const struct glyph_info &_icon;
     const Dimension _d;
 };
@@ -225,7 +226,7 @@ protected:
 class GlyphNumber : public Glyph
 {
 public:
-    GlyphNumber(Scene &scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value, const volatile bool &enable = ENABLED);
+    GlyphNumber(Scene &scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value);
 
     virtual void    draw(Scene *in_scene) override;
 
@@ -239,7 +240,7 @@ private:
 class GlyphText : public Glyph
 {
 public:
-    GlyphText(Scene &scene, Position p, const uint8_t *font, unsigned width, Colour colour, const char *&text, const volatile bool &enable = ENABLED);
+    GlyphText(Scene &scene, Position p, const uint8_t *font, unsigned width, Colour colour, const char *&text);
 
     virtual void    draw(Scene *in_scene) override;
 
@@ -258,7 +259,7 @@ public:
         O_VERTICAL
     };
 
-    GlyphBar(Scene &scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value, const volatile bool &enable = ENABLED);
+    GlyphBar(Scene &scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value);
 
     virtual void    draw(Scene *in_scene) override;
 

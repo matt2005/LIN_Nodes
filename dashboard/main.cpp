@@ -47,16 +47,9 @@ Scene			gDash(gPanel, "DASH");
 // Dashboard UI
 // sorted from front (draws on top) to back
 
-static void
-test_generator(GlyphText *gt)
-{
-    static const char   *t_msg = "TEST MESSAGE 12345678";
+static void     gen_status(GlyphText *gt);
 
-    for (const char *cp = t_msg; *cp != 0; cp++)
-        gt->emit(*cp);
-}
-
-static GlyphText	text_info(gDash, Region(0, 27, 64, 5), font_Misc_Fixed_Medium_4x6, Red, test_generator);
+static GlyphText	text_status(gDash, Region(0, 27, 64, 5), font_Misc_Fixed_Medium_4x6, DimCyan, gen_status);
 
 static GlyphIcon	tt_left_turn(gDash, Position(0, 0),  g_left_triangle,  Green,  gLIN.ttLeftTurn);
 static GlyphIcon	tt_right_turn(gDash, Position(60, 0), g_right_triangle, Green,  gLIN.ttRightTurn);
@@ -80,7 +73,7 @@ static GlyphBar		bar_fuel(gDash, Region(0, 9, 5, 17), GlyphBar::O_VERTICAL, 0, 1
 
 // Text UI
 Scene           gText(gPanel, "TEXT");
-static GlyphText    t_text(gText, Region(0, 0, 64, 32), font_Misc_Fixed_Medium_4x6, DimWhite, test_generator);
+static GlyphText    t_text(gText, Region(0, 0, 64, 32), font_Misc_Fixed_Medium_4x6, DimWhite, nullptr);
 
 
 volatile Ticker		refreshTicker(33333);	// 30Hz
@@ -106,8 +99,8 @@ main(void)
         perf_mainloop.start();
 
         if (refreshTicker.didTick()) {
-            gText.render();
-//            gDash.render();
+//            gText.render();
+            gDash.render();
         }
 
         // idle and wait for an interrupt
@@ -115,6 +108,18 @@ main(void)
         __asm__ volatile("wfi");
     }
 
+}
+
+static void
+gen_status(GlyphText *gt)
+{
+    if (!gLIN.linkUp) {
+        gt->setColour(Red);
+        gt->emit_string("LINK DOWN");
+    } else {
+        gt->setColour(DimCyan);
+        gt->emit_string("OK");
+    }
 }
 
 extern "C" __attribute__((used, interrupt)) void HardFault_Handler()

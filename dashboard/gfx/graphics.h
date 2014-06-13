@@ -246,6 +246,7 @@ public:
 
     virtual void    draw(Scene *in_scene) override;
     void            emit(char c);
+    void            emit_string(const char *cp) { while (*cp != 0) emit(*cp++); }
     void            set_generator(Generator g) { _generator = g; }
 
 private:

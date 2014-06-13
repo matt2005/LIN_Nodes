@@ -12,8 +12,9 @@ public:
 
     void        interrupt();
 
-    volatile bool       warnSummary     = false;
-    volatile bool       errorSummary    = false;
+    volatile bool       warnSummary:1;
+    volatile bool       errorSummary:1;
+    volatile bool       linkUp:1;
 
     volatile bool       ttLeftTurn      = true;
     volatile bool       ttRightTurn     = true;

@@ -170,6 +170,11 @@ public:
         subCell(p).set(c);
     }
 
+    void            clear()
+    {
+        memset(_buffer, 0, sizeof(_buffer));
+    }
+
 private:
     Cell            _buffer[ROWS *COLUMNS / Cell::stride()];
 };
@@ -177,13 +182,15 @@ private:
 // XXX should parameterise the framebuffer dimensions
 typedef FrameBufferTemplate<32, 64>     FrameBuffer;
 
+class Scene;
+
 /* base class for a drawable thing */
 class Glyph
 {
 public:
     Glyph(Scene &scene, Position p, Colour colour, const volatile bool &enable = ENABLED);
 
-    virtual void    draw();
+    virtual void    draw(Scene *in_scene);
     void            setColour(Colour colour) { _colour = colour; }
 
 protected:
@@ -192,13 +199,12 @@ protected:
     static const bool ENABLED;
 
     Glyph           *_next;
-    Scene           &_scene;
     const volatile bool &_enable;
     const Position  _p;
     Colour          _colour;
 
-    void            drawBitmap(const struct glyph_info &glyph, unsigned offset_x = 0, unsigned offset_y = 0);
-    void            drawChar(const uint8_t *font, uint8_t character, unsigned offset_x = 0, unsigned offset_y = 0);
+    void            drawBitmap(Scene *in_scene, const struct glyph_info &glyph, unsigned offset_x = 0, unsigned offset_y = 0);
+    void            drawChar(Scene *in_scene, const uint8_t *font, uint8_t character, unsigned offset_x = 0, unsigned offset_y = 0);
 };
 
 /* a glyph that draws a bitmap */
@@ -208,7 +214,7 @@ public:
     GlyphIcon(Scene &scene, Position p, const struct glyph_info &icon, Colour colour, const volatile bool &enable = ENABLED);
 
 
-    virtual void    draw();
+    virtual void    draw(Scene *in_scene) override;
 
 protected:
     const struct glyph_info &_icon;
@@ -221,7 +227,7 @@ class GlyphNumber : public Glyph
 public:
     GlyphNumber(Scene &scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value, const volatile bool &enable = ENABLED);
 
-    virtual void    draw();
+    virtual void    draw(Scene *in_scene) override;
 
 private:
     const uint8_t   *_font;
@@ -235,7 +241,7 @@ class GlyphText : public Glyph
 public:
     GlyphText(Scene &scene, Position p, const uint8_t *font, unsigned width, Colour colour, const char *&text, const volatile bool &enable = ENABLED);
 
-    virtual void    draw();
+    virtual void    draw(Scene *in_scene) override;
 
 private:
     const uint8_t   *_font;
@@ -254,7 +260,7 @@ public:
 
     GlyphBar(Scene &scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value, const volatile bool &enable = ENABLED);
 
-    virtual void    draw();
+    virtual void    draw(Scene *in_scene) override;
 
 private:
     Region          _r;

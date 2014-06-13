@@ -10,21 +10,21 @@ const bool Glyph::ENABLED = true;
 
 Glyph::Glyph(Scene &scene, Position p, Colour colour, const volatile bool &enable) :
     _next(nullptr),
-    _scene(scene),
     _enable(enable),
     _p(p),
     _colour(colour)
 {
-    _scene.addGlyph(this);
+    scene.addGlyph(this);
 }
 
 void
-Glyph::draw()
+Glyph::draw(Scene *in_scene)
 {
 }
 
 void
-Glyph::drawBitmap(const struct glyph_info &glyph,
+Glyph::drawBitmap(Scene *in_scene,
+                  const struct glyph_info &glyph,
                   unsigned offset_x,
                   unsigned offset_y)
 {
@@ -46,7 +46,7 @@ Glyph::drawBitmap(const struct glyph_info &glyph,
             /* if alpha is set */
             if (bits & 2) {
                 /* overwrite whatever's there with our bitmap data */
-                _scene.draw(Position(c, r), (bits & 1) ? _colour : Black);
+                in_scene->draw(Position(c, r), (bits & 1) ? _colour : Black);
             }
 
             bc--;
@@ -59,7 +59,8 @@ Glyph::drawBitmap(const struct glyph_info &glyph,
 }
 
 void
-Glyph::drawChar(const uint8_t *font,
+Glyph::drawChar(Scene *in_scene,
+                const uint8_t *font,
                 uint8_t character,
                 unsigned offset_x,
                 unsigned offset_y)
@@ -93,7 +94,7 @@ Glyph::drawChar(const uint8_t *font,
 
             for (int b = 7; (b >= 0) && (resid > 0); b--, resid--, c++) {
                 /* overwrite whatever's there with our bitmap data */
-                _scene.draw(Position(c, r), (bits & (1 << b)) ? _colour : Black);
+                in_scene->draw(Position(c, r), (bits & (1 << b)) ? _colour : Black);
             }
         } while (resid > 0);
     }
@@ -111,12 +112,12 @@ GlyphIcon::GlyphIcon(Scene &scene,
 }
 
 void
-GlyphIcon::draw()
+GlyphIcon::draw(Scene *in_scene)
 {
     if (!_enable)
         return;
 
-    Glyph::drawBitmap(_icon);
+    Glyph::drawBitmap(in_scene, _icon);
 }
 
 GlyphNumber::GlyphNumber(Scene &scene,
@@ -134,7 +135,7 @@ GlyphNumber::GlyphNumber(Scene &scene,
 }
 
 void
-GlyphNumber::draw()
+GlyphNumber::draw(Scene *in_scene)
 {
     if (!_enable)
         return;
@@ -149,10 +150,10 @@ GlyphNumber::draw()
         unsigned index = v % 10;
 
         if ((v > 0) | lsd) {
-            Glyph::drawChar(_font, '0' + index, offset_x);
+            Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
 
         } else {
-            Glyph::drawChar(_font, ' ' + index, offset_x);
+            Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
         }
 
         v /= 10;
@@ -176,7 +177,7 @@ GlyphText::GlyphText(Scene &scene,
 }
 
 void
-GlyphText::draw()
+GlyphText::draw(Scene *in_scene)
 {
     if (!_enable)
         return;
@@ -190,10 +191,10 @@ GlyphText::draw()
     for (unsigned pos = 0; pos < _width; offset_x += w) {
 
         if (_text[pos] != '\0') {
-            Glyph::drawChar(_font, _text[pos++], offset_x);
+            Glyph::drawChar(in_scene, _font, _text[pos++], offset_x);
 
         } else {
-            Glyph::drawChar(_font, ' ', offset_x);
+            Glyph::drawChar(in_scene, _font, ' ', offset_x);
         }
     }
 }
@@ -216,7 +217,7 @@ GlyphBar::GlyphBar(Scene &scene,
 }
 
 void
-GlyphBar::draw()
+GlyphBar::draw(Scene *in_scene)
 {
     unsigned max_bars = (_o == O_HORIZONTAL) ? _r.d.w : _r.d.h;
     unsigned blank_bars;
@@ -246,5 +247,5 @@ GlyphBar::draw()
     }
 
     // XXX need to clear the blank area
-    _scene.fill(r, _colour);
+    in_scene->fill(r, _colour);
 }

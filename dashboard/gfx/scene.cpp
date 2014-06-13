@@ -34,8 +34,9 @@ Scene::render()
 
     _perf.start();
 
+    _current_framebuffer->clear();
     for (Glyph *g = _stack; g != nullptr; g = g->_next)
-        g->draw();
+        g->draw(this);
 
     _panel.push_draw_buffer();
 

@@ -75,9 +75,9 @@ static GlyphText	text_info(gDash, Position(0, 27), font_Misc_Fixed_Medium_4x6, 1
 
 static GlyphIcon	tt_left_turn   (gDash, Position(0, 0),  g_left_triangle,  Green,  gLIN.ttLeftTurn);
 static GlyphIcon	tt_right_turn  (gDash, Position(60, 0), g_right_triangle, Green,  gLIN.ttRightTurn);
-static GlyphIcon	tt_high_beam   (gDash, Position(6, 0),  g_highbeam,       Blue,   gLIN.ttHighBeam);
-static GlyphIcon	tt_low_beam    (gDash, Position(6, 0),  g_lowbeam,        Green,  gLIN.ttLowBeam);
-static GlyphIcon	tt_fog_lights  (gDash, Position(14, 0), g_highbeam,       Green,  gLIN.ttFogLights);
+static GlyphIcon	tt_high_beam   (gDash, Position(5, 0),  g_highbeam,       Blue,   gLIN.ttHighBeam);
+static GlyphIcon	tt_low_beam    (gDash, Position(5, 0),  g_lowbeam,        Green,  gLIN.ttLowBeam);
+static GlyphIcon	tt_fog_lights  (gDash, Position(12, 0), g_highbeam,       Green,  gLIN.ttFogLights);
 
 static GlyphBar		bar_rpm  (gDash, Region(20, 21, 23, 5), GlyphBar::O_HORIZONTAL, 0, 600, DimGreen, gLIN.engineRPM);
 static GlyphNumber	num_rpm  (gDash, Position(20, 12), font_Misc_Fixed_Medium_6x10,  4, Cyan, gLIN.engineRPM);

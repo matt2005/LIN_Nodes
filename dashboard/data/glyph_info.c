@@ -200,28 +200,24 @@ const struct glyph_info g_psi = {
 };
 
 const struct glyph_info g_lowbeam = {
-	GLYPH_MONO(7, 7),
+	GLYPH_MONO(5, 6),
 	{
-		p(0,0,X,X,_,_,_, 0),
-		p(0,X,X,X,_,X,_, 0),
-		p(X,X,X,X,_,_,X, 0),
-		p(X,X,X,X,_,X,_, 0),
-		p(X,X,X,X,_,_,X, 0),
-		p(0,X,X,X,_,X,_, 0),
-		p(0,0,X,X,_,_,X, 0),
+		p(0,X,X,_,_,_, 0,0),
+		p(X,X,X,_,X,_, 0,0),
+		p(X,X,X,_,_,X, 0,0),
+		p(X,X,X,_,X,_, 0,0),
+		p(0,X,X,_,_,X, 0,0),
 	}
 };
 
 const struct glyph_info g_highbeam = {
-	GLYPH_MONO(7, 7),
+	GLYPH_MONO(5, 6),
 	{
-		p(0,0,X,X,_,X,X, 0),
-		p(0,X,X,X,_,_,_, 0),
-		p(X,X,X,X,_,X,X, 0),
-		p(X,X,X,X,_,_,_, 0),
-		p(X,X,X,X,_,X,X, 0),
-		p(0,X,X,X,_,_,_, 0),
-		p(0,0,X,X,_,X,X, 0),
+		p(0,X,X,_,X,X, 0,0),
+		p(X,X,X,_,_,_, 0,0),
+		p(X,X,X,_,X,X, 0,0),
+		p(X,X,X,_,_,_, 0,0),
+		p(0,X,X,_,X,X, 0,0),
 	}
 };
 

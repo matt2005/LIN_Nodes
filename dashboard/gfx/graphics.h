@@ -187,7 +187,7 @@ typedef FrameBufferTemplate<32, 64>     FrameBuffer;
 class Glyph
 {
 public:
-        Glyph(Scene &scene, Position p, Colour colour, volatile bool &enable = ENABLED);
+        Glyph(Scene &scene, Position p, Colour colour, const volatile bool &enable = ENABLED);
 
         virtual void    draw();
         void            setColour(Colour colour) { _colour = colour; }
@@ -195,11 +195,11 @@ public:
 protected:
         friend class Scene;
 
-        static volatile bool ENABLED;
+        static const bool ENABLED;
 
         Glyph           *_next;
         Scene           &_scene;
-        volatile bool   &_enable;
+        const volatile bool &_enable;
         const Position  _p;
         Colour          _colour;
 
@@ -211,7 +211,7 @@ protected:
 class GlyphIcon : public Glyph
 {
 public:
-        GlyphIcon(Scene &scene, Position p, const struct glyph_info &icon, Colour colour, volatile bool &enable = ENABLED);
+        GlyphIcon(Scene &scene, Position p, const struct glyph_info &icon, Colour colour, const volatile bool &enable = ENABLED);
 
 
         virtual void    draw();
@@ -225,7 +225,7 @@ protected:
 class GlyphNumber : public Glyph
 {
 public:
-        GlyphNumber(Scene &scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value, volatile bool &enable = ENABLED);
+        GlyphNumber(Scene &scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value, const volatile bool &enable = ENABLED);
 
         virtual void    draw();
 
@@ -239,7 +239,7 @@ private:
 class GlyphText : public Glyph
 {
 public:
-        GlyphText(Scene &scene, Position p, const uint8_t *font, unsigned width, Colour colour, const char *&text, volatile bool &enable = ENABLED);
+        GlyphText(Scene &scene, Position p, const uint8_t *font, unsigned width, Colour colour, const char *&text, const volatile bool &enable = ENABLED);
 
         virtual void    draw();
 
@@ -258,7 +258,7 @@ public:
                 O_VERTICAL
         };
 
-        GlyphBar(Scene &scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value, volatile bool &enable = ENABLED);
+        GlyphBar(Scene &scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value, const volatile bool &enable = ENABLED);
 
         virtual void    draw();
 

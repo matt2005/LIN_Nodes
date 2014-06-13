@@ -6,9 +6,9 @@
 #include "scene.h"
 #include "glyphs.h"
 
-volatile bool Glyph::ENABLED = true;
+const bool Glyph::ENABLED = true;
 
-Glyph::Glyph(Scene &scene, Position p, Colour colour, volatile bool &enable) :
+Glyph::Glyph(Scene &scene, Position p, Colour colour, const volatile bool &enable) :
 	_next(nullptr),
 	_scene(scene),
 	_enable(enable),
@@ -99,7 +99,7 @@ GlyphIcon::GlyphIcon(Scene &scene,
 		     Position p,
 		     const struct glyph_info &icon,
 		     Colour colour,
-		     volatile bool &enable) :
+		     const volatile bool &enable) :
 	Glyph(scene, p, colour, enable),
 	_icon(icon),
 	_d(Dimension(GLYPH_WIDTH(icon.info), GLYPH_HEIGHT(icon.info)))
@@ -121,7 +121,7 @@ GlyphNumber::GlyphNumber(Scene &scene,
 			 unsigned digits,
 			 Colour colour,
 			 volatile unsigned &value,
-			 volatile bool &enable) :
+			 const volatile bool &enable) :
 	Glyph(scene, p, colour, enable),
 	_font(font),
 	_digits(digits),
@@ -162,7 +162,7 @@ GlyphText::GlyphText(Scene &scene,
 		     unsigned width,
 		     Colour colour,
 		     const char *&text,
-		     volatile bool &enable) :
+		     const volatile bool &enable) :
 	Glyph(scene, p, colour, enable),
 	_font(font),
 	_width(width),
@@ -198,7 +198,7 @@ GlyphBar::GlyphBar(Scene &scene,
 		   unsigned max,
 		   Colour colour,
 		   volatile unsigned &value,
-		   volatile bool &enable) :
+		   const volatile bool &enable) :
 	Glyph(scene, r.p, colour, enable),
 	_r(r),
 	_o(o),

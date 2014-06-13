@@ -149,12 +149,11 @@ const struct glyph_info g_W = {
 };
 
 const struct glyph_info g_V= {
-	GLYPH_MONO(4, 5),
+	GLYPH_MONO(3, 3),
 	{
-		p(X,0,0,0,X, 0,0,0),
-		p(X,0,0,0,X, 0,0,0),
-		p(0,X,0,X,0, 0,0,0),
-		p(0,0,X,0,0, 0,0,0),
+		p(X,0,X, 0,0,0,0,0),
+		p(X,0,X, 0,0,0,0,0),
+		p(0,X,0, 0,0,0,0,0),
 	}
 };
 
@@ -168,14 +167,14 @@ const struct glyph_info g_O = {
 	}
 };
 
-const struct glyph_info g_F = {
-	GLYPH_MONO(5, 3),
+const struct glyph_info g_degF = {
+	GLYPH_MONO(5, 6),
 	{
-		p(X,X,X, 0,0,0,0,0),
-		p(X,0,0, 0,0,0,0,0),
-		p(X,X,X, 0,0,0,0,0),
-		p(X,0,0, 0,0,0,0,0),
-		p(X,0,0, 0,0,0,0,0),
+		p(X,X,0,X,X,X, 0,0),
+		p(X,X,0,X,0,0, 0,0),
+		p(0,0,0,X,X,0, 0,0),
+		p(0,0,0,X,0,0, 0,0),
+		p(0,0,0,X,0,0, 0,0),
 	}
 };
 
@@ -190,36 +189,65 @@ const struct glyph_info g_E = {
 	}
 };
 
-const struct glyph_info g_telltale = {
-	GLYPH_MONO(2, 2),
+const struct glyph_info g_psi = {
+	GLYPH_MONO(4, 7),
 	{
-		p(X,X, 0,0,0,0,0,0),
-		p(X,X, 0,0,0,0,0,0),
+		p(X,X,X,X,X,0,X, 0),
+		p(X,0,X,X,0,0,X, 0),
+		p(X,X,0,0,X,0,X, 0),
+		p(X,0,0,X,X,0,X, 0),
+	}
+};
+
+const struct glyph_info g_lowbeam = {
+	GLYPH_MONO(7, 7),
+	{
+		p(0,0,X,X,_,_,_, 0),
+		p(0,X,X,X,_,X,_, 0),
+		p(X,X,X,X,_,_,X, 0),
+		p(X,X,X,X,_,X,_, 0),
+		p(X,X,X,X,_,_,X, 0),
+		p(0,X,X,X,_,X,_, 0),
+		p(0,0,X,X,_,_,X, 0),
+	}
+};
+
+const struct glyph_info g_highbeam = {
+	GLYPH_MONO(7, 7),
+	{
+		p(0,0,X,X,_,X,X, 0),
+		p(0,X,X,X,_,_,_, 0),
+		p(X,X,X,X,_,X,X, 0),
+		p(X,X,X,X,_,_,_, 0),
+		p(X,X,X,X,_,X,X, 0),
+		p(0,X,X,X,_,_,_, 0),
+		p(0,0,X,X,_,X,X, 0),
 	}
 };
 
 const struct glyph_info g_left_triangle = {
-	GLYPH_MONO(3, 2),
+	GLYPH_MONO(7, 4),
 	{
-		p(0,X, 0,0,0,0,0,0),
-		p(X,X, 0,0,0,0,0,0),
-		p(0,X, 0,0,0,0,0,0),
+		p(0,0,0,X, 0,0,0,0),
+		p(0,0,X,X, 0,0,0,0),
+		p(0,X,X,X, 0,0,0,0),
+		p(X,X,X,X, 0,0,0,0),
+		p(0,X,X,X, 0,0,0,0),
+		p(0,0,X,X, 0,0,0,0),
+		p(0,0,0,X, 0,0,0,0),
 	}
 };
 
 const struct glyph_info g_right_triangle = {
-	GLYPH_MONO(3, 2),
+	GLYPH_MONO(7, 4),
 	{
-		p(X,0, 0,0,0,0,0,0),
-		p(X,X, 0,0,0,0,0,0),
-		p(X,0, 0,0,0,0,0,0),
+		p(X,0,0,0, 0,0,0,0),
+		p(X,X,0,0, 0,0,0,0),
+		p(X,X,X,0, 0,0,0,0),
+		p(X,X,X,X, 0,0,0,0),
+		p(X,X,X,0, 0,0,0,0),
+		p(X,X,0,0, 0,0,0,0),
+		p(X,0,0,0, 0,0,0,0),
 	}
 };
 
-const struct glyph_info g_telltale_big = {
-	GLYPH_MONO(2, 4),
-	{
-		p(X,X,X,X, 0,0,0,0),
-		p(X,X,X,X, 0,0,0,0),
-	}
-};

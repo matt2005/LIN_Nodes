@@ -36,15 +36,16 @@ extern const struct glyph_info g_exclamation;
 extern const struct glyph_info g_wrench;
 extern const struct glyph_info g_barrel;
 extern const struct glyph_info g_water;
-extern const struct glyph_info g_telltale;
+extern const struct glyph_info g_lowbeam;
+extern const struct glyph_info g_highbeam;
 extern const struct glyph_info g_left_triangle;
 extern const struct glyph_info g_right_triangle;
-extern const struct glyph_info g_telltale_big;
 
 extern const struct glyph_info g_W;
 extern const struct glyph_info g_V;
 extern const struct glyph_info g_O;
-extern const struct glyph_info g_F;
+extern const struct glyph_info g_degF;
+extern const struct glyph_info g_psi;
 
 extern const struct glyph_info *g_digits_3x5[];
 extern const struct glyph_info *g_digits_5x7[];

@@ -12,16 +12,20 @@ public:
 
 	void		interrupt();
 
-	bool		warnSummary	= false;
-	bool		errorSummary = false;
+	volatile bool		warnSummary	= false;
+	volatile bool		errorSummary = false;
 
-	bool		ttLeftTurn	= false;
-	bool		ttRightTurn	= false;
-	bool		ttLowBeam	= false;
-	bool		ttHighBeam	= false;
+	volatile bool		ttLeftTurn	= true;
+	volatile bool		ttRightTurn	= true;
+	volatile bool		ttLowBeam	= true;
+	volatile bool		ttHighBeam	= true;
+	volatile bool		ttFogLights	= true;
 
-	unsigned	roadSpeed	= 35;
-	unsigned	engineRPM	= 8765;
+	volatile unsigned	roadSpeed	= 35;
+	volatile unsigned	engineRPM	= 8765;
+	volatile unsigned	batteryVoltage = 131;
+	volatile unsigned	waterTemperature = 172;
+	volatile unsigned	oilPressure = 45;
 
 private:
 	enum State {

@@ -15,8 +15,8 @@ extern Panel gPanel;
 
 Panel::Panel() :
     _timer(&Panel::tick, this),
-    _perf_line_update("line update"),
-    _load("panel"),
+    _perf_line_update("LINE"),
+    _load("PANEL"),
     _fb_available(kBuf0),
     _fb_ready(kNoBuf),
     _fb_active(kBuf1),

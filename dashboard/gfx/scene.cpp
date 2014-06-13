@@ -8,12 +8,12 @@
 #include "panel.h"
 #include "encoder.h"
 
-Scene::Scene(Panel &p) :
+Scene::Scene(Panel &p, const char *name) :
     _panel(p),
     _geometry(p.dimension()),
     _stack(nullptr),
     _current_framebuffer(nullptr),
-    _perf("scene draw")
+    _perf(name)
 {
 }
 

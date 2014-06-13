@@ -2,7 +2,6 @@
 #include <limits.h>
 
 #include "perf.h"
-#include "debug.h"
 
 
 PerfItem *PerfItem::_list = nullptr;
@@ -15,20 +14,6 @@ PerfItem::PerfItem(const char *name, Kind kind) :
     _list = (PerfItem *)this;
 }
 
-void
-PerfItem::print_report()
-{
-    debug("\n### perf ###");
-
-    PerfItem *p = _list;
-
-    while (p != nullptr) {
-        debug_nonl("%s:%s", p->_name, &"                "[(strlen(p->_name) < 16) ? strlen(p->_name) : 16]);
-        p->report();
-        p = p->_next;
-    }
-}
-
 PerfCounter::PerfCounter(const char *name, Kind kind) :
     PerfItem(name, kind),
     _count(0)
@@ -38,7 +23,7 @@ PerfCounter::PerfCounter(const char *name, Kind kind) :
 void
 PerfCounter::report()
 {
-    debug("%u", _count);
+//    debug("%u", _count);
 }
 
 PerfInterval::PerfInterval(const char *name) :
@@ -73,7 +58,7 @@ PerfInterval::stop()
 void
 PerfInterval::report()
 {
-    debug("%u: %u-%uus", _count_min_period, _max_period);
+//    debug("%u: %u-%uus", _count_min_period, _max_period);
 }
 
 PerfLoad::PerfLoad(const char *name) :
@@ -107,5 +92,5 @@ PerfLoad::stop()
 void
 PerfLoad::report()
 {
-    debug("%llu%%", (unsigned)((_active * 100) / (_active + _inactive)));
+//    debug("%llu%%", (unsigned)((_active * 100) / (_active + _inactive)));
 }

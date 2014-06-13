@@ -240,14 +240,20 @@ private:
 class GlyphText : public Glyph
 {
 public:
-    GlyphText(Scene &scene, Position p, const uint8_t *font, unsigned width, Colour colour, const char *&text);
+    typedef void    (* Generator)(GlyphText *owner);
+
+    GlyphText(Scene &scene, Region r, const uint8_t *font, Colour colour, Generator generator);
 
     virtual void    draw(Scene *in_scene) override;
+    void            emit(char c);
+    void            set_generator(Generator g) { _generator = g; }
 
 private:
     const uint8_t   *_font;
-    unsigned        _width;
-    const char      *&_text;
+    Dimension       _d;
+    Generator       _generator;
+    Position        _cursor;
+    Scene           *_scene;
 };
 
 /* a glyph that draws a bargraph */

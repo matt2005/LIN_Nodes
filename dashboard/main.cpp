@@ -2,7 +2,6 @@
  * LED matrix test code
  */
 
-#include "debug.h"
 #include "graphics.h"
 #include "scene.h"
 #include "panel.h"
@@ -42,35 +41,22 @@ Panel			gPanel;
 // rotary encoder
 Encoder			gEncoder;
 
-//#define COLOUR_TEST
+// dashboard scene
+Scene			gDash(gPanel, "DASH");
 
-Scene			gDash(gPanel);
-
-#if defined(COLOUR_TEST)
-
-static GlyphIcon	ct_red(gDash, Position(0,  0), g_lights, Red);
-static GlyphIcon	ct_dimred(gDash, Position(4,  0), g_lights, DimRed);
-static GlyphIcon	ct_green(gDash, Position(8,  0), g_lights, Green);
-static GlyphIcon	ct_dimgreen(gDash, Position(12,  0), g_lights, DimGreen);
-static GlyphIcon	ct_blue(gDash, Position(16,  0), g_lights, Blue);
-static GlyphIcon	ct_dimblue(gDash, Position(20,  0), g_lights, Blue);
-static GlyphIcon	ct_cyan(gDash, Position(24,  0), g_lights, Cyan);
-static GlyphIcon	ct_dimcyan(gDash, Position(28,  0), g_lights, DimCyan);
-
-static GlyphIcon	ct_magenta(gDash, Position(0,  16), g_lights, Magenta);
-static GlyphIcon	ct_dimmagenta(gDash, Position(4,  16), g_lights, DimMagenta);
-static GlyphIcon	ct_yellow(gDash, Position(8,  16), g_lights, Yellow);
-static GlyphIcon	ct_dimyellow(gDash, Position(12,  16), g_lights, DimYellow);
-static GlyphIcon	ct_amber(gDash, Position(16,  16), g_lights, Amber);
-static GlyphIcon	ct_white(gDash, Position(20,  16), g_lights, White);
-static GlyphIcon	ct_dimwhite(gDash, Position(24,  16), g_lights, DimWhite);
-
-#else
 // Dashboard UI
 // sorted from front (draws on top) to back
 
-static const char	*t_msg = "TEST MESSAGE 12345678";
-static GlyphText	text_info(gDash, Position(0, 27), font_Misc_Fixed_Medium_4x6, 16, Red, t_msg);
+static void
+test_generator(GlyphText *gt)
+{
+    static const char   *t_msg = "TEST MESSAGE 12345678";
+
+    for (const char *cp = t_msg; *cp != 0; cp++)
+        gt->emit(*cp);
+}
+
+static GlyphText	text_info(gDash, Region(0, 27, 64, 5), font_Misc_Fixed_Medium_4x6, Red, test_generator);
 
 static GlyphIcon	tt_left_turn(gDash, Position(0, 0),  g_left_triangle,  Green,  gLIN.ttLeftTurn);
 static GlyphIcon	tt_right_turn(gDash, Position(60, 0), g_right_triangle, Green,  gLIN.ttRightTurn);
@@ -92,7 +78,10 @@ static GlyphIcon	ico_psi(gDash, Position(57, 10), g_psi, DimCyan);
 static GlyphIcon    ico_fuel(gDash, Position(1, 17), g_E, DimRed);
 static GlyphBar		bar_fuel(gDash, Region(0, 9, 5, 17), GlyphBar::O_VERTICAL, 0, 100, DimGreen, gLIN.fuelLevel);
 
-#endif
+// Text UI
+Scene           gText(gPanel, "TEXT");
+static GlyphText    t_text(gText, Region(0, 0, 64, 32), font_Misc_Fixed_Medium_4x6, DimWhite, test_generator);
+
 
 volatile Ticker		refreshTicker(33333);	// 30Hz
 
@@ -117,7 +106,8 @@ main(void)
         perf_mainloop.start();
 
         if (refreshTicker.didTick()) {
-            gDash.render();
+            gText.render();
+//            gDash.render();
         }
 
         // idle and wait for an interrupt

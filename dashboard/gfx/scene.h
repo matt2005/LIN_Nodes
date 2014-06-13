@@ -9,7 +9,7 @@
 class Scene
 {
 public:
-    Scene(Panel &p);
+    Scene(Panel &p, const char *name);
 
     /**
      * Add the glyph to the scene glyph stack; new glyphs always stack on top.
@@ -58,4 +58,3 @@ private:
 
     bool            _clip(Position p) { return ((p.x < _geometry.w) && (p.y < _geometry.h)); }
 };
-

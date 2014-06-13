@@ -159,36 +159,49 @@ GlyphNumber::draw(Scene *in_scene)
 }
 
 GlyphText::GlyphText(Scene &scene,
-                     Position p,
+                     Region r,
                      const uint8_t *font,
-                     unsigned width,
                      Colour colour,
-                     const char *&text) :
-    Glyph(scene, p, colour),
+                     GlyphText::Generator generator) :
+    Glyph(scene, r.p, colour),
     _font(font),
-    _width(width),
-    _text(text)
+    _d(r.d),
+    _generator(generator),
+    _cursor(0, 0)
 {
 }
 
 void
 GlyphText::draw(Scene *in_scene)
 {
-    if (_text == nullptr)
-        return;
+    in_scene->fill(Region(_p, _d), Black);
 
-    unsigned w = _font[0];
-    unsigned offset_x = 0;
+    _cursor.x = 0;
+    _cursor.y = 0;
+    _scene = in_scene;
 
-    for (unsigned pos = 0; pos < _width; offset_x += w) {
-
-        if (_text[pos] != '\0') {
-            Glyph::drawChar(in_scene, _font, _text[pos++], offset_x);
-
-        } else {
-            Glyph::drawChar(in_scene, _font, ' ', offset_x);
-        }
+    if (_generator != nullptr) {
+        _generator(this);
     }
+}
+
+void
+GlyphText::emit(char c)
+{
+    if (c == '\n') {
+        _cursor.y += _font[1];
+        _cursor.x = 0;
+        return;
+    }
+
+    // XXX will spill right/bottom if region is not font-size multiple
+    if ((_cursor.x >= _d.w) ||
+        (_cursor.y >= _d.h)) {
+        return;
+    }
+
+    drawChar(_scene, _font, c, _cursor.x, _cursor.y);
+    _cursor.x += _font[0];
 }
 
 GlyphBar::GlyphBar(Scene &scene,

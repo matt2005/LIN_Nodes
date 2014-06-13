@@ -13,7 +13,8 @@ public:
 
     PerfItem(const char *name, Kind kind);
 
-    static void     print_report();
+    static PerfItem *first() { return _list; }
+    PerfItem        *next() { return _next; }
 
 protected:
     virtual void    report() = 0;

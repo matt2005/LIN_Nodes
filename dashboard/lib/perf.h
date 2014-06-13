@@ -63,7 +63,7 @@ public:
     PerfLoad(const char *name);
 
     void            start();
-    void            top();
+    void            stop();
 
 protected:
     virtual void    report() override;

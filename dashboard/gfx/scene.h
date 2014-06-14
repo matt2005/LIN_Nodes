@@ -9,7 +9,7 @@
 class Scene
 {
 public:
-    Scene(Panel &p, const char *name);
+    Scene(const char *name);
 
     /**
      * Add the glyph to the scene glyph stack; new glyphs always stack on top.
@@ -19,7 +19,7 @@ public:
     /**
      * Render the scene.
      */
-    virtual void    render();
+    void    render();
 
     /**
      * Send an event to the scene.
@@ -48,13 +48,31 @@ public:
      */
     Position    centeredPosition(Dimension d);
 
-private:
-    Panel           &_panel;
-    const Dimension _geometry;
+protected:
+    virtual void    _render();
 
+private:
+    const Dimension _geometry;
     Glyph           *_stack;
     FrameBuffer     *_current_framebuffer;
     PerfInterval    _perf;
 
     bool            _clip(Position p) { return ((p.x < _geometry.w) && (p.y < _geometry.h)); }
+
+};
+
+class PerfScene : public Scene
+{
+public:
+    PerfScene() : Scene("PERF") {}
+
+    virtual bool    event(Encoder::Event evt) override;
+
+private:
+    static uint8_t  _index;
+
+    static PerfItem *get_perf_item();
+    static void     generator(GlyphText *gt);
+
+    virtual void    _render() override;
 };

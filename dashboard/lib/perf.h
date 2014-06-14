@@ -1,28 +1,24 @@
 #pragma once
 
 #include "timer.h"
+#include "graphics.h"
 
 class PerfItem
 {
 public:
-    enum Kind : uint8_t {
-        COUNT,
-        INTERVAL,
-        LOAD
-    };
 
-    PerfItem(const char *name, Kind kind);
+    PerfItem(const char *name);
 
     static PerfItem *first() { return _list; }
     PerfItem        *next() { return _next; }
 
+    virtual void    report(GlyphText *gt) = 0;
+
 protected:
-    virtual void    report() = 0;
+    const char *const _name;
 
 private:
     static PerfItem *_list;
-    const char *const _name;
-    const Kind _kind;
 
     PerfItem     *const _next;
 };
@@ -30,14 +26,14 @@ private:
 class PerfCounter : public PerfItem
 {
 public:
-    PerfCounter(const char *name, Kind = COUNT);
+    PerfCounter(const char *name);
 
     unsigned operator++() { return ++_count; }
     unsigned operator++(int junk) { return _count++; }
     void            count() { _count++; }
 
 protected:
-    virtual void    report() override;
+    virtual void    report(GlyphText *gt) override;
     volatile unsigned _count;
 };
 
@@ -50,7 +46,7 @@ public:
     void            stop();
 
 protected:
-    virtual void    report() override;
+    virtual void    report(GlyphText *gt) override;
 
 private:
     Timer::Interval _max_period;
@@ -67,10 +63,18 @@ public:
     void            stop();
 
 protected:
-    virtual void    report() override;
+    virtual void    report(GlyphText *gt) override;
 
 private:
     Timer::Interval _active;
     Timer::Interval _inactive;
     Timer::Time     _changed;
+};
+
+class PerfMem : public PerfItem
+{
+public:
+    PerfMem() : PerfItem("MEM") {}
+
+    virtual void    report(GlyphText *gt) override;
 };

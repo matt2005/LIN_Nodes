@@ -2,16 +2,19 @@
  * Glyphs.
  */
 
+#include <stdarg.h>
+
 #include "graphics.h"
 #include "scene.h"
 #include "glyphs.h"
 
-Glyph::Glyph(Scene &scene, Position p, Colour colour) :
+Glyph::Glyph(Scene *scene, Position p, Colour colour) :
     _next(nullptr),
     _p(p),
     _colour(colour)
 {
-    scene.addGlyph(this);
+    if (scene != nullptr)
+        scene->addGlyph(this);
 }
 
 void
@@ -99,7 +102,7 @@ Glyph::drawChar(Scene *in_scene,
 
 const bool GlyphIcon::ENABLED = true;
 
-GlyphIcon::GlyphIcon(Scene &scene,
+GlyphIcon::GlyphIcon(Scene *scene,
                      Position p,
                      const struct glyph_info &icon,
                      Colour colour,
@@ -120,7 +123,7 @@ GlyphIcon::draw(Scene *in_scene)
     Glyph::drawBitmap(in_scene, _icon);
 }
 
-GlyphNumber::GlyphNumber(Scene &scene,
+GlyphNumber::GlyphNumber(Scene *scene,
                          Position p,
                          const uint8_t *font,
                          unsigned digits,
@@ -158,7 +161,7 @@ GlyphNumber::draw(Scene *in_scene)
     } while (offset_x > 0);
 }
 
-GlyphText::GlyphText(Scene &scene,
+GlyphText::GlyphText(Scene *scene,
                      Region r,
                      const uint8_t *font,
                      Colour colour,
@@ -204,7 +207,129 @@ GlyphText::emit(char c)
     _cursor.x += _font[0];
 }
 
-GlyphBar::GlyphBar(Scene &scene,
+void
+GlyphText::emit_int(unsigned n, unsigned width)
+{
+    char buf[width];
+    unsigned pos = width - 1;
+    bool clear = false;
+
+    buf[pos] = '0';
+
+    for (;;) {
+        if (n > 0) {
+            buf[pos] = '0' + n % 10;
+            n /= 10;
+        } else {
+            if (clear) {
+                buf[pos] = ' ';
+            }
+        }
+        if (pos == 0) {
+            break;
+        }
+        clear = true;
+        pos--;
+    } 
+    while (pos < width) {
+        emit(buf[pos++]);
+    }
+}
+
+void
+GlyphText::emit_hex(unsigned n, unsigned width)
+{
+    uint8_t shift = 4 * (width - 1);
+
+    for (;;) {
+        uint8_t d = (n >> shift) & 0xf;
+
+        if (d <= 9) {
+            emit('0' + d);
+        } else {
+            emit('A' + d - 10);
+        }
+        if (shift == 0) {
+            break;
+        }
+        shift -= 4;;
+    }
+}
+
+void
+GlyphText::emit_string(const char *s, unsigned width)
+{
+    if (width == 0) {
+        width = 1000;
+    }
+    while ((*s != 0) && (width-- > 0)) {
+        emit(*s++);
+    }
+}
+
+void
+GlyphText::emitf(const char *fmt, ...)
+{
+    va_list ap;
+    uint8_t c;
+    Colour ocolour = _colour;
+
+    va_start(ap, fmt);
+
+    while ((c = *fmt++) != 0) {
+
+        // non-format characters
+        if (c != '%') {
+            emit(c);
+            continue;
+        }
+
+        // initalise formatter
+        uint8_t w = 0;
+
+nextfmt:
+        c = *fmt++;
+
+        switch(c) {
+        case '\0':
+            goto out;
+
+        case '1'...'9':
+            w = (10 * w) + (c - '0');
+            goto nextfmt;
+
+        case 's':
+            emit_string(va_arg(ap, const char *), w);
+            break;
+
+        case 'p':
+            emit('0');
+            emit('X');
+            /* FALLTHROUGH */
+        case 'u':
+            emit_int(va_arg(ap, unsigned), w ? w : 5);
+            break;
+
+        case 'x':
+            emit_hex(va_arg(ap, unsigned), w ? w : 8);
+            break;
+
+        case 'C':
+            w = va_arg(ap, unsigned);
+            if (w <= White) {
+                _colour = w;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+out:
+    _colour = ocolour;
+}
+
+GlyphBar::GlyphBar(Scene *scene,
                    Region r,
                    Orientation o,
                    unsigned min,

@@ -188,7 +188,7 @@ class Scene;
 class Glyph
 {
 public:
-    Glyph(Scene &scene, Position p, Colour colour);
+    Glyph(Scene *scene, Position p, Colour colour);
 
     virtual void    draw(Scene *in_scene);
     void            setColour(Colour colour) { _colour = colour; }
@@ -209,7 +209,7 @@ protected:
 class GlyphIcon : public Glyph
 {
 public:
-    GlyphIcon(Scene &scene, Position p, const struct glyph_info &icon, Colour colour, const volatile bool &enable = ENABLED);
+    GlyphIcon(Scene *scene, Position p, const struct glyph_info &icon, Colour colour, const volatile bool &enable = ENABLED);
 
 
     virtual void    draw(Scene *in_scene) override;
@@ -226,7 +226,7 @@ protected:
 class GlyphNumber : public Glyph
 {
 public:
-    GlyphNumber(Scene &scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value);
+    GlyphNumber(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value);
 
     virtual void    draw(Scene *in_scene) override;
 
@@ -242,11 +242,14 @@ class GlyphText : public Glyph
 public:
     typedef void    (* Generator)(GlyphText *owner);
 
-    GlyphText(Scene &scene, Region r, const uint8_t *font, Colour colour, Generator generator);
+    GlyphText(Scene *scene, Region r, const uint8_t *font, Colour colour, Generator generator);
 
     virtual void    draw(Scene *in_scene) override;
     void            emit(char c);
-    void            emit_string(const char *cp) { while (*cp != 0) emit(*cp++); }
+    void            emitf(const char *fmt, ...);
+    void            emit_int(unsigned n, unsigned width);
+    void            emit_hex(unsigned n, unsigned width);
+    void            emit_string(const char *cp, unsigned width = 0);
     void            set_generator(Generator g) { _generator = g; }
 
 private:
@@ -266,7 +269,7 @@ public:
         O_VERTICAL
     };
 
-    GlyphBar(Scene &scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value);
+    GlyphBar(Scene *scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value);
 
     virtual void    draw(Scene *in_scene) override;
 

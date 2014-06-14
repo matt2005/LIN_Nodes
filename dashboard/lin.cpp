@@ -22,7 +22,7 @@ LINDev::do_interrupt()
 LINDev::LINDev(unsigned bitrate) :
     warnSummary(false),
     errorSummary(false),
-    linkUp(true)
+    linkUp(false)
 {
     decoder = this;
 

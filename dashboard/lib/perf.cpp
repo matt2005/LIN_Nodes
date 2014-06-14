@@ -6,28 +6,27 @@
 
 PerfItem *PerfItem::_list = nullptr;
 
-PerfItem::PerfItem(const char *name, Kind kind) :
+PerfItem::PerfItem(const char *name) :
     _name(name),
-    _kind(kind),
     _next(_list)
 {
     _list = (PerfItem *)this;
 }
 
-PerfCounter::PerfCounter(const char *name, Kind kind) :
-    PerfItem(name, kind),
+PerfCounter::PerfCounter(const char *name) :
+    PerfItem(name),
     _count(0)
 {
 }
 
 void
-PerfCounter::report()
+PerfCounter::report(GlyphText *gt)
 {
-//    debug("%u", _count);
+    gt->emitf("COUNT %s\n%u", _name, _count);
 }
 
 PerfInterval::PerfInterval(const char *name) :
-    PerfCounter(name, INTERVAL),
+    PerfCounter(name),
     _max_period(0),
     _min_period(UINT_MAX)
 {
@@ -56,13 +55,13 @@ PerfInterval::stop()
 }
 
 void
-PerfInterval::report()
+PerfInterval::report(GlyphText *gt)
 {
-//    debug("%u: %u-%uus", _count_min_period, _max_period);
+    gt->emitf("INTVL %s\n%u\n %u\n %u", _name, _count, _min_period, _max_period);
 }
 
 PerfLoad::PerfLoad(const char *name) :
-    PerfItem(name, LOAD),
+    PerfItem(name),
     _active(0),
     _inactive(0),
     _changed(0)
@@ -90,7 +89,22 @@ PerfLoad::stop()
 }
 
 void
-PerfLoad::report()
+PerfLoad::report(GlyphText *gt)
 {
-//    debug("%llu%%", (unsigned)((_active * 100) / (_active + _inactive)));
+    gt->emitf("LOAD %s\n%u", _name, (unsigned)((_active * 100) / (_active + _inactive)));
+}
+
+extern unsigned _bss_end;
+
+void
+PerfMem::report(GlyphText *gt)
+{
+    unsigned *fp = &_bss_end;
+    unsigned count = 0;
+
+    while (*fp++ == 0xffffffff) {
+        count += 4;
+    }
+
+    gt->emitf("FREE %C%u", Blue, count);
 }

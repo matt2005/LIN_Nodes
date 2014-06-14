@@ -48,3 +48,5 @@ private:
 
     bool                frameBit(uint8_t index) const { return _buf[index / 8] & (1 << (index % 8)); }
 };
+
+extern LINDev gLIN;

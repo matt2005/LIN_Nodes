@@ -41,11 +41,9 @@ extern const struct glyph_info g_left_triangle;
 extern const struct glyph_info g_right_triangle;
 
 extern const struct glyph_info g_W;
-extern const struct glyph_info g_V;
 extern const struct glyph_info g_O;
 extern const struct glyph_info g_E;
-extern const struct glyph_info g_degF;
-extern const struct glyph_info g_psi;
+extern const struct glyph_info g_legend;
 
 extern const struct glyph_info *g_digits_3x5[];
 extern const struct glyph_info *g_digits_5x7[];

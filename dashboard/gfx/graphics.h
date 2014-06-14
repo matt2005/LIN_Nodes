@@ -230,10 +230,19 @@ public:
 
     virtual void    draw(Scene *in_scene) override;
 
-private:
+protected:
     const uint8_t   *_font;
     unsigned        _digits;
     volatile unsigned &_value;
+};
+
+/* a class that draws a number divided by 10 */
+class GlyphNumberTenths : public GlyphNumber
+{
+public:
+    GlyphNumberTenths(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value) :
+        GlyphNumber(scene, p, font, digits, colour, value) {}
+    virtual void draw(Scene *in_scene) override;
 };
 
 /* a glyph that owns a text field */

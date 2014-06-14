@@ -161,6 +161,41 @@ GlyphNumber::draw(Scene *in_scene)
     } while (offset_x > 0);
 }
 
+void
+GlyphNumberTenths::draw(Scene *in_scene)
+{
+    unsigned w = _font[0];
+    unsigned offset_x = _digits * w + 2;
+    unsigned v = _value;
+    bool frac = true;
+    bool lsd = false;
+
+    do {
+        offset_x -= w;
+        unsigned index = v % 10;
+
+        if ((v > 0) | lsd | frac) {
+            Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
+
+        } else {
+            Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
+        }
+
+        v /= 10;
+        if (frac) {
+            frac = false;
+            lsd = true;
+
+            /* decimal point - adjustment for descender is font-specific... */
+            in_scene->draw(Position(_p.x + offset_x - 2, _p.y + _font[1] - 2), _colour);
+            offset_x -= 2;
+        } else {
+            lsd = false;
+        }
+
+    } while (offset_x > 0);
+}
+
 GlyphText::GlyphText(Scene *scene,
                      Region r,
                      const uint8_t *font,

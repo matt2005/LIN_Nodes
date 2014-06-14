@@ -146,15 +146,6 @@ const struct glyph_info g_W = {
     }
 };
 
-const struct glyph_info g_V = {
-    GLYPH_MONO(3, 3),
-    {
-        p(X, 0, X, 0, 0, 0, 0, 0),
-        p(X, 0, X, 0, 0, 0, 0, 0),
-        p(0, X, 0, 0, 0, 0, 0, 0),
-    }
-};
-
 const struct glyph_info g_O = {
     GLYPH_MONO(4, 5),
     {
@@ -165,14 +156,25 @@ const struct glyph_info g_O = {
     }
 };
 
-const struct glyph_info g_degF = {
-    GLYPH_MONO(5, 6),
+const struct glyph_info g_legend = {
+    GLYPH_MONO(16, 7),
     {
-        p(X, X, 0, X, X, X, 0, 0),
-        p(X, X, 0, X, 0, 0, 0, 0),
-        p(0, 0, 0, X, X, 0, 0, 0),
-        p(0, 0, 0, X, 0, 0, 0, 0),
-        p(0, 0, 0, X, 0, 0, 0, 0),
+        p(X, X, X, X, X, 0, X, 0),
+        p(X, 0, X, X, 0, 0, X, 0),
+        p(X, X, 0, 0, X, 0, X, 0),
+        p(X, 0, 0, X, X, 0, X, 0),
+        p(0, 0, 0, 0, 0, 0, 0, 0),
+        p(0, 0, 0, 0, 0, 0, 0, 0),
+        p(0, X, X, 0, X, X, X, 0),
+        p(0, X, X, 0, X, 0, 0, 0),
+        p(0, 0, 0, 0, X, X, 0, 0),
+        p(0, 0, 0, 0, X, 0, 0, 0),
+        p(0, 0, 0, 0, 0, 0, 0, 0),
+        p(0, 0, 0, 0, 0, 0, 0, 0),
+        p(0, 0, 0, X, 0, X, 0, 0),
+        p(0, 0, 0, X, 0, X, 0, 0),
+        p(0, 0, 0, X, 0, X, 0, 0),
+        p(0, 0, 0, 0, X, 0, 0, 0),
     }
 };
 
@@ -187,15 +189,6 @@ const struct glyph_info g_E = {
     }
 };
 
-const struct glyph_info g_psi = {
-    GLYPH_MONO(4, 7),
-    {
-        p(X, X, X, X, X, 0, X, 0),
-        p(X, 0, X, X, 0, 0, X, 0),
-        p(X, X, 0, 0, X, 0, X, 0),
-        p(X, 0, 0, X, X, 0, X, 0),
-    }
-};
 
 const struct glyph_info g_lowbeam = {
     GLYPH_MONO(5, 6),

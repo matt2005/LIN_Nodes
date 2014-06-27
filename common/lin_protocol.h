@@ -180,7 +180,7 @@ public:
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] &= ~bit;
     }
-    bool        test(RelayID relay) volatile 
+    bool        test(RelayID relay) const volatile 
     {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);

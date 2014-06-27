@@ -45,7 +45,15 @@ PROGMEM const LIN::FrameID Master::configSchedule[] = {
 
 Master::Master() :
     _eventTimer((Timer::Callback)Master::event, this, 10),
-    _eventIndex(0)
+    _eventIndex(0),
+    _configParam(0),
+    _configDecayTimer(0),
+    _sendRequest(false),
+    _getResponse(false),
+    _sendConfigResponseHeader(false),
+    _sendConfigResponseFrame(false),
+    _sleepEnable(false),
+    _sleepActive(false)
 {
 }
 
@@ -80,7 +88,7 @@ Master::doRequestResponse(LIN::Frame &frame)
 void
 Master::event(void *arg)
 {
-    auto *master = (Master *)arg;
+    auto *master = reinterpret_cast<Master *>(arg);
 
     master->_event();
 }

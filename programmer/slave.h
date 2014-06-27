@@ -8,7 +8,14 @@
 class ProgrammerSlave : public Slave
 {
 public:
-    ProgrammerSlave() : Slave(LIN::kNADProgrammer) {}
+    ProgrammerSlave() : 
+        Slave(LIN::kNADProgrammer),
+        _state(kStateIdle),
+        _paramValue(0),
+        _nodeAddress(0),
+        _paramIndex(0),
+        _suspended(false)
+    {}
 
     void            reset()         { _state = kStateIdle; }
 

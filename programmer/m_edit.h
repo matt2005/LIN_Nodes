@@ -12,6 +12,17 @@ namespace Menu
 class EditMode : public Mode
 {
 public:
+    EditMode() :
+        _from(nullptr),
+        _value(nullptr),
+        _x(0),
+        _y(0),
+        _min(0),
+        _max(0),
+        _fmt(nullptr),
+        _stringtab(nullptr)
+    {}
+
     void    init(Mode *parent,
                  uint8_t *value,
                  uint8_t x,

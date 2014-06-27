@@ -10,6 +10,12 @@ namespace Menu
 class SetupMasterMode : public Mode
 {
 public:
+    SetupMasterMode() :
+        _param(0),
+        _value(0),
+        _editing(false)
+    {}
+
     virtual Mode    *action(Encoder::Event bp) override;
 
 private:

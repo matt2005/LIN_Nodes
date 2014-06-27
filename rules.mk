@@ -7,6 +7,7 @@ BUILDDIR	:= $(TOPDIR)/build/$(PROG)
 
 CC		 = avr-gcc
 CXX		 = avr-g++
+CPPCHECK	 = cppcheck
 SIZE		 = avr-size
 AVRDUDE		 = avrdude
 
@@ -19,6 +20,11 @@ FUSES		?= $(OSC_FUSES)
 
 ARCHFLAGS	 = -mmcu=$(MCU)
 DEFINES		 = -DBOARD_$(BOARD)
+CHECKOPTS	 = --enable=warning		\
+		   --enable=performance		\
+		   --enable=information		\
+		   --enable=style		\
+		   --inconclusive
 
 # -O2 gives best code size, -O3 gives best RAM usage
 COMPILEFLAGS	 = $(ARCHFLAGS)			\
@@ -79,6 +85,10 @@ $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 clean:
 	@echo CLEAN $(BUILDDIR)
 	$q rm -f $(ELF) $(OBJS) $(DEPS)
+
+check:
+	@echo CHECK $(PROG)
+	$q $(CPPCHECK) $(CHECKOPTS) $(DEFINES) -I $(TOPDIR)/common $(SRCS)
 
 $(filter %.c.o,$(OBJS)): $(BUILDDIR)/%.o: %
 	@mkdir -p $(dir $@)

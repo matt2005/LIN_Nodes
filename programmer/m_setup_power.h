@@ -10,6 +10,13 @@ namespace Menu
 class SetupPowerMode : public Mode
 {
 public:
+    SetupPowerMode() :
+        _node(0),
+        _param(0),
+        _value(0),
+        _editing(false)
+    {}
+
     void            init(uint8_t node) { _node = node; }
 
     virtual Mode    *action(Encoder::Event bp) override;

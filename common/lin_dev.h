@@ -97,11 +97,11 @@ protected:
 
     /// Wait until the LBUSY bit is cleared
     ///
-    void            waitBusy() const { while (LINSIR & (1 << LBUSY)) {} }
+    static void     waitBusy() { while (LINSIR & (1 << LBUSY)) {} }
 
     /// Fetch the current FID from the hardware
     ///
-    LIN::FrameID    currentFID() const { return (LIN::FrameID)Lin_get_id(); }
+    static LIN::FrameID currentFID() { return (LIN::FrameID)Lin_get_id(); }
 
 private:
 };

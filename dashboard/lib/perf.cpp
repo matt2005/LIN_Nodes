@@ -10,7 +10,7 @@ PerfItem::PerfItem(const char *name) :
     _name(name),
     _next(_list)
 {
-    _list = (PerfItem *)this;
+    _list = reinterpret_cast<PerfItem *>(this);
 }
 
 PerfCounter::PerfCounter(const char *name) :

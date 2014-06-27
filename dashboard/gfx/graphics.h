@@ -124,8 +124,8 @@ struct Cell {
 private:
     Raw             _raw;
 
-    constexpr unsigned shift(unsigned index) { return index * 4; }
-    constexpr Raw mask(unsigned index) { return ~((Raw)0xf << shift(index)); }
+    static constexpr unsigned shift(unsigned index) { return index * 4; }
+    static constexpr Raw mask(unsigned index) { return ~((Raw)0xf << shift(index)); }
 };
 
 struct SubCell {

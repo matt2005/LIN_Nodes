@@ -148,7 +148,7 @@ GlyphNumber::draw(Scene *in_scene)
         offset_x -= w;
         unsigned index = v % 10;
 
-        if ((v > 0) | lsd) {
+        if ((v > 0) || lsd) {
             Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
 
         } else {
@@ -174,7 +174,7 @@ GlyphNumberTenths::draw(Scene *in_scene)
         offset_x -= w;
         unsigned index = v % 10;
 
-        if ((v > 0) | lsd | frac) {
+        if ((v > 0) || lsd || frac) {
             Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
 
         } else {
@@ -205,7 +205,8 @@ GlyphText::GlyphText(Scene *scene,
     _font(font),
     _d(r.d),
     _generator(generator),
-    _cursor(0, 0)
+    _cursor(0, 0),
+    _scene(scene)
 {
 }
 

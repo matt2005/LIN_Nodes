@@ -19,8 +19,6 @@ public:
 
     void                interrupt();
 
-    volatile unsigned   ints;
-
 private:
     Timer               _debounceTimer;
 

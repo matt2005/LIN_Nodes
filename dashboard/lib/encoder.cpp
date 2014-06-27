@@ -61,8 +61,6 @@ Encoder::event()
 void
 Encoder::interrupt()
 {
-    ints++;
-
     // clear interrupt states
     GPIO_GPIO1IC = GPIO_IO_P0 | GPIO_IO_P1 | GPIO_IO_P2;
 

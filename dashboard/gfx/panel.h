@@ -11,7 +11,7 @@ class Panel
 public:
     Panel();
 
-    Dimension   dimension() { return Dimension(FrameBuffer::columns(), FrameBuffer::rows()); }
+    static Dimension    dimension() { return Dimension(FrameBuffer::columns(), FrameBuffer::rows()); }
 
     /*
      * Adjust brightness down.
@@ -110,8 +110,8 @@ private:
     void            _tick();
     Timer::Interval _phase_advance();
 
-    void            line_init();
-    void            line_off();
+    static void     line_init();
+    static void     line_off();
     void            line_update(unsigned row, unsigned slot);
 
     FrameBuffer     *select_buffer(BufferIndex bufidx)

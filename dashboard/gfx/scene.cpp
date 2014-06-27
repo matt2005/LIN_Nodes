@@ -85,7 +85,7 @@ Scene::fill(Region r, Colour colour)
 }
 
 Position
-Scene::centeredPosition(Dimension d)
+Scene::centeredPosition(Dimension d) const
 {
     Position p;
 

@@ -14,9 +14,11 @@ FONTS		 = $(wildcard fonts/*.bdf)
 #
 TOOLPREFIX	 = arm-none-eabi
 CC	 	 = $(TOOLPREFIX)-gcc
+CXX	 	 = $(TOOLPREFIX)-g++
 OBJCOPY		 = $(TOOLPREFIX)-objcopy
 SIZE		 = $(TOOLPREFIX)-size
 UPLOAD		 = lpc21isp
+CPPCHECK	 = cppcheck
 #SERIALPORT	 = /dev/cu.usbserial-AE01AO9V
 SERIALPORT	 = /dev/cu.SLAB_USBtoUART
 
@@ -28,6 +30,14 @@ ARCHFLAGS	 = -g					\
 		   -mthumb				\
 		   -mcpu=cortex-m0
 
+DEFINES		 = -DCFG_CPU_CCLK=48000000
+CHECKOPTS	 = --enable=warning			\
+		   --enable=performance			\
+		   --enable=information			\
+		   --enable=style			\
+		   --inconclusive			\
+		   --inline-suppr
+
 FLAGS		 = $(ARCHFLAGS)				\
 		   -O3					\
 		   -Wall				\
@@ -38,9 +48,9 @@ FLAGS		 = $(ARCHFLAGS)				\
 		   -fmessage-length=0			\
 		   -ffreestanding			\
 		   -fno-common				\
-		   -DCFG_CPU_CCLK=48000000		\
 		   -I..					\
-		   $(addprefix -I,$(DIRS))
+		   $(addprefix -I,$(DIRS))		\
+		   $(DEFINES)
 
 # XXX CFG_CPU_CCLK needs to be authoritative
 
@@ -88,10 +98,14 @@ OBJS		 = $(addprefix build/,$(addsuffix .o,$(SRCS)))
 COBJS		 = $(filter %.c.o, $(OBJS))
 CPPOBJS		 = $(filter %.cpp.o, $(OBJS))
 
+ifeq ($(VERBOSE),)
+q		= @
+endif
+
 .SUFFIXES:
 $(BIN) $(ELF) $(OBJS):	$(MAKEFILE_LIST)
 
-build:	$(BIN)
+build:	$(ELF)
 
 prog:	$(BIN)
 	$(UPLOAD) -control -bin $(BIN) $(SERIALPORT) 115200 12000
@@ -99,22 +113,29 @@ prog:	$(BIN)
 #.INTERMEDIATE:	$(COBJ) $(CPPOBJ) fonts.c fonts.h
 
 $(BIN):	$(ELF)
-	$(OBJCOPY) -Obinary $< $@
+	$q $(OBJCOPY) -Obinary $< $@
 
 $(ELF):	$(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
-	$(SIZE) $@
+	echo LINK $(notdir $@)
+	$q $(CC) -o $@ $(OBJS) $(LDFLAGS)
+	$q $(SIZE) $@
 
 $(filter %.c.o,$(OBJS)): build/%.c.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) -c -o $@ -MMD $(CFLAGS) $<
+	@echo CC $(notdir $<)
+	$q @mkdir -p $(dir $@)
+	$q $(CC) -c -o $@ -MMD $(CFLAGS) $<
 
 $(filter %.cpp.o,$(OBJS)): build/%.cpp.o: %.cpp
-	@mkdir -p $(dir $@)
-	$(CC) -c -o $@ -MMD $(CPPFLAGS) $<
+	@echo CXX $(notdir $<)
+	$q @mkdir -p $(dir $@)
+	$q $(CXX) -c -o $@ -MMD $(CPPFLAGS) $<
 
 clean:
 	@rm -rf build
+
+check:
+	@echo CHECK $(NAME)
+	$q $(CPPCHECK) $(CHECKOPTS) $(DEFINES) -I.. $(addprefix -I,$(DIRS)) $(SRCS)
 
 reformat:
 	@../etc/reformat.sh $(SRCS) $(HDRS)

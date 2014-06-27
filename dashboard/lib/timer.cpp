@@ -4,6 +4,7 @@
 class CriticalSection
 {
 public:
+    // cppcheck-suppress uninitMemberVar
     CriticalSection()
     {
         __asm__ volatile("mrs %0, PRIMASK" : "=r"(_disabled) : : "memory");

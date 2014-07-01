@@ -803,7 +803,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="C3" library="custom" package="C050-024X044" value="0u1" x="16.51" y="38.1" smashed="yes" rot="R90">
 <attribute name="NAME" x="12.446" y="37.592" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="19.177" y="35.941" size="1.27" layer="27" ratio="10" rot="R90"/>
-<attribute name="PARTNO" value="C1608X7R1H104M080AA" x="16.51" y="38.1" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="PARTNO" value="FK28X7R1H104K" x="16.51" y="38.1" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="D1" library="custom" package="DO41-10" value="P4KEXX" x="27.94" y="2.54" smashed="yes">
 <attribute name="NAME" x="30.353" y="3.556" size="1.27" layer="25" ratio="10"/>
@@ -828,7 +828,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="C4" library="custom" package="C050-024X044" value="0u1" x="38.1" y="58.42" smashed="yes" rot="R90">
 <attribute name="NAME" x="39.751" y="57.912" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="40.767" y="56.261" size="1.27" layer="27" ratio="10" rot="R90"/>
-<attribute name="PARTNO" value="C1608X7R1H104M080AA" x="38.1" y="58.42" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="PARTNO" value="FK28X7R1H104K" x="38.1" y="58.42" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="J6" library="custom" package="MA02-1Y" value="" x="39.37" y="46.99" smashed="yes" rot="R90">
 <attribute name="NAME" x="38.1" y="50.8" size="1.27" layer="25" ratio="18"/>

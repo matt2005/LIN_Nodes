@@ -6532,7 +6532,7 @@ Resettable Fuse. Spark Fun Electronics SKU : COM-08357</description>
 <attribute name="PARTNO" value="FK28X5R0J475K"/>
 </part>
 <part name="C3" library="custom" deviceset="C-EU" device="050-024X044" value="0u1">
-<attribute name="PARTNO" value="C1608X7R1H104M080AA"/>
+<attribute name="PARTNO" value="FK28X7R1H104K"/>
 </part>
 <part name="GND2" library="custom" deviceset="GND" device=""/>
 <part name="D1" library="custom" deviceset="P4KEXX" device="">
@@ -6550,7 +6550,7 @@ Resettable Fuse. Spark Fun Electronics SKU : COM-08357</description>
 <attribute name="PARTNO" value="CMF-RL10-0"/>
 </part>
 <part name="C4" library="custom" deviceset="C-EU" device="050-024X044" value="0u1">
-<attribute name="PARTNO" value="C1608X7R1H104M080AA"/>
+<attribute name="PARTNO" value="FK28X7R1H104K"/>
 </part>
 <part name="GND5" library="custom" deviceset="GND" device=""/>
 <part name="J6" library="custom" deviceset="MA02-1" device="Y">

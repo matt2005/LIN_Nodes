@@ -130,13 +130,16 @@ $(filter %.cpp.o,$(OBJS)): build/%.cpp.o: %.cpp
 	$q @mkdir -p $(dir $@)
 	$q $(CXX) -c -o $@ -MMD $(CPPFLAGS) $<
 
+.PHONY: clean
 clean:
 	@rm -rf build
 
+.PHONY: check
 check:
 	@echo CHECK $(NAME)
 	$q $(CPPCHECK) $(CHECKOPTS) $(DEFINES) -I.. $(addprefix -I,$(DIRS)) $(SRCS)
 
+.PHONY: reformat
 reformat:
 	@../etc/reformat.sh $(SRCS) $(HDRS)
 

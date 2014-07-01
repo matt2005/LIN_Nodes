@@ -1,4 +1,5 @@
-DIRS		 = $(dir $(wildcard */Makefile))
+SRCROOT		:= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+DIRS		 = $(dir $(wildcard $(SRCROOT)/*/Makefile))
 MAKECMDGOALS	?= build
 TARGETS		:= $(foreach dir,$(DIRS),$(addsuffix -$(dir),$(MAKECMDGOALS)))
 

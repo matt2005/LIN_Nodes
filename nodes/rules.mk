@@ -2,7 +2,8 @@
 # Makefile include fragment
 #
 
-TOPDIR		:= $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+SRCROOT		:= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+TOPDIR		:= $(abspath $(SRCROOT)/..)
 BUILDDIR	:= $(TOPDIR)/build/$(PROG)
 
 CC		 = avr-gcc
@@ -26,6 +27,9 @@ CHECKOPTS	 = --enable=warning		\
 		   --enable=style		\
 		   --inconclusive
 
+INCLUDES	 = -I$(TOPDIR)/common		\
+		   -I$(SRCROOT)/lib
+
 # -O2 gives best code size, -O3 gives best RAM usage
 COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -gdwarf-2			\
@@ -40,7 +44,7 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -ffunction-sections		\
 		   -fdata-sections		\
 		   -MMD				\
-		   -I$(TOPDIR)/common		\
+		   $(INCLUDES)			\
 		   $(DEFINES)			\
 		   -DF_CPU=8000000UL		\
 		   $(if $(DEBUG),-DDEBUG)
@@ -59,9 +63,9 @@ LDFLAGS		 = $(ARCHFLAGS)			\
 		   -Wl,-gc-sections		\
 		   -Wl,--relax
 
-vpath %.c	$(TOPDIR)/common
-vpath %.cpp	$(TOPDIR)/common
-vpath %.h	$(TOPDIR)/common
+vpath %.c	$(SRCROOT)/lib
+vpath %.cpp	$(SRCROOT)/lib
+vpath %.h	$(SRCROOT)/lib
 
 .SUFFIXES:
 
@@ -88,7 +92,7 @@ clean:
 
 check:
 	@echo CHECK $(PROG)
-	$q $(CPPCHECK) $(CHECKOPTS) $(DEFINES) -I $(TOPDIR)/common $(SRCS)
+	$q $(CPPCHECK) $(CHECKOPTS) $(DEFINES) $(INCLUDES) $(SRCS)
 
 $(filter %.c.o,$(OBJS)): $(BUILDDIR)/%.o: %
 	@mkdir -p $(dir $@)

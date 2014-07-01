@@ -36,7 +36,7 @@ static PROGMEM const char paramInfo[] =
     "SG12\0"                " \0"
     "SG13\0"                " \0"
     "SG14\0"                " \0"
-     ////////////////
+    ////////////////
     "TurnBlinkPeriod \0"    "%3u0ms\0"
     "PassBlinkCount  \0"    "%3u blinks\0"
     "PathLightTime   \0"    "%3us\0"
@@ -50,7 +50,7 @@ static PROGMEM const char paramInfo[] =
 static const char *
 paramName(uint8_t index)
 {
-        return Util::strtab(paramInfo, index * 2);
+    return Util::strtab(paramInfo, index * 2);
 }
 
 static const char *
@@ -69,6 +69,7 @@ SetupMasterMode::action(Encoder::Event bp)
         if (_param > 0) {
             _param--;
         }
+
         indexChanged = true;
         break;
 
@@ -76,6 +77,7 @@ SetupMasterMode::action(Encoder::Event bp)
         if (paramName(_param + 2) != nullptr) {
             _param++;
         }
+
         indexChanged = true;
         break;
 
@@ -88,20 +90,24 @@ SetupMasterMode::action(Encoder::Event bp)
             _editing = true;
             return &modeEdit;
         }
+
         break;
 
     case Encoder::kEventActivate:
         if (_editing) {
             _editing = false;
+
             if (!gSlave.setParameter(LIN::kNADMaster, _param, _value)) {
                 gDisplay.clear();
                 gDisplay.printf(PSTR("%2u write err"), _param);
                 Board::msDelay(5000);
                 gDisplay.clear();
             }
+
         } else {
             _param = 1;
         }
+
         indexChanged = true;
         break;
 
@@ -112,6 +118,7 @@ SetupMasterMode::action(Encoder::Event bp)
     if (indexChanged) {
         draw();
     }
+
     return this;
 }
 
@@ -122,17 +129,21 @@ SetupMasterMode::draw()
 
     if (_param == 0) {
         gDisplay.printf(PSTR(">back"));
+
     } else {
         if (!gSlave.getParameter(LIN::kNADMaster, _param, _value)) {
             gDisplay.printf(PSTR("param %2u read error"), _param);
+
         } else {
             gDisplay.printf(PSTR("%s"), paramName(_param));
 
             if (pgm_read_byte(paramFormat(_param)) == ' ') {
                 modeEdit.init(this, &_value, 0, 1, switchNames, PSTR("%16s"));
+
             } else {
                 modeEdit.init(this, &_value, 0, 1, 0, 255, paramFormat(_param));
             }
+
             modeEdit.draw();
         }
     }

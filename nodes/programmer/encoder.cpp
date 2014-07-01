@@ -38,10 +38,12 @@ event()
         buttonCount = 0;
         return kEventPress;
     }
+
     if (turnCount < 0) {
         turnCount = 0;
         return kEventDown;
     }
+
     if (turnCount > 0) {
         turnCount = 0;
         return kEventUp;
@@ -60,6 +62,7 @@ static void
 buttonTimeout(void *arg)
 {
     buttonState = !buttonState;
+
     if (buttonState) {
         buttonCount++;
     }
@@ -71,6 +74,7 @@ pcint()
     if (pinButton.get() != buttonState) {
         // cancel timer (if any)
         buttonDebounce.setRemaining(0);
+
     } else {
         // (re)start timer
         buttonDebounce.setRemaining(10);
@@ -87,6 +91,7 @@ pcint()
     if (encoderSubstate > 3) {          // 4 substates -> one whole state
         turnCount++;
         encoderSubstate = 0;
+
     } else if (encoderSubstate < -3) {  // 4 substates -> one whole state
         turnCount--;
         encoderSubstate = 0;

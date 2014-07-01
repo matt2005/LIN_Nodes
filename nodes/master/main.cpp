@@ -30,9 +30,11 @@ main(void)
     for (uint8_t i = 1; i <= 7; i++) {
         paramSPAssign(i).init();
     }
+
     for (uint8_t i = 0; i <= 13; i++) {
         paramSGAssign(i).init();
     }
+
     paramTurnBlinkPeriod.init();
     paramPassingBlinkCount.init();
     paramPathLightPeriod.init();

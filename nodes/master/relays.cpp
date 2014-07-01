@@ -20,30 +20,33 @@ public:
         _count(0)
     {}
     bool        state() const { return _state; }
-    void        start() 
+    void        start()
     {
         _state = true;
         _active = true;
         _count = paramPassingBlinkCount.get();
         _remaining = _interval = paramTurnBlinkPeriod.get() * 10U;
     }
-    void        stop() {
+    void        stop()
+    {
         _active = false;
+
         if (_count == 0) {
             cancel();
         }
     }
-    void        cancel() {
+    void        cancel()
+    {
         _state = false;
         _remaining = _interval = 0;
     }
 
 private:
-    volatile bool       _state:1;
-    volatile bool       _active:1;
+    volatile bool       _state: 1;
+    volatile bool       _active: 1;
     volatile uint8_t    _count;
 
-    static void blink(void *arg) 
+    static void blink(void *arg)
     {
         auto b = reinterpret_cast<TurnBlinker *>(arg);
         b->_blink();
@@ -53,12 +56,15 @@ private:
     {
         if (_state) {
             _state = false;
+
             if (_count > 0) {
                 _count--;
+
                 if (!_active && (_count == 0)) {
                     cancel();
                 }
             }
+
         } else {
             _state = true;
         }
@@ -75,7 +81,7 @@ public:
     {}
 
     bool        state() const { return _state; }
-    void        start() 
+    void        start()
     {
         _state = true;
         _remaining = _interval = paramBrakeBlinkPeriod.get() * 10U;
@@ -83,10 +89,10 @@ public:
     }
 
 private:
-    volatile bool       _state:1;
+    volatile bool       _state: 1;
     uint8_t             _count;
 
-    static void blink(void *arg) 
+    static void blink(void *arg)
     {
         auto b = reinterpret_cast<BrakeBlinker *>(arg);
         b->_blink();
@@ -96,8 +102,10 @@ private:
         if (_state && (_count > 0)) {
             _state = false;
             _count--;
+
         } else {
             _state = true;
+
             if (_count == 0) {
                 _remaining = 0;
             }
@@ -117,7 +125,7 @@ public:
     bool        state() const { return _state; }
 
 private:
-    bool        _state:1;
+    bool        _state: 1;
 
     static void swap(void *arg)
     {
@@ -131,6 +139,7 @@ private:
             // XXX as feature, this should be based on an analog input...
             _remaining = paramWiperInterval.get() * 100U;
             _state = false;
+
         } else {
             // wiper control signal on for 1/2 second, motor responsible
             // for completing wipe & parking
@@ -167,7 +176,7 @@ powerSignals(RelayBits &f)
 
         // start switch on?
         if (Switches::test(LIN::kSWStart)) {
-            f.set(LIN::kRelayStart);            
+            f.set(LIN::kRelayStart);
         }
     }
 }
@@ -199,15 +208,17 @@ turnSignals(RelayBits &f)
     if ((paramTurnBlinkPeriod.get() == 0) ||
         (paramTurnBlinkPeriod.get() > 100)) {
 
-       if (Switches::test(LIN::kSWLeftTurn)) {
-           f.set(LIN::kRelayLeftTurn);
-           f.clear(LIN::kRelayLeftTurnMarker);
-       }
-       if (Switches::test(LIN::kSWRightTurn)) {
-           f.set(LIN::kRelayRightTurn);
-           f.clear(LIN::kRelayRightTurnMarker);
-       }
-       return;
+        if (Switches::test(LIN::kSWLeftTurn)) {
+            f.set(LIN::kRelayLeftTurn);
+            f.clear(LIN::kRelayLeftTurnMarker);
+        }
+
+        if (Switches::test(LIN::kSWRightTurn)) {
+            f.set(LIN::kRelayRightTurn);
+            f.clear(LIN::kRelayRightTurnMarker);
+        }
+
+        return;
     }
 
     // smart hazard warning lights?
@@ -225,7 +236,9 @@ turnSignals(RelayBits &f)
             f.set(LIN::kRelayLeftTurn);
             f.set(LIN::kRelayRightTurn);
         }
+
         return;
+
     } else {
 
         // hazard blinker just turned off?
@@ -245,10 +258,12 @@ turnSignals(RelayBits &f)
             awakeDelay.reset();                     // parking markers are on, stay awake
             f.set(LIN::kRelayLeftTurn);
         }
+
         if (Switches::test(LIN::kSWRightTurn)) {
             awakeDelay.reset();                     // parking markers are on, stay awake
             f.set(LIN::kRelayRightTurn);
         }
+
         return;
     }
 
@@ -261,6 +276,7 @@ turnSignals(RelayBits &f)
             turnBlinker.start();
             blinkLeft = true;
         }
+
         if (Switches::changedToOn(LIN::kSWRightTurn)) {
             turnBlinker.start();
             blinkLeft = false;
@@ -274,8 +290,8 @@ turnSignals(RelayBits &f)
 
         // signals on to suit
         if (turnBlinker.state()) {
-           f.set(blinkLeft ? LIN::kRelayLeftTurn : LIN::kRelayRightTurn);
-           f.clear(blinkLeft ? LIN::kRelayLeftTurnMarker : LIN::kRelayRightTurnMarker);
+            f.set(blinkLeft ? LIN::kRelayLeftTurn : LIN::kRelayRightTurn);
+            f.clear(blinkLeft ? LIN::kRelayLeftTurnMarker : LIN::kRelayRightTurnMarker);
         }
     }
 }
@@ -289,10 +305,11 @@ headLights(RelayBits &f)
     if (Switches::test(LIN::kSWLightsUp)) {
         f.set(LIN::kRelayLightsUp);
 
-    // otherwise lights down if nothing is on
+        // otherwise lights down if nothing is on
+
     } else if (!Switches::test(LIN::kSWMarkerLights) &&
-        !Switches::test(LIN::kSWHeadLights) &&
-        !Switches::test(LIN::kSWHighBeam)) {
+               !Switches::test(LIN::kSWHeadLights) &&
+               !Switches::test(LIN::kSWHighBeam)) {
         f.set(LIN::kRelayLightsDown);
     }
 
@@ -328,6 +345,7 @@ headLights(RelayBits &f)
             if (Switches::test(LIN::kSWHighBeam) ||
                 highBeamToggle) {
                 f.set(LIN::kRelayHighBeam);
+
             } else {
                 f.set(LIN::kRelayLowBeam);
             }
@@ -387,7 +405,7 @@ interiorLights(RelayBits &f)
         f.set(LIN::kRelayInteriorLight);
 
         // XXX nice to have a time limit on the interior light when
-        //     ignition is off to prevent battery drain 
+        //     ignition is off to prevent battery drain
     }
 }
 
@@ -403,6 +421,7 @@ pathLights(RelayBits &f)
         if (Switches::test(LIN::kSWDoor)) {
             // path lighting
             pathwayLightingDelay.setSeconds(paramPathLightPeriod.get());
+
         } else {
             ignitionWasOn = true;
         }
@@ -446,12 +465,15 @@ climateControl(RelayBits f)
         if (Switches::test(LIN::kSWCabinFan1)) {
             f.set(LIN::kRelayCabinFan1);
         }
+
         if (Switches::test(LIN::kSWCabinFan2)) {
             f.set(LIN::kRelayCabinFan2);
         }
+
         if (Switches::test(LIN::kSWCabinFan3)) {
             f.set(LIN::kRelayCabinFan3);
         }
+
         if (Switches::test(LIN::kSWRearDefrost)) {
             f.set(LIN::kRelayRearDefrost);
         }
@@ -471,11 +493,13 @@ windowWipers(RelayBits f)
 
         if (Switches::test(LIN::kSWWiperHigh)) {
             f.set(LIN::kRelayWiperHigh);
+
         } else if (Switches::test(LIN::kSWWiperLow)) {
             f.set(LIN::kRelayWiperLow);
+
         } else if (Switches::test(LIN::kSWWiperInt)) {
             if (wiperDelay.state()) {
-                f.set(LIN::kRelayWiperLow);                
+                f.set(LIN::kRelayWiperLow);
             }
         }
     }

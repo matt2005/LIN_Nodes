@@ -25,6 +25,7 @@ tick()
     // kick the mode state machine
     if (_mode != nullptr) {
         newmode = _mode->tick();
+
     } else {
         newmode = &modeTop;
     }

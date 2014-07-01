@@ -23,6 +23,7 @@ SetupPowerMode::action(Encoder::Event bp)
         if (_param > 0) {
             _param--;
         }
+
         wantDraw = true;
         break;
 
@@ -30,6 +31,7 @@ SetupPowerMode::action(Encoder::Event bp)
         if (_param < 4) {
             _param++;
         }
+
         wantDraw = true;
         break;
 
@@ -42,19 +44,23 @@ SetupPowerMode::action(Encoder::Event bp)
             _editing = true;
             return &modeEdit;
         }
+
         break;
 
     case Encoder::kEventActivate:
         if (_editing) {
             _editing = false;
+
             if (!gSlave.setParameter(_node, _param, _value)) {
                 gDisplay.printf(PSTR("%2u write err"), _param);
                 Board::msDelay(5000);
                 gDisplay.clear();
             }
+
         } else {
             _param = 1;
         }
+
         wantDraw = true;
         break;
 
@@ -65,6 +71,7 @@ SetupPowerMode::action(Encoder::Event bp)
     if (wantDraw) {
         draw();
     }
+
     return this;
 }
 
@@ -77,10 +84,12 @@ SetupPowerMode::draw()
         gDisplay.printf(PSTR(">back"));
         return;
     }
+
     if (!gSlave.getParameter(_node, _param, _value)) {
         gDisplay.printf(PSTR("%2u read err"), _param);
         return;
     }
+
     gDisplay.printf(PSTR("Relay %2u"), _param);
     modeEdit.init(this, &_value, 0, 1, relayNames, PSTR("%16s"));
     modeEdit.draw();

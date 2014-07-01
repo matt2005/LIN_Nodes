@@ -14,19 +14,17 @@ namespace Menu
 
 TopMode modeTop;
 
-struct topNode
-{
+struct topNode {
     const char *name;
     Mode *const mode;
 };
 
-static PROGMEM const char nametab[] = 
+static PROGMEM const char nametab[] =
     "Configure\0"
     "Test\0"
     "\0";
 
-static PROGMEM Mode * const nodes[] = 
-{
+static PROGMEM Mode *const nodes[] = {
     &modeExplore,
     &modeTest
 };
@@ -41,6 +39,7 @@ Mode *
 TopMode::action(Encoder::Event bp)
 {
     bool wantDraw = false;
+
     switch (bp) {
 
     case Encoder::kEventDown:
@@ -48,6 +47,7 @@ TopMode::action(Encoder::Event bp)
             _index--;
             wantDraw = true;
         }
+
         break;
 
     case Encoder::kEventUp:
@@ -55,6 +55,7 @@ TopMode::action(Encoder::Event bp)
             _index++;
             wantDraw = true;
         }
+
         break;
 
     case Encoder::kEventPress:

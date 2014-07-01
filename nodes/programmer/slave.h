@@ -8,7 +8,7 @@
 class ProgrammerSlave : public Slave
 {
 public:
-    ProgrammerSlave() : 
+    ProgrammerSlave() :
         Slave(LIN::kNADProgrammer),
         _state(kStateIdle),
         _paramValue(0),

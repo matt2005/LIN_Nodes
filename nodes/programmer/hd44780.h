@@ -11,7 +11,7 @@
 
 class HD44780 : public Display
 {
-public:    
+public:
     static void     init();
 
     virtual void    clear() override;
@@ -19,7 +19,7 @@ public:
 
 protected:
     virtual void    _write(uint8_t c) override;
-    
+
 private:
     static const uint8_t    bitE   = lcdBitE;
     static const uint8_t    bitRnW = lcdBitRnW;

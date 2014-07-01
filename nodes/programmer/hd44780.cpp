@@ -46,7 +46,7 @@ HD44780::init()
     Board::usDelay(80);
 
     // turn on display
-    sendCmd(0x0c);    
+    sendCmd(0x0c);
     Board::usDelay(80);
 }
 

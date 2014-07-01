@@ -42,6 +42,7 @@ public:
 
         if ((*_value) < _min) {
             (*_value) = _min;
+
         } else if ((*_value) > _max) {
             (*_value) = _max;
         }
@@ -52,7 +53,7 @@ public:
                  uint8_t x,
                  uint8_t y,
                  const char *stringtab,
-                 const char *fmt = nullptr) 
+                 const char *fmt = nullptr)
     {
         _from = parent;
         _value = value;

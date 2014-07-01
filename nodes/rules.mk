@@ -67,14 +67,19 @@ vpath %.c	$(SRCROOT)/lib
 vpath %.cpp	$(SRCROOT)/lib
 vpath %.h	$(SRCROOT)/lib
 
-.SUFFIXES:
+ELF		:= $(BUILDDIR)/$(PROG).elf
 
 OBJS		:= $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
 DEPS		:= $(OBJS:.o=.d)
-ELF		:= $(BUILDDIR)/$(PROG).elf
+
+HDRS		 = $(shell $(CC) -E -H $(DEFINES) $(INCLUDES) $(SRCS))
+
 ifeq ($(VERBOSE),)
 q		= @
 endif
+
+.SUFFIXES:
+$(ELF) $(OBJS):	$(MAKEFILE_LIST)
 
 build:	$(ELF)
 
@@ -86,10 +91,12 @@ $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 	$q $(CXX) -o $@ $(LDFLAGS) $(OBJS) -Wl,-Map,$@.map
 	$q $(SIZE) $@
 
+.PHONY: clean
 clean:
 	@echo CLEAN $(BUILDDIR)
 	$q rm -f $(ELF) $(OBJS) $(DEPS)
 
+.PHONY: check
 check:
 	@echo CHECK $(PROG)
 	$q $(CPPCHECK) $(CHECKOPTS) $(DEFINES) $(INCLUDES) $(SRCS)

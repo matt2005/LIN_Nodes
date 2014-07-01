@@ -81,6 +81,7 @@ Master::doRequestResponse(LIN::Frame &frame)
     if (!waitRequest()) {
         return false;
     }
+
     frame.copy(requestResponseFrame);
     return true;
 }
@@ -106,32 +107,37 @@ Master::_event()
 
     do {
 
-        fid = (LIN::FrameID)pgm_read_byte((_configDecayTimer > 0) ? 
-                                           &configSchedule[_eventIndex] :
-                                           &normalSchedule[_eventIndex]);
+        fid = (LIN::FrameID)pgm_read_byte((_configDecayTimer > 0) ?
+                                          &configSchedule[_eventIndex] :
+                                          &normalSchedule[_eventIndex]);
         _eventIndex++;
 
         if (fid == LIN::kFIDNone) {
             if (_configDecayTimer > 0) {
                 _configDecayTimer--;
             }
+
             if ((_configDecayTimer == 0) && _sleepEnable) {
                 _sleepActive = true;
                 return;
             }
+
             _eventIndex = 0;
             continue;
         }
+
         if ((fid == LIN::kFIDConfigResponse) && !_sendConfigResponseHeader) {
             continue;
         }
+
         if ((fid == LIN::kFIDMasterRequest) && !_sendRequest) {
             continue;
         }
+
         if ((fid == LIN::kFIDSlaveResponse) && !_getResponse) {
             continue;
         }
-    } while(0);
+    } while (0);
 
     // turn on the LIN driver
     Board::linCS(true);
@@ -145,11 +151,13 @@ Master::waitRequest()
 {
     // spin for 100ms waiting for the frame to be sent
     Timestamp t;
+
     while (!t.isOlderThan(100)) {
         if (!_sendRequest && !_getResponse) {
             return true;
         }
     }
+
     _sendRequest = false;
     _getResponse = false;
     return false;
@@ -172,11 +180,13 @@ Master::headerReceived(LIN::FID fid)
         break;
 
     case LIN::kFIDMasterRequest:
+
         // if we have a request to send, commit it to the wire
         if (_sendRequest) {
             sendResponse(requestResponseFrame, 8);
             _sendRequest = false;
         }
+
         break;
 
     case LIN::kFIDSlaveResponse:
@@ -200,11 +210,13 @@ Master::responseReceived(LIN::FID fid, LIN::Frame &frame)
         break;
 
     case LIN::kFIDSlaveResponse:
+
         // if we are expecting a response, copy it back
         if (_getResponse) {
             requestResponseFrame.copy(frame);
             _getResponse = false;
         }
+
         break;
 
     default:
@@ -229,11 +241,13 @@ Master::handleConfigRequest(LIN::ConfigFrame &frame)
     if (frame.nad() != LIN::kNADMaster) {
         return;
     }
+
     if (frame.flavour() == LIN::kCFGetParam) {
         _configParam = frame.param();
         _sendConfigResponseFrame = true;
         return;
     }
+
     if (frame.flavour() == LIN::kCFSetParam) {
         Parameter(frame.param()).set(frame.value());
         return;
@@ -246,6 +260,7 @@ Master::handleConfigResponse()
     if (!_sendConfigResponseFrame) {
         return;
     }
+
     _sendConfigResponseFrame = false;
 
     LIN::ConfigFrame f;

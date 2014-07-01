@@ -20,20 +20,25 @@ ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
 
         // wait 100ms for the transaction to complete
         Timestamp t;
+
         while (!t.isOlderThan(100)) {
             wdt_reset();
+
             if (_state == kStateIdle) {
                 uint8_t readback;
 
                 if (getParameter(nad, param, readback) && (readback == value)) {
                     return true;
+
                 } else {
                     debug("set: readback %u not %u", readback, value);
                 }
             }
         }
+
         debug("set: timed out in state %u", _state);
     }
+
     debug("set: failed");
     return false;
 }
@@ -50,19 +55,24 @@ ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
 
         // wait 100ms for the transaction to complete
         Timestamp t;
+
         while (!t.isOlderThan(100)) {
             wdt_reset();
+
             if (_state == kStateGetComplete) {
                 value = _paramValue;
                 _state = kStateIdle;
                 return true;
             }
+
             if (_state == kStateError) {
                 break;
             }
         }
+
         debug("get: timed out in state %u", _state);
     }
+
     return false;
 }
 
@@ -81,6 +91,7 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
 
             sendResponse(f, 8);
             _state = kStateSetWaitSent;
+
         } else if (_state == kStateGetWaitRequest) {
             LIN::ConfigFrame f;
 
@@ -90,6 +101,7 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
 
             sendResponse(f, 8);
             _state = kStateGetWaitResponse;
+
         } else if (!_suspended) {
             LIN::ConfigFrame f;
 
@@ -98,12 +110,14 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
 
             sendResponse(f, 8);
         }
+
         break;
 
     case LIN::kFIDConfigResponse:
         if (_state == kStateGetWaitResponse) {
             requestResponse(8);
         }
+
         break;
 
     default:
@@ -125,10 +139,12 @@ ProgrammerSlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
             (cf.flavour() != LIN::kCFGetParam) ||
             (cf.param() != _paramIndex)) {
             _state = kStateError;
+
         } else {
             _paramValue = cf.value();
             _state = kStateGetComplete;
         }
+
     } else {
         debug("unexpected response %u in state %u", fid, _state);
     }

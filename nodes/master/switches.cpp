@@ -8,10 +8,9 @@
 namespace Switches
 {
 
-struct Debounce
-{
-    uint8_t     count:7;    //< counts down to 0
-    uint8_t     state:1;    //< current state of the switch
+struct Debounce {
+    uint8_t     count: 7;   //< counts down to 0
+    uint8_t     state: 1;   //< current state of the switch
 };
 
 static const uint8_t    kDebounceCycles = 5; // XXX needs to be computed/tuned
@@ -23,12 +22,15 @@ init()
 {
     MC33972::configure();
 #ifdef DEBUG
-    for (uint8_t sw = 1; sw <=7; sw++) {
+
+    for (uint8_t sw = 1; sw <= 7; sw++) {
         debug("SP%2u: %2u", sw, paramSPAssign(sw).get());
     }
+
     for (uint8_t sw = 0; sw <= 13; sw++) {
         debug("SG%2u: %2u", sw, paramSGAssign(sw).get());
-    }    
+    }
+
 #endif
 }
 
@@ -64,6 +66,7 @@ changed()
             return true;
         }
     }
+
     return false;
 }
 
@@ -72,12 +75,13 @@ scan()
 {
     // clear raw state
     uint8_t rawstate[kStateBytes];
+
     for (uint8_t i = 0; i < kStateBytes; i++) {
         rawstate[i] = 0;
     }
 
-    #define SET(x)  do { if (x < LIN::kSWMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
-    #define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
+#define SET(x)  do { if (x < LIN::kSWMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
+#define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
 
     // fetch the switch inputs
     MC33972::scan();
@@ -88,7 +92,7 @@ scan()
     }
 
     // SP1-SP7
-    for (uint8_t sw = 1; sw <=7; sw++) {
+    for (uint8_t sw = 1; sw <= 7; sw++) {
         if (MC33972::test(MC33972::kInputSP0 + sw)) {
             SET(paramSPAssign(sw).get());
         }

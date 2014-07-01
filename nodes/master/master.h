@@ -23,7 +23,7 @@ public:
     ///
     bool            doRequest(LIN::Frame &frame);
 
-    /// Queue a Master Request frame, then a Slave Response to 
+    /// Queue a Master Request frame, then a Slave Response to
     /// gather the slave's reply.
     ///
     /// @param frame            The frame to send, and the buffer into which
@@ -40,9 +40,10 @@ public:
     ///                         if it is not in config mode.
     ///                         If false, sleep is inhibited.
     ///
-    void            setSleep(bool enable) 
+    void            setSleep(bool enable)
     {
-        _sleepEnable = enable; 
+        _sleepEnable = enable;
+
         if (!enable) {
             _sleepActive = false;
         }
@@ -63,12 +64,12 @@ private:
     uint8_t         _configParam;
     uint8_t         _configDecayTimer;
 
-    volatile bool   _sendRequest:1;
-    volatile bool   _getResponse:1;
-    volatile bool   _sendConfigResponseHeader:1;
-    volatile bool   _sendConfigResponseFrame:1;
-    bool            _sleepEnable:1;
-    bool            _sleepActive:1;
+    volatile bool   _sendRequest: 1;
+    volatile bool   _getResponse: 1;
+    volatile bool   _sendConfigResponseHeader: 1;
+    volatile bool   _sendConfigResponseFrame: 1;
+    bool            _sleepEnable: 1;
+    bool            _sleepActive: 1;
 
     /// Event initiator
     static void     event(void *arg);

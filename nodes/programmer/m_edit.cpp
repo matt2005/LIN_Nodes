@@ -48,12 +48,15 @@ EditMode::increment()
     if (_stringtab == nullptr) {
         if ((*_value) < _max) {
             (*_value)++;
+
         } else if ((*_value) == _max) {
             (*_value) = _min;
         }
+
     } else {
         if ((*_value) < (Util::strtablen(_stringtab) - 1)) {
             (*_value)++;
+
         } else {
             (*_value) = 0;
         }
@@ -65,9 +68,11 @@ EditMode::decrement()
 {
     if ((*_value) > 0) {
         (*_value)--;
+
     } else {
         if (_stringtab == nullptr) {
             (*_value) = _max;
+
         } else {
             (*_value) = Util::strtablen(_stringtab) - 1;
         }
@@ -81,6 +86,7 @@ EditMode::draw()
 
     if (_stringtab == nullptr) {
         gDisplay.printf(_fmt, (*_value));
+
     } else {
         gDisplay.printf(_fmt, Util::strtab(_stringtab, (*_value)));
     }

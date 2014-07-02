@@ -12,6 +12,9 @@
 #if defined(BOARD_POWER_V1)
 # include "config_power_v1.h"
 #endif
+#if defined(BOARD_POWER_V3)
+# include "config_power_v3.h"
+#endif
 #if defined(BOARD_MASTER_V1)
 # include "config_master_v1.h"
 #endif

@@ -1,0 +1,447 @@
+#include "mc17xsf500.h"
+#include "board.h"
+
+namespace MC17XSF500
+{
+
+enum ControlRegister : uint8_t
+{
+    kCtrlInit1 = 0x00,
+    kCtrlInit2 = 0x10,
+    kCtrlCH1Control = 0x20,
+    kCtrlCH2Control = 0x30,
+    kCtrlCH3Control = 0x40,
+    kCtrlCH4Control = 0x50,
+    kCtrlCH5Control = 0x60,
+    kCtrlCH6Control = 0x70,
+    kCtrlOutputControl = 0x80,
+    kCtrlGlobalPWMControl = 0x90,
+    kCtrlGlobalPWMValue = 0x94,
+    kCtrlOvercurrentControl1 = 0xa0,
+    kCtrlOvercurrentControl2 = 0xa4,
+    kCtrlInputEnable = 0xb0,
+    kCtrlPrescaler1 = 0xc0,
+    kCtrlPrescaler2 = 0xc4,
+    kCtrlOLControl = 0xd0,
+    kCtrlOLEDControl = 0xd4,
+    kCtrlIncrementDecrement = 0xe0,
+
+    kCtrlWDToggle = 0x08
+};
+
+enum StatusRegister : uint8_t
+{
+    // readable registers
+    kStatusQuick = 0x01,
+    kStatusCH1 = 0x02,
+    kStatusCH2 = 0x03,
+    kStatusCH3 = 0x04,
+    kStatusCH4 = 0x05,
+    kStatusCH5 = 0x06,
+    kStatusDevice = 0x07,
+    kStatusIO = 0x08,
+    kDeviceID = 0x09,
+};
+
+enum SyncEn : uint16_t
+{
+    kSyncOff = 0,
+    kSyncValid = 1,
+    kSyncTrig0 = 2,
+    kSyncTrig12 = 3
+};
+
+enum MuxSel : uint16_t
+{
+    kMuxOff = 0,
+    kMuxOut1 = 1,
+    kMuxOut2 = 2,
+    kMuxOut3 = 3,
+    kMuxOut4 = 4,
+    kMuxOut5 = 5,
+    kMuxVPWR = 6,
+    kMuxDieTemp = 7
+};
+
+enum NoHidSel : uint16_t
+{
+    kNoHidAll = 0,
+    kNoHid3 = 1,
+    kNoHid34 = 2,
+    kNoHidNone = 3
+};
+
+enum PhaseSel : uint16_t
+{
+    kPhase0 = 0,
+    kPhase90 = 1,
+    kPhase180 = 2,
+    kPhase270 = 3
+};
+
+enum PRSDivider : uint16_t
+{
+    kPRSDiv4 = 0,
+    kPRSDiv2 = 1,
+    kPRSDiv1 = 2
+};
+
+enum Increment : uint16_t
+{
+    kIncrementNone = 0,
+    kIncrement4LSB = 1,
+    kIncrement8LSB = 2,
+    kIncrement16LSB = 3
+};
+
+union Command
+{
+    uint8_t     raw[2];
+
+    // bitfields are all LSB first
+
+    struct {
+        uint16_t    data:8;
+        uint16_t    address:8;
+    }           address;
+
+    struct {
+        uint16_t    soa:4;
+        uint16_t    soa_mode:1;
+        uint16_t    mux_sel:3;
+        uint16_t    sync_en:2;
+        uint16_t    wdsel:1;
+
+        uint16_t    pad:5;
+    }           init_1;
+
+    struct {
+        uint16_t    otw_sel:1;
+        uint16_t    pwm_sync:1;
+        uint16_t    ochi_od:5;
+        uint16_t    no_hid:2;
+        uint16_t    ochi_transient:1;
+        uint16_t    ochi_terminal:1;
+
+        uint16_t    pad:5;
+    }           init_2;
+
+    struct {
+        uint16_t    pwm:8;
+        uint16_t    on:1;
+        uint16_t    phase_sel:2;
+
+        uint16_t    pad:5;
+    }           chX_control;
+
+    struct {
+        uint16_t    on:6;
+        uint16_t    psf:5;
+
+        uint16_t    pad:5;
+    }           output_control;
+
+    struct {
+        uint16_t    gpwm_enable:6;
+
+        uint16_t    pad:10;
+    }           global_pwm_enable;
+
+    struct {
+        uint16_t    pad:8;
+
+        uint16_t    gpwm:8;
+    }           global_pwm_value;
+
+    struct {
+        uint16_t    acm:5;
+        uint16_t    oclo:5;
+
+        uint16_t    pad:6;
+    }           over_current_control_1;
+
+    struct {
+        uint16_t    short_ochi:5;
+        uint16_t    no_ochi:5;
+
+        uint16_t    pad:6;
+    }           over_current_control_2;
+
+    struct {
+        uint16_t    inen1:2;
+        uint16_t    inen2:2;
+        uint16_t    inen3:2;
+        uint16_t    inen4:2;
+
+        uint16_t    pad:8;
+    }           input_enable;
+
+    struct {
+        uint16_t    prs1:2;
+        uint16_t    prs2:2;
+        uint16_t    prs3:2;
+        uint16_t    prs4:2;
+        uint16_t    prs5:2;
+
+        uint16_t    pad:6;
+    }           prescaler_1;
+
+    struct {
+        uint16_t    prs6:2;
+
+        uint16_t    pad:14;
+    }           prescaler_2;
+
+    struct {
+        uint16_t    oloff_en:5;
+        uint16_t    olon_dgl:5;
+
+        uint16_t    pad:6;
+    }           ol_control;
+
+    struct {
+        uint16_t    olled_en:5;
+        uint16_t    olled_trg:1;
+
+        uint16_t    pad:10;
+    }           oled_control;
+
+    struct {
+        uint16_t    incr1:2;
+        uint16_t    incr2:2;
+        uint16_t    incr3:2;
+        uint16_t    incr4:2;
+        uint16_t    incr5:2;
+        uint16_t    incr_sgn:1;
+
+        uint16_t    pad:5;
+    }           increment_decrement;
+};
+
+enum OCStatus : uint16_t
+{
+    kOCNone = 0,
+    kOCHI1 = 1,
+    kOCHI2 = 2,
+    kOCHI3 = 3,
+    kOCLO = 4,
+    kOCHIOD = 5,
+    kOCSSC = 6
+};
+
+enum DeviceType : uint16_t
+{
+    kDTPenta32 = 0,
+    kDTPent05 = 1,
+    kDTQuad22 = 2,
+    kDTQuad04 = 3,
+    kDTTriple12 = 4,
+    kDTTriple03 = 5
+};
+
+union Status
+{
+    uint8_t     raw[2];
+
+    struct {
+        uint16_t    qsf:5;
+        uint16_t    clkf:1;
+        uint16_t    rcf:1;
+        uint16_t    cpf:1;
+        uint16_t    olf:1;
+        uint16_t    ovlf:1;
+        uint16_t    dsf:1;
+        uint16_t    fm:1;
+
+        uint16_t    pad:4;
+
+    }           quick_status;
+
+    struct {
+        uint16_t    oloff:1;
+        uint16_t    olon:1;
+        uint16_t    oc_status:3;
+        uint16_t    otw:1;
+        uint16_t    ots:1;
+        uint16_t    pad2:1;        
+        uint16_t    olf:1;
+        uint16_t    ovlf:1;
+        uint16_t    dsf:1;
+        uint16_t    fm:1;
+
+        uint16_t    pad:4;
+
+    }           chX_status;
+
+    struct {
+        uint16_t    limp:1;
+        uint16_t    spif:1;
+        uint16_t    uvf:1;
+        uint16_t    ovf:1;
+        uint16_t    tmf:1;
+        uint16_t    pad2:3;
+        uint16_t    olf:1;
+        uint16_t    ovlf:1;
+        uint16_t    dsf:1;
+        uint16_t    fm:1;
+
+        uint16_t    pad:4;
+
+    }           device_status;
+
+    struct {
+        uint16_t    out:5;
+        uint16_t    in:4;
+        uint16_t    toggle:1;
+        uint16_t    pad2:1;
+        uint16_t    fm:1;
+
+        uint16_t    pad:4;
+
+    }           IO_status;
+
+    struct {
+        uint16_t    device_type:3;
+        uint16_t    device_family:2;
+        uint16_t    design_status:3;
+        uint16_t    pad2:2;
+        uint16_t    uvf:1;
+        uint16_t    fm:1;
+
+        uint16_t    pad:4;
+
+    }           device_id;
+};
+
+static Status transfer(Command cmd);
+static void wait();
+
+void
+configure()
+{
+    // put the device into reset first
+    pinSWRSTB.cfgOutput();
+    pinSWRSTB.clear();
+
+    // configure SPI
+    pinMOSI.cfgOutput();
+    pinMISO.cfgInputNoPull();
+    pinSCK.cfgOutput();
+    pinCS.set();
+    pinCS.cfgOutput();
+
+    // configure the PWM clock
+    pinSWCLK.cfgOutput();
+    pinSWCLK.set();
+
+#ifndef DEBUG
+    // configure the SYNCB input
+    pinSWSYNCB.cfgInputPullUp();
+#endif
+
+    // XXX start PWM clock
+
+    // XXX configure device
+
+}
+
+void
+set(uint8_t channel, uint8_t duty_cycle)
+{
+    Command cmd;
+
+    // initialise the command with the register address
+    cmd.address.data = 0;
+    switch (channel) {
+    case 0:
+        cmd.address.address = kCtrlCH1Control;
+        break;
+    case 1:
+        cmd.address.address = kCtrlCH2Control;
+        break;
+    case 2:
+        cmd.address.address = kCtrlCH3Control;
+        break;
+    case 3:
+        cmd.address.address = kCtrlCH4Control;
+        break;
+    case 4:
+        cmd.address.address = kCtrlCH5Control;
+        break;
+    default:
+        return;
+    }
+
+    if (duty_cycle > 0) {
+        cmd.chX_control.pwm = duty_cycle;       // XXX add pulse skip support
+        cmd.chX_control.on = 1;
+        cmd.chX_control.phase_sel = kPhase0;    // XXX might be nice to shift phases to reduce current?
+    }
+
+    Status s = transfer(cmd);
+
+    if (s.quick_status.dsf != 0) {
+        // XXX device status failures (mostly fatal
+    }
+    if (s.quick_status.ovlf != 0) {
+        // XXX overload status (log & mitigate)
+    }
+    if (s.quick_status.olf != 0) {
+        // XXX open load status (log)
+    }
+}
+
+Status
+transfer(Command cmd)
+{
+    Status s;
+    static bool toggle;
+
+    // flip the watchdog toggle on each message
+    if (toggle) {
+        cmd.address.address |= kCtrlWDToggle;
+    }
+    toggle = !toggle;
+
+    // Configure SPI for mode 2 master at 2MHz, MSB first
+    SPCR = (1 << SPE) | (1 << MSTR) | (1 << CPHA);
+
+    // clear flags ready for use
+    (void)SPSR;
+    (void)SPDR;
+
+    // select the slave
+    pinCS.clear();
+
+    // send/recv high byte first
+    SPDR = cmd.raw[1];
+    wait();
+    s.raw[1] = SPDR;
+
+    // send/recv low byte next
+    SPDR = cmd.raw[0];
+    wait();
+    s.raw[0] = SPDR;
+
+    // deselect the slave
+    pinCS.set();
+
+    return s;
+}
+
+static void
+wait() 
+{
+    while (!(SPSR & (1 << SPIF))) {
+        if (!(SPCR & (1 << MSTR))) {
+            debug("SPI !MSTR");
+            Board::panic(Board::kPanicSPI);
+        }
+        if (SPSR & (1 << WCOL)) {
+            debug("SPI WCOL");
+            Board::panic(Board::kPanicSPI);
+        }
+    }
+}
+
+} // namespace MC17XSF500

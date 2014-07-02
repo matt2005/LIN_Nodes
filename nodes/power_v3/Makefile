@@ -1,0 +1,17 @@
+DEBUG		 = YES
+
+PROG		 = power_v3
+SRCS		 = main.cpp \
+		   mc17xsf500.cpp \
+		   slave.cpp
+
+SRCS		+= board.cpp \
+		   lin_dev.cpp \
+		   lin_slave.cpp \
+		   print.cpp \
+		   softserial.cpp \
+		   timer.cpp
+
+BOARD		 = POWER_V3
+
+include ../rules.mk

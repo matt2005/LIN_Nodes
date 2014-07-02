@@ -1,7 +1,7 @@
 #pragma once
 
 //
-// v1 relay node
+// v1 power node
 //
 
 #define BOARD_FUNCTION_ID   1

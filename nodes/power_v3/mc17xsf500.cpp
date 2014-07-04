@@ -51,10 +51,9 @@ public:
 class CmdControl : public Command
 {
 public:
-    CmdControl(uint8_t channel, uint8_t duty_cycle) :
-        _channel(channel)
+    CmdControl(uint8_t channel, uint8_t duty_cycle)
     {
-        switch (_channel) {
+        switch (channel) {
         default:
         case 0:
             address.address = kCtrlCH1Control;
@@ -82,7 +81,7 @@ public:
         if (duty_cycle > 0) {
             chX_control.on = 1;
 
-            switch (paramType(_channel)) {
+            switch (paramType(channel)) {
             case kChannelHID:
                 chX_control.pwm = 255;              // HID cannot be PWM controlled
                 break;
@@ -98,9 +97,6 @@ public:
             chX_control.pwm = 0;
         }
     }
-
-private:
-    const uint8_t       _channel;
 };
 
 class CmdOverCurrentControl1 : public Command

@@ -19,17 +19,24 @@
 #define pinMISO        portA[2]
 #define pinSCK         portA[5]
 #define pinCS          portA[3]
-#define pinSWCLK       portA[6]
+#define pinSWCLK       portB[6]
 #define pinSWCSNS      portA[7]
 #define pinSWSYNCB     portB[1]
 #define pinSWRSTB      portB[2]
 
 #define pinDebugTX     portB[1] // CSNS_SYNCB can't be used in DEBUG mode...
 
-// each output can have up to 4 relays and associated PWM values assigned to it
-// (8 parameters per output)
-#define _paramBase(_output)             ((_output) * 8)
+#define ocrSWCLK       3        // TCCR1D bit matching pinSWCLK above
 
-#define paramAssign(_output, _index)    (LIN::RelayID)Parameter(_paramBase(_output) + (_index) * 2)
-#define paramPWM(_output, _index)       Parameter(_paramBase(_output) + (_index) * 2 + 1)
+// Per-channel parameter indices
+#define kChannelOutputType      0
+#define kChannelAssignments     1
+#define kChannelNumAssignments  4
+#define kChannelPWMValues       (kChannelAssignments + kChannelNumAssignments)
+#define kChannelNumParameters   (kChannelPWMValues + kChannelNumAssignments)
 
+#define _paramBase(_channel)             ((_channel) * kChannelNumParameters)
+
+#define paramType(_channel)              Parameter(_paramBase(_channel) + kChannelOutputType)
+#define paramAssign(_channel, _index)    Parameter(_paramBase(_channel) + kChannelAssignments + (_index))
+#define paramPWM(_channel, _index)       Parameter(_paramBase(_channel) + kChannelPWMValues + (_index))

@@ -18,6 +18,8 @@ public:
     {
     }
 
+    operator uint8_t () const { return get(); }
+
     uint8_t     get() const
     {
         return eeprom_read_byte((uint8_t *)0 + _index);

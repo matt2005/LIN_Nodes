@@ -31,17 +31,18 @@ main(void)
     for (;;) {
         wdt_reset();
 
-        // update outputs (XXX magic numbers)
-        for (unsigned output = 0; output < 5; output++) {
+        // update outputs
+        for (unsigned output = 0; output < MC17XSF500::num_channels; output++) {
             uint8_t duty_cycle = 0;
 
-            for (unsigned function = 0; function < 4; function++) {
-                if (slave.testRelay(paramAssign(output, function).get())) {
+            for (unsigned function = 0; function < kChannelNumAssignments; function++) {
+                if (slave.testRelay((LIN::RelayID)paramAssign(output, function).get())) {
                     if (paramPWM(output, function).get() > duty_cycle) {
-                        duty_cycle = paramPWM(output, function).get();
+                        duty_cycle = paramPWM(output, function);
                     }
                 }
             }
+
             MC17XSF500::set(output, duty_cycle);
         }
     }

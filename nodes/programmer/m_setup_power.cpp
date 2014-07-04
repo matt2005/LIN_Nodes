@@ -28,6 +28,7 @@ SetupPowerMode::action(Encoder::Event bp)
         break;
 
     case Encoder::kEventUp:
+
         // XXX 4 for v1, 5 for v2, need to identify (or ignore on v1?)
         if (_param < 5) {
             _param++;

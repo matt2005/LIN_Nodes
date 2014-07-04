@@ -11,8 +11,8 @@ static void wait();
 // PWM reference clock frequency, can be 25.6 - 102.4kHz, divided by 256 internally
 // before selectable /1, /2, /4 per-channel prescaler.
 // 25.6kHz gives PWM clocks 25, 50, 100Hz
-#define PWM_REFCLK      25600
-#define COMPARE_COUNT   (F_CPU / PWM_REFCLK / 2 - 1)
+static const uint16_t   PWM_REFCLK = 25600U;
+static const uint16_t   COMPARE_COUNT = (F_CPU / PWM_REFCLK / 2U) - 1U;
 
 class CmdInit1 : public Command
 {

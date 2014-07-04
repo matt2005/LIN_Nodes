@@ -23,7 +23,7 @@
 
 #define pinLINRX       portA[0]
 #define pinLINTX       portA[1]
-#define pinLINCS       portA[6]
+#define pinLINCS       portB[6]
 
 #define pinDebugTX     portB[2] // D6 on the (non-stuffed) LCD connector
 

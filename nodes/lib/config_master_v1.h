@@ -14,7 +14,7 @@
 #define pinP6          portB[6]
 #define pinP7          portA[7]
 
-#define pinMode1       portB[3] // D7 on the (non-stuffed) LCD connector
+#define pinMode1       portA[5] // SCK/ENCBUT pulled low will force recovery mode
 
 #define pinMOSI        portA[4]
 #define pinMISO        portA[2]
@@ -25,7 +25,7 @@
 #define pinLINTX       portA[1]
 #define pinLINCS       portB[6]
 
-#define pinDebugTX     portB[2] // D6 on the (non-stuffed) LCD connector
+#define pinDebugTX     portB[5] // E on the LCD connector
 
 #define paramSPAssign(_n)          Parameter(_n)     // 1...7
 #define paramSGAssign(_n)          Parameter(8 + _n) // 8...21

@@ -31,7 +31,7 @@ static PROGMEM Mode *const nodes[] = {
 // +--------------------+
 // +LIN Setup Tool      |
 // +   Setup            |
-// + > Diagnostics <    |
+// + >>Diagnostics      |
 // +   Info             |
 // +--------------------+
 //

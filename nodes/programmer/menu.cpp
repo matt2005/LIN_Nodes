@@ -40,4 +40,23 @@ Mode::tick()
     return action(Encoder::event());
 }
 
+void
+Mode::_msg(PGM_P hdr, PGM_P message)
+{
+    gDisplay.clear();
+    gDisplay.printf(hdr);
+    gDisplay.move(0, 1);
+
+    uint8_t row = 1;
+    char c;
+    while ((c = pgm_read_byte(message++)) != 0) {
+        if (c == '\n') {
+            row++;
+            gDisplay.move(0, row);
+        } else {
+            gDisplay.putc(c);
+        }
+    }
+}
+
 } // namespace Menu

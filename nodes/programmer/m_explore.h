@@ -15,8 +15,8 @@ public:
 private:
     uint8_t         _node;
     void            draw();
-    bool            searchUp();
-    bool            searchDown();
+    uint8_t         searchUp(uint8_t from);
+    uint8_t         searchDown(uint8_t from);
 };
 
 extern ExploreMode modeExplore;

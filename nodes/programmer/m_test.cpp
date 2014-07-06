@@ -17,7 +17,13 @@ InfoMode modeInfo;
 ////////////////////////////////////////////////////////////////////////////////
 // Test mode
 //
-
+// +--------------------+
+// |                    |
+// |                    |
+// |                    |
+// |                    |
+// +--------------------+
+//
 Mode *
 TestMode::action(Encoder::Event bp)
 {
@@ -43,7 +49,13 @@ TestMode::action(Encoder::Event bp)
 ////////////////////////////////////////////////////////////////////////////////
 // Info mode
 //
-
+// +--------------------+
+// |                    |
+// |                    |
+// |                    |
+// |                    |
+// +--------------------+
+//
 #define FREEZE_STR(s) #s
 #define STRINGIFY(s) FREEZE_STR(s)
 #define GIT_STR PSTR(STRINGIFY(GIT_VERSION))

@@ -20,7 +20,7 @@
 #include "encoder.h"
 #include "slave.h"
 
-HD44780 lcd;
+HD44780 lcd(20, 4);
 Display &gDisplay = lcd;
 ProgrammerSlave gSlave;
 
@@ -28,6 +28,11 @@ void
 main(void)
 {
     Board::init();
+
+    if (Board::getMode() != 0) {
+        Board::panic(Board::kPanicRecovery);
+    }
+
     lcd.init();
     Encoder::init();
     gSlave.init();

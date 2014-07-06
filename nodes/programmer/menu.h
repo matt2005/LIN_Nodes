@@ -11,8 +11,13 @@
 namespace Menu
 {
 
+/// Called regularly to allow the current mode to update the display, respond
+/// to input, etc.
+///
 void tick();
 
+/// Abstract base class for edit modes
+///
 class Mode
 {
 public:

@@ -18,6 +18,8 @@
 #define pinENCB         portA[2]
 #define pinButton       portA[4]
 
+#define pinMode1        portA[4]    // if the encoder is pressed at power-on, go to recovery mode
+
 #define pinLINRX        portA[0]
 #define pinLINTX        portA[1]
 #define pinLINCS        portA[6]

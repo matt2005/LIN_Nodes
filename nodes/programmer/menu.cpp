@@ -14,9 +14,6 @@ namespace Menu
 
 static Mode         *_mode;     ///< current mode
 
-////////////////////////////////////////////////////////////////////////////////
-// Toplevel menu wrapper
-//
 void
 tick()
 {

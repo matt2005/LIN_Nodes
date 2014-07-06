@@ -20,7 +20,7 @@ RES_FUSES	 = -U hfuse:w:0xd7:m -U efuse:w:0xff:m -U lfuse:w:0x6c:m
 FUSES		?= $(OSC_FUSES)
 
 ARCHFLAGS	 = -mmcu=$(MCU)
-DEFINES		 = -DBOARD_$(BOARD)
+DEFINES		+= -DBOARD_$(BOARD)
 CHECKOPTS	 = --enable=warning		\
 		   --enable=performance		\
 		   --enable=information		\

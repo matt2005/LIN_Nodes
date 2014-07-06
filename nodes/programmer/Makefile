@@ -2,8 +2,6 @@ DEBUG		 = YES
 
 PROG		 = programmer
 SRCS		 = main.cpp \
-		   encoder.cpp \
-		   hd44780.cpp \
 		   menu.cpp \
 		   m_edit.cpp \
 		   m_top.cpp \
@@ -14,6 +12,8 @@ SRCS		 = main.cpp \
 		   slave.cpp
 
 SRCS		+= board.cpp \
+		   encoder.cpp \
+		   hd44780.cpp \
 		   lin_dev.cpp \
 		   lin_slave.cpp \
 		   print.cpp \
@@ -22,5 +22,6 @@ SRCS		+= board.cpp \
 		   util.cpp
 
 BOARD		 = PROGRAMMER_V1
+DEFINES		+= -DGIT_VERSION=$(shell git log -1 --pretty=format:%h)
 
 include ../rules.mk

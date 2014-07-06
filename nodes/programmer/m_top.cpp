@@ -19,20 +19,21 @@ struct topNode {
     Mode *const mode;
 };
 
-static PROGMEM const char nametab[] =
-    "Configure\0"
-    "Test\0"
-    "\0";
-
 static PROGMEM Mode *const nodes[] = {
     &modeExplore,
-    &modeTest
+    &modeTest,
+    &modeInfo
 };
-
-static const uint8_t kMaxNode = sizeof(nodes) / sizeof(nodes[0]) - 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Top menu mode
+//
+// +--------------------+
+// +LIN Setup Tool      |
+// +   Setup            |
+// + > Diagnostics <    |
+// +   Info             |
+// +--------------------+
 //
 
 Mode *
@@ -42,7 +43,7 @@ TopMode::action(Encoder::Event bp)
 
     switch (bp) {
 
-    case Encoder::kEventDown:
+    case Encoder::kEventUp:
         if (_index > 0) {
             _index--;
             wantDraw = true;
@@ -50,8 +51,8 @@ TopMode::action(Encoder::Event bp)
 
         break;
 
-    case Encoder::kEventUp:
-        if (_index < kMaxNode) {
+    case Encoder::kEventDown:
+        if (_index < 2) {
             _index++;
             wantDraw = true;
         }
@@ -81,12 +82,16 @@ void
 TopMode::draw()
 {
     gDisplay.clear();
-    gDisplay.printf(Util::strtab(nametab, _index));
-
-#ifdef DEBUG
-    gDisplay.move(8, 1);
-    gDisplay.printf(PSTR(" free %3u"), Board::freemem());
-#endif
+    gDisplay.printf(PSTR("LIN Setup Tool"));
+    gDisplay.move(3, 1);
+    gDisplay.printf(PSTR("Setup"));
+    gDisplay.move(3, 2);
+    gDisplay.printf(PSTR("Diagnostics"));
+    gDisplay.move(3, 3);
+    gDisplay.printf(PSTR("Info"));
+    
+    gDisplay.move(1, _index + 1);
+    gDisplay.printf(PSTR(">>"));
 }
 
 } // namespace Menu

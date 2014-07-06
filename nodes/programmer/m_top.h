@@ -7,6 +7,8 @@
 namespace Menu
 {
 
+/// Top-level menu
+///
 class TopMode : public Mode
 {
 public:

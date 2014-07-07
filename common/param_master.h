@@ -30,6 +30,73 @@
 #define kParamBrakeBlinkPeriod 27
 #define kParamBrakeBlinkCount 28
 #define kParamWiperInterval 29
+#define kParamMax 30
+
+static PROGMEM const char strtabParamNames[] = 
+    " \0"
+    "SP1 Input\0"
+    "SP2 Input\0"
+    "SP3 Input\0"
+    "SP4 Input\0"
+    "SP5 Input\0"
+    "SP6 Input\0"
+    "SP7 Input\0"
+    "SG0 Input\0"
+    "SG1 Input\0"
+    "SG2 Input\0"
+    "SG3 Input\0"
+    "SG4 Input\0"
+    "SG5 Input\0"
+    "SG6 Input\0"
+    "SG7 Input\0"
+    "SG8 Input\0"
+    "SG9 Input\0"
+    "SG10 Input\0"
+    "SG11 Input\0"
+    "SG12 Input\0"
+    "SG13 Input\0"
+    "TurnBlinkPeriod\0"
+    "PassingBlinkCount\0"
+    "PathLightPeriod\0"
+    "InteriorLightPeriod\0"
+    "WelcomeLightPeriod\0"
+    "BrakeBlinkPeriod\0"
+    "BrakeBlinkCount\0"
+    "WiperInterval\0"
+    "\0";
+
+static PROGMEM const char strtabParamFormats[] = 
+    " \0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%S\0"
+    "%3u0ms\0"
+    "%3u blinks\0"
+    "%3us\0"
+    "%3us\0"
+    "%3us\0"
+    "%3u0ms\0"
+    "%3u blinks\0"
+    "%3u00ms\0"
+    "\0";
 
 #define paramSPAssign1 Parameter(kParamSPAssign1, 0, (LIN::kSwitchIDUnassigned), (LIN::kSwitchIDUnassigned))
 #define paramSPAssign2 Parameter(kParamSPAssign2, 0, (LIN::kSwitchIDUnassigned), (LIN::kSwitchIDUnassigned))

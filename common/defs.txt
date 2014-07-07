@@ -102,10 +102,10 @@ master WiperInterval       "WiperInterval"         "%3u00ms"       0       50   
 
 PARAMETERS power_v1
 
-power_v1 Relay1Assign "CH1 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
-power_v1 Relay2Assign "CH2 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
-power_v1 Relay3Assign "CH3 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
-power_v1 Relay4Assign "CH4 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
+power_v1 Relay1Assign "CH1 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
+power_v1 Relay2Assign "CH2 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
+power_v1 Relay3Assign "CH3 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
+power_v1 Relay4Assign "CH4 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
 
 ################################################################################
 

@@ -58,7 +58,7 @@ enum SwitchID : uint8_t {
     kSwitchIDMax,
 };
 
-static PROGMEM const char * const strtabSwitchID = 
+static PROGMEM const char strtabSwitchID[] = 
     "Ignition\0"
     "Start\0"
     "MarkerLights\0"
@@ -114,7 +114,7 @@ enum RelayID : uint8_t {
     kRelayIDMax,
 };
 
-static PROGMEM const char * const strtabRelayID = 
+static PROGMEM const char strtabRelayID[] = 
     "Ignition\0"
     "Start\0"
     "LightsUp\0"
@@ -153,7 +153,7 @@ enum RelayType : uint8_t {
     kRelayTypeMax,
 };
 
-static PROGMEM const char * const strtabRelayType = 
+static PROGMEM const char strtabRelayType[] = 
     "5AGeneric\0"
     "10AGeneric\0"
     "LED\0"

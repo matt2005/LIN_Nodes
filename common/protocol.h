@@ -106,6 +106,7 @@ enum RelayID : uint8_t {
     kRelayIDCabinFan1,
     kRelayIDCabinFan2,
     kRelayIDCabinFan3,
+    kRelayIDCabinFan4,
     kRelayIDWiperLow,
     kRelayIDWiperHigh,
     kRelayIDRearDefrost,
@@ -133,6 +134,7 @@ static PROGMEM const char * const strtabRelayID =
     "CabinFan1\0"
     "CabinFan2\0"
     "CabinFan3\0"
+    "CabinFan4\0"
     "WiperLow\0"
     "WiperHigh\0"
     "RearDefrost\0"

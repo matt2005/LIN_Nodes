@@ -97,10 +97,10 @@ set input [::fileutil::cat -- $spec]
 set parser [interp create -safe]
 
 # add our basic verbs
-$parser alias revision ::cmds::revision
-$parser alias frame ::cmds::frame
-$parser alias enum ::cmds::enum
-$parser alias parameters ::cmds::parameters
+$parser alias REVISION ::cmds::revision
+$parser alias FRAME ::cmds::frame
+$parser alias ENUM ::cmds::enum
+$parser alias PARAMETERS ::cmds::parameters
 
 # process the file and toss the interpreter
 $parser eval $input

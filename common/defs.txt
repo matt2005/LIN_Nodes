@@ -1,14 +1,18 @@
-revision 1
+REVISION 1
 
-frame None              0x00    0
-frame Relays            0x01    8
-frame ConfigRequest     0x2c    8
-frame ConfigResponse    0x2d    8
-frame MasterRequest     0x3c    8
-frame SlaveResponse     0x3d    8
-frame Test              0x3f    8
+################################################################################
 
-enum SwitchID {
+FRAME None              0x00    0
+FRAME Relays            0x01    8
+FRAME ConfigRequest     0x2c    8
+FRAME ConfigResponse    0x2d    8
+FRAME MasterRequest     0x3c    8
+FRAME SlaveResponse     0x3d    8
+FRAME Test              0x3f    8
+
+################################################################################
+
+ENUM SwitchID {
     Ignition
     Start
     MarkerLights
@@ -36,7 +40,7 @@ enum SwitchID {
     Max
 }
 
-enum RelayID {
+ENUM RelayID {
     Ignition
     Start
     LightsUp
@@ -56,6 +60,7 @@ enum RelayID {
     CabinFan1
     CabinFan2
     CabinFan3
+    CabinFan4
     WiperLow
     WiperHigh
     RearDefrost
@@ -63,7 +68,7 @@ enum RelayID {
     Max
 }
 
-enum RelayType {
+ENUM RelayType {
     5AGeneric
     10AGeneric
     LED
@@ -74,7 +79,10 @@ enum RelayType {
     Max
 }
 
-parameters master
+################################################################################
+
+PARAMETERS master
+
 foreach assign {1 2 3 4 5 6 7} {
     master SPAssign${assign} "SP${assign} Input" "%S" 0 (LIN::kSwitchIDUnassigned) (LIN::kSwitchIDUnassigned)
 }
@@ -90,13 +98,19 @@ master BrakeBlinkPeriod    "BrakeBlinkPeriod"      "%3u0ms"        0       100  
 master BrakeBlinkCount     "BrakeBlinkCount"       "%3u blinks"    0       10                          0
 master WiperInterval       "WiperInterval"         "%3u00ms"       0       50                          0
 
-parameters power_v1
+################################################################################
+
+PARAMETERS power_v1
+
 power_v1 Relay1Assign "CH1 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
 power_v1 Relay2Assign "CH2 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
 power_v1 Relay3Assign "CH3 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
 power_v1 Relay4Assign "CH4 Assignment" "%0" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
 
-parameters power_v3
+################################################################################
+
+PARAMETERS power_v3
+
 foreach channel {1 2 3 4 5} {
     power_v3 CH${channel}Type "CH${channel} type" "%T" 0 (LIN::kRelayTypeMax-1) LIN::kRelayType5AGeneric
 }

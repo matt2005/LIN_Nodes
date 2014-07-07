@@ -1,4 +1,4 @@
-// AUTOMATICALLY GENERATED - DO NOT EDIT
+// AUTOMATICALLY GENERATED, DO NOT EDIT
 #pragma once
 #ifdef __AVR__
 # include <avr/pgmspace.h>
@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 namespace LIN {
-
 static const uint8_t protocolRevision = 1;
 
 enum FrameID : uint8_t {
@@ -22,74 +21,44 @@ enum FrameID : uint8_t {
 };
 
 enum FrameLen : uint8_t {
-    kFLenRelays = 0x08,
-    kFLenConfigRequest = 0x08,
-    kFLenConfigResponse = 0x08,
-    kFLenMasterRequest = 0x08,
-    kFLenSlaveResponse = 0x08,
-    kFLenTest = 0x08,
+    kFLenNone = 0,
+    kFLenRelays = 8,
+    kFLenConfigRequest = 8,
+    kFLenConfigResponse = 8,
+    kFLenMasterRequest = 8,
+    kFLenSlaveResponse = 8,
+    kFLenTest = 8,
 };
 
 enum SwitchID : uint8_t {
-    kSWIgnition = 0,
-    kSWStart = 1,
-    kSWMarkerLights = 2,
-    kSWHeadLights = 3,
-    kSWHighBeam = 4,
-    kSWHighBeamToggle = 5,
-    kSWFogLight = 6,
-    kSWLeftTurn = 7,
-    kSWRightTurn = 8,
-    kSWBrake = 9,
-    kSWReverse = 10,
-    kSWDoor = 11,
-    kSWInteriorLight = 12,
-    kSWHazard = 13,
-    kSWDoorUnlock = 14,
-    kSWLightsUp = 15,
-    kSWCabinFan1 = 16,
-    kSWCabinFan2 = 17,
-    kSWCabinFan3 = 18,
-    kSWWiperInt = 19,
-    kSWWiperLow = 20,
-    kSWWiperHigh = 21,
-    kSWRearDefrost = 22,
-    kSWUnassigned = 23,
-    kSWMax,
-    kSWNone = 0xff,
+    kSwitchIDIgnition,
+    kSwitchIDStart,
+    kSwitchIDMarkerLights,
+    kSwitchIDHeadLights,
+    kSwitchIDHighBeam,
+    kSwitchIDHighBeamToggle,
+    kSwitchIDFogLight,
+    kSwitchIDLeftTurn,
+    kSwitchIDRightTurn,
+    kSwitchIDBrake,
+    kSwitchIDReverse,
+    kSwitchIDDoor,
+    kSwitchIDInteriorLight,
+    kSwitchIDHazard,
+    kSwitchIDDoorUnlock,
+    kSwitchIDLightsUp,
+    kSwitchIDCabinFan1,
+    kSwitchIDCabinFan2,
+    kSwitchIDCabinFan3,
+    kSwitchIDWiperInt,
+    kSwitchIDWiperLow,
+    kSwitchIDWiperHigh,
+    kSwitchIDRearDefrost,
+    kSwitchIDUnassigned,
+    kSwitchIDMax,
 };
 
-enum RelayID : uint8_t {
-    kRelayIgnition = 0,
-    kRelayStart = 1,
-    kRelayLightsUp = 2,
-    kRelayLightsDown = 3,
-    kRelayHeadLights = 4,
-    kRelayLowBeam = 5,
-    kRelayHighBeam = 6,
-    kRelayFogLights = 7,
-    kRelayMarkers = 8,
-    kRelayLeftTurn = 9,
-    kRelayLeftTurnMarker = 10,
-    kRelayRightTurn = 11,
-    kRelayRightTurnMarker = 12,
-    kRelayBrake = 13,
-    kRelayReverse = 14,
-    kRelayInteriorLight = 15,
-    kRelayCabinFan1 = 16,
-    kRelayCabinFan2 = 17,
-    kRelayCabinFan3 = 18,
-    kRelayWiperLow = 19,
-    kRelayWiperHigh = 20,
-    kRelayRearDefrost = 21,
-    kRelayUnassigned = 22,
-    kRelayMax,
-    kRelayNone = 0xff,
-};
-
-} //namespace LIN
-
-static PROGMEM const char switchNames[] = 
+static PROGMEM const char * const strtabSwitchID = 
     "Ignition\0"
     "Start\0"
     "MarkerLights\0"
@@ -114,9 +83,37 @@ static PROGMEM const char switchNames[] =
     "WiperHigh\0"
     "RearDefrost\0"
     "Unassigned\0"
+    "Max\0"
     "\0";
 
-static PROGMEM const char relayNames[] = 
+enum RelayID : uint8_t {
+    kRelayIDIgnition,
+    kRelayIDStart,
+    kRelayIDLightsUp,
+    kRelayIDLightsDown,
+    kRelayIDHeadLights,
+    kRelayIDLowBeam,
+    kRelayIDHighBeam,
+    kRelayIDFogLights,
+    kRelayIDMarkers,
+    kRelayIDLeftTurn,
+    kRelayIDLeftTurnMarker,
+    kRelayIDRightTurn,
+    kRelayIDRightTurnMarker,
+    kRelayIDBrake,
+    kRelayIDReverse,
+    kRelayIDInteriorLight,
+    kRelayIDCabinFan1,
+    kRelayIDCabinFan2,
+    kRelayIDCabinFan3,
+    kRelayIDWiperLow,
+    kRelayIDWiperHigh,
+    kRelayIDRearDefrost,
+    kRelayIDUnassigned,
+    kRelayIDMax,
+};
+
+static PROGMEM const char * const strtabRelayID = 
     "Ignition\0"
     "Start\0"
     "LightsUp\0"
@@ -140,5 +137,30 @@ static PROGMEM const char relayNames[] =
     "WiperHigh\0"
     "RearDefrost\0"
     "Unassigned\0"
+    "Max\0"
     "\0";
 
+enum RelayType : uint8_t {
+    kRelayType5AGeneric,
+    kRelayType10AGeneric,
+    kRelayTypeLED,
+    kRelayTypeHID,
+    kRelayTypeLowPowerBulb,
+    kRelayTypeHighPowerBulb,
+    kRelayTypeMotor,
+    kRelayTypeMax,
+};
+
+static PROGMEM const char * const strtabRelayType = 
+    "5AGeneric\0"
+    "10AGeneric\0"
+    "LED\0"
+    "HID\0"
+    "LowPowerBulb\0"
+    "HighPowerBulb\0"
+    "Motor\0"
+    "Max\0"
+    "\0";
+
+
+} // namespace LIN

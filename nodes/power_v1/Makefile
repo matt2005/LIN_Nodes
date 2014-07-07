@@ -9,7 +9,8 @@ SRCS		+= board.cpp \
 		   lin_slave.cpp \
 		   print.cpp \
 		   softserial.cpp \
-		   timer.cpp
+		   timer.cpp \
+		   util.cpp
 
 BOARD		 = POWER_V1
 

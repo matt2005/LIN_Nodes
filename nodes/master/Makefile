@@ -12,7 +12,8 @@ SRCS		+= board.cpp \
 		   mc33972.cpp \
 		   print.cpp \
 		   softserial.cpp \
-		   timer.cpp
+		   timer.cpp \
+		   util.cpp
 
 BOARD		 = MASTER_V1
 #FUSES		 = $(RES_FUSES)

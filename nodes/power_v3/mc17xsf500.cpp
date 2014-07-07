@@ -1,6 +1,9 @@
 #include "mc17xsf500.h"
 #include "board.h"
 
+#include "protocol.h"
+#include "param_Power_v3.h"
+
 namespace MC17XSF500
 {
 
@@ -81,8 +84,8 @@ public:
         if (duty_cycle > 0) {
             chX_control.on = 1;
 
-            switch (paramType(channel)) {
-            case kChannelHID:
+            switch (Parameter(kParamCH1Type + channel)) {
+            case LIN::kRelayTypeHID:
                 chX_control.pwm = 255;              // HID cannot be PWM controlled
                 break;
 
@@ -109,11 +112,11 @@ public:
         over_current_control_1.acm = 0; // XXX might want to enable for low-current loads?
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (paramType(channel)) {
-            case kChannel5AGeneric:
-            case kChannelLED:
-            case kChannelHID:
-            case kChannelLowPowerBulb:
+            switch (Parameter(kParamCH1Type + channel)) {
+            case LIN::kRelayType5AGeneric:
+            case LIN::kRelayTypeLED:
+            case LIN::kRelayTypeHID:
+            case LIN::kRelayTypeLowPowerBulb:
                 over_current_control_1.oclo |= (1 << channel);
                 break;
 
@@ -133,10 +136,10 @@ public:
         address.data = 0;
 
         // low-frequency PWM for motors and bulbs
-        switch (paramType(0)) {
-        case kChannelLowPowerBulb:
-        case kChannelHighPowerBulb:
-        case kChannelMotor:
+        switch (paramCH1Type) {
+        case LIN::kRelayTypeLowPowerBulb:
+        case LIN::kRelayTypeHighPowerBulb:
+        case LIN::kRelayTypeMotor:
             prescaler_1.prs1 = kPRSDiv4;
             break;
 
@@ -144,10 +147,10 @@ public:
             break;
         }
 
-        switch (paramType(1)) {
-        case kChannelLowPowerBulb:
-        case kChannelHighPowerBulb:
-        case kChannelMotor:
+        switch (paramCH2Type) {
+        case LIN::kRelayTypeLowPowerBulb:
+        case LIN::kRelayTypeHighPowerBulb:
+        case LIN::kRelayTypeMotor:
             prescaler_1.prs2 = kPRSDiv4;
             break;
 
@@ -155,10 +158,10 @@ public:
             break;
         }
 
-        switch (paramType(2)) {
-        case kChannelLowPowerBulb:
-        case kChannelHighPowerBulb:
-        case kChannelMotor:
+        switch (paramCH3Type) {
+        case LIN::kRelayTypeLowPowerBulb:
+        case LIN::kRelayTypeHighPowerBulb:
+        case LIN::kRelayTypeMotor:
             prescaler_1.prs3 = kPRSDiv4;
             break;
 
@@ -166,10 +169,10 @@ public:
             break;
         }
 
-        switch (paramType(3)) {
-        case kChannelLowPowerBulb:
-        case kChannelHighPowerBulb:
-        case kChannelMotor:
+        switch (paramCH4Type) {
+        case LIN::kRelayTypeLowPowerBulb:
+        case LIN::kRelayTypeHighPowerBulb:
+        case LIN::kRelayTypeMotor:
             prescaler_1.prs4 = kPRSDiv4;
             break;
 
@@ -177,10 +180,10 @@ public:
             break;
         }
 
-        switch (paramType(4)) {
-        case kChannelLowPowerBulb:
-        case kChannelHighPowerBulb:
-        case kChannelMotor:
+        switch (paramCH5Type) {
+        case LIN::kRelayTypeLowPowerBulb:
+        case LIN::kRelayTypeHighPowerBulb:
+        case LIN::kRelayTypeMotor:
             prescaler_1.prs5 = kPRSDiv4;
             break;
 
@@ -199,9 +202,9 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (paramType(channel)) {
-            case kChannelLowPowerBulb:
-            case kChannelHighPowerBulb:
+            switch (Parameter(kParamCH1Type + channel)) {
+            case LIN::kRelayTypeLowPowerBulb:
+            case LIN::kRelayTypeHighPowerBulb:
                 break;
 
             default:
@@ -224,8 +227,8 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (paramType(channel)) {
-            case kChannelLED:
+            switch (Parameter(kParamCH1Type + channel)) {
+            case LIN::kRelayTypeLED:
                 olled_control.olled_en |= (1 << channel);
                 break;
 

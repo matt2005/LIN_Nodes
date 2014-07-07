@@ -34,6 +34,7 @@ public:
         void toggle()          { _port.PIN  |=  _bit; }
 
         bool get() const       { return _port.PIN & _bit; }
+        operator bool () const { return get(); }
     };
 
     constexpr Port(Reg_t &ddr, Reg_t &port, Reg_t &pin) : DDR(ddr), PORT(port), PIN(pin) {}

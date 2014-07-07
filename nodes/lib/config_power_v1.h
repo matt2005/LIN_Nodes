@@ -25,8 +25,3 @@
 #define pinLINCS       portA[6]
 
 #define pinDebugTX     portA[7]
-
-#define paramRelay1Assign  (LIN::RelayID)Parameter(1)
-#define paramRelay2Assign  (LIN::RelayID)Parameter(2)
-#define paramRelay3Assign  (LIN::RelayID)Parameter(3)
-#define paramRelay4Assign  (LIN::RelayID)Parameter(4)

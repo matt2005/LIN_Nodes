@@ -11,16 +11,6 @@ static const uint8_t num_channels = 5;
 extern void configure();
 extern void set(uint8_t channel, uint8_t duty_cycle);
 
-enum ChannelMode : uint8_t {
-    kChannel5AGeneric = 0,      // resistive load, 5A current limit
-    kChannel10AGeneric = 1,     // resistive load, 10A current limit
-    kChannelLED = 1,            // LED, 5A current limit
-    kChannelHID = 2,            // HID ballast, 5A current limit
-    kChannelLowPowerBulb = 3,   // incandescent bulb, 5A current limit
-    kChannelHighPowerBulb = 4,  // incandescent bulb, 10A current limit
-    kChannelMotor = 5           // DC motor, 10A current limit
-};
-
 enum ControlRegister : uint8_t {
     kCtrlInit1 = 0x00,
     kCtrlInit2 = 0x10,

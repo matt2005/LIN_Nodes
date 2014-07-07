@@ -268,7 +268,7 @@ Master::handleConfigResponse()
     f.nad() = LIN::kNADMaster;
     f.flavour() = LIN::kCFGetParam;
     f.param() = _configParam;
-    f.value() = Parameter(_configParam).get();
+    f.value() = Parameter(_configParam);
 
     sendResponse(f, 8);
 }

@@ -3,6 +3,7 @@
 #include <avr/pgmspace.h>
 
 #include "print.h"
+#include "util.h"
 
 void
 Print::printf(PGM_P fmt, ...)
@@ -41,6 +42,14 @@ nextfmt:
 
         case 's':
             _writes(va_arg(ap, const char *), w);
+            break;
+
+        case 't':
+            {
+                const char *t = va_arg(ap, const char *);
+                unsigned i = va_arg(ap, unsigned);
+                _writes(Util::strtab(t,i), w);
+            }
             break;
 
         case 'p':

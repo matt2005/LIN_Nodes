@@ -1,5 +1,6 @@
 
 #include "lin_protocol.h"
+#include "protocol.h"
 #include "util.h"
 #include "board.h"
 
@@ -10,6 +11,17 @@
 
 namespace Menu
 {
+
+////////////////////////////////////////////////////////////////
+// Master node parameter editor
+//
+// +--------------------+
+// |Master:             |
+// | ParameterName      |
+// |   ValueUnits       |
+// |                    |
+// +--------------------+
+//
 
 SetupMasterMode modeSetupMaster;
 
@@ -138,7 +150,7 @@ SetupMasterMode::draw()
             gDisplay.printf(PSTR("%s"), paramName(_param));
 
             if (pgm_read_byte(paramFormat(_param)) == ' ') {
-                modeEdit.init(this, &_value, 0, 1, switchNames, PSTR("%16s"));
+                modeEdit.init(this, &_value, 0, 1, LIN::strtabSwitchID, PSTR("%16s"));
 
             } else {
                 modeEdit.init(this, &_value, 0, 1, 0, 255, paramFormat(_param));

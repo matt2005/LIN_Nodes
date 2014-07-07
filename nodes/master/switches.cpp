@@ -5,6 +5,9 @@
 
 #include "switches.h"
 
+#include "protocol.h"
+#include "param_Master.h"
+
 namespace Switches
 {
 
@@ -14,24 +17,24 @@ struct Debounce {
 };
 
 static const uint8_t    kDebounceCycles = 5; // XXX needs to be computed/tuned
-static const uint8_t    kStateBytes = (LIN::kSWMax + 7) / 8;
-static Debounce         _state[LIN::kSWMax];
+static const uint8_t    kStateBytes = (LIN::kSwitchIDMax + 7) / 8;
+static Debounce         _state[LIN::kSwitchIDMax];
 
 void
 init()
 {
     MC33972::configure();
-#ifdef DEBUG
-
-    for (uint8_t sw = 1; sw <= 7; sw++) {
-        debug("SP%2u: %2u", sw, paramSPAssign(sw).get());
-    }
-
-    for (uint8_t sw = 0; sw <= 13; sw++) {
-        debug("SG%2u: %2u", sw, paramSGAssign(sw).get());
-    }
-
-#endif
+//#ifdef DEBUG
+//
+//    for (uint8_t sw = 1; sw <= 7; sw++) {
+//        debug("SP%2u: %2u", sw, paramSPAssign(sw).get());
+//    }
+//
+//    for (uint8_t sw = 0; sw <= 13; sw++) {
+//        debug("SG%2u: %2u", sw, paramSGAssign(sw).get());
+//    }
+//
+//#endif
 }
 
 bool
@@ -61,7 +64,7 @@ changedToOff(uint8_t id)
 bool
 changed()
 {
-    for (uint8_t id = 0; id < LIN::kSWMax; id++) {
+    for (uint8_t id = 0; id < LIN::kSwitchIDMax; id++) {
         if (changed(id)) {
             return true;
         }
@@ -80,7 +83,7 @@ scan()
         rawstate[i] = 0;
     }
 
-#define SET(x)  do { if (x < LIN::kSWMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
+#define SET(x)  do { if (x < LIN::kSwitchIDMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
 #define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
 
     // fetch the switch inputs
@@ -88,25 +91,25 @@ scan()
 
     // hardcoded ignition input on SP0
     if (MC33972::test(MC33972::kInputSP0)) {
-        SET(LIN::kSWIgnition);
+        SET(LIN::kSwitchIDIgnition);
     }
 
     // SP1-SP7
-    for (uint8_t sw = 1; sw <= 7; sw++) {
-        if (MC33972::test(MC33972::kInputSP0 + sw)) {
-            SET(paramSPAssign(sw).get());
+    for (uint8_t sw = 0; sw <= 6; sw++) {
+        if (MC33972::test(MC33972::kInputSP1 + sw)) {
+            SET(Parameter(kParamSPAssign1 + sw));
         }
     }
 
     // SG0-SG13
     for (uint8_t sw = 0; sw <= 13; sw++) {
         if (MC33972::test(MC33972::kInputSG0 + sw)) {
-            SET(paramSGAssign(sw).get());
+            SET(Parameter(kParamSGAssign0 + sw));
         }
     }
 
     // debounce raw state
-    for (uint8_t i = 0; i < LIN::kSWMax; i++) {
+    for (uint8_t i = 0; i < LIN::kSwitchIDMax; i++) {
 
         // if no change, reset debounce timer (also clears
         // 'changed' state

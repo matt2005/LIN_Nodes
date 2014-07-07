@@ -1,0 +1,96 @@
+# System parameter table
+#
+# Format field pseudo-formats:
+#
+# %S - stringtab using parameter value and switch assignment names
+# %T - stringtab using parameter value and relay types
+# %O - stringtab using parameter value and relay assignment names
+#
+
+Revision:    1
+
+Master:
+    # name              UI text                 format          min     max                         default
+    SPAssign1           "SP1 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SPAssign2           "SP2 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SPAssign3           "SP3 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SPAssign4           "SP4 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SPAssign5           "SP5 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SPAssign6           "SP6 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SPAssign7           "SP7 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign0           "SG0 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign1           "SG1 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign2           "SG2 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign3           "SG3 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign4           "SG4 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign5           "SG5 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign6           "SG6 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign7           "SG7 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign8           "SG8 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign9           "SG9 Input"             "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign10          "SG10 Input"            "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign11          "SG11 Input"            "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign12          "SG12 Input"            "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign13          "SG13 Input"            "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    SGAssign14          "SG14 Input"            "%S"            0       (LIN::kSWMax+1)             (LIN::kSWMax+1)
+    TurnBlinkPeriod     "TurnBlinkPeriod"       "%3u0ms"        0       255                         0
+    PassingBlinkCount   "PassingBlinkCount"     "%3u blinks"    0       10                          0
+    PathLightPeriod     "PathLightPeriod"       "%3us"          0       60                          0
+    InteriorLightPeriod "InteriorLightPeriod"   "%3us"          0       60                          0
+    WelcomeLightPeriod  "WelcomeLightPeriod"    "%3us"          0       60                          0
+    BrakeBlinkPeriod    "BrakeBlinkPeriod"      "%3u0ms"        0       100                         0
+    BrakeBlinkCount     "BrakeBlinkCount"       "%3u blinks"    0       10                          0
+    WiperInterval       "WiperInterval"         "%3u00ms"       0       50                          0
+
+PowerV3:
+    # name              UI text                 format          min     max                         default
+    CH1Type             "CH1 type"              "%T"            0       MC17XSF500::kChannelModeMax MC17XSF500::kChannel5AGeneric
+    CH1Assign1          "CH1 Assignment 1"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH1PWM1             "CH1 PWM 1"             "%u%%"          0       100                         0
+    CH1Assign2          "CH1 Assignment 2"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH1PWM2             "CH1 PWM 2"             "%u%%"          0       100                         0
+    CH1Assign3          "CH1 Assignment 3"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH1PWM3             "CH1 PWM 3"             "%u%%"          0       100                         0
+    CH1Assign4          "CH1 Assignment 4"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH1PWM4             "CH1 PWM 4"             "%u%%"          0       100                         0
+
+    CH2Type             "CH2 type"              "%T"            0       MC17XSF500::kChannelModeMax
+    CH2Assign1          "CH2 Assignment 1"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH2PWM1             "CH2 PWM 1"             "%u%%"          0       100                         0
+    CH2Assign2          "CH2 Assignment 2"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH2PWM2             "CH2 PWM 2"             "%u%%"          0       100                         0
+    CH2Assign3          "CH2 Assignment 3"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH2PWM3             "CH2 PWM 3"             "%u%%"          0       100                         0
+    CH2Assign4          "CH2 Assignment 4"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH2PWM4             "CH2 PWM 4"             "%u%%"          0       100                         0
+
+    CH3Type             "CH3 type"              "%T"            0       MC17XSF500::kChannelModeMax
+    CH3Assign1          "CH3 Assignment 1"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH3PWM1             "CH3 PWM 1"             "%u%%"          0       100                         0
+    CH3Assign2          "CH3 Assignment 2"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH3PWM2             "CH3 PWM 2"             "%u%%"          0       100                         0
+    CH3Assign3          "CH3 Assignment 3"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH3PWM3             "CH3 PWM 3"             "%u%%"          0       100                         0
+    CH3Assign4          "CH3 Assignment 4"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH3PWM4             "CH3 PWM 4"             "%u%%"          0       100                         0
+
+    CH4Type             "CH4 type"              "%T"            0       MC17XSF500::kChannelModeMax
+    CH4Assign1          "CH4 Assignment 1"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH4PWM1             "CH4 PWM 1"             "%u%%"          0       100                         0
+    CH4Assign2          "CH4 Assignment 2"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH4PWM2             "CH4 PWM 2"             "%u%%"          0       100                         0
+    CH4Assign3          "CH4 Assignment 3"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH4PWM3             "CH4 PWM 3"             "%u%%"          0       100                         0
+    CH4Assign4          "CH4 Assignment 4"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH4PWM4             "CH4 PWM 4"             "%u%%"          0       100                         0
+
+    CH5Type             "CH5 type"              "%T"            0       MC17XSF500::kChannelModeMax
+    CH5Assign1          "CH5 Assignment 1"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH5PWM1             "CH5 PWM 1"             "%u%%"          0       100                         0
+    CH5Assign2          "CH5 Assignment 2"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH5PWM2             "CH5 PWM 2"             "%u%%"          0       100                         0
+    CH5Assign3          "CH5 Assignment 3"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH5PWM3             "CH5 PWM 3"             "%u%%"          0       100                         0
+    CH5Assign4          "CH5 Assignment 4"      "%O"            0       (LIN::kRelayMax+1)          (LIN::kRelayMax+1)
+    CH5PWM4             "CH5 PWM 4"             "%u%%"          0       100                         0
+

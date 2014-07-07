@@ -9,7 +9,7 @@ public:
 
     bool            testRelay(LIN::RelayID id) const
     {
-        return (id < LIN::kRelayMax) && (relayFrame.test(id));
+        return (id < LIN::kRelayIDMax) && (relayFrame.test(id));
     }
 
 protected:

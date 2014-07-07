@@ -1,0 +1,182 @@
+#!/usr/bin/tclsh
+#
+# Generator for magic numbers, class definitions and the like.
+#
+# Parses a DSL from the input file and generates code to suit
+#
+# DSL grammar:
+#
+# revision <revision-number>
+#
+# frame <frame-name> <frame-id> <frame-length>
+#
+# enum <enum-name> { <element-name> [<element-name>...]}
+#
+# parameters <node-name>
+# <node-name> <parameter-name> "display-name" "format-string" <minimum-value> <maximum-value> <default-value>
+#
+
+package require fileutil
+
+set linenumber -1
+set revision -1
+set frames [dict create]
+set enums [dict create]
+set parameters [dict create]
+
+namespace eval ::cmds {
+
+    variable current_enum "none"
+    variable parameter_node "none"
+
+    proc revision {val} {
+        global revision
+
+        if {$revision != -1} {
+            error "duplicate revision keyword"
+        }
+        set revision $val
+    }
+
+    proc frame {frame_name frame_id {frame_length 8}} {
+        global frames
+
+        if {[dict exists $frames $frame_name]} {
+            error "duplicate frame name '${frame_name}'"
+        }
+        dict set frames $frame_name [dict create    \
+            id $frame_id                            \
+            length $frame_length                    \
+        ]
+    }
+
+    proc enum {enum_name elements} {
+        global enums
+
+        if {[dict exists $enums $enum_name]} {
+            error "duplicate enum name '${enum_name}'"
+        }
+        dict set enums $enum_name $elements
+    }
+
+    proc parameters {node_name} {
+        global parameters
+        global parser
+
+        if {[dict exists $parameters $node_name]} {
+            error "duplicate node name '${node_name}'"
+        }
+        dict set parameters $node_name [dict create]
+        $parser alias $node_name ::cmds::parameter_append $node_name
+    }
+
+    proc parameter_append {node_name parameter_name display_name display_format minimum_value maximum_value defalt_value} {
+        global parameters
+
+        if {[dict exists $parameters $node_name $parameter_name]} {
+            error "duplicate parameter name '${parameter_name}' for '${node_name}'"
+        }
+        dict set parameters $node_name $parameter_name [dict create \
+            display_name $display_name                              \
+            display_format $display_format                          \
+            min $minimum_value                                      \
+            max $maximum_value                                      \
+            default $defalt_value                                   \
+        ]
+    }
+}
+
+# make sure we can read the input file
+set spec [lindex $argv 0]
+if {![file readable $spec]} {
+    error "${spec} unreadable"
+}
+set input [::fileutil::cat -- $spec]
+
+# construct the interpreter we're going to use to process the spec
+set parser [interp create -safe]
+
+# add our basic verbs
+$parser alias revision ::cmds::revision
+$parser alias frame ::cmds::frame
+$parser alias enum ::cmds::enum
+$parser alias parameters ::cmds::parameters
+
+# process the file and toss the interpreter
+$parser eval $input
+interp delete $parser
+
+# Generate the protocol header
+set fh [open "protocol.h" "w"]
+puts $fh "// AUTOMATICALLY GENERATED, DO NOT EDIT"
+puts $fh "#pragma once"
+puts $fh "#ifdef __AVR__"
+puts $fh "# include <avr/pgmspace.h>"
+puts $fh "#else"
+puts $fh "# define PROGMEM"
+puts $fh "#endif"
+puts $fh "#include <stdint.h>"
+puts $fh ""
+puts $fh "namespace LIN {"
+puts $fh "static const uint8_t protocolRevision = $revision;"
+puts $fh ""
+puts $fh "enum FrameID : uint8_t {"
+dict for {name info} $frames {
+    puts $fh "    kFID$name = [dict get ${info} id],"
+}
+puts $fh "};"
+puts $fh ""
+
+# emit frame definitions
+puts $fh "enum FrameLen : uint8_t {"
+dict for {name info} $frames {
+    puts $fh "    kFLen$name = [dict get ${info} length],"
+}
+puts $fh "};"
+puts $fh ""
+
+# emit enum defintions
+dict for {enum_name enum_data} $enums {
+    puts $fh "enum $enum_name : uint8_t {"
+    foreach element_name $enum_data {
+        puts $fh "    k${enum_name}${element_name},"
+    }
+    puts $fh "};"
+    puts $fh ""
+    puts $fh "static PROGMEM const char * const strtab${enum_name} = "
+    foreach element_name $enum_data {
+        puts $fh "    \"$element_name\\0\""
+    }
+    puts $fh "    \"\\0\";"
+    puts $fh ""
+}
+puts $fh ""
+puts $fh "} // namespace LIN"
+close $fh
+
+# Generate parameter headers
+dict for {node node_params} $parameters {
+    set fh [open "param_$node.h" "w"]
+    puts $fh "// AUTOMATICALLY GENERATED, DO NOT EDIT"
+    puts $fh "#pragma once"
+    puts $fh ""
+    set index 1
+    dict for {param_name param_info} $node_params {
+        puts $fh "#define kParam${param_name} ${index}"
+        incr index
+    }
+    puts $fh ""
+    dict for {param_name param_info} $node_params {
+        set min [dict get $param_info min]
+        set max [dict get $param_info max]
+        set default [dict get $param_info default]
+        puts $fh "#define param${param_name} Parameter(kParam${param_name}, ${min}, ${max}, ${default})"
+    }
+    puts $fh ""
+    puts $fh "#define paramAll(method, ...) \\"
+    dict for {param_name param_info} $node_params {
+        puts $fh "    param${param_name}.method(__VA_ARGS__); \\"
+    }
+    puts $fh "struct hack"
+    close $fh
+}

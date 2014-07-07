@@ -26,14 +26,3 @@
 #define pinLINCS       portB[6]
 
 #define pinDebugTX     portB[5] // E on the LCD connector
-
-#define paramSPAssign(_n)          Parameter(_n)     // 1...7
-#define paramSGAssign(_n)          Parameter(8 + _n) // 8...21
-#define paramTurnBlinkPeriod       Parameter(22, 0)
-#define paramPassingBlinkCount     Parameter(23, 0)
-#define paramPathLightPeriod       Parameter(24, 15)
-#define paramInteriorLightPeriod   Parameter(25, 10)
-#define paramWelcomeLightPeriod    Parameter(26, 10)
-#define paramBrakeBlinkPeriod      Parameter(27, 0)
-#define paramBrakeBlinkCount       Parameter(28, 0)
-#define paramWiperInterval         Parameter(29, 0)

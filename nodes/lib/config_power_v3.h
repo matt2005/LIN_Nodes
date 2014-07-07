@@ -27,16 +27,3 @@
 #define pinDebugTX     portB[1] // CSNS_SYNCB can't be used in DEBUG mode...
 
 #define ocrSWCLK       3        // TCCR1D bit matching pinSWCLK above
-
-// Per-channel parameter indices
-#define kChannelOutputType      0
-#define kChannelAssignments     1
-#define kChannelNumAssignments  4
-#define kChannelPWMValues       (kChannelAssignments + kChannelNumAssignments)
-#define kChannelNumParameters   (kChannelPWMValues + kChannelNumAssignments)
-
-#define _paramBase(_channel)             ((_channel) * kChannelNumParameters)
-
-#define paramType(_channel)              Parameter(_paramBase(_channel) + kChannelOutputType)
-#define paramAssign(_channel, _index)    Parameter(_paramBase(_channel) + kChannelAssignments + (_index))
-#define paramPWM(_channel, _index)       Parameter(_paramBase(_channel) + kChannelPWMValues + (_index))

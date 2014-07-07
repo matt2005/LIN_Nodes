@@ -4,12 +4,15 @@
 #include <avr/io.h>
 
 #include "board.h"
-#include "lin_protocol.h"
 #include "timer.h"
 
 #include "master.h"
 #include "switches.h"
 #include "relays.h"
+
+#include "protocol.h"
+#include "parameter.h"
+#include "param_Master.h"
 
 bool __cxa_guard_acquire() { return true; }
 void __cxa_guard_release() {}
@@ -27,22 +30,7 @@ main(void)
     }
 
     // init / default parameters
-    for (uint8_t i = 1; i <= 7; i++) {
-        paramSPAssign(i).init();
-    }
-
-    for (uint8_t i = 0; i <= 13; i++) {
-        paramSGAssign(i).init();
-    }
-
-    paramTurnBlinkPeriod.init();
-    paramPassingBlinkCount.init();
-    paramPathLightPeriod.init();
-    paramInteriorLightPeriod.init();
-    paramWelcomeLightPeriod.init();
-    paramBrakeBlinkPeriod.init();
-    paramBrakeBlinkCount.init();
-    paramWiperInterval.init();
+    paramAll(init);
 
     // initialisation
     gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS

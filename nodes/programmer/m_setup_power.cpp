@@ -93,7 +93,7 @@ SetupPowerMode::draw()
     }
 
     gDisplay.printf(PSTR("Relay %2u"), _param);
-    modeEdit.init(this, &_value, 0, 1, relayNames, PSTR("%16s"));
+    modeEdit.init(this, &_value, 0, 1, LIN::strtabRelayID, PSTR("%16s"));
     modeEdit.draw();
 }
 

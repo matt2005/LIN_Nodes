@@ -5,6 +5,9 @@
 #include "board.h"
 #include "slave.h"
 
+#include "protocol.h"
+#include "param_power_v1.h"
+
 void
 main(void)
 {
@@ -18,10 +21,10 @@ main(void)
 
 #ifdef DEBUG
     OSCCAL += 7;    // XXX test board's osc is slow
-    debug("1: %u", paramRelay1Assign.get());
-    debug("2: %u", paramRelay2Assign.get());
-    debug("3: %u", paramRelay3Assign.get());
-    debug("4: %u", paramRelay4Assign.get());
+    debug("1: %u", paramRelay1Assign);
+    debug("2: %u", paramRelay2Assign);
+    debug("3: %u", paramRelay3Assign);
+    debug("4: %u", paramRelay4Assign);
 #endif
 
     // power switch control pins
@@ -42,6 +45,9 @@ main(void)
     pinSTATUS4.cfgInputNoPull();
 # endif
 
+    // init/default parameters
+    paramAll(init);
+
     // construct the slave
     RelaySlave  slave(id);
     slave.init();
@@ -54,28 +60,28 @@ main(void)
         wdt_reset();
 
         // adjust outputs to match our commanded value
-        if (slave.testRelay(paramRelay1Assign.get())) {
+        if (slave.testRelay((LIN::RelayID)paramRelay1Assign.get())) {
             pinOUT1.set();
 
         } else {
             pinOUT1.clear();
         }
 
-        if (slave.testRelay(paramRelay2Assign.get())) {
+        if (slave.testRelay((LIN::RelayID)paramRelay2Assign.get())) {
             pinOUT2.set();
 
         } else {
             pinOUT2.clear();
         }
 
-        if (slave.testRelay(paramRelay3Assign.get())) {
+        if (slave.testRelay((LIN::RelayID)paramRelay3Assign.get())) {
             pinOUT3.set();
 
         } else {
             pinOUT3.clear();
         }
 
-        if (slave.testRelay(paramRelay4Assign.get())) {
+        if (slave.testRelay((LIN::RelayID)paramRelay4Assign.get())) {
             pinOUT4.set();
 
         } else {
@@ -86,21 +92,21 @@ main(void)
         uint8_t outputFault = 0;
 
         // XXX fault indications lag output changes...
-        if (!pinSTATUS1.get()) {
+        if (!pinSTATUS1) {
             outputFault |= 1;
         }
 
-        if (!pinSTATUS2.get()) {
+        if (!pinSTATUS2) {
             outputFault |= 2;
         }
 
-        if (!pinSTATUS3.get()) {
+        if (!pinSTATUS3) {
             outputFault |= 4;
         }
 
 #ifndef DEBUG   // pin shared with debug() output
 
-        if (!pinSTATUS4.get()) {
+        if (!pinSTATUS4) {
             outputFault |= 8;
         }
 

@@ -61,24 +61,15 @@ HD44780::clear()
 void
 HD44780::move(uint8_t x, uint8_t y)
 {
-    uint8_t cmd;
+    uint8_t cmd = 0x80;
 
-    switch (y) {
-    case 0:
-        cmd = 0x80;
-        break;
-    case 1:
-        cmd = 0xc0;
-        break;
-    case 2:
-        cmd = 0x94;
-        break;
-    case 3:
-        cmd = 0xd4;
-        break;
-    default:
-        return;
+    if (y & 1) {
+        cmd |= 0x40;
     }
+    if (y & 2) {
+        cmd |= 0x14;
+    }
+
     sendCmd(cmd + x);
 }
 

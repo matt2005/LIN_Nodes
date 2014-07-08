@@ -2,7 +2,7 @@
 #include "board.h"
 
 #include "protocol.h"
-#include "param_Power_v3.h"
+#include "param_power_v3.h"
 
 namespace MC17XSF500
 {
@@ -84,7 +84,7 @@ public:
         if (duty_cycle > 0) {
             chX_control.on = 1;
 
-            switch (Parameter(kParamCH1Type + channel)) {
+            switch (power_v3Param(kParamCH1Type + channel)) {
             case LIN::kRelayTypeHID:
                 chX_control.pwm = 255;              // HID cannot be PWM controlled
                 break;
@@ -112,7 +112,7 @@ public:
         over_current_control_1.acm = 0; // XXX might want to enable for low-current loads?
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (Parameter(kParamCH1Type + channel)) {
+            switch (power_v3Param(kParamCH1Type + channel)) {
             case LIN::kRelayType5AGeneric:
             case LIN::kRelayTypeLED:
             case LIN::kRelayTypeHID:
@@ -202,7 +202,7 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (Parameter(kParamCH1Type + channel)) {
+            switch (power_v3Param(kParamCH1Type + channel)) {
             case LIN::kRelayTypeLowPowerBulb:
             case LIN::kRelayTypeHighPowerBulb:
                 break;
@@ -227,7 +227,7 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (Parameter(kParamCH1Type + channel)) {
+            switch (power_v3Param(kParamCH1Type + channel)) {
             case LIN::kRelayTypeLED:
                 olled_control.olled_en |= (1 << channel);
                 break;

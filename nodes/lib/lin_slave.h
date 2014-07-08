@@ -68,6 +68,24 @@ protected:
         _sendSlaveResponse = true;
     }
 
+    /// Get a parameter
+    ///
+    /// Called when handling config requests
+    ///
+    /// @param param            Parameter index to be read.
+    /// @return                 The parameter's current value.
+    ///
+    virtual uint8_t         get_param(uint8_t param);
+
+    /// Set a parameter
+    ///
+    /// Called when handling config responses
+    ///
+    /// @param param            Parameter index to be written
+    /// @param value            Value to be written.
+    ///
+    virtual void            set_param(uint8_t param, uint8_t value);
+
 private:
     Timer           _idleTimer;         //< Bus idle timer
     LIN::Frame      _response;          //< canned response frame

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 
 class Parameter
@@ -9,14 +10,9 @@ class Parameter
 public:
     static const uint8_t    maxIndex = UINT8_MAX;
 
-    constexpr Parameter(uint8_t index,
-                        uint8_t min_val = 0,
-                        uint8_t max_val = 0xff,
-                        uint8_t def_val = 0xff) :
+    constexpr Parameter(uint8_t index, const uint8_t *info) :
         _index(index),
-        _min_val(min_val),
-        _max_val(max_val),
-        _def_val(def_val)
+        _info(info)
     {
     }
 
@@ -35,7 +31,7 @@ public:
     void        init() const 
     {
         if (!valid(get())) {
-            set(_def_val);
+            set(_def());
         }
     }
     uint8_t     index() const
@@ -44,12 +40,13 @@ public:
     }
     bool        valid(uint8_t value) const
     {
-        return ((value >= _min_val) && (value <= _max_val));
+        return ((value >= _min()) && (value <= _max()));
     }
 private:
     const uint8_t   _index;
-    const uint8_t   _min_val;
-    const uint8_t   _max_val;
-    const uint8_t   _def_val;
+    const uint8_t   *_info;
 
+    uint8_t     _min() const { return pgm_read_byte(_info + 0); }
+    uint8_t     _max() const { return pgm_read_byte(_info + 1); }
+    uint8_t     _def() const { return pgm_read_byte(_info + 2); }
 };

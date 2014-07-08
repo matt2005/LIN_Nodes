@@ -6,6 +6,8 @@
 #include "board.h"
 #include "master.h"
 
+#include "param_master.h"
+
 // Schedule used in normal operation
 //
 PROGMEM const LIN::FrameID Master::normalSchedule[] = {
@@ -249,7 +251,7 @@ Master::handleConfigRequest(LIN::ConfigFrame &frame)
     }
 
     if (frame.flavour() == LIN::kCFSetParam) {
-        Parameter(frame.param()).set(frame.value());
+        masterParam(frame.param()).set(frame.value());
         return;
     }
 }
@@ -268,7 +270,7 @@ Master::handleConfigResponse()
     f.nad() = LIN::kNADMaster;
     f.flavour() = LIN::kCFGetParam;
     f.param() = _configParam;
-    f.value() = Parameter(_configParam);
+    f.value() = masterParam(_configParam);
 
     sendResponse(f, 8);
 }

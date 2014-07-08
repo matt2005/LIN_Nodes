@@ -136,7 +136,8 @@ Slave::configRequest(LIN::ConfigFrame &frame)
         return;
     }
     if (frame.flavour() == LIN::kCFSetParam) {
-        Parameter(frame.param()).set(frame.value());
+        set_param(frame.param(), frame.value());
+        //Parameter(frame.param()).set(frame.value());
         return;
     }
 }
@@ -154,7 +155,19 @@ Slave::configResponse()
     f.nad() = _nad;
     f.flavour() = LIN::kCFGetParam;
     f.param() = _configParam;
-    f.value() = Parameter(_configParam).get();
+    f.value() = get_param(_configParam);
+    //f.value() = Parameter(_configParam).get();
 
     sendResponse(f, 8);  
+}
+
+uint8_t
+Slave::get_param(uint8_t param)
+{
+    return 0;
+}
+
+void
+Slave::set_param(uint8_t param, uint8_t value)
+{
 }

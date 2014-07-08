@@ -40,7 +40,7 @@ paramName(uint8_t index)
     if (index == 0) {
         return PSTR(" -done- ");
     } else {
-        return Util::strtab(strtabParamNames, index);
+        return Util::strtab(masterParamNames, index);
     }
 }
 
@@ -50,7 +50,7 @@ paramFormat(uint8_t index)
     if (index == 0) {
         return PSTR("");
     } else {
-        return Util::strtab(strtabParamFormats, index);
+        return Util::strtab(masterParamNames, index);
     }
 }
 
@@ -122,7 +122,8 @@ SetupMasterMode::draw()
 {
     gDisplay.clear();
     gDisplay.printf("Master:");
-    gDisplay.move(3, 1);
+    gDisplay.move(1, 1);
+    gDisplay.printf(PSTR(">>"));
     gDisplay.printf(paramName(_param));
     gDisplay.move(3, 2);
 

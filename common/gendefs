@@ -17,6 +17,7 @@
 #
 
 package require fileutil
+package require cmdline
 
 set linenumber -1
 set revision -1
@@ -154,11 +155,17 @@ puts $fh ""
 puts $fh "} // namespace LIN"
 close $fh
 
-# Generate parameter headers
+# Generate parameter files
 dict for {node node_params} $parameters {
-    set fh [open "param_$node.h" "w"]
+    set fh [open "../nodes/lib/param_$node.h" "w"]
     puts $fh "// AUTOMATICALLY GENERATED, DO NOT EDIT"
     puts $fh "#pragma once"
+    puts $fh "#include <stdint.h>"
+    puts $fh "#include <parameter.h>"
+    puts $fh ""
+    puts $fh "extern const uint8_t ${node}ParamInfo\[\];"
+    puts $fh "extern const char ${node}ParamNames\[\];"
+    puts $fh "extern const char ${node}ParamFormats\[\];"
     puts $fh ""
     set index 1
     dict for {param_name param_info} $node_params {
@@ -167,27 +174,10 @@ dict for {node node_params} $parameters {
     }
     puts $fh "#define kParamMax ${index}"
     puts $fh ""
-    puts $fh "static PROGMEM const char strtabParamNames\[\] = "
-    puts $fh "    \" \\0\""
-    dict for {param_name param_info} $node_params {
-        set name [dict get $param_info display_name]
-        puts $fh "    \"${name}\\0\""
-    }    
-    puts $fh "    \"\\0\";"
-    puts $fh ""
-    puts $fh "static PROGMEM const char strtabParamFormats\[\] = "
-    puts $fh "    \" \\0\""
-    dict for {param_name param_info} $node_params {
-        set format [dict get $param_info display_format]
-        puts $fh "    \"${format}\\0\""
-    }    
-    puts $fh "    \"\\0\";"
+    puts $fh "#define ${node}Param(_index) Parameter((_index), &${node}ParamInfo\[(_index) * 3\])"
     puts $fh ""
     dict for {param_name param_info} $node_params {
-        set min [dict get $param_info min]
-        set max [dict get $param_info max]
-        set default [dict get $param_info default]
-        puts $fh "#define param${param_name} Parameter(kParam${param_name}, ${min}, ${max}, ${default})"
+        puts $fh "#define param${param_name} ${node}Param(kParam${param_name})"
     }
     puts $fh ""
     puts $fh "#define paramAll(method, ...) \\"
@@ -195,5 +185,38 @@ dict for {node node_params} $parameters {
         puts $fh "    param${param_name}.method(__VA_ARGS__); \\"
     }
     puts $fh "struct hack"
+    close $fh
+
+    set fh [open "../nodes/lib/param_$node.cpp" "w"]
+    puts $fh "// AUTOMATICALLY GENERATED, DO NOT EDIT"
+    puts $fh "#include <parameter.h>"
+    puts $fh "#include <lin_protocol.h>"
+    puts $fh "#include <protocol.h>"
+    puts $fh "#include \"param_${node}.h\""
+    puts $fh ""
+    puts $fh "PROGMEM const char ${node}ParamNames\[\] = "
+    puts $fh "    \" \\0\""
+    dict for {param_name param_info} $node_params {
+        set name [dict get $param_info display_name]
+        puts $fh "    \"${name}\\0\""
+    }    
+    puts $fh "    \"\\0\";"
+    puts $fh ""
+    puts $fh "PROGMEM const char ${node}ParamFormats\[\] = "
+    puts $fh "    \" \\0\""
+    dict for {param_name param_info} $node_params {
+        set format [dict get $param_info display_format]
+        puts $fh "    \"${format}\\0\""
+    }    
+    puts $fh "    \"\\0\";"
+    puts $fh ""
+    puts $fh "PROGMEM const uint8_t ${node}ParamInfo\[\] = {"
+    dict for {param_name param_info} $node_params {
+        set min [dict get $param_info min]
+        set max [dict get $param_info max]
+        set default [dict get $param_info default]
+        puts $fh "    ${min}, ${max}, ${default},"
+    }
+    puts $fh "};"
     close $fh
 }

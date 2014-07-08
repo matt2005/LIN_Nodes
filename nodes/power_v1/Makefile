@@ -7,6 +7,7 @@ SRCS		 = main.cpp \
 SRCS		+= board.cpp \
 		   lin_dev.cpp \
 		   lin_slave.cpp \
+		   param_power_v1.cpp \
 		   print.cpp \
 		   softserial.cpp \
 		   timer.cpp \

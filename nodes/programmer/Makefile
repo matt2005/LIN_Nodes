@@ -16,6 +16,9 @@ SRCS		+= board.cpp \
 		   hd44780.cpp \
 		   lin_dev.cpp \
 		   lin_slave.cpp \
+		   param_master.cpp \
+		   param_power_v1.cpp \
+		   param_power_v3.cpp \
 		   print.cpp \
 		   softserial.cpp \
 		   timer.cpp \

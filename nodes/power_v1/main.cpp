@@ -21,10 +21,10 @@ main(void)
 
 #ifdef DEBUG
     OSCCAL += 7;    // XXX test board's osc is slow
-    debug("1: %u", paramRelay1Assign);
-    debug("2: %u", paramRelay2Assign);
-    debug("3: %u", paramRelay3Assign);
-    debug("4: %u", paramRelay4Assign);
+    debug("1: %u", paramRelay1Assign.get()); // .get() required to avoid internal compiler error
+    debug("2: %u", paramRelay2Assign.get()); // .get() required to avoid internal compiler error
+    debug("3: %u", paramRelay3Assign.get()); // .get() required to avoid internal compiler error
+    debug("4: %u", paramRelay4Assign.get()); // .get() required to avoid internal compiler error
 #endif
 
     // power switch control pins

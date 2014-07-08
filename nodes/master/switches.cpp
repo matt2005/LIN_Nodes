@@ -97,14 +97,14 @@ scan()
     // SP1-SP7
     for (uint8_t sw = 0; sw <= 6; sw++) {
         if (MC33972::test(MC33972::kInputSP1 + sw)) {
-            SET(Parameter(kParamSPAssign1 + sw));
+            SET(masterParam(kParamSPAssign1 + sw));
         }
     }
 
     // SG0-SG13
     for (uint8_t sw = 0; sw <= 13; sw++) {
         if (MC33972::test(MC33972::kInputSG0 + sw)) {
-            SET(Parameter(kParamSGAssign0 + sw));
+            SET(masterParam(kParamSGAssign0 + sw));
         }
     }
 

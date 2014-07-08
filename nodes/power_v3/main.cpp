@@ -50,8 +50,8 @@ main(void)
             uint8_t offset = output * stride;
 
             for (uint8_t assign = 0; assign < assigns; assign++) {
-                if (slave.testRelay((LIN::RelayID)Parameter(base + offset + assign).get())) {
-                    uint8_t d = Parameter(pwm_base + offset + assign);
+                if (slave.testRelay((LIN::RelayID)power_v3Param(base + offset + assign).get())) {
+                    uint8_t d = power_v3Param(pwm_base + offset + assign);
                     if (d > duty_cycle) {
                         duty_cycle = d;
                     }

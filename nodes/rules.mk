@@ -84,7 +84,8 @@ $(ELF) $(OBJS):	$(MAKEFILE_LIST)
 build:	$(ELF)
 
 upload: $(ELF)
-	$(AVRDUDE) -p $(MCU) -c jtag2isp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
+#	$(AVRDUDE) -p $(MCU) -c usbasp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
+	$(AVRDUDE) -B 8 -p $(MCU) -c jtag2isp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
 
 $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 	@echo LINK $(notdir $@)

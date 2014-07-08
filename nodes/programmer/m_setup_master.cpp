@@ -39,6 +39,7 @@ paramName(uint8_t index)
 {
     if (index == 0) {
         return PSTR(" -done- ");
+
     } else {
         return Util::strtab(masterParamNames, index);
     }
@@ -49,6 +50,7 @@ paramFormat(uint8_t index)
 {
     if (index == 0) {
         return PSTR("");
+
     } else {
         return Util::strtab(masterParamNames, index);
     }
@@ -132,26 +134,31 @@ SetupMasterMode::draw()
     } else {
         if (!gSlave.getParameter(LIN::kNADMaster, _param, _value)) {
             gDisplay.printf(PSTR("read error"));
+
         } else {
             const char *fmt = paramFormat(_param);
             const char *tab = nullptr;
 
             if (pgm_read_byte(fmt) == '%') {
 
-                switch(pgm_read_byte(fmt + 1)) {
+                switch (pgm_read_byte(fmt + 1)) {
                 case 'O':
                     tab = LIN::strtabRelayID;
                     break;
+
                 case 'S':
                     tab = LIN::strtabSwitchID;
                     break;
+
                 case 'T':
                     tab = LIN::strtabRelayType;
                     break;
                 }
             }
+
             if (tab != nullptr) {
                 gDisplay.printf(Util::strtab(tab, _value));
+
             } else {
                 gDisplay.printf(fmt, _value);
             }

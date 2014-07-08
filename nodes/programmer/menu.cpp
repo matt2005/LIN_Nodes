@@ -49,10 +49,12 @@ Mode::_msg(PGM_P hdr, PGM_P message)
 
     uint8_t row = 1;
     char c;
+
     while ((c = pgm_read_byte(message++)) != 0) {
         if (c == '\n') {
             row++;
             gDisplay.move(0, row);
+
         } else {
             gDisplay.putc(c);
         }

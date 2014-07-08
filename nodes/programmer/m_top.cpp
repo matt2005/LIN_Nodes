@@ -89,7 +89,7 @@ TopMode::draw()
     gDisplay.printf(PSTR("Diagnostics"));
     gDisplay.move(3, 3);
     gDisplay.printf(PSTR("Info"));
-    
+
     gDisplay.move(1, _index + 1);
     gDisplay.printf(PSTR(">>"));
 }

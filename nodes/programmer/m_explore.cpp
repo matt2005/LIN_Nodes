@@ -129,10 +129,12 @@ ExploreMode::draw()
     if (searchDown(_node) == _node) {
         base = _node;   // nothing earlier in the list
         cursor = 1;
+
     } else if ((searchUp(_node) == _node) &&
                (searchDown(_node) != searchDown(searchDown(_node)))) {
         base = searchDown(searchDown(_node));
         cursor = 3;
+
     } else {
         base = searchDown(_node);
         cursor = 2;
@@ -140,6 +142,7 @@ ExploreMode::draw()
 
     gDisplay.clear();
     gDisplay.printf(PSTR("Select:"));
+
     for (uint8_t row = 1; row < 4; row++) {
         gDisplay.move(3, row);
 
@@ -160,12 +163,16 @@ ExploreMode::draw()
             gDisplay.printf(PSTR("Node @ %2u"), base);
             break;
         }
+
         uint8_t next = searchUp(base);
+
         if (next == base) {
             break;
         }
+
         base = next;
     }
+
     gDisplay.move(1, cursor);
     gDisplay.printf(PSTR(">>"));
 }
@@ -178,6 +185,7 @@ ExploreMode::searchUp(uint8_t from)
             return newNode;
         }
     }
+
     return from;
 }
 
@@ -186,12 +194,14 @@ ExploreMode::searchDown(uint8_t from)
 {
     if (from > 0) {
         uint8_t newNode = from - 1;
+
         do {
             if (presentMask.test(newNode)) {
                 return newNode;
             }
         } while (newNode-- >= 0);
     }
+
     return from;
 }
 

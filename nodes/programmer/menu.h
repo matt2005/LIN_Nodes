@@ -35,11 +35,11 @@ public:
     virtual Mode    *action(Encoder::Event bp) = 0;
 
 protected:
-    void            warning(PGM_P message) { _msg(PSTR("Warning:"), message); }
-    void            error(PGM_P message) { _msg(PSTR("Error:"), message); }
+    static void     warning(PGM_P message) { _msg(PSTR("Warning:"), message); }
+    static void     error(PGM_P message) { _msg(PSTR("Error:"), message); }
 
 private:
-    void            _msg(PGM_P hdr, PGM_P message);
+    static void     _msg(PGM_P hdr, PGM_P message);
 };
 
 } // namespace Menu

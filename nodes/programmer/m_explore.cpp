@@ -63,6 +63,8 @@ ExploreMode::action(Encoder::Event bp)
     case Encoder::kEventPress:
         switch (_node) {
         case 0:
+            // force rescan on re-entry from top menu
+            presentMask.clear(LIN::kNADMaster);
             return &modeTop;
 
         case LIN::kNADMaster:
@@ -83,25 +85,29 @@ ExploreMode::action(Encoder::Event bp)
         presentMask.reset();
         presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
 
-        for (uint8_t i = LIN::kNADMaster; i < LIN::kNADMaxAssigned; i++) {
-            gDisplay.clear();
-            gDisplay.move(1, 1);
-            gDisplay.printf(PSTR("Searching... %2u"), i);
-
-            uint8_t dummy;
-
-            if (gSlave.getParameter(i, 0, dummy)) {
-                presentMask.set(i);
-            }
-        }
-
+        // do we have a valid scan result?
         if (!presentMask.test(LIN::kNADMaster)) {
-            error(PSTR(" Master node not\n responding."));
-            Board::msDelay(3000);
-            _node = 0;
 
-        } else {
-            _node = LIN::kNADMaster;
+            for (uint8_t i = LIN::kNADMaster; i < LIN::kNADMaxAssigned; i++) {
+                gDisplay.clear();
+                gDisplay.move(1, 1);
+                gDisplay.printf(PSTR("Searching... %2u"), i);
+
+                uint8_t dummy;
+
+                if (gSlave.getParameter(i, 0, dummy)) {
+                    presentMask.set(i);
+                }
+            }
+
+            if (!presentMask.test(LIN::kNADMaster)) {
+                error(PSTR(" Master node not\n responding."));
+                Board::msDelay(3000);
+                _node = 0;
+
+            } else {
+                _node = LIN::kNADMaster;
+            }
         }
 
         wantDraw = true;

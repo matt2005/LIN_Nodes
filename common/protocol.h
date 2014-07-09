@@ -55,7 +55,7 @@ enum SwitchID : uint8_t {
     kSwitchIDWiperHigh,
     kSwitchIDRearDefrost,
     kSwitchIDUnassigned,
-    kSwitchIDMax,
+    kSwitchIDMax
 };
 
 static PROGMEM const char strtabSwitchID[] = 
@@ -83,7 +83,6 @@ static PROGMEM const char strtabSwitchID[] =
     "WiperHigh\0"
     "RearDefrost\0"
     "Unassigned\0"
-    "Max\0"
     "\0";
 
 enum RelayID : uint8_t {
@@ -111,7 +110,7 @@ enum RelayID : uint8_t {
     kRelayIDWiperHigh,
     kRelayIDRearDefrost,
     kRelayIDUnassigned,
-    kRelayIDMax,
+    kRelayIDMax
 };
 
 static PROGMEM const char strtabRelayID[] = 
@@ -139,7 +138,6 @@ static PROGMEM const char strtabRelayID[] =
     "WiperHigh\0"
     "RearDefrost\0"
     "Unassigned\0"
-    "Max\0"
     "\0";
 
 enum RelayType : uint8_t {
@@ -150,7 +148,7 @@ enum RelayType : uint8_t {
     kRelayTypeLowPowerBulb,
     kRelayTypeHighPowerBulb,
     kRelayTypeMotor,
-    kRelayTypeMax,
+    kRelayTypeMax
 };
 
 static PROGMEM const char strtabRelayType[] = 
@@ -161,7 +159,6 @@ static PROGMEM const char strtabRelayType[] =
     "LowPowerBulb\0"
     "HighPowerBulb\0"
     "Motor\0"
-    "Max\0"
     "\0";
 
 

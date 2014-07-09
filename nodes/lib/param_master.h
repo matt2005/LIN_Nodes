@@ -30,9 +30,9 @@ extern const char masterParamFormats[];
 #define kParamSGAssign13 21
 #define kParamTurnBlinkPeriod 22
 #define kParamPassingBlinkCount 23
-#define kParamPathLightPeriod 24
-#define kParamInteriorLightPeriod 25
-#define kParamWelcomeLightPeriod 26
+#define kParamPathLightTime 24
+#define kParamInteriorLightTime 25
+#define kParamWelcomeLightTime 26
 #define kParamBrakeBlinkPeriod 27
 #define kParamBrakeBlinkCount 28
 #define kParamWiperInterval 29
@@ -63,9 +63,9 @@ extern const char masterParamFormats[];
 #define paramSGAssign13 masterParam(kParamSGAssign13)
 #define paramTurnBlinkPeriod masterParam(kParamTurnBlinkPeriod)
 #define paramPassingBlinkCount masterParam(kParamPassingBlinkCount)
-#define paramPathLightPeriod masterParam(kParamPathLightPeriod)
-#define paramInteriorLightPeriod masterParam(kParamInteriorLightPeriod)
-#define paramWelcomeLightPeriod masterParam(kParamWelcomeLightPeriod)
+#define paramPathLightTime masterParam(kParamPathLightTime)
+#define paramInteriorLightTime masterParam(kParamInteriorLightTime)
+#define paramWelcomeLightTime masterParam(kParamWelcomeLightTime)
 #define paramBrakeBlinkPeriod masterParam(kParamBrakeBlinkPeriod)
 #define paramBrakeBlinkCount masterParam(kParamBrakeBlinkCount)
 #define paramWiperInterval masterParam(kParamWiperInterval)
@@ -94,9 +94,9 @@ extern const char masterParamFormats[];
     paramSGAssign13.method(__VA_ARGS__); \
     paramTurnBlinkPeriod.method(__VA_ARGS__); \
     paramPassingBlinkCount.method(__VA_ARGS__); \
-    paramPathLightPeriod.method(__VA_ARGS__); \
-    paramInteriorLightPeriod.method(__VA_ARGS__); \
-    paramWelcomeLightPeriod.method(__VA_ARGS__); \
+    paramPathLightTime.method(__VA_ARGS__); \
+    paramInteriorLightTime.method(__VA_ARGS__); \
+    paramWelcomeLightTime.method(__VA_ARGS__); \
     paramBrakeBlinkPeriod.method(__VA_ARGS__); \
     paramBrakeBlinkCount.method(__VA_ARGS__); \
     paramWiperInterval.method(__VA_ARGS__); \

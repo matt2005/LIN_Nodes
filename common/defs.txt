@@ -37,7 +37,6 @@ ENUM SwitchID {
     WiperHigh
     RearDefrost
     Unassigned
-    Max
 }
 
 ENUM RelayID {
@@ -65,7 +64,6 @@ ENUM RelayID {
     WiperHigh
     RearDefrost
     Unassigned
-    Max
 }
 
 ENUM RelayType {
@@ -76,7 +74,6 @@ ENUM RelayType {
     LowPowerBulb
     HighPowerBulb
     Motor
-    Max
 }
 
 ################################################################################
@@ -89,11 +86,12 @@ foreach assign {1 2 3 4 5 6 7} {
 foreach assign {0 1 2 3 4 5 6 7 8 9 10 11 12 13} {
     master SGAssign${assign} "SG${assign} Input" "%S" 0 (LIN::kSwitchIDUnassigned) (LIN::kSwitchIDUnassigned)
 }
+                            ##################
 master TurnBlinkPeriod     "TurnBlinkPeriod"       "%3u0ms"        0       255                         0
 master PassingBlinkCount   "PassingBlinkCount"     "%3u blinks"    0       10                          0
-master PathLightPeriod     "PathLightPeriod"       "%3us"          0       60                          0
-master InteriorLightPeriod "InteriorLightPeriod"   "%3us"          0       60                          0
-master WelcomeLightPeriod  "WelcomeLightPeriod"    "%3us"          0       60                          0
+master PathLightTime       "PathLightTime"         "%3us"          0       60                          0
+master InteriorLightTime   "InteriorLightTime"     "%3us"          0       60                          0
+master WelcomeLightTime    "WelcomeLightTime"      "%3us"          0       60                          0
 master BrakeBlinkPeriod    "BrakeBlinkPeriod"      "%3u0ms"        0       100                         0
 master BrakeBlinkCount     "BrakeBlinkCount"       "%3u blinks"    0       10                          0
 master WiperInterval       "WiperInterval"         "%3u00ms"       0       50                          0

@@ -121,14 +121,14 @@ puts $fh ""
 puts $fh "namespace LIN {"
 puts $fh "static const uint8_t protocolRevision = $revision;"
 puts $fh ""
+
+# emit frame definitions
 puts $fh "enum FrameID : uint8_t {"
 dict for {name info} $frames {
     puts $fh "    kFID$name = [dict get ${info} id],"
 }
 puts $fh "};"
 puts $fh ""
-
-# emit frame definitions
 puts $fh "enum FrameLen : uint8_t {"
 dict for {name info} $frames {
     puts $fh "    kFLen$name = [dict get ${info} length],"
@@ -142,6 +142,7 @@ dict for {enum_name enum_data} $enums {
     foreach element_name $enum_data {
         puts $fh "    k${enum_name}${element_name},"
     }
+    puts $fh "    k${enum_name}Max"
     puts $fh "};"
     puts $fh ""
     puts $fh "static PROGMEM const char strtab${enum_name}\[\] = "

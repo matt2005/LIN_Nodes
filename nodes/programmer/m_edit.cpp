@@ -82,7 +82,8 @@ EditMode::decrement()
 void
 EditMode::draw()
 {
-    gDisplay.move(_x, _y);
+    gDisplay.clear(_region);
+    gDisplay.move(_region.p);
 
     if (_stringtab == nullptr) {
         gDisplay.printf(_fmt, (*_value));

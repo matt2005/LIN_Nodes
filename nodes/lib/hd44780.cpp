@@ -59,18 +59,18 @@ HD44780::clear()
 }
 
 void
-HD44780::move(uint8_t x, uint8_t y)
+HD44780::move(Position p)
 {
     uint8_t cmd = 0x80;
 
-    if (y & 1) {
+    if (p.y & 1) {
         cmd |= 0x40;
     }
-    if (y & 2) {
+    if (p.y & 2) {
         cmd |= 0x14;
     }
 
-    sendCmd(cmd + x);
+    sendCmd(cmd + p.x);
 }
 
 void

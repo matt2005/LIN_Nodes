@@ -38,7 +38,7 @@ static const char *
 paramName(uint8_t index)
 {
     if (index == 0) {
-        return PSTR(" -done- ");
+        return PSTR("Back to node list");
 
     } else {
         return Util::strtab(masterParamNames, index);
@@ -62,7 +62,7 @@ SetupMasterMode::action(Encoder::Event bp)
     bool indexChanged = false;
 
     switch (bp) {
-    case Encoder::kEventUp:
+    case Encoder::kEventDown:
         if (_param > 0) {
             _param--;
         }
@@ -70,7 +70,7 @@ SetupMasterMode::action(Encoder::Event bp)
         indexChanged = true;
         break;
 
-    case Encoder::kEventDown:
+    case Encoder::kEventUp:
         if (_param < (kParamMax - 1)) {
             _param++;
         }
@@ -85,6 +85,10 @@ SetupMasterMode::action(Encoder::Event bp)
 
         default:
             _editing = true;
+            gDisplay.move(0, 1);
+            gDisplay.printf(PSTR("  "));
+            gDisplay.move(0, 2);
+            gDisplay.printf(PSTR(">>"));
             return &modeEdit;
         }
 
@@ -123,8 +127,9 @@ void
 SetupMasterMode::draw()
 {
     gDisplay.clear();
-    gDisplay.printf(PSTR("Master:"));
-    gDisplay.move(1, 1);
+    gDisplay.printf(PSTR("Master Setup:"));
+    gDisplay.move(0, 1);
+    gDisplay.printf(PSTR(">>"));
     gDisplay.printf(paramName(_param));
     gDisplay.move(2, 2);
 
@@ -154,12 +159,11 @@ SetupMasterMode::draw()
             }
 
             if (tab != nullptr) {
-                modeEdit.init(this, &_value, 3, 2, tab);
+                modeEdit.init(this, &_value, Display::Region(2, 2, 18, 1), tab);
             } else {
                 modeEdit.init(this,
                               &_value,
-                              3,
-                              2,
+                              Display::Region(2, 2, 18, 1),
                               masterParam(_param).min_value(),
                               masterParam(_param).max_value(), fmt);
             }

@@ -12,14 +12,14 @@
 class HD44780 : public Display
 {
 public:
-    HD44780(uint8_t columns, uint8_t rows) :
-        Display(columns, rows)
+    HD44780(Dimension size) :
+        Display(size)
     {}
 
     static void     init();
 
     virtual void    clear() override;
-    virtual void    move(uint8_t x, uint8_t y) override;
+    virtual void    move(Position p) override;
 
 protected:
     virtual void    _write(uint8_t c) override;

@@ -27,21 +27,50 @@ private:
 class Display : public Print
 {
 public:
-    Display(uint8_t columns, uint8_t rows) :
-        _columns(columns),
-        _rows(rows)
+    struct Position
+    {
+        constexpr Position(uint8_t at_x, uint8_t at_y) : x(at_x), y(at_y) {}
+        uint8_t     x:5;
+        uint8_t     y:3;
+    };
+    struct Dimension
+    {
+        constexpr Dimension(uint8_t w, uint8_t h) : width(w), height(h) {}
+        uint8_t     width:5;
+        uint8_t     height:3;
+    };
+    struct Region
+    {
+        constexpr Region(Position at, Dimension size) : p(at), d(size) {}
+        constexpr Region(uint8_t x, uint8_t y, uint8_t width, uint8_t height) : p(x, y), d(width, height) {}
+        Position    p;
+        Dimension   d;
+    };
+
+    Display(Dimension size) :
+        _size(size)
     {
     }
 
-    virtual void    move(uint8_t, uint8_t y) = 0;
+    virtual void    move(Position p) = 0;
     virtual void    clear() = 0;
 
-    uint8_t         columns() const { return _columns; }
-    uint8_t         rows() const { return _rows; }
+    void            move(uint8_t x, uint8_t y) { move(Position(x, y)); }
+    void            clear(Region region)
+    {
+        for (uint8_t r = 0; r < region.d.height; r++) {
+            for (uint8_t c = 0; c < region.d.width; c++) {
+                move(Position(region.p.x + c, region.p.y + r));
+                _write(' ');
+            }
+        }
+    }
+
+    uint8_t         columns() const { return _size.width; }
+    uint8_t         rows() const { return _size.height; }
 
 private:
-    const uint8_t   _columns:5;
-    const uint8_t   _rows:3;
+    Dimension       _size;
 };
 
 extern Display &gDisplay;

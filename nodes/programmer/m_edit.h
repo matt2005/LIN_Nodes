@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "print.h"
 #include "util.h"
 
 #include "menu.h"
@@ -15,8 +16,7 @@ public:
     EditMode() :
         _from(nullptr),
         _value(nullptr),
-        _x(0),
-        _y(0),
+        _region(Display::Position(0, 0), Display::Dimension(0, 0)),
         _min(0),
         _max(0),
         _fmt(nullptr),
@@ -25,16 +25,14 @@ public:
 
     void    init(Mode *parent,
                  uint8_t *value,
-                 uint8_t x,
-                 uint8_t y,
+                 Display::Region r,
                  uint8_t min = 0,
                  uint8_t max = 255,
                  const char *fmt = nullptr)
     {
         _from = parent;
         _value = value;
-        _x = x;
-        _y = y;
+        _region = r;
         _min = min;
         _max = max;
         _fmt = fmt ? fmt : PSTR("%3u");
@@ -50,15 +48,13 @@ public:
 
     void    init(Mode *parent,
                  uint8_t *value,
-                 uint8_t x,
-                 uint8_t y,
+                 Display::Region r,
                  const char *stringtab,
                  const char *fmt = nullptr)
     {
         _from = parent;
         _value = value;
-        _x = x;
-        _y = y;
+        _region = r;
         _min = 0;
         _max = 255;
         _fmt = fmt ? fmt : "%3u";
@@ -75,8 +71,7 @@ public:
 private:
     Mode            *_from;
     uint8_t         *_value;
-    uint8_t         _x;
-    uint8_t         _y;
+    Display::Region _region;
     uint8_t         _min;
     uint8_t         _max;
     const char      *_fmt;

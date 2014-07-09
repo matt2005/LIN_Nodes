@@ -20,7 +20,7 @@
 #include "encoder.h"
 #include "slave.h"
 
-HD44780 lcd(20, 4);
+HD44780 lcd(Display::Dimension(20, 4));
 Display &gDisplay = lcd;
 ProgrammerSlave gSlave;
 

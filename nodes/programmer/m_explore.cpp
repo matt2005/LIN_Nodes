@@ -64,7 +64,7 @@ ExploreMode::action(Encoder::Event bp)
         switch (_node) {
         case 0:
             // force rescan on re-entry from top menu
-            presentMask.clear(LIN::kNADMaster);
+            presentMask.reset();
             return &modeTop;
 
         case LIN::kNADMaster:
@@ -82,11 +82,12 @@ ExploreMode::action(Encoder::Event bp)
 
     case Encoder::kEventActivate:
         gDisplay.clear();
-        presentMask.reset();
-        presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
 
-        // do we have a valid scan result?
+        // do we have a valid scan result with a master node? 
+        // (i.e. are we re-entering from an edit state?)
         if (!presentMask.test(LIN::kNADMaster)) {
+            presentMask.reset();
+            presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
 
             for (uint8_t i = LIN::kNADMaster; i < LIN::kNADMaxAssigned; i++) {
                 gDisplay.clear();

@@ -88,7 +88,7 @@ EditMode::draw()
         gDisplay.printf(_fmt, (*_value));
 
     } else {
-        gDisplay.printf(_fmt, Util::strtab(_stringtab, (*_value)));
+        gDisplay.printf(Util::strtab(_stringtab, (*_value)));
     }
 }
 

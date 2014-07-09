@@ -52,7 +52,7 @@ paramFormat(uint8_t index)
         return PSTR("");
 
     } else {
-        return Util::strtab(masterParamNames, index);
+        return Util::strtab(masterParamFormats, index);
     }
 }
 
@@ -62,7 +62,7 @@ SetupMasterMode::action(Encoder::Event bp)
     bool indexChanged = false;
 
     switch (bp) {
-    case Encoder::kEventDown:
+    case Encoder::kEventUp:
         if (_param > 0) {
             _param--;
         }
@@ -70,7 +70,7 @@ SetupMasterMode::action(Encoder::Event bp)
         indexChanged = true;
         break;
 
-    case Encoder::kEventUp:
+    case Encoder::kEventDown:
         if (_param < (kParamMax - 1)) {
             _param++;
         }
@@ -123,15 +123,12 @@ void
 SetupMasterMode::draw()
 {
     gDisplay.clear();
-    gDisplay.printf("Master:");
+    gDisplay.printf(PSTR("Master:"));
     gDisplay.move(1, 1);
-    gDisplay.printf(PSTR(">>"));
     gDisplay.printf(paramName(_param));
-    gDisplay.move(3, 2);
+    gDisplay.move(2, 2);
 
     if (_param > 0) {
-
-    } else {
         if (!gSlave.getParameter(LIN::kNADMaster, _param, _value)) {
             gDisplay.printf(PSTR("read error"));
 
@@ -157,12 +154,16 @@ SetupMasterMode::draw()
             }
 
             if (tab != nullptr) {
-                gDisplay.printf(Util::strtab(tab, _value));
-
+                modeEdit.init(this, &_value, 3, 2, tab);
             } else {
-                gDisplay.printf(fmt, _value);
+                modeEdit.init(this,
+                              &_value,
+                              3,
+                              2,
+                              masterParam(_param).min_value(),
+                              masterParam(_param).max_value(), fmt);
             }
-
+            modeEdit.draw();
 
 //            gDisplay.printf(paramFormat(_param), _value);
 //

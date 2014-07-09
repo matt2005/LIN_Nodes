@@ -31,7 +31,7 @@ public:
     void        init() const 
     {
         if (!valid(get())) {
-            set(_def());
+            set(def_value());
         }
     }
     uint8_t     index() const
@@ -40,13 +40,13 @@ public:
     }
     bool        valid(uint8_t value) const
     {
-        return ((value >= _min()) && (value <= _max()));
+        return ((value >= min_value()) && (value <= max_value()));
     }
+    uint8_t     min_value() const { return pgm_read_byte(_info + 0); }
+    uint8_t     max_value() const { return pgm_read_byte(_info + 1); }
+    uint8_t     def_value() const { return pgm_read_byte(_info + 2); }
 private:
     const uint8_t   _index;
     const uint8_t   *_info;
 
-    uint8_t     _min() const { return pgm_read_byte(_info + 0); }
-    uint8_t     _max() const { return pgm_read_byte(_info + 1); }
-    uint8_t     _def() const { return pgm_read_byte(_info + 2); }
 };

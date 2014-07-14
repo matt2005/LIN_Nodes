@@ -39,12 +39,11 @@ private:
     };
 
     uint8_t             _buf[9];
-    unsigned            _receivedLen    = 0;
-    unsigned            _waitLen        = 0;
+    uint8_t             _receivedLen    = 0;
+    uint8_t             _waitLen        = 0;
     uint8_t             _fid            = LIN::kFIDNone;
     State               _state          = waitBreak;
 
-    PerfCounter         _perfBytes;
     PerfCounter         _perfFrames;
 
     void                headerReceived();

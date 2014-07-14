@@ -15,7 +15,6 @@ LINDev::LINDev(unsigned bitrate) :
     warnSummary(false),
     errorSummary(false),
     linkUp(false),
-    _perfBytes("LIN BYTES"),
     _perfFrames("LIN FRAMES")
 {
     NVIC_DisableIRQ(UART_IRQn);
@@ -95,7 +94,6 @@ LINDev::interrupt()
 
         // discard the corresponding data
         (void)UART_U0RBR;
-        _perfFrames.count();
 
         // we're done here
         return;
@@ -106,7 +104,6 @@ LINDev::interrupt()
 
         // grab the character
         uint8_t c = UART_U0RBR;
-        _perfBytes.count();
 
         if (_state == waitSynch) {
             if (c == 0x55) {
@@ -174,6 +171,8 @@ LINDev::headerReceived()
 void
 LINDev::responseReceived()
 {
+    _perfFrames.count();
+
     switch (_fid) {
     case LIN::kFIDRelays:
         ttLeftTurn = frameBit(LIN::kRelayIDLeftTurn);

@@ -77,10 +77,8 @@ next_mode(Mode mode)
 }
 
 // XXX 'volatile' required here?
-volatile Ticker		refreshTicker(33333);	// 30Hz
+volatile Ticker		refreshTicker(33333);	// 30Hz/33ms
 
-PerfLoad perf_mainloop("MAINLOOP");
-PerfInterval perf_render("RENDER");
 PerfMem perf_mem;
 
 void
@@ -88,14 +86,12 @@ main(void)
 {
     Mode mode = kModeDash;
 
-
     // XXX voodoo - must wait for the first timer interrupt or terrible
     // things happen if we start drawing...
     __asm__ volatile("wfi");
 
     // spin doing main loop things
     for (;;) {
-        perf_mainloop.start();
 
         // check for encoder events, change mode
         if (mode_scene(mode)->event(gEncoder.event())) {
@@ -104,13 +100,10 @@ main(void)
 
         // check for redraw timer expiry
         if (refreshTicker.didTick()) {
-            perf_render.start();
             mode_scene(mode)->render();
-            perf_render.stop();
         }
 
         // idle and wait for an interrupt
-        perf_mainloop.stop();
         __asm__ volatile("wfi");
     }
 

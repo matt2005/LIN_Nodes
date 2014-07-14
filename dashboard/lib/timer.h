@@ -10,7 +10,7 @@ public:
     typedef uint32_t        Interval;
     static const Time       endOfTime   = ~0ULL;
 
-    Timer(Callback callback, void *arg) : 
+    Timer(Callback callback, void *arg) :
         _callback(callback),
         _arg(arg)
     {

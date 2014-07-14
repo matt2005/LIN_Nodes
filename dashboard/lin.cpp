@@ -13,20 +13,19 @@ UART_Handler(void)
     decoder->interrupt();
 }
 
-void
-LINDev::do_interrupt()
-{
-    decoder->interrupt();
-}
-
 LINDev::LINDev(unsigned bitrate) :
     warnSummary(false),
     errorSummary(false),
-    linkUp(false)
+    linkUp(false),
+    _perfBytes("LIN BYTES"),
+    _perfFrames("LIN FRAMES")
 {
     decoder = this;
 
+    NVIC_DisableIRQ(UART_IRQn);
+
     // pin configuration
+    SCB_SYSAHBCLKCTRL |= SCB_SYSAHBCLKCTRL_IOCON;
     IOCON_PIO1_6 &= ~IOCON_PIO1_6_FUNC_MASK;
     IOCON_PIO1_6 |= IOCON_PIO1_6_FUNC_UART_RXD;
     IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
@@ -45,8 +44,7 @@ LINDev::LINDev(unsigned bitrate) :
                   UART_U0LCR_Divisor_Latch_Access_Enabled);
 
     // compute bitrate (rounds towards fast)
-    unsigned div;
-    div = (((CFG_CPU_CCLK * SCB_SYSAHBCLKDIV) / SCB_UARTCLKDIV) / 16) / bitrate;
+    unsigned div = (((CFG_CPU_CCLK * SCB_SYSAHBCLKDIV) / SCB_UARTCLKDIV) / 16) / bitrate;
 
     UART_U0DLM = div / 256;
     UART_U0DLL = div % 256;
@@ -101,6 +99,7 @@ LINDev::interrupt()
 
         // discard the corresponding data
         (void)UART_U0RBR;
+        _perfFrames.count();
 
         // we're done here
         return;
@@ -111,6 +110,7 @@ LINDev::interrupt()
 
         // grab the character
         uint8_t c = UART_U0RBR;
+        _perfBytes.count();
 
         if (_state == waitSynch) {
             if (c == 0x55) {
@@ -180,10 +180,11 @@ LINDev::responseReceived()
 {
     switch (_fid) {
     case LIN::kFIDRelays:
-        ttLeftTurn = frameBit(LIN::kRelayLeftTurn);
-        ttRightTurn = frameBit(LIN::kRelayRightTurn);
-        ttLowBeam = frameBit(LIN::kRelayHeadLights) || frameBit(LIN::kRelayLowBeam);
-        ttHighBeam = frameBit(LIN::kRelayHighBeam);
+        ttLeftTurn = frameBit(LIN::kRelayIDLeftTurn);
+        ttRightTurn = frameBit(LIN::kRelayIDRightTurn);
+        ttLowBeam = frameBit(LIN::kRelayIDHeadLights) || frameBit(LIN::kRelayIDLowBeam);
+        ttHighBeam = frameBit(LIN::kRelayIDHighBeam);
+        linkUp = true;
         break;
 
     default:

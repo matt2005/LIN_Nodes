@@ -2,13 +2,12 @@
 
 #include <stdint.h>
 #include "common/protocol.h"
+#include "perf.h"
 
 class LINDev
 {
 public:
     LINDev(unsigned bitrate);
-
-    static void do_interrupt();
 
     void        interrupt();
 
@@ -42,6 +41,9 @@ private:
     unsigned            _waitLen        = 0;
     uint8_t             _fid            = LIN::kFIDNone;
     State               _state          = waitBreak;
+
+    PerfCounter         _perfBytes;
+    PerfCounter         _perfFrames;
 
     void                headerReceived();
     void                responseReceived();

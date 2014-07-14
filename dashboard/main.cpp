@@ -92,16 +92,27 @@ main(void)
 
     // spin doing main loop things
     for (;;) {
+        // check for redraw timer expiry
+        bool shouldRender = refreshTicker.didTick();
 
         // check for encoder events, change mode
         if (mode_scene(mode)->event(gEncoder.event())) {
+            Mode oldMode = mode;
+
             mode = next_mode(mode);
+
+            if (mode != oldMode) {
+                shouldRender = true;
+            }
         }
 
-        // check for redraw timer expiry
-        if (refreshTicker.didTick()) {
+        // redraw in response to events...
+        if (shouldRender) {
             mode_scene(mode)->render();
         }
+
+        // XXX could check the redraw timer here to see if we blew our
+        //     timeslice, but what would we do about it?
 
         // idle and wait for an interrupt
         __asm__ volatile("wfi");

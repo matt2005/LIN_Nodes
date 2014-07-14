@@ -11,11 +11,10 @@
 
 extern Panel gPanel;
 
-Scene::Scene(const char *name) :
+Scene::Scene() :
     _geometry(gPanel.dimension()),
     _stack(nullptr),
-    _current_framebuffer(nullptr),
-    _perf(name)
+    _current_framebuffer(nullptr)
 {
 }
 
@@ -34,13 +33,9 @@ Scene::render()
         return;
     }
 
-    _perf.start();
-
     _current_framebuffer->clear();
     _render();
     gPanel.push_draw_buffer();
-
-    _perf.stop();
 }
 
 void

@@ -8,7 +8,7 @@
 #include "fonts.h"
 #include "lin.h"
 
-Scene           gDash("DASH");
+Scene           gDash;
 
 // status text region
 static void         gen_status(GlyphText *gt);

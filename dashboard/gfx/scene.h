@@ -9,7 +9,7 @@
 class Scene
 {
 public:
-    Scene(const char *name);
+    Scene();
 
     /**
      * Add the glyph to the scene glyph stack; new glyphs always stack on top.
@@ -55,7 +55,6 @@ private:
     const Dimension _geometry;
     Glyph           *_stack;
     FrameBuffer     *_current_framebuffer;
-    PerfInterval    _perf;
 
     bool            _clip(Position p) const { return ((p.x < _geometry.w) && (p.y < _geometry.h)); }
 
@@ -64,7 +63,6 @@ private:
 class PerfScene : public Scene
 {
 public:
-    PerfScene() : Scene("PERF") {}
 
     virtual bool    event(Encoder::Event evt) override;
 

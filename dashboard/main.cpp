@@ -80,6 +80,7 @@ next_mode(Mode mode)
 volatile Ticker		refreshTicker(33333);	// 30Hz
 
 PerfLoad perf_mainloop("MAINLOOP");
+PerfInterval perf_render("RENDER");
 PerfMem perf_mem;
 
 void
@@ -103,7 +104,9 @@ main(void)
 
         // check for redraw timer expiry
         if (refreshTicker.didTick()) {
+            perf_render.start();
             mode_scene(mode)->render();
+            perf_render.stop();
         }
 
         // idle and wait for an interrupt

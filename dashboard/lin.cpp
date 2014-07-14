@@ -3,14 +3,12 @@
 #include "lpc111x.h"
 #include "common/protocol.h"
 
-static LINDev *decoder;
-
 extern "C" void	UART_Handler(void) __attribute__((used));
 
 void
 UART_Handler(void)
 {
-    decoder->interrupt();
+    gLIN.interrupt();
 }
 
 LINDev::LINDev(unsigned bitrate) :
@@ -20,8 +18,6 @@ LINDev::LINDev(unsigned bitrate) :
     _perfBytes("LIN BYTES"),
     _perfFrames("LIN FRAMES")
 {
-    decoder = this;
-
     NVIC_DisableIRQ(UART_IRQn);
 
     // pin configuration

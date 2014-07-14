@@ -18,12 +18,12 @@ Glyph::Glyph(Scene *scene, Position p, Colour colour) :
 }
 
 void
-Glyph::draw(Scene *in_scene)
+Glyph::draw(const Scene *in_scene)
 {
 }
 
 void
-Glyph::drawBitmap(Scene *in_scene,
+Glyph::drawBitmap(const Scene *in_scene,
                   const struct glyph_info &glyph,
                   unsigned offset_x,
                   unsigned offset_y)
@@ -59,7 +59,7 @@ Glyph::drawBitmap(Scene *in_scene,
 }
 
 void
-Glyph::drawChar(Scene *in_scene,
+Glyph::drawChar(const Scene *in_scene,
                 const uint8_t *font,
                 uint8_t character,
                 unsigned offset_x,
@@ -106,7 +106,7 @@ GlyphIcon::GlyphIcon(Scene *scene,
                      Position p,
                      const struct glyph_info &icon,
                      Colour colour,
-                     const volatile bool &enable) :
+                     const Datum &enable) :
     Glyph(scene, p, colour),
     _enable(enable),
     _icon(icon),
@@ -115,7 +115,7 @@ GlyphIcon::GlyphIcon(Scene *scene,
 }
 
 void
-GlyphIcon::draw(Scene *in_scene)
+GlyphIcon::draw(const Scene *in_scene)
 {
     if (!_enable)
         return;
@@ -128,7 +128,7 @@ GlyphNumber::GlyphNumber(Scene *scene,
                          const uint8_t *font,
                          unsigned digits,
                          Colour colour,
-                         volatile unsigned &value) :
+                         const Datum &value) :
     Glyph(scene, p, colour),
     _font(font),
     _digits(digits),
@@ -137,65 +137,77 @@ GlyphNumber::GlyphNumber(Scene *scene,
 }
 
 void
-GlyphNumber::draw(Scene *in_scene)
+GlyphNumber::draw(const Scene *in_scene)
 {
     unsigned w = _font[0];
-    unsigned offset_x = _digits * w;
+    unsigned offset_x = (_digits - 1) * w;
     unsigned v = _value;
     bool lsd = true;
 
-    do {
-        offset_x -= w;
-        unsigned index = v % 10;
+    if (!_value.isValid()) {
+        Glyph::drawChar(in_scene, _font, '-', offset_x);
 
-        if ((v > 0) || lsd) {
-            Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
+    } else {
+        do {
+            unsigned index = v % 10;
 
-        } else {
-            Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
-        }
+            if ((v > 0) || lsd) {
+                Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
 
-        v /= 10;
-        lsd = false;
+            } else {
+                Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
+            }
 
-    } while (offset_x > 0);
+            v /= 10;
+            lsd = false;
+            offset_x -= w;
+
+        } while (offset_x > 0);
+    }
 }
 
 void
-GlyphNumberTenths::draw(Scene *in_scene)
+GlyphNumberTenths::draw(const Scene *in_scene)
 {
     unsigned w = _font[0];
-    unsigned offset_x = _digits * w + 2;
+    unsigned offset_x = (_digits - 1) * w + 2;
     unsigned v = _value;
     bool frac = true;
     bool lsd = false;
 
-    do {
-        offset_x -= w;
-        unsigned index = v % 10;
 
-        if ((v > 0) || lsd || frac) {
-            Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
+    if (!_value.isValid()) {
+        Glyph::drawChar(in_scene, _font, '-', offset_x);
 
-        } else {
-            Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
-        }
+    } else {
+        do {
+            unsigned index = v % 10;
 
-        v /= 10;
+            if ((v > 0) || lsd || frac) {
+                Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
 
-        if (frac) {
-            frac = false;
-            lsd = true;
+            } else {
+                Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
+            }
 
-            /* decimal point - adjustment for descender is font-specific... */
-            in_scene->draw(Position(_p.x + offset_x - 2, _p.y + _font[1] - 2), _colour);
-            offset_x -= 2;
+            v /= 10;
 
-        } else {
-            lsd = false;
-        }
+            if (frac) {
+                frac = false;
+                lsd = true;
 
-    } while (offset_x > 0);
+                /* decimal point - adjustment for descender is font-specific... */
+                in_scene->draw(Position(_p.x + offset_x - 2, _p.y + _font[1] - 2), _colour);
+                offset_x -= 2;
+
+            } else {
+                lsd = false;
+            }
+
+            offset_x -= w;
+
+        } while (offset_x > 0);
+    }
 }
 
 GlyphText::GlyphText(Scene *scene,
@@ -213,7 +225,7 @@ GlyphText::GlyphText(Scene *scene,
 }
 
 void
-GlyphText::draw(Scene *in_scene)
+GlyphText::draw(const Scene *in_scene)
 {
     in_scene->fill(Region(_p, _d), Black);
 
@@ -385,7 +397,7 @@ GlyphBar::GlyphBar(Scene *scene,
                    unsigned min,
                    unsigned max,
                    Colour colour,
-                   volatile unsigned &value) :
+                   const Datum &value) :
     Glyph(scene, r.p, colour),
     _r(r),
     _o(o),
@@ -396,24 +408,25 @@ GlyphBar::GlyphBar(Scene *scene,
 }
 
 void
-GlyphBar::draw(Scene *in_scene)
+GlyphBar::draw(const Scene *in_scene)
 {
     unsigned max_bars = (_o == O_HORIZONTAL) ? _r.d.w : _r.d.h;
     unsigned blank_bars;
     Region	r = _r;
+    unsigned v = _value;
 
-    if (_value <= _offset) {
+    if (v <= _offset) {
         blank_bars = max_bars;
 
     } else {
-        _value -= _offset;
+        v -= _offset;
 
-        if (_value >= _range) {
+        if (v >= _range) {
             blank_bars = 0;
 
         } else {
             /* XXX rounding */
-            blank_bars = max_bars - ((_value * max_bars) / _range);
+            blank_bars = max_bars - ((v * max_bars) / _range);
         }
     }
 

@@ -44,7 +44,7 @@ Scene::render()
 }
 
 void
-Scene::_render()
+Scene::_render() const
 {
     for (Glyph *g = _stack; g != nullptr; g = g->next())
         g->draw(this);
@@ -73,7 +73,7 @@ Scene::event(Encoder::Event evt)
 }
 
 void
-Scene::fill(Region r, Colour colour)
+Scene::fill(Region r, Colour colour) const
 {
     unsigned tc = r.p.x + r.d.w;
     unsigned tr = r.p.y + r.d.h;
@@ -109,7 +109,7 @@ Scene::centeredPosition(Dimension d) const
 uint8_t PerfScene::_index;
 
 void
-PerfScene::_render()
+PerfScene::_render() const
 {
     GlyphText t(nullptr, Region(0, 0, 64, 32), font_Misc_Fixed_Medium_4x6, DimGreen, PerfScene::generator);
     t.draw(this);

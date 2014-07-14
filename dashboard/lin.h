@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "common/protocol.h"
 #include "perf.h"
+#include "datum.h"
 
 class LINDev
 {
@@ -11,22 +12,23 @@ public:
 
     void        interrupt();
 
-    volatile bool       warnSummary: 1;
-    volatile bool       errorSummary: 1;
-    volatile bool       linkUp: 1;
+    Datum   warnSummary;
+    Datum   errorSummary;
+    Datum   linkUp;
 
-    volatile bool       ttLeftTurn      = true;
-    volatile bool       ttRightTurn     = true;
-    volatile bool       ttLowBeam       = true;
-    volatile bool       ttHighBeam      = true;
-    volatile bool       ttFogLights     = true;
+    Datum   ttLeftTurn;
+    Datum   ttRightTurn;
+    Datum   ttLowBeam;
+    Datum   ttHighBeam;
+    Datum   ttFogLights;
 
-    volatile unsigned   roadSpeed       = 35;
-    volatile unsigned   engineRPM       = 8765;
-    volatile unsigned   batteryVoltage  = 131;
-    volatile unsigned   waterTemperature = 172;
-    volatile unsigned   oilPressure     = 45;
-    volatile unsigned   fuelLevel       = 20;
+    Datum   roadSpeed;
+    Datum   engineRPM;
+    Datum   batteryVoltage;
+    Datum   waterTemperature;
+    Datum   oilPressure;
+    Datum   fuelLevel;
+    Datum   airFuelRatio;
 
 private:
     enum State {

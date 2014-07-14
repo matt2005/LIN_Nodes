@@ -31,7 +31,7 @@ public:
     /**
      * Place a pixel in the scene.
      */
-    void        draw(Position p, Colour colour)
+    void        draw(Position p, Colour colour) const
     {
         // XXX remove clipping test for performance?
         if (_clip(p) && _current_framebuffer)
@@ -41,7 +41,7 @@ public:
     /**
      * Fill a portion of the scene.
      */
-    void        fill(Region r, Colour colour);
+    void        fill(Region r, Colour colour) const;
 
     /**
      * Return the draw position for a centered item of the given dimensions.
@@ -49,7 +49,7 @@ public:
     Position    centeredPosition(Dimension d) const;
 
 protected:
-    virtual void    _render();
+    virtual void    _render() const;
 
 private:
     const Dimension _geometry;
@@ -68,11 +68,12 @@ public:
 
     virtual bool    event(Encoder::Event evt) override;
 
+protected:
+    virtual void    _render() const override;
+
 private:
     static uint8_t  _index;
 
     static PerfItem *get_perf_item();
     static void     generator(GlyphText *gt);
-
-    virtual void    _render() override;
 };

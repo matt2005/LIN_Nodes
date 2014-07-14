@@ -6,6 +6,8 @@
 
 #include <stdint.h>
 
+#include "datum.h"
+
 class Glyph;
 class GlyphBitmap;
 class GlyphAlert;
@@ -190,7 +192,7 @@ class Glyph
 public:
     Glyph(Scene *scene, Position p, Colour colour);
 
-    virtual void    draw(Scene *in_scene);
+    virtual void    draw(const Scene *in_scene);
     void            setColour(Colour colour) { _colour = colour; }
 
     Glyph           *next() { return _next; }
@@ -201,23 +203,23 @@ protected:
     const Position  _p;
     Colour          _colour;
 
-    void            drawBitmap(Scene *in_scene, const struct glyph_info &glyph, unsigned offset_x = 0, unsigned offset_y = 0);
-    void            drawChar(Scene *in_scene, const uint8_t *font, uint8_t character, unsigned offset_x = 0, unsigned offset_y = 0);
+    void            drawBitmap(const Scene *in_scene, const struct glyph_info &glyph, unsigned offset_x = 0, unsigned offset_y = 0);
+    void            drawChar(const Scene *in_scene, const uint8_t *font, uint8_t character, unsigned offset_x = 0, unsigned offset_y = 0);
 };
 
 /* a glyph that draws a bitmap */
 class GlyphIcon : public Glyph
 {
 public:
-    GlyphIcon(Scene *scene, Position p, const struct glyph_info &icon, Colour colour, const volatile bool &enable = ENABLED);
+    GlyphIcon(Scene *scene, Position p, const struct glyph_info &icon, Colour colour, const Datum &_enable = dTrue);
 
 
-    virtual void    draw(Scene *in_scene) override;
+    virtual void    draw(const Scene *in_scene) override;
 
 protected:
     static const bool ENABLED;
 
-    const volatile bool &_enable;
+    const Datum &_enable;
     const struct glyph_info &_icon;
     const Dimension _d;
 };
@@ -226,23 +228,23 @@ protected:
 class GlyphNumber : public Glyph
 {
 public:
-    GlyphNumber(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value);
+    GlyphNumber(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, const Datum &value);
 
-    virtual void    draw(Scene *in_scene) override;
+    virtual void    draw(const Scene *in_scene) override;
 
 protected:
     const uint8_t   *_font;
     unsigned        _digits;
-    volatile unsigned &_value;
+    const Datum     &_value;
 };
 
 /* a class that draws a number divided by 10 */
 class GlyphNumberTenths : public GlyphNumber
 {
 public:
-    GlyphNumberTenths(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, volatile unsigned &value) :
+    GlyphNumberTenths(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, const Datum &value) :
         GlyphNumber(scene, p, font, digits, colour, value) {}
-    virtual void draw(Scene *in_scene) override;
+    virtual void draw(const Scene *in_scene) override;
 };
 
 /* a glyph that owns a text field */
@@ -253,7 +255,7 @@ public:
 
     GlyphText(Scene *scene, Region r, const uint8_t *font, Colour colour, Generator generator);
 
-    virtual void    draw(Scene *in_scene) override;
+    virtual void    draw(const Scene *in_scene) override;
     void            emit(char c);
     void            emitf(const char *fmt, ...);
     void            emit_int(unsigned n, unsigned width);
@@ -266,7 +268,7 @@ private:
     Dimension       _d;
     Generator       _generator;
     Position        _cursor;
-    Scene           *_scene;
+    const Scene     *_scene;
 };
 
 /* a glyph that draws a bargraph */
@@ -278,14 +280,14 @@ public:
         O_VERTICAL
     };
 
-    GlyphBar(Scene *scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, volatile unsigned &value);
+    GlyphBar(Scene *scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, const Datum &value);
 
-    virtual void    draw(Scene *in_scene) override;
+    virtual void    draw(const Scene *in_scene) override;
 
 private:
     Region          _r;
     Orientation     _o;
-    volatile unsigned &_value;
+    const Datum     &_value;
     unsigned        _offset;
     unsigned        _range;
 };

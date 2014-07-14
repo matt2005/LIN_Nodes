@@ -119,8 +119,10 @@ private:
         switch (bufidx) {
         case kBuf0:
             return &_buffer[0];
+
         case kBuf1:
             return &_buffer[1];
+
         default:
             return nullptr;
         }

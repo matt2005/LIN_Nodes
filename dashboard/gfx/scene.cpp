@@ -56,16 +56,21 @@ Scene::event(Encoder::Event evt)
     switch (evt) {
     case Encoder::EVT_BUTTON:
         return true;
+
     case Encoder::EVT_DOWN:
         gPanel.dimmer();
         break;
+
     case Encoder::EVT_UP:
         gPanel.brighter();
         break;
+
     default:
         break;
     }
-    return false;}
+
+    return false;
+}
 
 void
 Scene::fill(Region r, Colour colour)
@@ -124,20 +129,27 @@ PerfScene::event(Encoder::Event evt)
     switch (evt) {
     case Encoder::EVT_BUTTON:
         return true;
+
     case Encoder::EVT_DOWN:
         if (_index > 0) {
             _index--;
         }
+
         break;
+
     case Encoder::EVT_UP:
         _index++;
+
         if (get_perf_item() == nullptr) {
             _index--;
         }
+
         break;
+
     default:
         break;
     }
+
     return false;
 }
 
@@ -149,8 +161,10 @@ PerfScene::get_perf_item()
     for (unsigned i = 0; i < _index; i++) {
         if (pi == nullptr)
             break;
+
         pi = pi->next();
     }
+
     return pi;
 }
 

@@ -11,9 +11,9 @@ public:
 
     void        interrupt();
 
-    volatile bool       warnSummary:1;
-    volatile bool       errorSummary:1;
-    volatile bool       linkUp:1;
+    volatile bool       warnSummary: 1;
+    volatile bool       errorSummary: 1;
+    volatile bool       linkUp: 1;
 
     volatile bool       ttLeftTurn      = true;
     volatile bool       ttRightTurn     = true;

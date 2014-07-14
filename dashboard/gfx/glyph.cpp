@@ -182,6 +182,7 @@ GlyphNumberTenths::draw(Scene *in_scene)
         }
 
         v /= 10;
+
         if (frac) {
             frac = false;
             lsd = true;
@@ -189,6 +190,7 @@ GlyphNumberTenths::draw(Scene *in_scene)
             /* decimal point - adjustment for descender is font-specific... */
             in_scene->draw(Position(_p.x + offset_x - 2, _p.y + _font[1] - 2), _colour);
             offset_x -= 2;
+
         } else {
             lsd = false;
         }
@@ -256,17 +258,21 @@ GlyphText::emit_int(unsigned n, unsigned width)
         if (n > 0) {
             buf[pos] = '0' + n % 10;
             n /= 10;
+
         } else {
             if (clear) {
                 buf[pos] = ' ';
             }
         }
+
         if (pos == 0) {
             break;
         }
+
         clear = true;
         pos--;
-    } 
+    }
+
     while (pos < width) {
         emit(buf[pos++]);
     }
@@ -282,12 +288,15 @@ GlyphText::emit_hex(unsigned n, unsigned width)
 
         if (d <= 9) {
             emit('0' + d);
+
         } else {
             emit('A' + d - 10);
         }
+
         if (shift == 0) {
             break;
         }
+
         shift -= 4;;
     }
 }
@@ -298,6 +307,7 @@ GlyphText::emit_string(const char *s, unsigned width)
     if (width == 0) {
         width = 1000;
     }
+
     while ((*s != 0) && (width-- > 0)) {
         emit(*s++);
     }
@@ -326,7 +336,7 @@ GlyphText::emitf(const char *fmt, ...)
 nextfmt:
         c = *fmt++;
 
-        switch(c) {
+        switch (c) {
         case '\0':
             goto out;
 
@@ -341,7 +351,8 @@ nextfmt:
         case 'p':
             emit('0');
             emit('X');
-            /* FALLTHROUGH */
+
+        /* FALLTHROUGH */
         case 'u':
             emit_int(va_arg(ap, unsigned), w ? w : 5);
             break;
@@ -352,15 +363,18 @@ nextfmt:
 
         case 'C':
             w = va_arg(ap, unsigned);
+
             if (w <= White) {
                 _colour = w;
             }
+
             break;
 
         default:
             break;
         }
     }
+
 out:
     _colour = ocolour;
 }

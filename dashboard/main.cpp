@@ -45,28 +45,34 @@ enum Mode {
 static Scene *
 mode_scene(Mode mode)
 {
-    switch(mode) {
+    switch (mode) {
     case kModeDash:
         return &gDash;
+
     case kModePerf:
         return &gPerf;
+
     default:
         break;
     }
+
     return nullptr;
 }
 
 static Mode
 next_mode(Mode mode)
 {
-    switch(mode) {
+    switch (mode) {
     case kModeDash:
         return kModePerf;
+
     case kModePerf:
         return kModeDash;
+
     default:
         break;
     }
+
     return kModeDash;
 }
 
@@ -94,6 +100,7 @@ main(void)
         if (mode_scene(mode)->event(gEncoder.event())) {
             mode = next_mode(mode);
         }
+
         // check for redraw timer expiry
         if (refreshTicker.didTick()) {
             mode_scene(mode)->render();

@@ -176,7 +176,7 @@ public:
     }
 
 private:
-    Cell            _buffer[ROWS * COLUMNS / Cell::stride()];
+    Cell            _buffer[ROWS *COLUMNS / Cell::stride()];
 };
 
 // XXX should parameterise the framebuffer dimensions
@@ -249,7 +249,7 @@ public:
 class GlyphText : public Glyph
 {
 public:
-    typedef void    (* Generator)(GlyphText *owner);
+    typedef void (* Generator)(GlyphText *owner);
 
     GlyphText(Scene *scene, Region r, const uint8_t *font, Colour colour, Generator generator);
 

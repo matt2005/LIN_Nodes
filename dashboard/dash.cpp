@@ -38,6 +38,7 @@ gen_status(GlyphText *gt)
     if (!gLIN.linkUp) {
         gt->setColour(Red);
         gt->emit_string("LINK DOWN");
+
     } else {
         gt->setColour(DimCyan);
         gt->emit_string("OK");

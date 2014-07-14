@@ -5,7 +5,7 @@
 class Timer
 {
 public:
-    typedef void            (* Callback)(void *arg);
+    typedef void (* Callback)(void *arg);
     typedef uint64_t        Time;
     typedef uint32_t        Interval;
     static const Time       endOfTime   = ~0ULL;

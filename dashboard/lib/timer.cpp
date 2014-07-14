@@ -26,11 +26,6 @@ uint32_t    Timer::_highWord = 0;
 Timer       *Timer::_list = nullptr;
 bool        Timer::_running = false;
 
-Timer::Timer(Callback callback, void *arg) :
-    _callback(callback),
-    _arg(arg)
-{
-}
 
 Timer::Time
 Timer::time()

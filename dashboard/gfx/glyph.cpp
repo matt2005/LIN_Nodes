@@ -100,20 +100,6 @@ Glyph::drawChar(const Scene *in_scene,
     }
 }
 
-const bool GlyphIcon::ENABLED = true;
-
-GlyphIcon::GlyphIcon(Scene *scene,
-                     Position p,
-                     const struct glyph_info &icon,
-                     Colour colour,
-                     const Datum &enable) :
-    Glyph(scene, p, colour),
-    _enable(enable),
-    _icon(icon),
-    _d(Dimension(GLYPH_WIDTH(icon.info), GLYPH_HEIGHT(icon.info)))
-{
-}
-
 void
 GlyphIcon::draw(const Scene *in_scene)
 {
@@ -121,19 +107,6 @@ GlyphIcon::draw(const Scene *in_scene)
         return;
 
     Glyph::drawBitmap(in_scene, _icon);
-}
-
-GlyphNumber::GlyphNumber(Scene *scene,
-                         Position p,
-                         const uint8_t *font,
-                         unsigned digits,
-                         Colour colour,
-                         const Datum &value) :
-    Glyph(scene, p, colour),
-    _font(font),
-    _digits(digits),
-    _value(value)
-{
 }
 
 void
@@ -208,20 +181,6 @@ GlyphNumberTenths::draw(const Scene *in_scene)
 
         } while (offset_x > 0);
     }
-}
-
-GlyphText::GlyphText(Scene *scene,
-                     Region r,
-                     const uint8_t *font,
-                     Colour colour,
-                     GlyphText::Generator generator) :
-    Glyph(scene, r.p, colour),
-    _font(font),
-    _d(r.d),
-    _generator(generator),
-    _cursor(0, 0),
-    _scene(scene)
-{
 }
 
 void
@@ -389,22 +348,6 @@ nextfmt:
 
 out:
     _colour = ocolour;
-}
-
-GlyphBar::GlyphBar(Scene *scene,
-                   Region r,
-                   Orientation o,
-                   unsigned min,
-                   unsigned max,
-                   Colour colour,
-                   const Datum &value) :
-    Glyph(scene, r.p, colour),
-    _r(r),
-    _o(o),
-    _value(value),
-    _offset(min),
-    _range(max - min)
-{
 }
 
 void

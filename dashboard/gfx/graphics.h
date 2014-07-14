@@ -7,12 +7,9 @@
 #include <stdint.h>
 
 #include "datum.h"
+#include "glyphs.h"
 
-class Glyph;
-class GlyphBitmap;
-class GlyphAlert;
 class Scene;
-class Panel;
 
 struct glyph_info;
 
@@ -211,8 +208,13 @@ protected:
 class GlyphIcon : public Glyph
 {
 public:
-    GlyphIcon(Scene *scene, Position p, const struct glyph_info &icon, Colour colour, const Datum &_enable = dTrue);
-
+    GlyphIcon(Scene *scene, Position p, const struct glyph_info &icon, Colour colour, const Datum &enable = dTrue) :
+        Glyph(scene, p, colour),
+        _enable(enable),
+        _icon(icon),
+        _d(Dimension(GLYPH_WIDTH(icon.info), GLYPH_HEIGHT(icon.info)))
+    {
+    }
 
     virtual void    draw(const Scene *in_scene) override;
 
@@ -228,7 +230,13 @@ protected:
 class GlyphNumber : public Glyph
 {
 public:
-    GlyphNumber(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, const Datum &value);
+    GlyphNumber(Scene *scene, Position p, const uint8_t *font, unsigned digits, Colour colour, const Datum &value) :
+        Glyph(scene, p, colour),
+        _font(font),
+        _digits(digits),
+        _value(value)
+    {
+    }
 
     virtual void    draw(const Scene *in_scene) override;
 
@@ -253,7 +261,15 @@ class GlyphText : public Glyph
 public:
     typedef void (* Generator)(GlyphText *owner);
 
-    GlyphText(Scene *scene, Region r, const uint8_t *font, Colour colour, Generator generator);
+    GlyphText(Scene *scene, Region r, const uint8_t *font, Colour colour, Generator generator) :
+        Glyph(scene, r.p, colour),
+        _font(font),
+        _d(r.d),
+        _generator(generator),
+        _cursor(0, 0),
+        _scene(scene)
+    {
+    }
 
     virtual void    draw(const Scene *in_scene) override;
     void            emit(char c);
@@ -280,7 +296,15 @@ public:
         O_VERTICAL
     };
 
-    GlyphBar(Scene *scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, const Datum &value);
+    GlyphBar(Scene *scene, Region r, Orientation o, unsigned min, unsigned max, Colour colour, const Datum &value) :
+        Glyph(scene, r.p, colour),
+        _r(r),
+        _o(o),
+        _value(value),
+        _offset(min),
+        _range(max - min)
+    {
+    }
 
     virtual void    draw(const Scene *in_scene) override;
 

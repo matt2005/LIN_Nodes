@@ -1,9 +1,13 @@
 
-#include "lin_protocol.h"
 #include "util.h"
 #include "board.h"
 
-#include "m_setup_power.h"
+#include "lin_protocol.h"
+#include "protocol.h"
+#include "param_power_v1.h"
+#include "param_power_v3.h"
+
+#include "m_setup.h"
 #include "m_explore.h"
 #include "m_edit.h"
 #include "slave.h"
@@ -13,88 +17,54 @@ namespace Menu
 
 SetupPowerMode modeSetupPower;
 
-Mode *
-SetupPowerMode::action(Encoder::Event bp)
+void
+SetupPowerMode::init(uint8_t nad)
 {
-    bool wantDraw = false;
+    _ident = nad - LIN::kNADPowerBase;
 
-    switch (bp) {
-    case Encoder::kEventDown:
-        if (_param > 0) {
-            _param--;
-        }
-
-        wantDraw = true;
-        break;
-
-    case Encoder::kEventUp:
-
-        // XXX 4 for v1, 5 for v2, need to identify (or ignore on v1?)
-        if (_param < 5) {
-            _param++;
-        }
-
-        wantDraw = true;
-        break;
-
-    case Encoder::kEventPress:
-        switch (_param) {
-        case 0:
-            return &modeExplore;
-
-        default:
-            _editing = true;
-            return &modeEdit;
-        }
-
-        break;
-
-    case Encoder::kEventActivate:
-        if (_editing) {
-            _editing = false;
-
-            if (!gSlave.setParameter(_node, _param, _value)) {
-                gDisplay.printf(PSTR("%2u write err"), _param);
-                Board::msDelay(5000);
-                gDisplay.clear();
-            }
-
-        } else {
-            _param = 1;
-        }
-
-        wantDraw = true;
-        break;
-
-    default:
-        break;
+    uint8_t flavour = 0;
+    if (gSlave.getParameter(nad, 0, flavour) == 1) {    // XXX BOARD_FUNCTION_ID value
+        _flavour = kFlavourV1;
+    } else {
+        _flavour = kFlavourV3;
     }
 
-    if (wantDraw) {
-        draw();
-    }
-
-    return this;
+    _init(nad, Util::strtablen(paramNames()) - 1);
 }
 
 void
-SetupPowerMode::draw()
+SetupPowerMode::printTitle() const
 {
-    gDisplay.clear();
+    gDisplay.printf(PSTR("Power %1u Setup:"), _ident);
+}
 
-    if (_param == 0) {
-        gDisplay.printf(PSTR(">back"));
-        return;
-    }
+Parameter
+SetupPowerMode::param() const
+{
+    return (_flavour == kFlavourV1) ? power_v1Param(_param) : power_v3Param(_param);
+}
 
-    if (!gSlave.getParameter(_node, _param, _value)) {
-        gDisplay.printf(PSTR("%2u read err"), _param);
-        return;
-    }
+PGM_P
+SetupPowerMode::paramName() const
+{
+    return Util::strtab(paramNames(), _param);
+}
 
-    gDisplay.printf(PSTR("Relay %2u"), _param);
-    modeEdit.init(this, &_value, Display::Region(0, 0, 20, 1), LIN::strtabRelayID, PSTR("%16s"));
-    modeEdit.draw();
+PGM_P
+SetupPowerMode::paramFormat() const
+{
+    return Util::strtab(paramFormats(), _param);
+}
+
+PGM_P
+SetupPowerMode::paramNames() const
+{
+    return (_flavour == kFlavourV1) ? power_v1ParamNames : power_v3ParamNames;
+}
+PGM_P
+SetupPowerMode::paramFormats() const
+{
+    return (_flavour == kFlavourV1) ? power_v1ParamFormats : power_v3ParamFormats;
 }
 
 } // namespace Menu

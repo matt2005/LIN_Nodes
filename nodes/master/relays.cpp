@@ -390,7 +390,7 @@ interiorLights(RelayBits &f)
 {
     // door just closed - start interior lighting timer
     if (Switches::changedToOff(LIN::kSwitchIDDoor)) {
-        interiorLightsDelay.setSeconds(paramInteriorLightPeriod);
+        interiorLightsDelay.setSeconds(paramInteriorLightTime);
     }
 
     // if ignition is on, cancel interior light timer
@@ -423,7 +423,7 @@ pathLights(RelayBits &f)
         // door already open?
         if (Switches::test(LIN::kSwitchIDDoor)) {
             // path lighting
-            pathwayLightingDelay.setSeconds(paramPathLightPeriod);
+            pathwayLightingDelay.setSeconds(paramPathLightTime);
 
         } else {
             ignitionWasOn = true;
@@ -435,7 +435,7 @@ pathLights(RelayBits &f)
         ignitionWasOn) {
 
         // path lighting
-        pathwayLightingDelay.setSeconds(paramPathLightPeriod);
+        pathwayLightingDelay.setSeconds(paramPathLightTime);
 
         // XXX no path lighting after a 'false alarm' door opening
         //     might want to keep this set until sleep?
@@ -447,7 +447,7 @@ pathLights(RelayBits &f)
         Switches::changed(LIN::kSwitchIDDoorUnlock)) {
 
         // welcome lighting
-        pathwayLightingDelay.setSeconds(paramWelcomeLightPeriod);
+        pathwayLightingDelay.setSeconds(paramWelcomeLightTime);
     }
 
     // path lights on?

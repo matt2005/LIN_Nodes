@@ -46,7 +46,7 @@ main(void)
 # endif
 
     // init/default parameters
-    paramAll(init);
+    power_v1ParamAll(init);
 
     // construct the slave
     RelaySlave  slave(id);

@@ -30,7 +30,7 @@ main(void)
     }
 
     // init / default parameters
-    paramAll(init);
+    masterParamAll(init);
 
     // initialisation
     gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS

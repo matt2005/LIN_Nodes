@@ -52,8 +52,6 @@ extern const char power_v3ParamFormats[];
 #define kParamCH5PWM2 43
 #define kParamCH5PWM3 44
 #define kParamCH5PWM4 45
-#define kParamMax 46
-
 #define power_v3Param(_index) Parameter((_index), &power_v3ParamInfo[(_index) * 3])
 
 #define paramCH1Type power_v3Param(kParamCH1Type)
@@ -102,7 +100,7 @@ extern const char power_v3ParamFormats[];
 #define paramCH5PWM3 power_v3Param(kParamCH5PWM3)
 #define paramCH5PWM4 power_v3Param(kParamCH5PWM4)
 
-#define paramAll(method, ...) \
+#define power_v3ParamAll(method, ...) \
     paramCH1Type.method(__VA_ARGS__); \
     paramCH2Type.method(__VA_ARGS__); \
     paramCH3Type.method(__VA_ARGS__); \

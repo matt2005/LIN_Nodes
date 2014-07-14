@@ -36,8 +36,6 @@ extern const char masterParamFormats[];
 #define kParamBrakeBlinkPeriod 27
 #define kParamBrakeBlinkCount 28
 #define kParamWiperInterval 29
-#define kParamMax 30
-
 #define masterParam(_index) Parameter((_index), &masterParamInfo[(_index) * 3])
 
 #define paramSPAssign1 masterParam(kParamSPAssign1)
@@ -70,7 +68,7 @@ extern const char masterParamFormats[];
 #define paramBrakeBlinkCount masterParam(kParamBrakeBlinkCount)
 #define paramWiperInterval masterParam(kParamWiperInterval)
 
-#define paramAll(method, ...) \
+#define masterParamAll(method, ...) \
     paramSPAssign1.method(__VA_ARGS__); \
     paramSPAssign2.method(__VA_ARGS__); \
     paramSPAssign3.method(__VA_ARGS__); \

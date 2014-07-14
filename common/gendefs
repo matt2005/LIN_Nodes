@@ -173,15 +173,13 @@ dict for {node node_params} $parameters {
         puts $fh "#define kParam${param_name} ${index}"
         incr index
     }
-    puts $fh "#define kParamMax ${index}"
-    puts $fh ""
     puts $fh "#define ${node}Param(_index) Parameter((_index), &${node}ParamInfo\[(_index) * 3\])"
     puts $fh ""
     dict for {param_name param_info} $node_params {
         puts $fh "#define param${param_name} ${node}Param(kParam${param_name})"
     }
     puts $fh ""
-    puts $fh "#define paramAll(method, ...) \\"
+    puts $fh "#define ${node}ParamAll(method, ...) \\"
     dict for {param_name param_info} $node_params {
         puts $fh "    param${param_name}.method(__VA_ARGS__); \\"
     }

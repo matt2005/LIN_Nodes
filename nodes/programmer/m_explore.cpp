@@ -6,8 +6,7 @@
 
 #include "m_explore.h"
 #include "m_top.h"
-#include "m_setup_master.h"
-#include "m_setup_power.h"
+#include "m_setup.h"
 #include "slave.h"
 
 namespace Menu
@@ -68,6 +67,7 @@ ExploreMode::action(Encoder::Event bp)
             return &modeTop;
 
         case LIN::kNADMaster:
+            modeSetupMaster.init();
             return &modeSetupMaster;
 
         case LIN::kNADPowerBase ...(LIN::kNADPowerBase + 15):

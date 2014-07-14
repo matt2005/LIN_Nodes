@@ -4,9 +4,8 @@
 
 #include "lin_protocol.h"
 #include "protocol.h"
-#include "param_master.h"
 
-#include "m_setup_master.h"
+#include "m_setup.h"
 #include "m_explore.h"
 #include "m_edit.h"
 #include "slave.h"
@@ -15,49 +14,25 @@ namespace Menu
 {
 
 ////////////////////////////////////////////////////////////////
-// Master node parameter editor
+// Node parameter editor
 //
 // +--------------------+
-// |Master:             |
-// | >>ParameterName    |
-// |    ValueUnits      |
+// |Title:              |
+// |>>ParameterName     |
+// |  ValueUnits        |
 // |                    |
 // +--------------------+
 //
 // +--------------------+
-// |Master:             |
-// | >> -done-          |
+// |Title:              |
+// |>>Back to node list |
 // |                    |
 // |                    |
 // +--------------------+
 //
-
-SetupMasterMode modeSetupMaster;
-
-static const char *
-paramName(uint8_t index)
-{
-    if (index == 0) {
-        return PSTR("Back to node list");
-
-    } else {
-        return Util::strtab(masterParamNames, index);
-    }
-}
-
-static const char *
-paramFormat(uint8_t index)
-{
-    if (index == 0) {
-        return PSTR("");
-
-    } else {
-        return Util::strtab(masterParamFormats, index);
-    }
-}
 
 Mode *
-SetupMasterMode::action(Encoder::Event bp)
+SetupMode::action(Encoder::Event bp)
 {
     bool indexChanged = false;
 
@@ -71,7 +46,7 @@ SetupMasterMode::action(Encoder::Event bp)
         break;
 
     case Encoder::kEventUp:
-        if (_param < (kParamMax - 1)) {
+        if (_param < _max_param) {
             _param++;
         }
 
@@ -89,6 +64,7 @@ SetupMasterMode::action(Encoder::Event bp)
             gDisplay.printf(PSTR("  "));
             gDisplay.move(0, 2);
             gDisplay.printf(PSTR(">>"));
+            // edit was already setup up at draw time
             return &modeEdit;
         }
 
@@ -98,7 +74,7 @@ SetupMasterMode::action(Encoder::Event bp)
         if (_editing) {
             _editing = false;
 
-            if (!gSlave.setParameter(LIN::kNADMaster, _param, _value)) {
+            if (!gSlave.setParameter(_nad, _param, _value)) {
                 gDisplay.clear();
                 gDisplay.printf(PSTR("%2u write err"), _param);
                 Board::msDelay(5000);
@@ -124,21 +100,30 @@ SetupMasterMode::action(Encoder::Event bp)
 }
 
 void
-SetupMasterMode::draw()
+SetupMode::_init(uint8_t nad, uint8_t max_param)
+{
+    _nad = nad;
+    _max_param = max_param;
+}
+
+void
+SetupMode::draw()
 {
     gDisplay.clear();
-    gDisplay.printf(PSTR("Master Setup:"));
+    printTitle();
     gDisplay.move(0, 1);
     gDisplay.printf(PSTR(">>"));
-    gDisplay.printf(paramName(_param));
+    gDisplay.printf((_param == 0) ? 
+                    PSTR("Back to node list") : 
+                    paramName());
     gDisplay.move(2, 2);
 
     if (_param > 0) {
-        if (!gSlave.getParameter(LIN::kNADMaster, _param, _value)) {
+        if (!gSlave.getParameter(_nad, _param, _value)) {
             gDisplay.printf(PSTR("read error"));
 
         } else {
-            const char *fmt = paramFormat(_param);
+            const char *fmt = paramFormat();
             const char *tab = nullptr;
 
             if (pgm_read_byte(fmt) == '%') {
@@ -164,23 +149,11 @@ SetupMasterMode::draw()
                 modeEdit.init(this,
                               &_value,
                               Display::Region(2, 2, 18, 1),
-                              masterParam(_param).min_value(),
-                              masterParam(_param).max_value(), fmt);
+                              param().min_value(),
+                              param().max_value(), fmt);
             }
-            modeEdit.draw();
 
-//            gDisplay.printf(paramFormat(_param), _value);
-//
-//            gDisplay.printf(PSTR("%s"), paramName(_param));
-//
-//            if (pgm_read_byte(paramFormat(_param)) == ' ') {
-//                modeEdit.init(this, &_value, 0, 1, LIN::strtabSwitchID, PSTR("%16s"));
-//
-//            } else {
-//                modeEdit.init(this, &_value, 0, 1, 0, 255, paramFormat(_param));
-//            }
-//
-//            modeEdit.draw();
+            modeEdit.draw();
         }
     }
 }

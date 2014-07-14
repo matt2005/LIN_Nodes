@@ -22,7 +22,7 @@ main(void)
     }
 
     // init/default parameters
-    paramAll(init);
+    power_v3ParamAll(init);
 
     // construct the slave
     RelaySlave  slave(id);

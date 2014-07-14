@@ -8,7 +8,7 @@
 # Two variables may be set:
 #
 # charlist - a list of encoding values to be extracted from the font. Defaults
-#            to space, the digits 0 - 9, period, colon and the letters A-Z
+#            to space, the digits 0 - 9, dash, period, colon and the letters A-Z
 # basename - the base name of the .c/.h files to generate
 #
 
@@ -25,7 +25,7 @@ function reinit() {
 
 BEGIN {
         if (charlist == "") {
-                charlist = "32 46 48 49 50 51 52 53 54 55 56 57 58 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90"
+                charlist = "32 45 46 48 49 50 51 52 53 54 55 56 57 58 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90"
         }
         n_selected_chars = split(charlist, selected_chars)
 

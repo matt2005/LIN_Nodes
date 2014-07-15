@@ -1,7 +1,8 @@
 #include "lin.h"
 
 #include "lpc111x.h"
-#include "common/protocol.h"
+#include "common/lin_protocol.h"
+//#include "common/protocol.h"
 
 extern "C" void	UART_Handler(void) __attribute__((used));
 
@@ -159,8 +160,11 @@ LINDev::headerReceived()
 {
     switch (_fid) {
     case LIN::kFIDRelays:
-        // we expect an 8-byte frame
         _waitLen = LIN::kFLenRelays;
+        break;
+
+    case LIN::kFIDECUData:
+        _waitLen = LIN::kFLenECUData;
         break;
 
     default:
@@ -181,6 +185,20 @@ LINDev::responseReceived()
         ttHighBeam = frameBit(LIN::kRelayIDHighBeam);
         linkUp = true;
         break;
+
+    case LIN::kFIDECUData:
+    {
+       //LIN::ECUDataFrame f(_buf);
+
+       //roadSpeed = f.roadSpeed();
+       //engineRPM = f.RPM() * 30;
+       //batteryVoltage = f.voltage();
+       //waterTemperature = f.coolantTemperature();
+       //oilPressure = f.oilPressure();
+       //airFuelRatio = f.AFR();
+
+        break;
+    }
 
     default:
         break;

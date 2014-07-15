@@ -14,7 +14,7 @@ namespace Menu
 
 ExploreMode modeExplore;
 
-Util::Bitarray<LIN::kNADMaxAssigned> ExploreMode::presentMask;
+Bitarray<LIN::kNADMaxAssigned> ExploreMode::presentMask;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Explore mode

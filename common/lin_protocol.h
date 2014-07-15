@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "util.h"
+#include "bitarray.h"
 #include "protocol.h"
 
 namespace LIN
@@ -28,9 +28,10 @@ enum NodeAddress : uint8_t
     kNADSleep           = 0,
 
     kNADMaster          = 1,    //< always NAD 1
-    kNADPowerBase       = 2,    //< 16 of these (board ID 0-15)
-
-    kNADProgrammer      = 20,  //< plug-in programmer
+    kNADPowerBase       = 2,    //< 15 of these (board ID 1-15)
+    kNADECU             = 18,   //< ECU data bridge
+    kNADDashboard       = 19,   //< dash display (not talkative)
+    kNADProgrammer      = 20,   //< plug-in programmer
 
     kNADMaxAssigned,
 
@@ -84,6 +85,18 @@ public:
         _b[7] = b7;
     }
 
+    Frame(const uint8_t *buf)
+    {
+        _b[0] = buf[0];
+        _b[1] = buf[1];
+        _b[2] = buf[2];
+        _b[3] = buf[3];
+        _b[4] = buf[4];
+        _b[5] = buf[5];
+        _b[6] = buf[6];
+        _b[7] = buf[7];        
+    }
+
     // ReadByID request factory
     static Frame    makeReadByIDRequest(uint8_t nad, ReadByID flavor)
     {
@@ -106,7 +119,7 @@ public:
         _b[7] = f._b[7];
     }
 
-    void                copy(const Util::Bitarray<64> &array) volatile
+    void                copy(const Bitarray<64> &array) volatile
     {
         _b[0] = array[0];
         _b[1] = array[1];
@@ -129,8 +142,6 @@ public:
         _b[6] = 0;
         _b[7] = 0;
     }
-
-
 
     // field access by index
     volatile uint8_t &operator[](uint8_t index) volatile { return _b[index]; }
@@ -186,6 +197,19 @@ public:
         uint8_t bit = 1 << (relay & 0x7);
         return (*this)[index] & bit;
     }
+};
+
+class ECUDataFrame : public Frame
+{
+public:
+    volatile uint8_t    &RPM()                  volatile { return (*this)[0]; } //< engine RPM / 30, 0 = not running
+    volatile uint8_t    &oilPressure()          volatile { return (*this)[1]; } //< PSI
+    volatile uint8_t    &oilTemperature()       volatile { return (*this)[2]; } //< def. F
+    volatile uint8_t    &coolantTemperature()   volatile { return (*this)[3]; } //< deg. F
+    volatile uint8_t    &fuelPressure()         volatile { return (*this)[4]; } //< PSI
+    volatile uint8_t    &voltage()              volatile { return (*this)[5]; } //< tenths of a volt
+    volatile uint8_t    &AFR()                  volatile { return (*this)[6]; } //< ratio tenths, 10.0 : 20.0
+    volatile uint8_t    &roadSpeed()            volatile { return (*this)[7]; } //< mph
 };
 
 enum ConfigFlavour : uint8_t {

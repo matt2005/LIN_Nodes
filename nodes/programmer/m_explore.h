@@ -3,6 +3,7 @@
 #pragma once
 
 #include "menu.h"
+#include "bitarray.h"
 #include "lin_protocol.h"
 
 namespace Menu
@@ -14,7 +15,7 @@ public:
     virtual Mode    *action(Encoder::Event bp) override;
 
 private:
-    static Util::Bitarray<LIN::kNADMaxAssigned> presentMask;
+    static Bitarray<LIN::kNADMaxAssigned> presentMask;
 
     uint8_t         _node;
     void            draw();

@@ -13,6 +13,7 @@ static const uint8_t protocolRevision = 1;
 enum FrameID : uint8_t {
     kFIDNone = 0x00,
     kFIDRelays = 0x01,
+    kFIDECUData = 0x02,
     kFIDConfigRequest = 0x2c,
     kFIDConfigResponse = 0x2d,
     kFIDMasterRequest = 0x3c,
@@ -23,6 +24,7 @@ enum FrameID : uint8_t {
 enum FrameLen : uint8_t {
     kFLenNone = 0,
     kFLenRelays = 8,
+    kFLenECUData = 8,
     kFLenConfigRequest = 8,
     kFLenConfigResponse = 8,
     kFLenMasterRequest = 8,

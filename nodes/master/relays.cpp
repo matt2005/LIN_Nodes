@@ -1,5 +1,6 @@
 
 #include "board.h"
+#include "bitarray.h"
 #include "util.h"
 
 #include "switches.h"
@@ -11,7 +12,7 @@
 namespace Relays
 {
 
-typedef Util::Bitarray<64> RelayBits;
+typedef Bitarray<64> RelayBits;
 
 class TurnBlinker : public Timer
 {

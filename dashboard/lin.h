@@ -27,8 +27,9 @@ public:
     Datum   batteryVoltage;
     Datum   waterTemperature;
     Datum   oilPressure;
-    Datum   fuelLevel;
     Datum   airFuelRatio;
+
+    Datum   fuelLevel;
 
 private:
     enum State {

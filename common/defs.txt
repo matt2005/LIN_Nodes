@@ -4,6 +4,7 @@ REVISION 1
 
 FRAME None              0x00    0
 FRAME Relays            0x01    8
+FRAME ECUData           0x02    8
 FRAME ConfigRequest     0x2c    8
 FRAME ConfigResponse    0x2d    8
 FRAME MasterRequest     0x3c    8

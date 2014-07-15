@@ -24,9 +24,9 @@ Glyph::draw(const Scene *in_scene)
 
 void
 Glyph::draw_bitmap(const Scene *in_scene,
-                  const struct glyph_info &glyph,
-                  unsigned offset_x,
-                  unsigned offset_y)
+                   const struct glyph_info &glyph,
+                   unsigned offset_x,
+                   unsigned offset_y)
 {
     Position origin = _p.move(offset_x, offset_y);
     const uint16_t *dp = &glyph.data[0];
@@ -60,10 +60,10 @@ Glyph::draw_bitmap(const Scene *in_scene,
 
 void
 Glyph::draw_character(const Scene *in_scene,
-                const uint8_t *font,
-                uint8_t character,
-                unsigned offset_x,
-                unsigned offset_y)
+                      const uint8_t *font,
+                      uint8_t character,
+                      unsigned offset_x,
+                      unsigned offset_y)
 {
     unsigned f_width = font[0];
     unsigned f_bpr = (f_width + 7) / 8;
@@ -115,12 +115,13 @@ GlyphNumber::draw(const Scene *in_scene)
     unsigned w = _font[0];
     unsigned offset_x = (_digits - 1) * w;
     unsigned v = _value;
-    bool lsd = true;
 
     if (!_value.is_valid()) {
         Glyph::draw_character(in_scene, _font, '-', offset_x);
 
     } else {
+        bool lsd = true;
+
         do {
             unsigned index = v % 10;
 
@@ -145,14 +146,15 @@ GlyphNumberTenths::draw(const Scene *in_scene)
     unsigned w = _font[0];
     unsigned offset_x = (_digits - 1) * w + 2;
     unsigned v = _value;
-    bool frac = true;
-    bool lsd = false;
 
 
     if (!_value.is_valid()) {
         Glyph::draw_character(in_scene, _font, '-', offset_x);
 
     } else {
+        bool frac = true;
+        bool lsd = false;
+
         do {
             unsigned index = v % 10;
 

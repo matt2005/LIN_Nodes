@@ -186,16 +186,15 @@ LINDev::response_received()
         linkUp = true;
         break;
 
-    case LIN::kFrameIDECUData:
-    {
-       //LIN::ECUDataFrame f(_buf);
+    case LIN::kFrameIDECUData: {
+        //LIN::ECUDataFrame f(_buf);
 
-       //roadSpeed = f.roadSpeed();
-       //engineRPM = f.RPM() * 30;
-       //batteryVoltage = f.voltage();
-       //waterTemperature = f.coolantTemperature();
-       //oilPressure = f.oilPressure();
-       //airFuelRatio = f.AFR();
+        //roadSpeed = f.roadSpeed();
+        //engineRPM = f.RPM() * 30;
+        //batteryVoltage = f.voltage();
+        //waterTemperature = f.coolantTemperature();
+        //oilPressure = f.oilPressure();
+        //airFuelRatio = f.AFR();
 
         break;
     }

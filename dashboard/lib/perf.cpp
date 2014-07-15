@@ -60,40 +60,6 @@ PerfInterval::report(GlyphText *gt)
     gt->emitf("INTVL %s\n%u\n %u\n %u", _name, _count, _min_period, _max_period);
 }
 
-PerfLoad::PerfLoad(const char *name) :
-    PerfItem(name),
-    _active(0),
-    _inactive(0),
-    _changed(0)
-{
-}
-
-void
-PerfLoad::start()
-{
-    if (_changed > 0) {
-        _inactive += Timer::timeSince(_changed);
-    }
-
-    _changed = Timer::time();
-}
-
-void
-PerfLoad::stop()
-{
-    if (_changed > 0) {
-        _active += Timer::timeSince(_changed);
-    }
-
-    _changed = Timer::time();
-}
-
-void
-PerfLoad::report(GlyphText *gt)
-{
-    gt->emitf("LOAD %s\n%u", _name, (unsigned)((_active * 100) / (_active + _inactive)));
-}
-
 extern unsigned _bss_end;
 
 void

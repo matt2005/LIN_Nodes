@@ -15,8 +15,6 @@ extern Panel gPanel;
 
 Panel::Panel() :
     _timer(&Panel::tick, this),
-    _perf_line_update("LINE"),
-    _load("PANEL"),
     _fb_available(kBuf0),
     _fb_ready(kNoBuf),
     _fb_active(kBuf1),
@@ -56,18 +54,12 @@ Panel::tick(void *arg)
 void
 Panel::_tick()
 {
-    _load.start();
-
     if (_phase.is_dimming) {
 
         line_off();
 
     } else {
-        _perf_line_update.start();
-
         line_update(_phase.row, _phase.slot);
-
-        _perf_line_update.stop();
     }
 
     /* advance to the next phase */
@@ -75,7 +67,6 @@ Panel::_tick()
 
     /* schedule the next tick */
     _timer.callAfter(interval);
-    _load.stop();
 }
 
 Timer::Interval

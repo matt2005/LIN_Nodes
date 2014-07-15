@@ -97,9 +97,6 @@ private:
         };
     }               _phase;
 
-    PerfInterval    _perf_line_update;  // line update time
-    PerfLoad        _load;              // CPU load
-
     volatile BufferIndex _fb_available;     // available for client to draw into
     volatile BufferIndex _fb_ready;         // ready to be displayed
     volatile BufferIndex _fb_active;        // actively being displayed

@@ -54,23 +54,6 @@ private:
     Timer::Time _started;
 };
 
-class PerfLoad : public PerfItem
-{
-public:
-    PerfLoad(const char *name);
-
-    void            start();
-    void            stop();
-
-protected:
-    virtual void    report(GlyphText *gt) override;
-
-private:
-    Timer::Interval _active;
-    Timer::Interval _inactive;
-    Timer::Time     _changed;
-};
-
 class PerfMem : public PerfItem
 {
 public:

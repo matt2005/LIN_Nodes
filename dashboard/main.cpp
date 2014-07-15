@@ -34,7 +34,7 @@ LINDev			gLIN(19200);
 Panel			gPanel;
 Encoder			gEncoder;
 extern Scene    gDash;
-extern Scene    gPerf;
+extern PerfScene gPerf;
 
 enum Mode {
     kModeDash,

@@ -48,6 +48,7 @@ FLAGS		 = $(ARCHFLAGS)				\
 		   -fmessage-length=0			\
 		   -ffreestanding			\
 		   -fno-common				\
+		   -flto				\
 		   -I..					\
 		   $(addprefix -I,$(DIRS))		\
 		   $(DEFINES)
@@ -64,7 +65,7 @@ CFLAGS		 = $(FLAGS)				\
 # Flags unique to C++ compilation
 #
 CPPFLAGS	 = $(FLAGS)				\
-		   -std=gnu++0x				\
+		   -std=gnu++11				\
 		   -fno-rtti				\
 		   -fno-exceptions			\
 		   -fno-delete-null-pointer-checks	\
@@ -79,6 +80,9 @@ LIBS		+= gcc c
 LDFLAGS		 = $(ARCHFLAGS)				\
 		   -nostartfiles			\
 		   -nostdlib				\
+		   -fno-rtti				\
+		   -fno-exceptions			\
+		   -flto				\
 		   -Wl,-gc-sections			\
 		   -Wl,-Map,$@.map			\
 		   -Wl,--cref				\

@@ -23,8 +23,10 @@ SetupPowerMode::init(uint8_t nad)
     _ident = nad - LIN::kNodeAddressPowerBase;
 
     uint8_t flavour = 0;
+
     if (gSlave.get_parameter(nad, 0, flavour) == 1) {    // XXX kBoardFunctionID value
         _flavour = kFlavourV1;
+
     } else {
         _flavour = kFlavourV3;
     }

@@ -83,7 +83,7 @@ ExploreMode::action(Encoder::Event bp)
     case Encoder::kEventActivate:
         gDisplay.clear();
 
-        // do we have a valid scan result with a master node? 
+        // do we have a valid scan result with a master node?
         // (i.e. are we re-entering from an edit state?)
         if (!presentMask.test(LIN::kNodeAddressMaster)) {
             presentMask.reset();

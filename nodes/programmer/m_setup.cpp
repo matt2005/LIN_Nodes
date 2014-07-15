@@ -113,8 +113,8 @@ SetupMode::draw()
     print_title();
     gDisplay.move(0, 1);
     gDisplay.printf(PSTR(">>"));
-    gDisplay.printf((_param == 0) ? 
-                    PSTR("Back to node list") : 
+    gDisplay.printf((_param == 0) ?
+                    PSTR("Back to node list") :
                     param_name());
     gDisplay.move(2, 2);
 
@@ -145,6 +145,7 @@ SetupMode::draw()
 
             if (tab != nullptr) {
                 modeEdit.init(this, &_value, Display::Region(2, 2, 18, 1), tab);
+
             } else {
                 modeEdit.init(this,
                               &_value,

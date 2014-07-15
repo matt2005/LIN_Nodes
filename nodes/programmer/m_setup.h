@@ -25,7 +25,7 @@ protected:
     virtual Parameter param() const;
     virtual PGM_P   param_name() const;
     virtual PGM_P   param_format() const;
-    
+
     void            _init(uint8_t nad, uint8_t max_param);
 
     uint8_t         _param;

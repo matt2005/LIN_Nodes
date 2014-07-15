@@ -20,6 +20,11 @@ Some notes on naming.
  - Member variables
    - names start with _
    - CamelCase
+ - Local variables
+   - CamelCase
+ - Global variables
+   - prefixed with 'g'
+   - CamelCase
  - Functions
    - names always verb-object
    - names always lower-case, _ between words

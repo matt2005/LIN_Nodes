@@ -61,7 +61,9 @@ CXXFLAGS	 = $(COMPILEFLAGS)		\
 LDFLAGS		 = $(ARCHFLAGS)			\
 		   -gdwarf-2			\
 		   -Wl,-gc-sections		\
-		   -Wl,--relax
+		   -Wl,--relax			\
+		   -fno-exceptions		\
+		   -fno-rtti
 
 vpath %.c	$(SRCROOT)/lib
 vpath %.cpp	$(SRCROOT)/lib

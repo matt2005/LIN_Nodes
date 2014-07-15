@@ -125,13 +125,13 @@ puts $fh ""
 # emit frame definitions
 puts $fh "enum FrameID : uint8_t {"
 dict for {name info} $frames {
-    puts $fh "    kFID$name = [dict get ${info} id],"
+    puts $fh "    kFrameID$name = [dict get ${info} id],"
 }
 puts $fh "};"
 puts $fh ""
-puts $fh "enum FrameLen : uint8_t {"
+puts $fh "enum FrameLength : uint8_t {"
 dict for {name info} $frames {
-    puts $fh "    kFLen$name = [dict get ${info} length],"
+    puts $fh "    kFrameLength$name = [dict get ${info} length],"
 }
 puts $fh "};"
 puts $fh ""
@@ -145,7 +145,7 @@ dict for {enum_name enum_data} $enums {
     puts $fh "    k${enum_name}Max"
     puts $fh "};"
     puts $fh ""
-    puts $fh "static PROGMEM const char strtab${enum_name}\[\] = "
+    puts $fh "static PROGMEM const char namesFor${enum_name}\[\] = "
     foreach element_name $enum_data {
         puts $fh "    \"$element_name\\0\""
     }

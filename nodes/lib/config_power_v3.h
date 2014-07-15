@@ -4,7 +4,7 @@
 // v3 power node
 //
 
-#define BOARD_FUNCTION_ID   2
+static const uint8_t kBoardFunctionID = 2;
 
 #define pinMode1       portB[0]
 #define pinMode2       portB[5]

@@ -13,15 +13,15 @@ class Print
 {
 public:
     void            printf(PGM_P fmt, ...);
-    void            putc(char c) { _write(c); }
+    void            putc(char c) { write(c); }
 
 protected:
-    virtual void    _write(uint8_t c) = 0;
+    virtual void    write(uint8_t c) = 0;
 
 private:
-    void            _write(uint16_t n, uint8_t width);
-    void            _writex(uint16_t n, uint8_t width);
-    void            _writes(const char *s, uint8_t width);
+    void            write(uint16_t n, uint8_t width);
+    void            writex(uint16_t n, uint8_t width);
+    void            write(const char *s, uint8_t width);
 };
 
 class Display : public Print
@@ -61,7 +61,7 @@ public:
         for (uint8_t r = 0; r < region.d.height; r++) {
             for (uint8_t c = 0; c < region.d.width; c++) {
                 move(Position(region.p.x + c, region.p.y + r));
-                _write(' ');
+                write(' ');
             }
         }
     }

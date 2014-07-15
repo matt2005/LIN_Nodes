@@ -158,7 +158,7 @@ class StayAwakeTimer : public Decrementer
 public:
     StayAwakeTimer() : Decrementer(kStayAwakeTime) {}
 
-    void                reset() { setMilliseconds(kStayAwakeTime); }
+    void                reset() { set_milliseconds(kStayAwakeTime); }
 
 private:
     static const Timer::Timeval kStayAwakeTime = 10000;   // XXX is this too short?
@@ -276,19 +276,19 @@ turnSignals(RelayBits &f)
         static bool blinkLeft;
 
         // cancel/restart blinker
-        if (Switches::changedToOn(LIN::kSwitchIDLeftTurn)) {
+        if (Switches::changed_to_on(LIN::kSwitchIDLeftTurn)) {
             turnBlinker.start();
             blinkLeft = true;
         }
 
-        if (Switches::changedToOn(LIN::kSwitchIDRightTurn)) {
+        if (Switches::changed_to_on(LIN::kSwitchIDRightTurn)) {
             turnBlinker.start();
             blinkLeft = false;
         }
 
         // stop blinker
-        if (Switches::changedToOff(LIN::kSwitchIDLeftTurn) ||
-            Switches::changedToOff(LIN::kSwitchIDRightTurn)) {
+        if (Switches::changed_to_off(LIN::kSwitchIDLeftTurn) ||
+            Switches::changed_to_off(LIN::kSwitchIDRightTurn)) {
             turnBlinker.stop();
         }
 
@@ -330,7 +330,7 @@ headLights(RelayBits &f)
     }
 
     // handle the high-beam toggle input
-    if (Switches::changedToOn(LIN::kSwitchIDHighBeamToggle)) {
+    if (Switches::changed_to_on(LIN::kSwitchIDHighBeamToggle)) {
         highBeamToggle = !highBeamToggle;
     }
 
@@ -390,8 +390,8 @@ static void
 interiorLights(RelayBits &f)
 {
     // door just closed - start interior lighting timer
-    if (Switches::changedToOff(LIN::kSwitchIDDoor)) {
-        interiorLightsDelay.setSeconds(paramInteriorLightTime);
+    if (Switches::changed_to_off(LIN::kSwitchIDDoor)) {
+        interiorLightsDelay.set_seconds(paramInteriorLightTime);
     }
 
     // if ignition is on, cancel interior light timer
@@ -419,12 +419,12 @@ pathLights(RelayBits &f)
     static bool ignitionWasOn;
 
     // detect ignition transition to off
-    if (Switches::changedToOff(LIN::kSwitchIDIgnition)) {
+    if (Switches::changed_to_off(LIN::kSwitchIDIgnition)) {
 
         // door already open?
         if (Switches::test(LIN::kSwitchIDDoor)) {
             // path lighting
-            pathwayLightingDelay.setSeconds(paramPathLightTime);
+            pathwayLightingDelay.set_seconds(paramPathLightTime);
 
         } else {
             ignitionWasOn = true;
@@ -432,11 +432,11 @@ pathLights(RelayBits &f)
     }
 
     // door opens after ignition off
-    if (Switches::changedToOn(LIN::kSwitchIDDoor) &&
+    if (Switches::changed_to_on(LIN::kSwitchIDDoor) &&
         ignitionWasOn) {
 
         // path lighting
-        pathwayLightingDelay.setSeconds(paramPathLightTime);
+        pathwayLightingDelay.set_seconds(paramPathLightTime);
 
         // XXX no path lighting after a 'false alarm' door opening
         //     might want to keep this set until sleep?
@@ -448,7 +448,7 @@ pathLights(RelayBits &f)
         Switches::changed(LIN::kSwitchIDDoorUnlock)) {
 
         // welcome lighting
-        pathwayLightingDelay.setSeconds(paramWelcomeLightTime);
+        pathwayLightingDelay.set_seconds(paramWelcomeLightTime);
     }
 
     // path lights on?
@@ -491,7 +491,7 @@ windowWipers(RelayBits f)
         !Switches::test(LIN::kSwitchIDStart)) {
 
         // avoid issues with overlap between wiper switch settings
-        if (Switches::changedToOn(LIN::kSwitchIDWiperInt)) {
+        if (Switches::changed_to_on(LIN::kSwitchIDWiperInt)) {
             wiperDelay.reset();
         }
 
@@ -527,13 +527,13 @@ tick()
         Switches::changed(LIN::kSwitchIDDoorUnlock)) {
 
         awakeDelay.reset();
-        gMaster.setSleep(false);
+        gMaster.set_sleep_enable(false);
     }
 
     // If the awake timer has expired, allow the master
     // to sleep and do nothing more here.
     if (awakeDelay.expired()) {
-        gMaster.setSleep(true);
+        gMaster.set_sleep_enable(true);
         return;
     }
 

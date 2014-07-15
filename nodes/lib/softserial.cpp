@@ -13,15 +13,15 @@
 Serial::Serial()
 {
     pinDebugTX.set();
-    pinDebugTX.cfgOutput();
+    pinDebugTX.cfg_output();
 }
 
 void
-Serial::_write(uint8_t c)
+Serial::write(uint8_t c)
 {
     tx(c);
     wdt_reset();
-    Board::usDelay(200);
+    Board::us_delay(200);
 }
 
 void
@@ -32,7 +32,7 @@ Serial::tx(uint8_t c)
 
     // start bit
     pinDebugTX.clear();
-    tunedDelay(BIT_DELAY);
+    tuned_delay(BIT_DELAY);
 
     // shift data bits
     for (uint8_t mask = 1; mask != 0; mask <<= 1) {
@@ -41,18 +41,18 @@ Serial::tx(uint8_t c)
         } else {
             pinDebugTX.clear();
         }
-        tunedDelay(BIT_DELAY);
+        tuned_delay(BIT_DELAY);
     }
 
     // stop bit
     pinDebugTX.set();
-    tunedDelay(BIT_DELAY);
+    tuned_delay(BIT_DELAY);
 
     SREG = sreg;
 }
 
 void
-Serial::tunedDelay(uint16_t delay)
+Serial::tuned_delay(uint16_t delay)
 {  
   uint8_t tmp=0;
 

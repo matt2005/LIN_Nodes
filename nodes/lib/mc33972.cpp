@@ -33,11 +33,11 @@ static void wait();
 void
 configure()
 {
-    pinMOSI.cfgOutput();
-    pinMISO.cfgInputNoPull();
-    pinSCK.cfgOutput();
+    pinMOSI.cfg_output();
+    pinMISO.cfg_input_no_pull();
+    pinSCK.cfg_output();
     pinCS.set();
-    pinCS.cfgOutput();
+    pinCS.cfg_output();
 
     // reset the chip to defaults
     cmd(kCMDReset);
@@ -102,11 +102,11 @@ wait()
     while (!(SPSR & (1 << SPIF))) {
         if (!(SPCR & (1 << MSTR))) {
             debug("SPI !MSTR");
-            Board::panic(Board::kPanicSPI);
+            Board::panic(Board::kPanicCodeSPI);
         }
         if (SPSR & (1 << WCOL)) {
             debug("SPI WCOL");
-            Board::panic(Board::kPanicSPI);
+            Board::panic(Board::kPanicCodeSPI);
         }
     }
 }

@@ -19,7 +19,7 @@ Scene::Scene() :
 }
 
 void
-Scene::addGlyph(Glyph *g)
+Scene::add_glyph(Glyph *g)
 {
     g->push(_stack);
     _stack = g;
@@ -85,7 +85,7 @@ Scene::fill(Region r, Colour colour) const
 }
 
 Position
-Scene::centeredPosition(Dimension d) const
+Scene::centered_position(Dimension d) const
 {
     Position p;
 

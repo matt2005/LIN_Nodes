@@ -45,11 +45,11 @@ static void
 gen_status(GlyphText *gt)
 {
     if (!gLIN.linkUp) {
-        gt->setColour(Red);
+        gt->set_colour(Red);
         gt->emit_string("LINK DOWN");
 
     } else {
-        gt->setColour(DimCyan);
+        gt->set_colour(DimCyan);
         gt->emit_string("OK");
     }
 }

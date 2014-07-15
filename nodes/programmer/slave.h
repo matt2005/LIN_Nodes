@@ -9,7 +9,7 @@ class ProgrammerSlave : public Slave
 {
 public:
     ProgrammerSlave() :
-        Slave(LIN::kNADProgrammer),
+        Slave(LIN::kNodeAddressProgrammer),
         _state(kStateIdle),
         _paramValue(0),
         _nodeAddress(0),
@@ -19,19 +19,19 @@ public:
 
     void            reset()         { _state = kStateIdle; }
 
-    bool            setParameter(uint8_t nad, uint8_t param, uint8_t value);
-    bool            getParameter(uint8_t nad, uint8_t param, uint8_t &value);
+    bool            set_parameter(uint8_t nad, uint8_t param, uint8_t value);
+    bool            get_parameter(uint8_t nad, uint8_t param, uint8_t &value);
 
-    bool            isIdle()                const { return _state == kStateIdle; }
-    bool            isError()               const { return _state == kStateError; }
+    bool            is_idle()                const { return _state == kStateIdle; }
+    bool            is_error()               const { return _state == kStateError; }
 
     void            setSuspend(bool suspended) { _suspended = suspended; }
 
 protected:
-    virtual void    headerReceived(LIN::FID fid) override;
-    virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
-    virtual void    responseSent() override;
-    virtual void    sleepRequested(SleepType type);
+    virtual void    header_received(LIN::FrameID fid) override;
+    virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
+    virtual void    response_sent() override;
+    virtual void    sleep_requested(SleepType type);
 
 private:
     enum State : uint8_t {

@@ -22,7 +22,7 @@ Panel::Panel() :
 {
     _phase.counter = 0;
     line_init();
-    _timer.callAfter(5000);     // wait a few milliseconds before we start
+    _timer.call_after(5000);     // wait a few milliseconds before we start
 }
 
 /*
@@ -63,14 +63,14 @@ Panel::_tick()
     }
 
     /* advance to the next phase */
-    Timer::Interval interval = _phase_advance();
+    Timer::Interval interval = phase_advance();
 
     /* schedule the next tick */
-    _timer.callAfter(interval);
+    _timer.call_after(interval);
 }
 
 Timer::Interval
-Panel::_phase_advance()
+Panel::phase_advance()
 {
     unsigned bit_period = _max_brightness << _phase.slot;
     unsigned on_time = bit_period >> _dim_level;

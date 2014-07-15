@@ -17,12 +17,12 @@ Print::printf(PGM_P fmt, ...)
 
         // nl -> cr,nl
         if (c == '\n') {
-            _write('\r');
+            write('\r');
         }
 
         // non-format characters
         if (c != '%') {
-            _write(c);
+            write(c);
             continue;
         }
 
@@ -41,27 +41,27 @@ nextfmt:
             goto nextfmt;
 
         case 's':
-            _writes(va_arg(ap, const char *), w);
+            write(va_arg(ap, const char *), w);
             break;
 
         case 't':
             {
                 const char *t = va_arg(ap, const char *);
                 unsigned i = va_arg(ap, unsigned);
-                _writes(Util::strtab(t,i), w);
+                write(Util::strtab(t,i), w);
             }
             break;
 
         case 'p':
-            _write('0');
-            _write('x');
+            write('0');
+            write('x');
             /* FALLTHROUGH */
         case 'u':
-            _write(va_arg(ap, unsigned), w ? w : 5);
+            write(va_arg(ap, unsigned), w ? w : 5);
             break;
 
         case 'x':
-            _writex(va_arg(ap, unsigned), w ? w : 4);
+            writex(va_arg(ap, unsigned), w ? w : 4);
             break;
 
         default:
@@ -71,7 +71,7 @@ nextfmt:
 }
 
 void
-Print::_write(uint16_t n, uint8_t width)
+Print::write(uint16_t n, uint8_t width)
 {
     char buf[width];
     uint8_t pos = width - 1;
@@ -100,7 +100,7 @@ Print::_write(uint16_t n, uint8_t width)
 }
 
 void
-Print::_writex(uint16_t n, uint8_t width)
+Print::writex(uint16_t n, uint8_t width)
 {
     uint8_t shift = 4 * (width - 1);
 
@@ -120,7 +120,7 @@ Print::_writex(uint16_t n, uint8_t width)
 }
 
 void
-Print::_writes(const char *s, uint8_t width) 
+Print::write(const char *s, uint8_t width) 
 {
     if (s == nullptr) {
         s = PSTR("null");

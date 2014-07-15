@@ -21,10 +21,10 @@ public:
     virtual Mode    *action(Encoder::Event bp) override;
 
 protected:
-    virtual void    printTitle() const;
+    virtual void    print_title() const;
     virtual Parameter param() const;
-    virtual PGM_P   paramName() const;
-    virtual PGM_P   paramFormat() const;
+    virtual PGM_P   param_name() const;
+    virtual PGM_P   param_format() const;
     
     void            _init(uint8_t nad, uint8_t max_param);
 
@@ -45,10 +45,10 @@ public:
     void            init();
 
 protected:
-    virtual void    printTitle() const override;
+    virtual void    print_title() const override;
     virtual Parameter param() const override;
-    virtual PGM_P   paramName() const override;
-    virtual PGM_P   paramFormat() const override;
+    virtual PGM_P   param_name() const override;
+    virtual PGM_P   param_format() const override;
 };
 
 class SetupPowerMode : public SetupMode
@@ -62,10 +62,10 @@ public:
     void            init(uint8_t nad);
 
 protected:
-    virtual void    printTitle() const override;
+    virtual void    print_title() const override;
     virtual Parameter param() const override;
-    virtual PGM_P   paramName() const override;
-    virtual PGM_P   paramFormat() const override;
+    virtual PGM_P   param_name() const override;
+    virtual PGM_P   param_format() const override;
 
 private:
     enum Flavour {
@@ -76,8 +76,8 @@ private:
     uint8_t         _ident;
     Flavour         _flavour;
 
-    PGM_P           paramNames() const;
-    PGM_P           paramFormats() const;
+    PGM_P           param_names() const;
+    PGM_P           param_formats() const;
 };
 
 extern SetupMasterMode  modeSetupMaster;

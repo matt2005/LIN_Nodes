@@ -20,10 +20,10 @@ public:
     static void             run();
     static void             init();
 
-    static Interval         timeSince(Time then) { return time() - then; }
+    static Interval         time_since(Time then) { return time() - then; }
 
-    void                    callAfter(Interval after) { callAt(time() + after); }
-    void                    callAt(Time deadline);
+    void                    call_after(Interval after) { call_at(time() + after); }
+    void                    call_at(Time deadline);
     void                    cancel();
 
 private:
@@ -50,10 +50,10 @@ public:
         _interval(interval),
         _ticked(false)
     {
-        callAfter(interval);
+        call_after(interval);
     }
 
-    bool                    didTick() volatile;
+    bool                    did_tick() volatile;
 
 private:
     static void             tick(void *arg);

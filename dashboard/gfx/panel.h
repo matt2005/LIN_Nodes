@@ -105,7 +105,7 @@ private:
 
     static void     tick(void *arg);
     void            _tick();
-    Timer::Interval _phase_advance();
+    Timer::Interval phase_advance();
 
     static void     line_init();
     static void     line_off();

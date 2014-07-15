@@ -42,15 +42,15 @@ private:
     uint8_t             _buf[9];
     uint8_t             _receivedLen    = 0;
     uint8_t             _waitLen        = 0;
-    uint8_t             _fid            = LIN::kFIDNone;
+    uint8_t             _fid            = LIN::kFrameIDNone;
     State               _state          = waitBreak;
 
     PerfCounter         _perfFrames;
 
-    void                headerReceived();
-    void                responseReceived();
+    void                header_received();
+    void                response_received();
 
-    bool                frameBit(uint8_t index) const { return _buf[index / 8] & (1 << (index % 8)); }
+    bool                frame_bit(uint8_t index) const { return _buf[index / 8] & (1 << (index % 8)); }
 };
 
 extern LINDev gLIN;

@@ -4,35 +4,35 @@
 #include "param_power_v1.h"
 
 RelaySlave::RelaySlave(uint8_t BoardID) :
-    Slave(LIN::NodeAddress(LIN::kNADPowerBase + BoardID - 1))
+    Slave(LIN::NodeAddress(LIN::kNodeAddressPowerBase + BoardID - 1))
 {
 }
 
 void
-RelaySlave::headerReceived(LIN::FID fid)
+RelaySlave::header_received(LIN::FrameID fid)
 {
     switch (fid) {
-    case LIN::kFIDRelays:
-        requestResponse(8);
+    case LIN::kFrameIDRelays:
+        expect_response(8);
         break;
 
     default:
-        Slave::headerReceived(fid);
+        Slave::header_received(fid);
         break;
     }
 }
 
 void
-RelaySlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
+RelaySlave::response_received(LIN::FrameID fid, LIN::Frame &frame)
 {
     switch (fid) {
 
-    case LIN::kFIDRelays:
+    case LIN::kFrameIDRelays:
         relayFrame.copy(frame);
         break;
 
     default:
-        Slave::responseReceived(fid, frame);
+        Slave::response_received(fid, frame);
         break;
     }
 }

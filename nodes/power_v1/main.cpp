@@ -12,11 +12,11 @@ void
 main(void)
 {
     Board::init();
-    uint8_t     id = Board::getMode();
+    uint8_t     id = Board::get_mode();
 
     // check for recovery mode before constructing anything else
-    if (Board::getMode() == 0) {
-        Board::panic(Board::kPanicRecovery);
+    if (Board::get_mode() == 0) {
+        Board::panic(Board::kPanicCodeRecovery);
     }
 
 #ifdef DEBUG
@@ -29,20 +29,20 @@ main(void)
 
     // power switch control pins
     pinOUT1.clear();
-    pinOUT1.cfgOutput();
+    pinOUT1.cfg_output();
     pinOUT2.clear();
-    pinOUT2.cfgOutput();
+    pinOUT2.cfg_output();
     pinOUT3.clear();
-    pinOUT3.cfgOutput();
+    pinOUT3.cfg_output();
     pinOUT4.clear();
-    pinOUT4.cfgOutput();
+    pinOUT4.cfg_output();
 
     // power switch status pins
-    pinSTATUS1.cfgInputNoPull();
-    pinSTATUS2.cfgInputNoPull();
-    pinSTATUS3.cfgInputNoPull();
+    pinSTATUS1.cfg_input_no_pull();
+    pinSTATUS2.cfg_input_no_pull();
+    pinSTATUS3.cfg_input_no_pull();
 # ifndef DEBUG                      // debug() output on this pin
-    pinSTATUS4.cfgInputNoPull();
+    pinSTATUS4.cfg_input_no_pull();
 # endif
 
     // init/default parameters
@@ -60,28 +60,28 @@ main(void)
         wdt_reset();
 
         // adjust outputs to match our commanded value
-        if (slave.testRelay((LIN::RelayID)paramRelay1Assign.get())) {
+        if (slave.test_relay((LIN::RelayID)paramRelay1Assign.get())) {
             pinOUT1.set();
 
         } else {
             pinOUT1.clear();
         }
 
-        if (slave.testRelay((LIN::RelayID)paramRelay2Assign.get())) {
+        if (slave.test_relay((LIN::RelayID)paramRelay2Assign.get())) {
             pinOUT2.set();
 
         } else {
             pinOUT2.clear();
         }
 
-        if (slave.testRelay((LIN::RelayID)paramRelay3Assign.get())) {
+        if (slave.test_relay((LIN::RelayID)paramRelay3Assign.get())) {
             pinOUT3.set();
 
         } else {
             pinOUT3.clear();
         }
 
-        if (slave.testRelay((LIN::RelayID)paramRelay4Assign.get())) {
+        if (slave.test_relay((LIN::RelayID)paramRelay4Assign.get())) {
             pinOUT4.set();
 
         } else {

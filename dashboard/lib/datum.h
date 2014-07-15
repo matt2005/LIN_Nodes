@@ -9,7 +9,7 @@ public:
     operator uint16_t () const { return _value; }
     void operator =(uint16_t v) { _value = v; _valid = 1; }
 
-    bool        isValid() const { return _valid != 0; }
+    bool        is_valid() const { return _valid != 0; }
     void        invalidate() { _valid = 0; _value = 0; }
 
 private:

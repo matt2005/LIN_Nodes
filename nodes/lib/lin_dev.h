@@ -17,28 +17,28 @@ public:
 
     /// Called from the transfer-complete ISR
     ///
-    void            isrTC();
+    void            isr_TC();
     
     /// Called from the error ISR
     ///
-    void            isrError();
+    void            isr_error();
 
     // test mode
-    void            masterTest();
+    void            master_test();
 
     enum Error : uint8_t {
-        kErrLine,                       //< readback error when transmitting
-        kErrChecksum,                   //< received data checksum mismatch
-        kErrParity,                     //< header parity error
-        kErrFraming,                    //< framing error
-        kErrSynchronisation,            //< bitrate synchronisation error
-        kErrProtocol,                   //< slave protocol error
-        kErrSlave1,                     //< slave private error 1
-        kErrSlave2,                     //< slave private error 2
-        kErrMax
+        kErrorLine,                       //< readback error when transmitting
+        kErrorChecksum,                   //< received data checksum mismatch
+        kErrorParity,                     //< header parity error
+        kErrorFraming,                    //< framing error
+        kErrorSynchronisation,            //< bitrate synchronisation error
+        kErrorProtocol,                   //< slave protocol error
+        kErrorSlave1,                     //< slave private error 1
+        kErrorSlave2,                     //< slave private error 2
+        kErrorMax
     };
 
-    Util::Counter8  errors[kErrMax];     //< error counters
+    Util::Counter8  errors[kErrorMax];     //< error counters
 
 protected:
     /// Ask the driver to pay attention to the next response that it sees.
@@ -48,18 +48,18 @@ protected:
     ///
     /// @param length           The length of the response to be received.
     ///
-    void            requestResponse(uint8_t length);
+    void            expect_response(uint8_t length);
     
     /// Send a LIN header. This is strictly speaking a master function, but
     /// it shares functionality with the slave.
     ///
     /// @param fid              The Frame ID to send in the header.
     ///
-    void            sendHeader(LIN::FrameID fid);
+    void            send_header(LIN::FrameID fid);
 
     /// Send a response.
     ///
-    /// Subclass implementation of headerReceived will call when it wants to
+    /// Subclass implementation of header_received will call when it wants to
     /// send a response for an interesting header.
     ///
     /// Responses are always sent in LIN 2.x format, unless the FID from the
@@ -68,11 +68,11 @@ protected:
     /// @param frame            The response frame to send.
     /// @param length           The length of the response frame.
     ///
-    void            sendResponse(const LIN::Frame &frame, uint8_t length);
+    void            send_response(const LIN::Frame &frame, uint8_t length);
 
-    void            sendResponse(const volatile LIN::Frame &frame, uint8_t length)
+    void            send_response(const volatile LIN::Frame &frame, uint8_t length)
     {
-        sendResponse(const_cast<const LIN::Frame&>(frame), length);
+        send_response(const_cast<const LIN::Frame&>(frame), length);
     }
 
     /// Called when a header has been received.
@@ -81,27 +81,27 @@ protected:
     ///
     /// @param fid              The FID from the received header.
     ///
-    virtual void    headerReceived(LIN::FID fid);
+    virtual void    header_received(LIN::FrameID fid);
     
-    /// Called when a response requested by requestResponse has been received.
+    /// Called when a response requested by expect_response has been received.
     ///
     /// @param fid              The FID from the header associated with this
     ///                         response.
     /// @param frame            The received response frame.
     ///
-    virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame);
+    virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame);
     
     /// Called when a response has been sent
     ///
-    virtual void    responseSent();
+    virtual void    response_sent();
 
     /// Wait until the LBUSY bit is cleared
     ///
-    static void     waitBusy() { while (LINSIR & (1 << LBUSY)) {} }
+    static void     wait_busy() { while (LINSIR & (1 << LBUSY)) {} }
 
     /// Fetch the current FID from the hardware
     ///
-    static LIN::FrameID currentFID() { return (LIN::FrameID)Lin_get_id(); }
+    static LIN::FrameID current_FrameID() { return (LIN::FrameID)Lin_get_id(); }
 
 private:
 };

@@ -93,7 +93,7 @@ main(void)
     // spin doing main loop things
     for (;;) {
         // check for redraw timer expiry
-        bool shouldRender = refreshTicker.didTick();
+        bool shouldRender = refreshTicker.did_tick();
 
         // check for encoder events, change mode
         if (mode_scene(mode)->event(gEncoder.event())) {

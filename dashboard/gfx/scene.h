@@ -14,7 +14,7 @@ public:
     /**
      * Add the glyph to the scene glyph stack; new glyphs always stack on top.
      */
-    void        addGlyph(Glyph *g);
+    void        add_glyph(Glyph *g);
 
     /**
      * Render the scene.
@@ -46,7 +46,7 @@ public:
     /**
      * Return the draw position for a centered item of the given dimensions.
      */
-    Position    centeredPosition(Dimension d) const;
+    Position    centered_position(Dimension d) const;
 
 protected:
     virtual void    _render() const;

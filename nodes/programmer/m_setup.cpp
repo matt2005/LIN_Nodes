@@ -74,10 +74,10 @@ SetupMode::action(Encoder::Event bp)
         if (_editing) {
             _editing = false;
 
-            if (!gSlave.setParameter(_nad, _param, _value)) {
+            if (!gSlave.set_parameter(_nad, _param, _value)) {
                 gDisplay.clear();
                 gDisplay.printf(PSTR("%2u write err"), _param);
-                Board::msDelay(5000);
+                Board::ms_delay(5000);
                 gDisplay.clear();
             }
 
@@ -110,35 +110,35 @@ void
 SetupMode::draw()
 {
     gDisplay.clear();
-    printTitle();
+    print_title();
     gDisplay.move(0, 1);
     gDisplay.printf(PSTR(">>"));
     gDisplay.printf((_param == 0) ? 
                     PSTR("Back to node list") : 
-                    paramName());
+                    param_name());
     gDisplay.move(2, 2);
 
     if (_param > 0) {
-        if (!gSlave.getParameter(_nad, _param, _value)) {
+        if (!gSlave.get_parameter(_nad, _param, _value)) {
             gDisplay.printf(PSTR("read error"));
 
         } else {
-            const char *fmt = paramFormat();
+            const char *fmt = param_format();
             const char *tab = nullptr;
 
             if (pgm_read_byte(fmt) == '%') {
 
                 switch (pgm_read_byte(fmt + 1)) {
                 case 'O':
-                    tab = LIN::strtabRelayID;
+                    tab = LIN::namesForRelayID;
                     break;
 
                 case 'S':
-                    tab = LIN::strtabSwitchID;
+                    tab = LIN::namesForSwitchID;
                     break;
 
                 case 'T':
-                    tab = LIN::strtabRelayType;
+                    tab = LIN::namesForRelayType;
                     break;
                 }
             }

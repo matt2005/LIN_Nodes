@@ -11,25 +11,25 @@ namespace LIN {
 static const uint8_t protocolRevision = 1;
 
 enum FrameID : uint8_t {
-    kFIDNone = 0x00,
-    kFIDRelays = 0x01,
-    kFIDECUData = 0x02,
-    kFIDConfigRequest = 0x2c,
-    kFIDConfigResponse = 0x2d,
-    kFIDMasterRequest = 0x3c,
-    kFIDSlaveResponse = 0x3d,
-    kFIDTest = 0x3f,
+    kFrameIDNone = 0x00,
+    kFrameIDRelays = 0x01,
+    kFrameIDECUData = 0x02,
+    kFrameIDConfigRequest = 0x2c,
+    kFrameIDConfigResponse = 0x2d,
+    kFrameIDMasterRequest = 0x3c,
+    kFrameIDSlaveResponse = 0x3d,
+    kFrameIDTest = 0x3f,
 };
 
-enum FrameLen : uint8_t {
-    kFLenNone = 0,
-    kFLenRelays = 8,
-    kFLenECUData = 8,
-    kFLenConfigRequest = 8,
-    kFLenConfigResponse = 8,
-    kFLenMasterRequest = 8,
-    kFLenSlaveResponse = 8,
-    kFLenTest = 8,
+enum FrameLength : uint8_t {
+    kFrameLengthNone = 0,
+    kFrameLengthRelays = 8,
+    kFrameLengthECUData = 8,
+    kFrameLengthConfigRequest = 8,
+    kFrameLengthConfigResponse = 8,
+    kFrameLengthMasterRequest = 8,
+    kFrameLengthSlaveResponse = 8,
+    kFrameLengthTest = 8,
 };
 
 enum SwitchID : uint8_t {
@@ -60,7 +60,7 @@ enum SwitchID : uint8_t {
     kSwitchIDMax
 };
 
-static PROGMEM const char strtabSwitchID[] = 
+static PROGMEM const char namesForSwitchID[] = 
     "Ignition\0"
     "Start\0"
     "MarkerLights\0"
@@ -115,7 +115,7 @@ enum RelayID : uint8_t {
     kRelayIDMax
 };
 
-static PROGMEM const char strtabRelayID[] = 
+static PROGMEM const char namesForRelayID[] = 
     "Ignition\0"
     "Start\0"
     "LightsUp\0"
@@ -153,7 +153,7 @@ enum RelayType : uint8_t {
     kRelayTypeMax
 };
 
-static PROGMEM const char strtabRelayType[] = 
+static PROGMEM const char namesForRelayType[] = 
     "5AGeneric\0"
     "10AGeneric\0"
     "LED\0"

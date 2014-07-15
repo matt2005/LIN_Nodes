@@ -20,20 +20,20 @@ SetupPowerMode modeSetupPower;
 void
 SetupPowerMode::init(uint8_t nad)
 {
-    _ident = nad - LIN::kNADPowerBase;
+    _ident = nad - LIN::kNodeAddressPowerBase;
 
     uint8_t flavour = 0;
-    if (gSlave.getParameter(nad, 0, flavour) == 1) {    // XXX BOARD_FUNCTION_ID value
+    if (gSlave.get_parameter(nad, 0, flavour) == 1) {    // XXX kBoardFunctionID value
         _flavour = kFlavourV1;
     } else {
         _flavour = kFlavourV3;
     }
 
-    _init(nad, Util::strtablen(paramNames()) - 1);
+    _init(nad, Util::strtablen(param_names()) - 1);
 }
 
 void
-SetupPowerMode::printTitle() const
+SetupPowerMode::print_title() const
 {
     gDisplay.printf(PSTR("Power %1u Setup:"), _ident);
 }
@@ -45,24 +45,24 @@ SetupPowerMode::param() const
 }
 
 PGM_P
-SetupPowerMode::paramName() const
+SetupPowerMode::param_name() const
 {
-    return Util::strtab(paramNames(), _param);
+    return Util::strtab(param_names(), _param);
 }
 
 PGM_P
-SetupPowerMode::paramFormat() const
+SetupPowerMode::param_format() const
 {
-    return Util::strtab(paramFormats(), _param);
+    return Util::strtab(param_formats(), _param);
 }
 
 PGM_P
-SetupPowerMode::paramNames() const
+SetupPowerMode::param_names() const
 {
     return (_flavour == kFlavourV1) ? power_v1ParamNames : power_v3ParamNames;
 }
 PGM_P
-SetupPowerMode::paramFormats() const
+SetupPowerMode::param_formats() const
 {
     return (_flavour == kFlavourV1) ? power_v1ParamFormats : power_v3ParamFormats;
 }

@@ -15,12 +15,12 @@ public:
     virtual Mode    *action(Encoder::Event bp) override;
 
 private:
-    static Bitarray<LIN::kNADMaxAssigned> presentMask;
+    static Bitarray<LIN::kNodeAddressMaxAssigned> presentMask;
 
     uint8_t         _node;
     void            draw();
-    static uint8_t  searchUp(uint8_t from);
-    static uint8_t  searchDown(uint8_t from);
+    static uint8_t  search_up(uint8_t from);
+    static uint8_t  search_down(uint8_t from);
 };
 
 extern ExploreMode modeExplore;

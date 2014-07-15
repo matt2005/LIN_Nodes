@@ -19,7 +19,7 @@ public:
     ///                         the timeout expires, or nullptr if didExpire will
     ///                         be used.
     /// @param interval         The interval in ticks, or zero for a one-shot
-    ///                         timer started with setRemaining.
+    ///                         timer started with set_remaining.
     /// @param arg              Passed to the callback function.
     ///
     Timer(Callback callback, void *arg = nullptr, Timeval interval = 0);
@@ -31,13 +31,13 @@ public:
     ///
     /// @param ticks            The number of timer ticks to wait before the timer expires.
     ///
-    void                setRemaining(Timeval ticks) { _remaining = ticks; };
+    void                set_remaining(Timeval ticks) { _remaining = ticks; };
 
     /// Adjust the interval between periodic timer expiry.
     ///
     /// @param ticks            The number of ticks to be reloaded on the next timer expiration.
     ///
-    void                setInterval(Timeval ticks) { _interval = ticks; }
+    void                set_interval(Timeval ticks) { _interval = ticks; }
 
     /// Returns the current time.
     ///
@@ -45,7 +45,7 @@ public:
     ///
     /// @return                 The current time in milliseconds
     ///
-    static Timeval      timeNow() { return _now; }
+    static Timeval      time_now() { return _now; }
 
     /// Returns the delta beetween some time in the past and now.
     ///
@@ -55,7 +55,7 @@ public:
     /// @param then             The time in the past
     /// @return                 The time difference in milliseconds
     ///
-    static Timeval      timeSince(Timeval then) { return _now - then; }
+    static Timeval      time_since(Timeval then) { return _now - then; }
 
     /// Iterate the set of timers, decrement their remaining counts and
     /// call any applicable callbacks.
@@ -80,10 +80,10 @@ private:
 class Timestamp
 {
 public:
-    Timestamp() : _taken(Timer::timeNow()) {}
+    Timestamp() : _taken(Timer::time_now()) {}
 
-    Timer::Timeval  timeSince() const { return Timer::timeSince(_taken); }
-    bool            isOlderThan(Timer::Timeval interval) const { return timeSince() > interval; }
+    Timer::Timeval  time_since() const { return Timer::time_since(_taken); }
+    bool            is_older_than(Timer::Timeval interval) const { return time_since() > interval; }
 
 private:
     volatile Timer::Timeval _taken;
@@ -94,8 +94,8 @@ class Decrementer
 public:
     Decrementer(Timer::Timeval initialCount = 0);
 
-    void        setMilliseconds(uint16_t msec) { _count = msec; }
-    void        setSeconds(uint8_t sec)        { _count = sec * 1000U; }
+    void        set_milliseconds(uint16_t msec) { _count = msec; }
+    void        set_seconds(uint8_t sec)        { _count = sec * 1000U; }
     void        clear()                        { _count = 0; }
     bool        expired() const { return _count == 0; }
 

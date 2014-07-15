@@ -2,10 +2,10 @@
 //
 // LIN network programmer
 //
-// Master periodically emits kFIDConfigRequest headers. The programmer may
+// Master periodically emits kFrameIDConfigRequest headers. The programmer may
 // respond with a ConfigFrame describing a configuration request to
 // the network. Following a ConfigFrame the master will emit
-// a kFIDConfigResponse header, and the addressed node (which may be the
+// a kFrameIDConfigResponse header, and the addressed node (which may be the
 // master) may respond with a ConfigFrame. Not all programmer requests expect
 // a response.
 //
@@ -29,8 +29,8 @@ main(void)
 {
     Board::init();
 
-    if (Board::getMode() != 0) {
-        Board::panic(Board::kPanicRecovery);
+    if (Board::get_mode() != 0) {
+        Board::panic(Board::kPanicCodeRecovery);
     }
 
     lcd.init();

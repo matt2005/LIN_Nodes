@@ -28,7 +28,7 @@ private:
     int8_t              _encoderSubstate;
     bool                _buttonState;
 
-    static void         debounceTimeout(void *arg);
-    void                _debounceTimeout();
+    static void         debounce_timeout(void *arg);
+    void                _debounce_timeout();
 
 };

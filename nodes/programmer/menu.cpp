@@ -41,7 +41,7 @@ Mode::tick()
 }
 
 void
-Mode::_msg(PGM_P hdr, PGM_P message)
+Mode::msg(PGM_P hdr, PGM_P message)
 {
     gDisplay.clear();
     gDisplay.printf(hdr);

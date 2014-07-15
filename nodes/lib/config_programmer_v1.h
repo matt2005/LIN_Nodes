@@ -3,7 +3,7 @@
 // v1 programmer module using the generic node board
 //
 
-#define BOARD_FUNCTION_ID   2
+static const uint8_t kBoardFunctionID = 10;
 
 #define portLCD         portB
 #define lcdBitE         (1<<6)

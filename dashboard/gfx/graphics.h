@@ -52,21 +52,21 @@ public:
     static const unsigned depth = 5;
 
     constexpr PaletteEntry(uint8_t red, uint8_t green, uint8_t blue) :
-        _raw(primaryBit(red,   0,  0) |
-             primaryBit(green, 0,  1) |
-             primaryBit(blue,  0,  2) |
-             primaryBit(red,   1,  3) |
-             primaryBit(green, 1,  4) |
-             primaryBit(blue,  1,  5) |
-             primaryBit(red,   2,  6) |
-             primaryBit(green, 2,  7) |
-             primaryBit(blue,  2,  8) |
-             primaryBit(red,   3,  9) |
-             primaryBit(green, 3, 10) |
-             primaryBit(blue,  3, 11) |
-             primaryBit(red,   4, 12) |
-             primaryBit(green, 4, 13) |
-             primaryBit(blue,  4, 14))
+        _raw(primary_bit(red,   0,  0) |
+             primary_bit(green, 0,  1) |
+             primary_bit(blue,  0,  2) |
+             primary_bit(red,   1,  3) |
+             primary_bit(green, 1,  4) |
+             primary_bit(blue,  1,  5) |
+             primary_bit(red,   2,  6) |
+             primary_bit(green, 2,  7) |
+             primary_bit(blue,  2,  8) |
+             primary_bit(red,   3,  9) |
+             primary_bit(green, 3, 10) |
+             primary_bit(blue,  3, 11) |
+             primary_bit(red,   4, 12) |
+             primary_bit(green, 4, 13) |
+             primary_bit(blue,  4, 14))
     {
     }
     constexpr PaletteEntry(uint16_t raw) : _raw(raw) {}
@@ -78,7 +78,7 @@ public:
 private:
     const uint16_t  _raw;
 
-    static constexpr unsigned       primaryBit(uint8_t primary, unsigned bit, unsigned shift)
+    static constexpr unsigned       primary_bit(uint8_t primary, unsigned bit, unsigned shift)
     {
         return ((unsigned)primary & (1 << (8 - depth + bit))) ? (1 << shift) : 0;
     }
@@ -132,7 +132,7 @@ struct SubCell {
 
     void                    set(Colour colour) { _cell.set(_index, colour); }
     Colour                  get() const { return _cell.get(_index); }
-    const PaletteEntry      &getRGB() const { return palette[get()]; }
+    const PaletteEntry      &get_RGB() const { return palette[get()]; }
 
 private:
     Cell            &_cell;
@@ -144,16 +144,16 @@ template<unsigned ROWS, unsigned COLUMNS>
 class FrameBufferTemplate
 {
 public:
-    SubCell         subCell(unsigned address)
+    SubCell         sub_cell(unsigned address)
     {
         unsigned index = address % Cell::stride();
         return SubCell(_buffer[address / Cell::stride()], index);
     }
 
-    SubCell         subCell(Position p)
+    SubCell         sub_cell(Position p)
     {
         unsigned address = p.y * COLUMNS + p.x;
-        return subCell(address);
+        return sub_cell(address);
     }
 
     Cell            &cell(unsigned address)
@@ -166,7 +166,7 @@ public:
 
     void            draw(Position p, Colour c)
     {
-        subCell(p).set(c);
+        sub_cell(p).set(c);
     }
 
     void            clear()
@@ -190,7 +190,7 @@ public:
     Glyph(Scene *scene, Position p, Colour colour);
 
     virtual void    draw(const Scene *in_scene);
-    void            setColour(Colour colour) { _colour = colour; }
+    void            set_colour(Colour colour) { _colour = colour; }
 
     Glyph           *next() { return _next; }
     void            push(Glyph *onto) { _next = onto; }
@@ -200,8 +200,8 @@ protected:
     const Position  _p;
     Colour          _colour;
 
-    void            drawBitmap(const Scene *in_scene, const struct glyph_info &glyph, unsigned offset_x = 0, unsigned offset_y = 0);
-    void            drawChar(const Scene *in_scene, const uint8_t *font, uint8_t character, unsigned offset_x = 0, unsigned offset_y = 0);
+    void            draw_bitmap(const Scene *in_scene, const struct glyph_info &glyph, unsigned offset_x = 0, unsigned offset_y = 0);
+    void            draw_character(const Scene *in_scene, const uint8_t *font, uint8_t character, unsigned offset_x = 0, unsigned offset_y = 0);
 };
 
 /* a glyph that draws a bitmap */

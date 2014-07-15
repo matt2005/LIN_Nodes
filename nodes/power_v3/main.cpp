@@ -14,11 +14,11 @@ void
 main(void)
 {
     Board::init();
-    uint8_t     id = Board::getMode();
+    uint8_t     id = Board::get_mode();
 
     // check for recovery mode before constructing anything else
-    if (Board::getMode() == 0) {
-        Board::panic(Board::kPanicRecovery);
+    if (Board::get_mode() == 0) {
+        Board::panic(Board::kPanicCodeRecovery);
     }
 
     // init/default parameters
@@ -50,7 +50,7 @@ main(void)
             uint8_t offset = output * stride;
 
             for (uint8_t assign = 0; assign < assigns; assign++) {
-                if (slave.testRelay((LIN::RelayID)power_v3Param(base + offset + assign).get())) {
+                if (slave.test_relay((LIN::RelayID)power_v3Param(base + offset + assign).get())) {
                     uint8_t d = power_v3Param(pwm_base + offset + assign);
 
                     if (d > duty_cycle) {

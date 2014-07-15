@@ -6,7 +6,7 @@ static const int8_t encoderLUT[] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1,
 static Encoder *_encoder;
 
 Encoder::Encoder() :
-    _debounceTimer(debounceTimeout, this),
+    _debounceTimer(debounce_timeout, this),
     _turnCount(0),
     _buttonCount(0),
     _encoderAB(3),
@@ -73,7 +73,7 @@ Encoder::interrupt()
         _debounceTimer.cancel();
 
     } else {
-        _debounceTimer.callAfter(10000);
+        _debounceTimer.call_after(10000);
     }
 
     // generate encoder LUT index
@@ -96,13 +96,13 @@ Encoder::interrupt()
 }
 
 void
-Encoder::debounceTimeout(void *arg)
+Encoder::debounce_timeout(void *arg)
 {
-    reinterpret_cast<Encoder *>(arg)->_debounceTimeout();
+    reinterpret_cast<Encoder *>(arg)->_debounce_timeout();
 }
 
 void
-Encoder::_debounceTimeout()
+Encoder::_debounce_timeout()
 {
     _buttonState = !_buttonState;
 

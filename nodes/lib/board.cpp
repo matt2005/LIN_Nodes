@@ -46,44 +46,44 @@ panic(uint8_t code)
     // disable interrupts and wait for possible pending LIN transmit to 
     // complete
     cli();
-    msDelay(10);
+    ms_delay(10);
 
     // start in a state that doesn't risk powering us off
     pinLINTX.set();
-    pinLINTX.cfgOutput();
+    pinLINTX.cfg_output();
     pinLINCS.clear();
-    pinLINCS.cfgOutput();
+    pinLINCS.cfg_output();
 
     for (;;) {
 
-        msDelay(1000);
+        ms_delay(1000);
 
         // blink the LIN CS LED with our error code
         for (uint8_t i = 0; i < code; i++) {
             wdt_reset();
             pinLINCS.set();
-            msDelay(200);
+            ms_delay(200);
             wdt_reset();
             pinLINCS.clear();
-            msDelay(200);            
+            ms_delay(200);            
         }
     }
 }
 
 uint8_t
-getMode()
+get_mode()
 {
     uint8_t mode = 0;
 
     // configure Mode pins for reading
 #ifdef pinMode1
-    pinMode1.cfgInputPullUp();
+    pinMode1.cfg_input_pullup();
 #ifdef pinMode2
-    pinMode2.cfgInputPullUp();
+    pinMode2.cfg_input_pullup();
 #ifdef pinMode4
-    pinMode4.cfgInputPullUp();
+    pinMode4.cfg_input_pullup();
 #ifdef pinMode8
-    pinMode8.cfgInputPullUp();
+    pinMode8.cfg_input_pullup();
 #endif
 #endif
 #endif
@@ -91,7 +91,7 @@ getMode()
 
 
     // sample the mode pins
-    msDelay(10);                // allow inputs to settle
+    ms_delay(10);                // allow inputs to settle
 
 #ifdef pinMode1
     if (!pinMode1.get())        // 1 bits are pulled low
@@ -120,37 +120,37 @@ sleep()
     //
     for (;;) {
         LINCR = LSWRES;
-        msDelay(1);
+        ms_delay(1);
         pinLINTX.set();
-        msDelay(1);
+        ms_delay(1);
         pinLINCS.set();
-        msDelay(1);
-        pinLINCS.cfgOutput();
-        msDelay(1);
-        pinLINTX.cfgOutput();
-        msDelay(1);
+        ms_delay(1);
+        pinLINCS.cfg_output();
+        ms_delay(1);
+        pinLINTX.cfg_output();
+        ms_delay(1);
         pinLINTX.clear();
-        msDelay(1);
+        ms_delay(1);
         pinLINCS.clear();
-        msDelay(10);
+        ms_delay(10);
         // if we failed to go to sleep, the watchdog will pull us
         // back out via the reset path
     }
 }
 
 void
-msDelay(uint16_t ms)
+ms_delay(uint16_t ms)
 {
     while (ms > 0) {
         wdt_reset();
-        usDelay(1000);   // XXX approximate
+        us_delay(1000);   // XXX approximate
         ms--;
     }
     wdt_reset();
 }
 
 void
-usDelay(uint16_t us)
+us_delay(uint16_t us)
 {
 
     // _delay_loop_2 consumes 4 cycles per count, so convert microseconds to

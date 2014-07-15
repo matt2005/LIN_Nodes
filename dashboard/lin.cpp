@@ -77,7 +77,7 @@ LINDev::interrupt()
     if (reason == UART_U0IIR_IntId_RLS) {
 
         // any line status update will cause us to drop an in-progress frame
-        _fid = LIN::kFIDNone;
+        _fid = LIN::kFrameIDNone;
         _receivedLen = 0;
         _waitLen = 0;
 
@@ -123,7 +123,7 @@ LINDev::interrupt()
             _fid = c & 0x3f;
 
             // check what we want to do here
-            headerReceived();
+            header_received();
 
             // decide whether we want to collect the response or just wait for a break
             if (_waitLen > 0) {
@@ -142,7 +142,7 @@ LINDev::interrupt()
                 // XXX check CRC
 
                 // pass off to response handler
-                responseReceived();
+                response_received();
 
                 // wait for the next frame
                 _state = waitBreak;
@@ -156,15 +156,15 @@ LINDev::interrupt()
 }
 
 void
-LINDev::headerReceived()
+LINDev::header_received()
 {
     switch (_fid) {
-    case LIN::kFIDRelays:
-        _waitLen = LIN::kFLenRelays;
+    case LIN::kFrameIDRelays:
+        _waitLen = LIN::kFrameLengthRelays;
         break;
 
-    case LIN::kFIDECUData:
-        _waitLen = LIN::kFLenECUData;
+    case LIN::kFrameIDECUData:
+        _waitLen = LIN::kFrameLengthECUData;
         break;
 
     default:
@@ -173,20 +173,20 @@ LINDev::headerReceived()
 }
 
 void
-LINDev::responseReceived()
+LINDev::response_received()
 {
     _perfFrames.count();
 
     switch (_fid) {
-    case LIN::kFIDRelays:
-        ttLeftTurn = frameBit(LIN::kRelayIDLeftTurn);
-        ttRightTurn = frameBit(LIN::kRelayIDRightTurn);
-        ttLowBeam = frameBit(LIN::kRelayIDHeadLights) || frameBit(LIN::kRelayIDLowBeam);
-        ttHighBeam = frameBit(LIN::kRelayIDHighBeam);
+    case LIN::kFrameIDRelays:
+        ttLeftTurn = frame_bit(LIN::kRelayIDLeftTurn);
+        ttRightTurn = frame_bit(LIN::kRelayIDRightTurn);
+        ttLowBeam = frame_bit(LIN::kRelayIDHeadLights) || frame_bit(LIN::kRelayIDLowBeam);
+        ttHighBeam = frame_bit(LIN::kRelayIDHighBeam);
         linkUp = true;
         break;
 
-    case LIN::kFIDECUData:
+    case LIN::kFrameIDECUData:
     {
        //LIN::ECUDataFrame f(_buf);
 

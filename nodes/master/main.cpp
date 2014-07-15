@@ -25,8 +25,8 @@ main(void)
     Board::init();
 
     // check for recovery mode before doing anything else
-    if (Board::getMode() != 0) {
-        Board::panic(Board::kPanicRecovery);
+    if (Board::get_mode() != 0) {
+        Board::panic(Board::kPanicCodeRecovery);
     }
 
     // init / default parameters

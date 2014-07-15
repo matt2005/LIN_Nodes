@@ -84,7 +84,7 @@ Timer::run()
 }
 
 void
-Timer::callAt(Time deadline)
+Timer::call_at(Time deadline)
 {
     CRITICAL_SECTION;
 
@@ -237,11 +237,11 @@ void
 Ticker::_tick()
 {
     _ticked = true;
-    callAfter(_interval);
+    call_after(_interval);
 }
 
 bool
-Ticker::didTick() volatile
+Ticker::did_tick() volatile
 {
     if (_ticked) {
         _ticked = false;

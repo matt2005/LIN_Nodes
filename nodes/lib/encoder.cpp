@@ -13,8 +13,8 @@ static volatile int8_t turnCount;
 static volatile uint8_t buttonCount;
 
 static bool buttonState;
-static void buttonTimeout(void *arg);
-static Timer buttonDebounce(buttonTimeout);
+static void button_timeout(void *arg);
+static Timer buttonDebounce(button_timeout);
 
 static uint8_t encoderAB = 3;       // saved encoder pin state
 static int8_t encoderSubstate = 0;  // intermediate states
@@ -23,9 +23,9 @@ static const PROGMEM int8_t encoderLUT[] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 
 void
 init()
 {
-    pinENCA.cfgInputPullUp();
-    pinENCB.cfgInputPullUp();
-    pinButton.cfgInputPullUp();
+    pinENCA.cfg_input_pullup();
+    pinENCB.cfg_input_pullup();
+    pinButton.cfg_input_pullup();
 
     ENC_INT_REG |= ENC_INT_BITS;
     PCICR |= ENC_INT_BIT;
@@ -59,7 +59,7 @@ discard()
 }
 
 static void
-buttonTimeout(void *arg)
+button_timeout(void *arg)
 {
     buttonState = !buttonState;
 
@@ -73,11 +73,11 @@ pcint()
 {
     if (pinButton.get() != buttonState) {
         // cancel timer (if any)
-        buttonDebounce.setRemaining(0);
+        buttonDebounce.set_remaining(0);
 
     } else {
         // (re)start timer
-        buttonDebounce.setRemaining(10);
+        buttonDebounce.set_remaining(10);
     }
 
     // generate encoder LUT index

@@ -9,12 +9,12 @@ static LINDev *_dev;
 
 ISR(LIN_TC_vect)
 {
-    _dev->isrTC();
+    _dev->isr_TC();
 }
 
 ISR(LIN_ERR_vect)
 {
-    _dev->isrError();
+    _dev->isr_error();
 }
 
 LINDev::LINDev()
@@ -27,9 +27,9 @@ LINDev::init()
 {
     // LINCS/LINTX start tristated, configure for LIN use.
     pinLINCS.set();
-    pinLINCS.cfgOutput();
-    pinLINTX.cfgInputPullUp();
-    pinLINRX.cfgInputPullUp();
+    pinLINCS.cfg_output();
+    pinLINTX.cfg_input_pullup();
+    pinLINRX.cfg_input_pullup();
 
     // Reset the LIN block
     Lin_full_reset();
@@ -41,7 +41,7 @@ LINDev::init()
 }
 
 void
-LINDev::masterTest()
+LINDev::master_test()
 {
     // XXX testing
     debug("LIN testing");
@@ -56,36 +56,36 @@ LINDev::masterTest()
     wdt_disable();
 
     for (;;) {
-        sendHeader(LIN::kFIDTest);
+        send_header(LIN::kFrameIDTest);
 
         while (!Is_lin_header_ready()) {
             if (LINSIR & (1 << LERR)) {
                 debug("frame TX error %2x", Lin_get_error_status());
-                Board::panic(10);
+                Board::panic(Board::kPanicCodeLIN);
             }
         }
 
-        if (Lin_get_id() != LIN::kFIDTest) {
+        if (Lin_get_id() != LIN::kFrameIDTest) {
             debug("FID mismatch, got %2x", Lin_get_id());
-            Board::panic(10);
+            Board::panic(Board::kPanicCodeLIN);
         }
 
         LIN::Frame f(1,2,3,4,5,6,7,8);
-        sendResponse(f, 8);
+        send_response(f, 8);
 
         while (LINSIR & (1 << LBUSY)) {
             if (LINSIR & (1 << LERR)) {
                 debug("frame TX error %2x", Lin_get_error_status());
-                Board::panic(10);
+                Board::panic(Board::kPanicCodeLIN);
             }
         }
 
-        Board::msDelay(100);
+        Board::ms_delay(100);
     }
 }
 
 void
-LINDev::isrTC() 
+LINDev::isr_TC() 
 {
     if (Is_lin_header_ready()) {
 
@@ -93,7 +93,7 @@ LINDev::isrTC()
         Lin_clear_idok_it();
 
         // handle the header
-        headerReceived(currentFID());
+        header_received(current_FrameID());
 
     }
 
@@ -116,12 +116,12 @@ LINDev::isrTC()
         Lin_clear_rxok_it();
 
         // handle the frame
-        responseReceived(currentFID(), f);
+        response_received(current_FrameID(), f);
     }
 
     if (LINSIR & (1 << LTXOK)) {
 
-        responseSent();
+        response_sent();
 
         // and clear the interrupt
         Lin_clear_txok_it();
@@ -129,23 +129,23 @@ LINDev::isrTC()
 }
 
 void
-LINDev::isrError()
+LINDev::isr_error()
 {
 
     if (Lin_get_error_status() & (1 << LBERR)) {
-        errors[kErrLine]++;
+        errors[kErrorLine]++;
     }
     if (Lin_get_error_status() & (1 << LCERR)) {
-        errors[kErrChecksum]++;
+        errors[kErrorChecksum]++;
     }
     if (Lin_get_error_status() & (1 << LPERR)) {
-        errors[kErrParity]++;
+        errors[kErrorParity]++;
     }
     if (Lin_get_error_status() & (1 << LFERR)) {
-        errors[kErrFraming]++;
+        errors[kErrorFraming]++;
     }
     if (Lin_get_error_status() & (1 << LSERR)) {
-        errors[kErrSynchronisation]++;
+        errors[kErrorSynchronisation]++;
     }
 
     // reset to default mode
@@ -156,12 +156,12 @@ LINDev::isrError()
 }
 
 void
-LINDev::requestResponse(uint8_t length)
+LINDev::expect_response(uint8_t length)
 {
-    waitBusy();
+    wait_busy();
 
     // select 1x mode for FIDs that require it
-    if (currentFID() >= LIN::kFIDMasterRequest) {
+    if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
         Lin_1x_set_type();
     } else {
         Lin_2x_set_type();
@@ -173,20 +173,20 @@ LINDev::requestResponse(uint8_t length)
 }
 
 void
-LINDev::sendHeader(LIN::FrameID fid)
+LINDev::send_header(LIN::FrameID fid)
 {
     if (LINSIR & (1 << LBUSY)) {
         debug("TX header while busy LINSIR=%2x LINERR=%2x", LINSIR, Lin_get_error_status());
-        Board::panic(Board::kPanicLIN);
+        Board::panic(Board::kPanicCodeLIN);
         return;
     }
 
     // turn on the LIN transmitter - must not do this while we
     // might possibly still be transmitting
-    Board::linCS(true);
+    Board::lin_CS(true);
 
     // select 1x or 2x mode
-    if (currentFID() >= LIN::kFIDMasterRequest) {
+    if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
         Lin_1x_set_type();
         Lin_1x_set_id(fid);
         Lin_1x_set_len(8);
@@ -200,19 +200,19 @@ LINDev::sendHeader(LIN::FrameID fid)
 }
 
 void
-LINDev::sendResponse(const LIN::Frame &f, uint8_t length)
+LINDev::send_response(const LIN::Frame &f, uint8_t length)
 {
     if (LINSIR & (1 << LBUSY)) {
         debug("TX response while busy LINSIR=%2x LINERR=%2x", LINSIR, LINERR);
-        Board::panic(Board::kPanicLIN);
+        Board::panic(Board::kPanicCodeLIN);
         return;
     }
 
     // turn on the LIN transmitter
-    Board::linCS(true);
+    Board::lin_CS(true);
 
     // select 1x mode for FIDs that require it
-    if (currentFID() >= LIN::kFIDMasterRequest) {
+    if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
         Lin_1x_set_type();
     } else {
         Lin_2x_set_type();
@@ -230,17 +230,17 @@ LINDev::sendResponse(const LIN::Frame &f, uint8_t length)
 }
 
 void
-LINDev::headerReceived(LIN::FID fid)
+LINDev::header_received(LIN::FrameID fid)
 {
 }
 
 void
-LINDev::responseReceived(LIN::FID fid, LIN::Frame &frame)
+LINDev::response_received(LIN::FrameID fid, LIN::Frame &frame)
 {
 }
 
 void
-LINDev::responseSent()
+LINDev::response_sent()
 {
 }
 

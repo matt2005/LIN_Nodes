@@ -11,9 +11,9 @@ public:
     Serial();
 
 protected:
-    virtual void    _write(uint8_t c) override;
+    virtual void    write(uint8_t c) override;
 
 private:
     static void     tx(uint8_t c);
-    static void     tunedDelay(uint16_t delay);
+    static void     tuned_delay(uint16_t delay);
 };

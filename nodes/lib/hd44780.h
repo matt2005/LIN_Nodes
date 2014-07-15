@@ -22,14 +22,13 @@ public:
     virtual void    move(Position p) override;
 
 protected:
-    virtual void    _write(uint8_t c) override;
+    virtual void    write(uint8_t c) override;
 
 private:
     static const uint8_t    bitE   = lcdBitE;
     static const uint8_t    bitRnW = lcdBitRnW;
     static const uint8_t    bitDnC = lcdBitDnC;
 
-    static void     sendCmd(uint8_t cmd);
-    static void     sendData(uint8_t cmd);
-    static void     sendNibble(uint8_t cmd);
+    static void     send_cmd(uint8_t cmd);
+    static void     send_nibble(uint8_t cmd);
 };

@@ -1,0 +1,30 @@
+Coding standards, by reference.
+
+Where possible, code should conform to:
+
+High Integrity C++ 4.0 (or better)
+    http://www.codingstandard.com/section/index/
+
+Some notes on naming.
+ - Type/class/enumeration names
+   - begin with a capital leter
+   - CamelCase
+   - use struct for passive data (no member functions)
+   - use kMax<foo>, kMin<foo>, kNum<foo>
+ - Constants
+   - use k<name> for all constant names
+   - CamelCase
+ - Enumeration values
+   - prefixed with k<enumeration name> similar to constants
+   - use k<enumeration name>Max for limit value name
+ - Member variables
+   - names start with _
+   - CamelCase
+ - Functions
+   - names always verb-object
+   - names always lower-case, _ between words
+   - use return-by-reference to access member variables in preference to get_/set_
+
+Use of language features:
+ - Use const whenever possible.
+ - Virtual member functions must be marked override in non-base classes.

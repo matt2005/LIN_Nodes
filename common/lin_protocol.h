@@ -25,18 +25,18 @@ typedef uint8_t FID;
 //
 enum NodeAddress : uint8_t
 {
-    kNADSleep           = 0,
+    kNodeAddressSleep           = 0,
 
-    kNADMaster          = 1,    //< always NAD 1
-    kNADPowerBase       = 2,    //< 15 of these (board ID 1-15)
-    kNADECU             = 18,   //< ECU data bridge
-    kNADDashboard       = 19,   //< dash display (not talkative)
-    kNADProgrammer      = 20,   //< plug-in programmer
+    kNodeAddressMaster          = 1,    //< always NAD 1
+    kNodeAddressPowerBase       = 2,    //< 15 of these (board ID 1-15)
+    kNodeAddressECU             = 18,   //< ECU data bridge
+    kNodeAddressDashboard       = 19,   //< dash display (not talkative)
+    kNodeAddressProgrammer      = 20,   //< plug-in programmer
 
-    kNADMaxAssigned,
+    kNodeAddressMaxAssigned,
 
-    kNADFunctional      = 126,
-    kNADBroadcast       = 127,
+    kNodeAddressFunctional      = 126,
+    kNodeAddressBroadcast       = 127,
 };
 
 //
@@ -44,18 +44,18 @@ enum NodeAddress : uint8_t
 //
 enum ServiceID : uint8_t
 {
-    kSIDReadByID        = 0xb2,
-    kSIDDataDump        = 0xb4,
+    kServiceIDReadByID          = 0xb2,
+    kServiceIDDataDump          = 0xb4,
 
-    kSIDResponseOffset  = 0x40
+    kServiceIDResponseOffset    = 0x40
 };
 
 //
 // Identifier for ReadByID
 //
 enum ReadByID : uint8_t {
-    kRBIProductID       = 0,
-    kRBIErrorCounters   = 32,
+    kReadByIDProductID          = 0,
+    kReadByIDErrorCounters      = 32,
 };
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
@@ -98,9 +98,9 @@ public:
     }
 
     // ReadByID request factory
-    static Frame    makeReadByIDRequest(uint8_t nad, ReadByID flavor)
+    static Frame        makeReadByIDRequest(uint8_t nad, ReadByID flavor)
     {
-        Frame f(nad, 2, kSIDReadByID, flavor);
+        Frame f(nad, 2, kServiceIDReadByID, flavor);
 
         return f;
     }
@@ -148,31 +148,19 @@ public:
     const volatile uint8_t &operator[](uint8_t index) const volatile { return _b[index]; }
 
     // field access by name
-    volatile uint8_t    &nad()  volatile { return _b[kFINAD]; }
-    volatile uint8_t    &pci()  volatile { return _b[kFIPCI]; }
-    volatile uint8_t    &sid()  volatile { return _b[kFISID]; }
-    volatile uint8_t    &d1()   volatile { return _b[kFID1]; }
-    volatile uint8_t    &d2()   volatile { return _b[kFID2]; }
-    volatile uint8_t    &d3()   volatile { return _b[kFID3]; }
-    volatile uint8_t    &d4()   volatile { return _b[kFID4]; }
-    volatile uint8_t    &d5()   volatile { return _b[kFID5]; }
+    volatile uint8_t    &nad()  volatile { return _b[0]; }
+    volatile uint8_t    &pci()  volatile { return _b[1]; }
+    volatile uint8_t    &sid()  volatile { return _b[2]; }
+    volatile uint8_t    &d1()   volatile { return _b[3]; }
+    volatile uint8_t    &d2()   volatile { return _b[4]; }
+    volatile uint8_t    &d3()   volatile { return _b[5]; }
+    volatile uint8_t    &d4()   volatile { return _b[6]; }
+    volatile uint8_t    &d5()   volatile { return _b[7]; }
 
     // direct buffer access
     volatile uint8_t    *buf() volatile { return &_b[0]; }
 
 private:
-    enum FrameIndex : uint8_t
-    {
-        kFINAD              = 0,    //< node address
-        kFIPCI              = 1,    //< PCI (always zero) and length (low 4 bits)
-        kFISID              = 2,    //< service ID
-        kFID1               = 3,
-        kFID2               = 4,
-        kFID3               = 5,
-        kFID4               = 6,
-        kFID5               = 7,
-    };
-
     uint8_t _b[8];
 };
 

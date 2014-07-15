@@ -14,7 +14,7 @@ Glyph::Glyph(Scene *scene, Position p, Colour colour) :
     _colour(colour)
 {
     if (scene != nullptr)
-        scene->addGlyph(this);
+        scene->add_glyph(this);
 }
 
 void
@@ -23,7 +23,7 @@ Glyph::draw(const Scene *in_scene)
 }
 
 void
-Glyph::drawBitmap(const Scene *in_scene,
+Glyph::draw_bitmap(const Scene *in_scene,
                   const struct glyph_info &glyph,
                   unsigned offset_x,
                   unsigned offset_y)
@@ -59,7 +59,7 @@ Glyph::drawBitmap(const Scene *in_scene,
 }
 
 void
-Glyph::drawChar(const Scene *in_scene,
+Glyph::draw_character(const Scene *in_scene,
                 const uint8_t *font,
                 uint8_t character,
                 unsigned offset_x,
@@ -106,7 +106,7 @@ GlyphIcon::draw(const Scene *in_scene)
     if (!_enable)
         return;
 
-    Glyph::drawBitmap(in_scene, _icon);
+    Glyph::draw_bitmap(in_scene, _icon);
 }
 
 void
@@ -117,18 +117,18 @@ GlyphNumber::draw(const Scene *in_scene)
     unsigned v = _value;
     bool lsd = true;
 
-    if (!_value.isValid()) {
-        Glyph::drawChar(in_scene, _font, '-', offset_x);
+    if (!_value.is_valid()) {
+        Glyph::draw_character(in_scene, _font, '-', offset_x);
 
     } else {
         do {
             unsigned index = v % 10;
 
             if ((v > 0) || lsd) {
-                Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
+                Glyph::draw_character(in_scene, _font, '0' + index, offset_x);
 
             } else {
-                Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
+                Glyph::draw_character(in_scene, _font, ' ' + index, offset_x);
             }
 
             v /= 10;
@@ -149,18 +149,18 @@ GlyphNumberTenths::draw(const Scene *in_scene)
     bool lsd = false;
 
 
-    if (!_value.isValid()) {
-        Glyph::drawChar(in_scene, _font, '-', offset_x);
+    if (!_value.is_valid()) {
+        Glyph::draw_character(in_scene, _font, '-', offset_x);
 
     } else {
         do {
             unsigned index = v % 10;
 
             if ((v > 0) || lsd || frac) {
-                Glyph::drawChar(in_scene, _font, '0' + index, offset_x);
+                Glyph::draw_character(in_scene, _font, '0' + index, offset_x);
 
             } else {
-                Glyph::drawChar(in_scene, _font, ' ' + index, offset_x);
+                Glyph::draw_character(in_scene, _font, ' ' + index, offset_x);
             }
 
             v /= 10;
@@ -212,7 +212,7 @@ GlyphText::emit(char c)
         return;
     }
 
-    drawChar(_scene, _font, c, _cursor.x, _cursor.y);
+    draw_character(_scene, _font, c, _cursor.x, _cursor.y);
     _cursor.x += _font[0];
 }
 

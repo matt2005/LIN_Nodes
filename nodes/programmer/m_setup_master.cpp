@@ -19,11 +19,11 @@ SetupMasterMode modeSetupMaster;
 void
 SetupMasterMode::init()
 {
-    _init(LIN::kNADMaster, Util::strtablen(masterParamNames) - 1);
+    _init(LIN::kNodeAddressMaster, Util::strtablen(masterParamNames) - 1);
 }
 
 void
-SetupMasterMode::printTitle() const
+SetupMasterMode::print_title() const
 {
     gDisplay.printf(PSTR("Master Setup:"));
 }
@@ -35,13 +35,13 @@ SetupMasterMode::param() const
 }
 
 PGM_P
-SetupMasterMode::paramName() const
+SetupMasterMode::param_name() const
 {
     return Util::strtab(masterParamNames, _param);
 }
 
 PGM_P
-SetupMasterMode::paramFormat() const
+SetupMasterMode::param_format() const
 {
     return Util::strtab(masterParamFormats, _param);
 }

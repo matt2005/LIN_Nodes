@@ -41,7 +41,7 @@ PerfInterval::start()
 void
 PerfInterval::stop()
 {
-    Timer::Interval elapsed = Timer::timeSince(_started);
+    Timer::Interval elapsed = Timer::time_since(_started);
 
     if (elapsed < _min_period) {
         _min_period = elapsed;

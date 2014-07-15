@@ -6,37 +6,37 @@
 #include "board.h"
 
 void
-Slave::idleTimeout(void *arg)
+Slave::idle_timeout(void *arg)
 {
     auto slave = (Slave *)arg;
 
-    slave->sleepRequested(kSleepIdle);
+    slave->sleep_requested(kSleepTypeIdle);
 }
 
 Slave::Slave(LIN::NodeAddress nad) :
     _nad(nad),
-    _idleTimer(&Slave::idleTimeout, this)
+    _idleTimer(&Slave::idle_timeout, this)
 {
     // start the idle timeout
-    _idleTimer.setRemaining(kIdleTimeout);
+    _idleTimer.set_remaining(kIdleTimeout);
 }
 
 void
-Slave::headerReceived(LIN::FID fid)
+Slave::header_received(LIN::FrameID fid)
 {
     switch (fid) {
-    case LIN::kFIDConfigRequest:
-    case LIN::kFIDMasterRequest:
-        requestResponse(8);
+    case LIN::kFrameIDConfigRequest:
+    case LIN::kFrameIDMasterRequest:
+        expect_response(8);
         break;
 
-    case LIN::kFIDConfigResponse:
-        configResponse();
+    case LIN::kFrameIDConfigResponse:
+        config_response();
         break;
 
-    case LIN::kFIDSlaveResponse:
+    case LIN::kFrameIDSlaveResponse:
         if (_sendSlaveResponse) {
-            sendResponse(_response, 8);
+            send_response(_response, 8);
             _sendSlaveResponse = false;
         }
         break;
@@ -46,26 +46,26 @@ Slave::headerReceived(LIN::FID fid)
     }
 
     // reset the idle timeout
-    _idleTimer.setRemaining(kIdleTimeout);
+    _idleTimer.set_remaining(kIdleTimeout);
 }
 
 void
-Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
+Slave::response_received(LIN::FrameID fid, LIN::Frame &frame)
 {
     switch (fid) {
-    case LIN::kFIDConfigRequest:
-        configRequest(reinterpret_cast<LIN::ConfigFrame &>(frame));
+    case LIN::kFrameIDConfigRequest:
+        config_request(reinterpret_cast<LIN::ConfigFrame &>(frame));
         break;
 
-    case LIN::kFIDMasterRequest:
+    case LIN::kFrameIDMasterRequest:
         // check for broadcast sleep request
-        if (frame.nad() == LIN::kNADSleep) {
-            sleepRequested(kSleepRequested);
+        if (frame.nad() == LIN::kNodeAddressSleep) {
+            sleep_requested(kSleepTypeRequested);
         }
         // check for directly addressed or broadcast master request
         if ((frame.nad() == _nad) ||
-            (frame.nad() == LIN::kNADBroadcast)) {
-            masterRequest(frame);
+            (frame.nad() == LIN::kNodeAddressBroadcast)) {
+            master_request(frame);
         }
         break;
 
@@ -75,44 +75,44 @@ Slave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 }
 
 void
-Slave::responseSent()
+Slave::response_sent()
 {
 }
 
 void
-Slave::sleepRequested(SleepType type)
+Slave::sleep_requested(SleepType type)
 {
     // default behaviour is to behave as requested
     Board::sleep();
 }
 
 void
-Slave::masterRequest(LIN::Frame &frame)
+Slave::master_request(LIN::Frame &frame)
 {
     // ReadByID
-    if (frame.sid() == LIN::kSIDReadByID) {
+    if (frame.sid() == LIN::kServiceIDReadByID) {
         switch (frame.d1()) {
-        case LIN::kRBIProductID:
+        case LIN::kReadByIDProductID:
             frame.pci() = 6;
-            frame.sid() |= LIN::kSIDResponseOffset;
+            frame.sid() |= LIN::kServiceIDResponseOffset;
             frame.d1() = LIN::kSupplierID & 0xff;
             frame.d2() = LIN::kSupplierID >> 8;
-            frame.d3() = BOARD_FUNCTION_ID;
-            frame.d4() = Board::getMode();
+            frame.d3() = kBoardFunctionID;
+            frame.d4() = Board::get_mode();
             frame.d5() = 0;
             break;
 
-        case LIN::kRBIErrorCounters:
+        case LIN::kReadByIDErrorCounters:
             frame.pci() = 6;
-            frame.sid() |= LIN::kSIDResponseOffset;
-            frame.d1() = errors[kErrLine];
-            frame.d2() = errors[kErrChecksum] + 
-                         errors[kErrParity] + 
-                         errors[kErrFraming] +
-                         errors[kErrSynchronisation];
-            frame.d3() = errors[kErrProtocol];
-            frame.d4() = errors[kErrSlave1];
-            frame.d5() = errors[kErrSlave2];
+            frame.sid() |= LIN::kServiceIDResponseOffset;
+            frame.d1() = errors[kErrorLine];
+            frame.d2() = errors[kErrorChecksum] + 
+                         errors[kErrorParity] + 
+                         errors[kErrorFraming] +
+                         errors[kErrorSynchronisation];
+            frame.d3() = errors[kErrorProtocol];
+            frame.d4() = errors[kErrorSlave1];
+            frame.d5() = errors[kErrorSlave2];
             break;
 
         default:
@@ -120,12 +120,12 @@ Slave::masterRequest(LIN::Frame &frame)
             return;
         }
 
-        slaveResponse(frame);
+        slave_response(frame);
     }
 }
 
 void
-Slave::configRequest(LIN::ConfigFrame &frame)
+Slave::config_request(LIN::ConfigFrame &frame)
 {
     if (frame.nad() != _nad) {
         return;
@@ -143,7 +143,7 @@ Slave::configRequest(LIN::ConfigFrame &frame)
 }
 
 void
-Slave::configResponse()
+Slave::config_response()
 {
     if (!_sendConfigResponse) {
         return;
@@ -158,7 +158,7 @@ Slave::configResponse()
     f.value() = get_param(_configParam);
     //f.value() = Parameter(_configParam).get();
 
-    sendResponse(f, 8);  
+    send_response(f, 8);  
 }
 
 uint8_t

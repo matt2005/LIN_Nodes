@@ -8,7 +8,7 @@
 #include "slave.h"
 
 bool
-ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
+ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
 {
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
@@ -21,13 +21,13 @@ ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
         // wait 100ms for the transaction to complete
         Timestamp t;
 
-        while (!t.isOlderThan(100)) {
+        while (!t.is_older_than(100)) {
             wdt_reset();
 
             if (_state == kStateIdle) {
                 uint8_t readback;
 
-                if (getParameter(nad, param, readback) && (readback == value)) {
+                if (get_parameter(nad, param, readback) && (readback == value)) {
                     return true;
 
                 } else {
@@ -44,7 +44,7 @@ ProgrammerSlave::setParameter(uint8_t nad, uint8_t param, uint8_t value)
 }
 
 bool
-ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
+ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 {
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
@@ -56,7 +56,7 @@ ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
         // wait 100ms for the transaction to complete
         Timestamp t;
 
-        while (!t.isOlderThan(100)) {
+        while (!t.is_older_than(100)) {
             wdt_reset();
 
             if (_state == kStateGetComplete) {
@@ -77,10 +77,10 @@ ProgrammerSlave::getParameter(uint8_t nad, uint8_t param, uint8_t &value)
 }
 
 void
-ProgrammerSlave::headerReceived(LIN::FID fid)
+ProgrammerSlave::header_received(LIN::FrameID fid)
 {
     switch (fid) {
-    case LIN::kFIDConfigRequest:
+    case LIN::kFrameIDConfigRequest:
         if (_state == kStateSetWaitRequest) {
             LIN::ConfigFrame f;
 
@@ -89,7 +89,7 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
             f.param() = _paramIndex;
             f.value() = _paramValue;
 
-            sendResponse(f, 8);
+            send_response(f, 8);
             _state = kStateSetWaitSent;
 
         } else if (_state == kStateGetWaitRequest) {
@@ -99,7 +99,7 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
             f.flavour() = LIN::kCFGetParam;
             f.param() = _paramIndex;
 
-            sendResponse(f, 8);
+            send_response(f, 8);
             _state = kStateGetWaitResponse;
 
         } else if (!_suspended) {
@@ -108,14 +108,14 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
             f.nad() = 0;
             f.flavour() = LIN::kCFNop;
 
-            sendResponse(f, 8);
+            send_response(f, 8);
         }
 
         break;
 
-    case LIN::kFIDConfigResponse:
+    case LIN::kFrameIDConfigResponse:
         if (_state == kStateGetWaitResponse) {
-            requestResponse(8);
+            expect_response(8);
         }
 
         break;
@@ -126,10 +126,10 @@ ProgrammerSlave::headerReceived(LIN::FID fid)
 }
 
 void
-ProgrammerSlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
+ProgrammerSlave::response_received(LIN::FrameID fid, LIN::Frame &frame)
 {
     // slave responding to a parameter request?
-    if ((fid == LIN::kFIDConfigResponse) &&
+    if ((fid == LIN::kFrameIDConfigResponse) &&
         (_state == kStateGetWaitResponse)) {
 
         auto cf = reinterpret_cast<LIN::ConfigFrame &>(frame);
@@ -151,7 +151,7 @@ ProgrammerSlave::responseReceived(LIN::FID fid, LIN::Frame &frame)
 }
 
 void
-ProgrammerSlave::responseSent()
+ProgrammerSlave::response_sent()
 {
     if (_state == kStateSetWaitSent) {
         _state = kStateIdle;
@@ -159,7 +159,7 @@ ProgrammerSlave::responseSent()
 }
 
 void
-ProgrammerSlave::sleepRequested(SleepType type)
+ProgrammerSlave::sleep_requested(SleepType type)
 {
     // XXX never sleep
 }

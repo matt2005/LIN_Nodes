@@ -30,11 +30,10 @@ namespace Board
 void init();
 
 enum PanicCode : uint8_t {
-    kPanicRecovery  = 2,
-    kPanicI2C       = 3,
-    kPanicSPI       = 4,
-    kPanicLIN       = 5,
-    kPanicAssert    = 6
+    kPanicCodeRecovery  = 2,
+    kPanicCodeSPI       = 3,
+    kPanicCodeLIN       = 4,
+    kPanicCodeAssert    = 5
 };
 
 /// Panic with a status code
@@ -43,7 +42,7 @@ void panic(uint8_t code) __attribute__((noreturn));
 
 /// Read the board-specific mode configuration switch (if any)
 ///
-uint8_t getMode();
+uint8_t get_mode();
 
 /// Put the board to sleep
 ///
@@ -51,11 +50,11 @@ void sleep();
 
 /// Delay for a period in milliseconds, keeping the watchdog at bay
 ///
-void msDelay(uint16_t ms);
+void ms_delay(uint16_t ms);
 
 /// Delay for a period in microseconds
 ///
-void usDelay(uint16_t us);
+void us_delay(uint16_t us);
 
 /// Check free space between stack and BSS
 ///
@@ -66,7 +65,7 @@ uint16_t freemem();
 /// Set the LIN CS state
 ///
 static inline void
-linCS(bool state)
+lin_CS(bool state)
 {
     if (state) {
         pinLINCS.set();

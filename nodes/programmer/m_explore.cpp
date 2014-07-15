@@ -14,7 +14,7 @@ namespace Menu
 
 ExploreMode modeExplore;
 
-Bitarray<LIN::kNADMaxAssigned> ExploreMode::presentMask;
+Bitarray<LIN::kNodeAddressMaxAssigned> ExploreMode::presentMask;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Explore mode
@@ -48,13 +48,13 @@ ExploreMode::action(Encoder::Event bp)
     switch (bp) {
 
     case Encoder::kEventUp:
-        _node = searchDown(_node);
+        _node = search_down(_node);
         Encoder::discard();
         wantDraw = true;
         break;
 
     case Encoder::kEventDown:
-        _node = searchUp(_node);
+        _node = search_up(_node);
         Encoder::discard();
         wantDraw = true;
         break;
@@ -66,11 +66,11 @@ ExploreMode::action(Encoder::Event bp)
             presentMask.reset();
             return &modeTop;
 
-        case LIN::kNADMaster:
+        case LIN::kNodeAddressMaster:
             modeSetupMaster.init();
             return &modeSetupMaster;
 
-        case LIN::kNADPowerBase ...(LIN::kNADPowerBase + 15):
+        case LIN::kNodeAddressPowerBase ...(LIN::kNodeAddressPowerBase + 15):
             modeSetupPower.init(_node);
             return &modeSetupPower;
 
@@ -85,29 +85,29 @@ ExploreMode::action(Encoder::Event bp)
 
         // do we have a valid scan result with a master node? 
         // (i.e. are we re-entering from an edit state?)
-        if (!presentMask.test(LIN::kNADMaster)) {
+        if (!presentMask.test(LIN::kNodeAddressMaster)) {
             presentMask.reset();
             presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
 
-            for (uint8_t i = LIN::kNADMaster; i < LIN::kNADMaxAssigned; i++) {
+            for (uint8_t i = LIN::kNodeAddressMaster; i < LIN::kNodeAddressMaxAssigned; i++) {
                 gDisplay.clear();
                 gDisplay.move(1, 1);
                 gDisplay.printf(PSTR("Searching... %2u"), i);
 
                 uint8_t dummy;
 
-                if (gSlave.getParameter(i, 0, dummy)) {
+                if (gSlave.get_parameter(i, 0, dummy)) {
                     presentMask.set(i);
                 }
             }
 
-            if (!presentMask.test(LIN::kNADMaster)) {
+            if (!presentMask.test(LIN::kNodeAddressMaster)) {
                 error(PSTR(" Master node not\n responding."));
-                Board::msDelay(3000);
+                Board::ms_delay(3000);
                 _node = 0;
 
             } else {
-                _node = LIN::kNADMaster;
+                _node = LIN::kNodeAddressMaster;
             }
         }
 
@@ -133,17 +133,17 @@ ExploreMode::draw()
 
     // To give the illusion of scrolling in a list, we need to look around the current
     // node a bit.
-    if (searchDown(_node) == _node) {
+    if (search_down(_node) == _node) {
         base = _node;   // nothing earlier in the list
         cursor = 1;
 
-    } else if ((searchUp(_node) == _node) &&
-               (searchDown(_node) != searchDown(searchDown(_node)))) {
-        base = searchDown(searchDown(_node));
+    } else if ((search_up(_node) == _node) &&
+               (search_down(_node) != search_down(search_down(_node)))) {
+        base = search_down(search_down(_node));
         cursor = 3;
 
     } else {
-        base = searchDown(_node);
+        base = search_down(_node);
         cursor = 2;
     }
 
@@ -162,8 +162,8 @@ ExploreMode::draw()
             gDisplay.printf(PSTR("Master"));
             break;
 
-        case LIN::kNADPowerBase ... LIN::kNADPowerBase+ 16:
-            gDisplay.printf(PSTR("Power %2u"), base - LIN::kNADPowerBase);
+        case LIN::kNodeAddressPowerBase ... LIN::kNodeAddressPowerBase+ 16:
+            gDisplay.printf(PSTR("Power %2u"), base - LIN::kNodeAddressPowerBase);
             break;
 
         default:
@@ -171,7 +171,7 @@ ExploreMode::draw()
             break;
         }
 
-        uint8_t next = searchUp(base);
+        uint8_t next = search_up(base);
 
         if (next == base) {
             break;
@@ -185,9 +185,9 @@ ExploreMode::draw()
 }
 
 uint8_t
-ExploreMode::searchUp(uint8_t from)
+ExploreMode::search_up(uint8_t from)
 {
-    for (uint8_t newNode = from + 1; newNode < LIN::kNADMaxAssigned; newNode++) {
+    for (uint8_t newNode = from + 1; newNode < LIN::kNodeAddressMaxAssigned; newNode++) {
         if (presentMask.test(newNode)) {
             return newNode;
         }
@@ -197,7 +197,7 @@ ExploreMode::searchUp(uint8_t from)
 }
 
 uint8_t
-ExploreMode::searchDown(uint8_t from)
+ExploreMode::search_down(uint8_t from)
 {
     if (from > 0) {
         uint8_t newNode = from - 1;

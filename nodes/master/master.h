@@ -21,7 +21,7 @@ public:
     /// @param frame            The frame to send.
     /// @return                 True if the frame is sent, false if it times out.
     ///
-    bool            doRequest(LIN::Frame &frame);
+    bool            do_request(LIN::Frame &frame);
 
     /// Queue a Master Request frame, then a Slave Response to
     /// gather the slave's reply.
@@ -31,7 +31,7 @@ public:
     /// @return                 True if a response is received, false if sending
     ///                         the reequest or receiving the response times out.
     ///
-    bool            doRequestResponse(LIN::Frame &frame);
+    bool            do_request_response(LIN::Frame &frame);
 
     /// Enable / disable sleep
     ///
@@ -40,7 +40,7 @@ public:
     ///                         if it is not in config mode.
     ///                         If false, sleep is inhibited.
     ///
-    void            setSleep(bool enable)
+    void            set_sleep_enable(bool enable)
     {
         _sleepEnable = enable;
 
@@ -51,8 +51,8 @@ public:
 
 
 protected:
-    virtual void    headerReceived(LIN::FID fid) override;
-    virtual void    responseReceived(LIN::FID fid, LIN::Frame &frame) override;
+    virtual void    header_received(LIN::FrameID fid) override;
+    virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
 
 private:
     static const LIN::FrameID normalSchedule[];
@@ -75,14 +75,14 @@ private:
     static void     event(void *arg);
     void            _event();
 
-    /// Internal waiter for doRequest/doRequestResponse.
+    /// Internal waiter for request/expect_response.
     ///
-    bool            waitRequest();
+    bool            wait_request();
 
     /// Config request handler
     ///
-    void            handleConfigRequest(LIN::ConfigFrame &frame);
-    void            handleConfigResponse();
+    void            handle_config_request(LIN::ConfigFrame &frame);
+    void            handle_config_response();
 };
 
 extern Master gMaster;

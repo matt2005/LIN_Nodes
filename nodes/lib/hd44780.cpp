@@ -13,49 +13,49 @@ HD44780::init()
     portLCD.set(0);
 
     // wait to allow display to boot
-    Board::msDelay(100);
+    Board::ms_delay(100);
 
     // configure display for 4-bit mode
     // http://web.alfredstate.edu/weimandn/index.html
-    sendNibble(0x3);
-    Board::msDelay(10);
+    send_nibble(0x3);
+    Board::ms_delay(10);
 
-    sendNibble(0x3);
-    Board::usDelay(200);
+    send_nibble(0x3);
+    Board::us_delay(200);
 
-    sendNibble(0x3);
-    Board::usDelay(200);
+    send_nibble(0x3);
+    Board::us_delay(200);
 
-    sendNibble(0x2);
-    Board::usDelay(80);
+    send_nibble(0x2);
+    Board::us_delay(80);
 
     // configure for 2 lines
-    sendCmd(0x28);
-    Board::usDelay(80);
+    send_cmd(0x28);
+    Board::us_delay(80);
 
     // display off (?)
-    sendCmd(0x08);
-    Board::usDelay(80);
+    send_cmd(0x08);
+    Board::us_delay(80);
 
     // clear display & home cursor
-    sendCmd(0x01);
-    Board::msDelay(4);
+    send_cmd(0x01);
+    Board::ms_delay(4);
 
     // set cursor direction
-    sendCmd(0x06);
-    Board::usDelay(80);
+    send_cmd(0x06);
+    Board::us_delay(80);
 
     // turn on display
-    sendCmd(0x0c);
-    Board::usDelay(80);
+    send_cmd(0x0c);
+    Board::us_delay(80);
 }
 
 void
 HD44780::clear()
 {
     // clear display & home cursor
-    sendCmd(0x01);
-    Board::msDelay(4);
+    send_cmd(0x01);
+    Board::ms_delay(4);
 }
 
 void
@@ -70,37 +70,31 @@ HD44780::move(Position p)
         cmd |= 0x14;
     }
 
-    sendCmd(cmd + p.x);
+    send_cmd(cmd + p.x);
 }
 
 void
-HD44780::_write(uint8_t c)
+HD44780::write(uint8_t c)
 {
-    sendData(c);
+    send_nibble((c >> 4)  | bitDnC);
+    send_nibble((c & 0xf) | bitDnC);
+    Board::us_delay(80);
 }
 
 void
-HD44780::sendNibble(uint8_t val)
+HD44780::send_nibble(uint8_t val)
 {
     portLCD.set(val);
     portLCD.set(val | bitE);
-    Board::usDelay(10);
+    Board::us_delay(10);
     portLCD.set(val);
-    Board::usDelay(10);
+    Board::us_delay(10);
 }
 
 void
-HD44780::sendCmd(uint8_t cmd)
+HD44780::send_cmd(uint8_t cmd)
 {
-    sendNibble(cmd >> 4);
-    sendNibble(cmd & 0xf);
-    Board::usDelay(80);
-}
-
-void
-HD44780::sendData(uint8_t val)
-{
-    sendNibble((val >> 4)  | bitDnC);
-    sendNibble((val & 0xf) | bitDnC);
-    Board::usDelay(80);
+    send_nibble(cmd >> 4);
+    send_nibble(cmd & 0xf);
+    Board::us_delay(80);
 }

@@ -44,10 +44,6 @@ extern const struct glyph_info g_W;
 extern const struct glyph_info g_O;
 extern const struct glyph_info g_E;
 extern const struct glyph_info g_legend;
-
-extern const struct glyph_info *g_digits_3x5[];
-extern const struct glyph_info *g_digits_5x7[];
-extern const struct glyph_info *g_digits_6x10[];
 #ifdef __cplusplus
 }
 #endif

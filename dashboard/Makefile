@@ -48,7 +48,6 @@ FLAGS		 = $(ARCHFLAGS)				\
 		   -fmessage-length=0			\
 		   -ffreestanding			\
 		   -fno-common				\
-		   -flto				\
 		   -I..					\
 		   $(addprefix -I,$(DIRS))		\
 		   $(DEFINES)
@@ -82,7 +81,6 @@ LDFLAGS		 = $(ARCHFLAGS)				\
 		   -nostdlib				\
 		   -fno-rtti				\
 		   -fno-exceptions			\
-		   -flto				\
 		   -Wl,-gc-sections			\
 		   -Wl,-Map,$@.map			\
 		   -Wl,--cref				\

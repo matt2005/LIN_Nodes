@@ -26,7 +26,12 @@ Slave::header_received(LIN::FrameID fid)
 {
     switch (fid) {
     case LIN::kFrameIDConfigRequest:
+        _sendConfigResponse = false;    // clear stale config response
+        expect_response(8);
+        break;
+
     case LIN::kFrameIDMasterRequest:
+        _sendSlaveResponse = false;     // clear stale slave response
         expect_response(8);
         break;
 

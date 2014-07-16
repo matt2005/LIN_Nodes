@@ -29,19 +29,15 @@ PROGMEM const LIN::FrameID Master::normalSchedule[] = {
 // be more than 50ms between the programmer being ready to send a
 // request and the response being posted
 //
+// Note that master request/slave response and config request/response
+// must not overlap, as slaves only have a single response buffer for each.
+//
 PROGMEM const LIN::FrameID Master::configSchedule[] = {
     LIN::kFrameIDRelays,
     LIN::kFrameIDConfigRequest,
     LIN::kFrameIDConfigResponse,// skipped if no work
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDConfigRequest,
-    LIN::kFrameIDConfigResponse,// skipped if no work
     LIN::kFrameIDMasterRequest, // skipped if no work
-    LIN::kFrameIDConfigRequest,
-    LIN::kFrameIDConfigResponse,// skipped if no work
     LIN::kFrameIDSlaveResponse, // skipped if no work
-    LIN::kFrameIDConfigRequest,
-    LIN::kFrameIDConfigResponse,// skipped if no work
     LIN::kFrameIDNone
 };
 
@@ -240,19 +236,20 @@ Master::handle_config_request(LIN::ConfigFrame &frame)
     // we will want to send a ConfigResponse header later
     _sendConfigResponseHeader = true;
 
-    if (frame.nad() != LIN::kNodeAddressMaster) {
-        return;
-    }
+    // if this request is for us...
+    if (frame.nad() == LIN::kNodeAddressMaster) {
 
-    if (frame.flavour() == LIN::kCFGetParam) {
-        _configParam = frame.param();
-        _sendConfigResponseFrame = true;
-        return;
-    }
+        // request for a parameter from us
+        if (frame.flavour() == LIN::kCFGetParam) {
+            _configParam = frame.param();
+            _sendConfigResponseFrame = true;
+        }
 
-    if (frame.flavour() == LIN::kCFSetParam) {
-        masterParam(frame.param()).set(frame.value());
-        return;
+        // request to set a parameter
+        if (frame.flavour() == LIN::kCFSetParam) {
+            // XXX should range-check parameter index and value here...
+            masterParam(frame.param()).set(frame.value());
+        }
     }
 }
 

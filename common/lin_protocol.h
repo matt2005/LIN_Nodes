@@ -47,7 +47,8 @@ enum ServiceID : uint8_t
     kServiceIDReadByID          = 0xb2,
     kServiceIDDataDump          = 0xb4,
 
-    kServiceIDResponseOffset    = 0x40
+    kServiceIDResponseOffset    = 0x40,
+    kServiceIDErrorResponse     = 0x7f
 };
 
 //

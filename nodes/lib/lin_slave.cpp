@@ -116,8 +116,15 @@ Slave::master_request(LIN::Frame &frame)
             break;
 
         default:
-            // ignore it
-            return;
+            // send an error
+            frame.pci() = 3;
+            frame.sid() = LIN::kServiceIDErrorResponse;
+            frame.d1() = LIN::kServiceIDReadByID;
+            frame.d2() = 0x12;
+            frame.d3() = 0xff;
+            frame.d4() = 0xff;
+            frame.d5() = 0xff;
+            break;
         }
 
         slave_response(frame);

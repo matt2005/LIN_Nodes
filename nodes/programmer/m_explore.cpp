@@ -4,15 +4,11 @@
 #include "board.h"
 #include "util.h"
 
-#include "m_explore.h"
 #include "m_top.h"
-#include "m_setup.h"
 #include "slave.h"
 
 namespace Menu
 {
-
-ExploreMode modeExplore;
 
 Bitarray<LIN::kNodeAddressMaxAssigned> ExploreMode::presentMask;
 
@@ -66,15 +62,13 @@ ExploreMode::action(Encoder::Event bp)
             presentMask.reset();
             return &modeTop;
 
-        case LIN::kNodeAddressMaster:
-            modeSetupMaster.init();
-            return &modeSetupMaster;
-
-        case LIN::kNodeAddressPowerBase ...(LIN::kNodeAddressPowerBase + 15):
-            modeSetupPower.init(_node);
-            return &modeSetupPower;
-
         default:
+            {
+                Mode *newmode = select();
+                if (newmode != nullptr) {
+                    return newmode;
+                }
+            }
             break;
         }
 
@@ -88,6 +82,7 @@ ExploreMode::action(Encoder::Event bp)
         if (!presentMask.test(LIN::kNodeAddressMaster)) {
             presentMask.reset();
             presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
+            _node = LIN::kNodeAddressMaster;
 
             for (uint8_t i = LIN::kNodeAddressMaster; i < LIN::kNodeAddressMaxAssigned; i++) {
                 gDisplay.clear();
@@ -98,16 +93,12 @@ ExploreMode::action(Encoder::Event bp)
 
                 if (gSlave.get_parameter(i, 0, dummy)) {
                     presentMask.set(i);
+                } else if (i == LIN::kNodeAddressMaster) {
+                    error(PSTR(" Master node not\n responding."));
+                    Board::ms_delay(3000);
+                    _node = 0;
+                    break;                    
                 }
-            }
-
-            if (!presentMask.test(LIN::kNodeAddressMaster)) {
-                error(PSTR(" Master node not\n responding."));
-                Board::ms_delay(3000);
-                _node = 0;
-
-            } else {
-                _node = LIN::kNodeAddressMaster;
             }
         }
 
@@ -123,6 +114,12 @@ ExploreMode::action(Encoder::Event bp)
     }
 
     return this;
+}
+
+Mode *
+ExploreMode::select()
+{
+    return nullptr;
 }
 
 void

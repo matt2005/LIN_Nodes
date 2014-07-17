@@ -81,7 +81,5 @@ private:
     void            decrement();
 };
 
-extern EditMode  modeEdit;
-
 } // namespace Menu
 

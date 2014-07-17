@@ -5,13 +5,30 @@
 #include "lin_protocol.h"
 #include "protocol.h"
 
-#include "m_setup.h"
-#include "m_explore.h"
-#include "m_edit.h"
+#include "m_top.h"
 #include "slave.h"
 
 namespace Menu
 {
+
+Mode *
+ExploreSetupMode::select()
+{
+    switch (_node) {
+
+    case LIN::kNodeAddressMaster:
+        modeSetupMaster.init();
+        return &modeSetupMaster;
+
+    case LIN::kNodeAddressPowerBase ...(LIN::kNodeAddressPowerBase + 15):
+        modeSetupPower.init(_node);
+        return &modeSetupPower;
+
+    default:
+        break;
+    }
+    return nullptr;
+}
 
 ////////////////////////////////////////////////////////////////
 // Node parameter editor
@@ -56,7 +73,7 @@ SetupMode::action(Encoder::Event bp)
     case Encoder::kEventPress:
         switch (_param) {
         case 0:
-            return &modeExplore;
+            return &modeExploreSetup;
 
         default:
             _editing = true;

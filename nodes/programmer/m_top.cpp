@@ -6,13 +6,18 @@
 
 #include "hd44780.h"
 #include "m_top.h"
-#include "m_explore.h"
-#include "m_test.h"
 
 namespace Menu
 {
 
-TopMode modeTop;
+TopMode             modeTop;
+ExploreSetupMode    modeExploreSetup;
+SetupMasterMode     modeSetupMaster;
+ExploreTestMode     modeExploreTest;
+TestMode            modeTest;
+SetupPowerMode      modeSetupPower;
+EditMode            modeEdit;
+InfoMode            modeInfo;
 
 struct topNode {
     const char *name;
@@ -20,8 +25,8 @@ struct topNode {
 };
 
 static PROGMEM Mode *const nodes[] = {
-    &modeExplore,
-    &modeTest,
+    &modeExploreSetup,
+    &modeExploreTest,
     &modeInfo
 };
 

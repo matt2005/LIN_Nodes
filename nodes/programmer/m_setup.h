@@ -80,8 +80,5 @@ private:
     PGM_P           param_formats() const;
 };
 
-extern SetupMasterMode  modeSetupMaster;
-extern SetupPowerMode   modeSetupPower;
-
 } // namespace Menu
 

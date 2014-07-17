@@ -6,15 +6,11 @@
 #include "protocol.h"
 #include "param_master.h"
 
-#include "m_setup.h"
-#include "m_explore.h"
-#include "m_edit.h"
+#include "m_top.h"
 #include "slave.h"
 
 namespace Menu
 {
-
-SetupMasterMode modeSetupMaster;
 
 void
 SetupMasterMode::init()

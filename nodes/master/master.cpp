@@ -169,6 +169,7 @@ Master::_event()
             // send the frame as requested
             break;
         }
+
         break;
     } while (1);
 

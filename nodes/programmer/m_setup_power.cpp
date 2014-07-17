@@ -7,15 +7,11 @@
 #include "param_power_v1.h"
 #include "param_power_v3.h"
 
-#include "m_setup.h"
-#include "m_explore.h"
-#include "m_edit.h"
+#include "m_top.h"
 #include "slave.h"
 
 namespace Menu
 {
-
-SetupPowerMode modeSetupPower;
 
 void
 SetupPowerMode::init(uint8_t nad)

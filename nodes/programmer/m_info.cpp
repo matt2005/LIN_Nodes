@@ -4,7 +4,6 @@
 #include "board.h"
 
 #include "hd44780.h"
-
 #include "m_top.h"
 #include "slave.h"
 
@@ -13,27 +12,8 @@
 namespace Menu
 {
 
-Mode *
-ExploreTestMode::select()
-{
-    switch (_node) {
-
-    case LIN::kNodeAddressMaster:
-        // XXX test mode for master?
-        break;
-
-    case LIN::kNodeAddressPowerBase ...(LIN::kNodeAddressPowerBase + 15):
-        modeTest.init(_node);
-        return &modeTest;
-
-    default:
-        break;
-    }
-    return nullptr;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
-// Test mode
+// Info mode
 //
 // +--------------------+
 // |                    |
@@ -42,17 +22,25 @@ ExploreTestMode::select()
 // |                    |
 // +--------------------+
 //
+#define FREEZE_STR(s) #s
+#define STRINGIFY(s) FREEZE_STR(s)
+#define GIT_STR PSTR(STRINGIFY(GIT_VERSION))
+
 Mode *
-TestMode::action(Encoder::Event bp)
+InfoMode::action(Encoder::Event bp)
 {
     switch (bp) {
 
     case Encoder::kEventPress:
-        return &modeExploreTest;
+        return &modeTop;
 
     case Encoder::kEventActivate:
         gDisplay.clear();
-        gDisplay.printf(PSTR(">back"));
+        gDisplay.printf(PSTR("build %s"), GIT_STR);
+        gDisplay.move(0, 1);
+        gDisplay.printf(PSTR("proto %3u"), LIN::protocolRevision);
+        gDisplay.move(0, 2);
+        gDisplay.printf(PSTR("free  %3u"), Board::freemem());
         break;
 
     default:

@@ -4,12 +4,10 @@
 #include "board.h"
 #include "print.h"
 
-#include "m_edit.h"
+#include "m_top.h"
 
 namespace Menu
 {
-
-EditMode modeEdit;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Value edit mode

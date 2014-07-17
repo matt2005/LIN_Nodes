@@ -18,6 +18,7 @@ bool __cxa_guard_acquire() { return true; }
 void __cxa_guard_release() {}
 
 Master          gMaster;
+Ticker          programmerCheck(100);  // check every second
 
 void
 main(void)
@@ -43,8 +44,25 @@ main(void)
     for (;;) {
         wdt_reset();
         Switches::scan();
-
         Relays::tick();
+
+        // periodic check for the programmer on the bus
+        if (programmerCheck.did_tick()) {
+            LIN::Frame f(LIN::kNodeAddressProgrammer,
+                         2,
+                         LIN::kServiceTesterPresent,
+                         0);
+            gMaster.do_request_response(f);
+
+            if (f.sid() == (LIN::kServiceTesterPresent | LIN::kServiceIDResponseOffset)) {
+                // positive response from programmer
+                gMaster.set_programmer_mode(true);
+
+            } else {
+                // no response or explicit negative response
+                gMaster.set_programmer_mode(false);
+            }
+        }
     }
 }
 

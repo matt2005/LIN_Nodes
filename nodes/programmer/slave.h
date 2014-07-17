@@ -31,7 +31,8 @@ protected:
     virtual void    header_received(LIN::FrameID fid) override;
     virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
     virtual void    response_sent() override;
-    virtual void    sleep_requested(SleepType type);
+    virtual void    sleep_requested(SleepType type) override;
+    virtual void    master_request(LIN::Frame &frame) override;
 
 private:
     enum State : uint8_t {

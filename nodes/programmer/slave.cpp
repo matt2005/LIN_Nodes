@@ -170,3 +170,21 @@ ProgrammerSlave::sleep_requested(SleepType type)
 {
     // XXX never sleep
 }
+
+void
+ProgrammerSlave::master_request(LIN::Frame &frame)
+{
+    Board::panic(6);
+
+    switch (frame.sid()) {
+    case LIN::kServiceTesterPresent:
+        // always send a positive response
+        frame.sid() |= LIN::kServiceIDResponseOffset;
+        slave_response(frame);
+        break;
+
+    default:
+        Slave::master_request(frame);
+        break;
+    }
+}

@@ -14,24 +14,14 @@ public:
     Master();
 
     volatile LIN::RelayFrame relayFrame;
-    volatile LIN::Frame requestResponseFrame;
 
-    /// Queue a MasterRequest frame.
-    ///
-    /// @param frame            The frame to send.
-    /// @return                 True if the frame is sent, false if it times out.
-    ///
-    bool            do_request(LIN::Frame &frame);
-
-    /// Queue a Master Request frame, then a Slave Response to
+    /// Send a Master Request frame, then a Slave Response to
     /// gather the slave's reply.
     ///
     /// @param frame            The frame to send, and the buffer into which
-    ///                         the response will be placed.
-    /// @return                 True if a response is received, false if sending
-    ///                         the reequest or receiving the response times out.
+    ///                         the response (if any) will be placed.
     ///
-    bool            do_request_response(LIN::Frame &frame);
+    void            do_request_response(LIN::Frame &frame);
 
     /// Enable / disable sleep
     ///
@@ -49,6 +39,16 @@ public:
         }
     }
 
+    /// Enable / disable programmer mode
+    ///
+    /// @param enable           If true, adjust the schedule to permit the programmer
+    ///                         to issue requests to nodes on the bus.
+    ///
+    void            set_programmer_mode(bool enable)
+    {
+        _programmerMode = enable;
+        set_sleep_enable(false);
+    }
 
 protected:
     virtual void    header_received(LIN::FrameID fid) override;
@@ -56,28 +56,37 @@ protected:
 
 private:
     static const LIN::FrameID _normalSchedule[];
+    static const uint8_t      _normalScheduleLength;
     static const LIN::FrameID _configSchedule[];
+    static const uint8_t      _configScheduleLength;
 
     Timer           _eventTimer;
     uint8_t         _eventIndex;
-
+    LIN::Frame       *volatile _requestFrame;
+    LIN::Frame       *volatile _responseFrame;
     uint8_t         _configParam;
-    uint8_t         _programmerGraceTimer;
 
-    volatile bool   _sendRequest: 1;
-    volatile bool   _getResponse: 1;
     volatile bool   _sendConfigResponseHeader: 1;
     volatile bool   _sendConfigResponseFrame: 1;
     bool            _sleepEnable: 1;
     bool            _sleepActive: 1;
+    bool            _programmerMode: 1;
+
+    uint8_t         schedule_length() const
+    {
+        return _programmerMode ? _configScheduleLength : _normalScheduleLength;
+    }
+
+    LIN::FrameID    schedule_entry(uint8_t idx) const
+    {
+        return (LIN::FrameID)pgm_read_byte(_programmerMode ?
+                                           &_configSchedule[idx] :
+                                           &_normalSchedule[idx]);
+    }
 
     /// Event initiator
     static void     event(void *arg);
     void            _event();
-
-    /// Internal waiter for request/expect_response.
-    ///
-    bool            wait_request();
 
     /// Config request handler
     ///

@@ -1,5 +1,6 @@
 
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 
 #include "lin_drv.h"
 
@@ -15,15 +16,11 @@ PROGMEM const LIN::FrameID Master::_normalSchedule[] = {
     LIN::kFrameIDRelays,
     LIN::kFrameIDRelays,
     LIN::kFrameIDRelays,
-    LIN::kFrameIDConfigRequest, // sniff for the programmer
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDRelays,
     LIN::kFrameIDMasterRequest, // skipped if no work
     LIN::kFrameIDSlaveResponse, // skipped if no work
-    LIN::kFrameIDNone
 };
+
+const uint8_t Master::_normalScheduleLength = sizeof(Master::_normalSchedule) / sizeof(LIN::FrameID);
 
 // Schedule used when the programmer has been seen - should never
 // be more than 50ms between the programmer being ready to send a
@@ -38,20 +35,21 @@ PROGMEM const LIN::FrameID Master::_configSchedule[] = {
     LIN::kFrameIDConfigResponse,// skipped if no work
     LIN::kFrameIDMasterRequest, // skipped if no work
     LIN::kFrameIDSlaveResponse, // skipped if no work
-    LIN::kFrameIDNone
 };
+
+const uint8_t Master::_configScheduleLength = sizeof(Master::_configSchedule) / sizeof(LIN::FrameID);
 
 Master::Master() :
     _eventTimer((Timer::Callback)Master::event, this, 10),
     _eventIndex(0),
+    _requestFrame(nullptr),
+    _responseFrame(nullptr),
     _configParam(0),
-    _programmerGraceTimer(0),
-    _sendRequest(false),
-    _getResponse(false),
     _sendConfigResponseHeader(false),
     _sendConfigResponseFrame(false),
     _sleepEnable(false),
-    _sleepActive(false)
+    _sleepActive(false),
+    _programmerMode(false)
 {
 #ifdef pinDebugStrobe
     pinDebugStrobe.clear();
@@ -59,33 +57,29 @@ Master::Master() :
 #endif
 }
 
-bool
-Master::do_request(LIN::Frame &frame)
-{
-    cli();
-    requestResponseFrame.copy(frame);
-    _sendRequest = true;
-    _getResponse = false;
-    sei();
-
-    return wait_request();
-}
-
-bool
+void
 Master::do_request_response(LIN::Frame &frame)
 {
+    // post the frame for the schedule to see, avoid races with the
+    // schedule runner
     cli();
-    requestResponseFrame.copy(frame);
-    _sendRequest = true;
-    _getResponse = true;
+    _requestFrame = &frame;
+    _responseFrame = &frame;
     sei();
 
-    if (!wait_request()) {
-        return false;
+    // wait for 2 cycles total (fatal if not completed by then)
+    Timestamp t;
+
+    while (!t.is_older_than(schedule_length() * 10 * 2)) {
+        wdt_reset();
+
+        if (_responseFrame == nullptr) {
+            break;
+        }
     }
 
-    frame.copy(requestResponseFrame);
-    return true;
+    _requestFrame = nullptr;
+    _responseFrame = nullptr;
 }
 
 void
@@ -109,31 +103,20 @@ Master::_event()
 
     do {
 
-        fid = (LIN::FrameID)pgm_read_byte((_programmerGraceTimer > 0) ?
-                                          &_configSchedule[_eventIndex] :
-                                          &_normalSchedule[_eventIndex]);
-        _eventIndex++;
-
-        switch (fid) {
-
-        case LIN::kFrameIDNone:
+        if (_eventIndex >= schedule_length()) {
             // we hit the end of the pattern
             _eventIndex = 0;
 
             // no programmer present, yes we can sleep
-            if ((_programmerGraceTimer == 0) && _sleepEnable) {
+            if (!_programmerMode && _sleepEnable) {
                 _sleepActive = true;
                 return;
             }
+        }
 
-            // give the programmer some time to respond before dropping back
-            // to the regular schedule
-            if (_programmerGraceTimer > 0) {
-                _programmerGraceTimer--;
-            }
+        fid = schedule_entry(_eventIndex++);
 
-            // go back and try the first frame
-            continue;
+        switch (fid) {
 
         case LIN::kFrameIDConfigResponse:
 
@@ -147,22 +130,20 @@ Master::_event()
 
         case LIN::kFrameIDMasterRequest:
 
-            // don't send MasterRequest unless we know we need to
-            if (!_sendRequest) {
+            // only send while a request/response cycle is running
+            if (_requestFrame == nullptr) {
                 continue;
             }
 
-            _sendRequest = false;
             break;
 
         case LIN::kFrameIDSlaveResponse:
 
-            // don't send SlaveResponse unless we have someone waiting
-            if (!_getResponse) {
+            // only send while a request/response cycle is running
+            if (_responseFrame == nullptr) {
                 continue;
             }
 
-            _getResponse = false;
             break;
 
         default:
@@ -190,23 +171,6 @@ Master::_event()
     send_header(fid);
 }
 
-bool
-Master::wait_request()
-{
-    // spin for 100ms waiting for the frame to be sent
-    Timestamp t;
-
-    while (!t.is_older_than(100)) {
-        if (!_sendRequest && !_getResponse) {
-            return true;
-        }
-    }
-
-    _sendRequest = false;
-    _getResponse = false;
-    return false;
-}
-
 void
 Master::header_received(LIN::FrameID fid)
 {
@@ -228,16 +192,20 @@ Master::header_received(LIN::FrameID fid)
 
     case LIN::kFrameIDMasterRequest:
 
-        // if we have a request to send, commit it to the wire
-        if (_sendRequest) {
-            send_response(requestResponseFrame, 8);
-            _sendRequest = false;
+        // send the request if we have one
+        if (_requestFrame != nullptr) {
+            send_response(*_requestFrame, 8);
+            _requestFrame = nullptr;
+
+        } else {
+            // kill any stale response waiter
+            _responseFrame = nullptr;
         }
 
         break;
 
     case LIN::kFrameIDSlaveResponse:
-        // arrange to receive the response if a slave sends it
+        // arrange to receive the response
         expect_response(8);
         break;
 
@@ -258,9 +226,9 @@ Master::response_received(LIN::FrameID fid, LIN::Frame &frame)
     case LIN::kFrameIDSlaveResponse:
 
         // if we are expecting a response, copy it back
-        if (_getResponse) {
-            requestResponseFrame.copy(frame);
-            _getResponse = false;
+        if (_responseFrame != nullptr) {
+            _responseFrame->copy(frame);
+            _responseFrame = nullptr;
         }
 
         break;
@@ -273,9 +241,6 @@ Master::response_received(LIN::FrameID fid, LIN::Frame &frame)
 void
 Master::handle_config_request(LIN::ConfigFrame &frame)
 {
-    // reset the decay timer so that we stay on the config schedule
-    _programmerGraceTimer = 0xff;
-
     // ignore this frame?
     if (frame.flavour() == LIN::kCFNop) {
         return;

@@ -46,6 +46,7 @@ enum ServiceID : uint8_t
 {
     kServiceReadDataByID        = 0x22,
     kServiceWriteDataByID       = 0x2e,
+    kServiceTesterPresent       = 0x3e,
     kServiceIDReadByID          = 0xb2,
     kServiceIDDataDump          = 0xb4,
 

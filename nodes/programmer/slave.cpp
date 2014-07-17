@@ -102,6 +102,13 @@ ProgrammerSlave::header_received(LIN::FrameID fid)
             send_response(f, 8);
             _state = kStateGetWaitResponse;
 
+        } else if (_state == kStateGetWaitResponse) {
+
+            // We were expecting a ConfigResponse frame,
+            // most likely that the previous response frame did
+            // not get a reply.
+            _state = kStateError;
+
         } else if (!_suspended) {
             LIN::ConfigFrame f;
 

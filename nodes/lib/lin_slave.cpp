@@ -125,7 +125,7 @@ Slave::master_request(LIN::Frame &frame)
             frame.pci() = 3;
             frame.sid() = LIN::kServiceIDErrorResponse;
             frame.d1() = LIN::kServiceIDReadByID;
-            frame.d2() = 0x12;
+            frame.d2() = LIN::kServiceErrorFunctionNotSupported;
             frame.d3() = 0xff;
             frame.d4() = 0xff;
             frame.d5() = 0xff;

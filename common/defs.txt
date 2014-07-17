@@ -11,6 +11,25 @@ FRAME MasterRequest     0x3c    8
 FRAME SlaveResponse     0x3d    8
 FRAME Test              0x3f    8
 
+# XXX Note - it would be preferable to use the ISO 14229-1 read/write parameter
+# by identifier request and have ConfigRequest become a proxied MasterRequest,
+# with a unified SlaveResponse in either case, but it's not clear that
+# the request can be formatted in SF mode, and in any case ISO 14229-1 is not
+# publically available.
+#
+# It may be possible to reconstruct the packets using:
+# http://unifieddiagnosticservices.blogspot.com/2011/12/automotive-diagnostics-services.html
+#
+# Read request   d1/d2 = identifier
+# Read response  d1/d2 = identifier, d3/d4 = value
+# Write request  d1/d2 = identifier, d3/d4 = value
+# Write response d1/d2 = identifier
+#
+# With errors in the 'normal' fashion.
+#
+# XXX Note - should use 'tester present' to check for the programmer, see also above.
+#
+
 ################################################################################
 
 ENUM SwitchID {

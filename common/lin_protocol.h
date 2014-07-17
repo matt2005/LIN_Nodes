@@ -44,6 +44,8 @@ enum NodeAddress : uint8_t
 //
 enum ServiceID : uint8_t
 {
+    kServiceReadDataByID        = 0x22,
+    kServiceWriteDataByID       = 0x2e,
     kServiceIDReadByID          = 0xb2,
     kServiceIDDataDump          = 0xb4,
 
@@ -57,6 +59,17 @@ enum ServiceID : uint8_t
 enum ReadByID : uint8_t {
     kReadByIDProductID          = 0,
     kReadByIDErrorCounters      = 32,
+};
+
+//
+// Error codes
+//
+enum ServiceError : uint8_t {
+    kServiceErrorFunctionNotSupported   = 0x12,
+    kServiceErrorIncorrectLength        = 0x13,
+    kServiceErrorConditionsNotCorrect   = 0x22,
+    kServiceErrorOutOfRange             = 0x31,
+    kServiceErrorAccessDenied           = 0x33,
 };
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number

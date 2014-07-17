@@ -48,5 +48,4 @@ public:
 private:
     const uint8_t   _index;
     const uint8_t   *_info;
-
 };

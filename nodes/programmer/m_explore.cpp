@@ -63,14 +63,14 @@ ExploreMode::action(Encoder::Event bp)
             _presentMask.reset();
             return &modeTop;
 
-        default:
-            {
-                Mode *newmode = select();
-                if (newmode != nullptr) {
-                    return newmode;
-                }
+        default: {
+            Mode *newmode = select();
+
+            if (newmode != nullptr) {
+                return newmode;
             }
-            break;
+        }
+        break;
         }
 
         break;
@@ -94,11 +94,12 @@ ExploreMode::action(Encoder::Event bp)
 
                 if (gSlave.get_parameter(i, 0, dummy)) {
                     _presentMask.set(i);
+
                 } else if (i == LIN::kNodeAddressMaster) {
                     error(PSTR(" Master node not\n responding."));
                     Board::ms_delay(3000);
                     _node = 0;
-                    break;                    
+                    break;
                 }
             }
         }

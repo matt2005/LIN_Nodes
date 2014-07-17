@@ -29,6 +29,7 @@ ExploreTestMode::select()
     default:
         break;
     }
+
     return nullptr;
 }
 

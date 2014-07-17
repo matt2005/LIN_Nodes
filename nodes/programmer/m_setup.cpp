@@ -27,6 +27,7 @@ ExploreSetupMode::select()
     default:
         break;
     }
+
     return nullptr;
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "common/protocol.h"
+#include "common/lin_protocol.h"
 #include "perf.h"
 #include "datum.h"
 

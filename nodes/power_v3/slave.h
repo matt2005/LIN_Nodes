@@ -7,9 +7,9 @@ class RelaySlave : public Slave
 public:
     RelaySlave(uint8_t BoardID);
 
-    bool            test_relay(LIN::RelayID id) const
+    bool            test_relay(RelayID id) const
     {
-        return (id < LIN::kRelayIDMax) && (relayFrame.test(id));
+        return (id < kRelayIDMax) && (relayFrame.test(id));
     }
 
 protected:

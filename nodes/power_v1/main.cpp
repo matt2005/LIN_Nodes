@@ -60,28 +60,28 @@ main(void)
         wdt_reset();
 
         // adjust outputs to match our commanded value
-        if (slave.test_relay((LIN::RelayID)paramRelay1Assign.get())) {
+        if (slave.test_relay((RelayID)paramRelay1Assign.get())) {
             pinOUT1.set();
 
         } else {
             pinOUT1.clear();
         }
 
-        if (slave.test_relay((LIN::RelayID)paramRelay2Assign.get())) {
+        if (slave.test_relay((RelayID)paramRelay2Assign.get())) {
             pinOUT2.set();
 
         } else {
             pinOUT2.clear();
         }
 
-        if (slave.test_relay((LIN::RelayID)paramRelay3Assign.get())) {
+        if (slave.test_relay((RelayID)paramRelay3Assign.get())) {
             pinOUT3.set();
 
         } else {
             pinOUT3.clear();
         }
 
-        if (slave.test_relay((LIN::RelayID)paramRelay4Assign.get())) {
+        if (slave.test_relay((RelayID)paramRelay4Assign.get())) {
             pinOUT4.set();
 
         } else {

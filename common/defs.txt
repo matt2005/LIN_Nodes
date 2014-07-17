@@ -2,36 +2,6 @@ REVISION 1
 
 ################################################################################
 
-FRAME None              0x00    0
-FRAME Relays            0x01    8
-FRAME ECUData           0x02    8
-FRAME ConfigRequest     0x2c    8
-FRAME ConfigResponse    0x2d    8
-FRAME MasterRequest     0x3c    8
-FRAME SlaveResponse     0x3d    8
-FRAME Test              0x3f    8
-
-# XXX Note - it would be preferable to use the ISO 14229-1 read/write parameter
-# by identifier request and have ConfigRequest become a proxied MasterRequest,
-# with a unified SlaveResponse in either case, but it's not clear that
-# the request can be formatted in SF mode, and in any case ISO 14229-1 is not
-# publically available.
-#
-# It may be possible to reconstruct the packets using:
-# http://unifieddiagnosticservices.blogspot.com/2011/12/automotive-diagnostics-services.html
-#
-# Read request   d1/d2 = identifier
-# Read response  d1/d2 = identifier, d3/d4 = value
-# Write request  d1/d2 = identifier, d3/d4 = value
-# Write response d1/d2 = identifier
-#
-# With errors in the 'normal' fashion.
-#
-# XXX Note - should use 'tester present' to check for the programmer, see also above.
-#
-
-################################################################################
-
 ENUM SwitchID {
     Ignition
     Start
@@ -101,10 +71,10 @@ ENUM RelayType {
 PARAMETERS master
 
 foreach assign {1 2 3 4 5 6 7} {
-    master SPAssign${assign} "SP${assign} Input" "%S" 0 (LIN::kSwitchIDUnassigned) (LIN::kSwitchIDUnassigned)
+    master SPAssign${assign} "SP${assign} Input" "%S" 0 (kSwitchIDUnassigned) (kSwitchIDUnassigned)
 }
 foreach assign {0 1 2 3 4 5 6 7 8 9 10 11 12 13} {
-    master SGAssign${assign} "SG${assign} Input" "%S" 0 (LIN::kSwitchIDUnassigned) (LIN::kSwitchIDUnassigned)
+    master SGAssign${assign} "SG${assign} Input" "%S" 0 (kSwitchIDUnassigned) (kSwitchIDUnassigned)
 }
                             ##################
 master TurnBlinkPeriod     "TurnBlinkPeriod"       "%3u0ms"        0       255                         0
@@ -120,21 +90,21 @@ master WiperInterval       "WiperInterval"         "%3u00ms"       0       50   
 
 PARAMETERS power_v1
 
-power_v1 Relay1Assign "CH1 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
-power_v1 Relay2Assign "CH2 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
-power_v1 Relay3Assign "CH3 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
-power_v1 Relay4Assign "CH4 Assignment" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
+power_v1 Relay1Assign "CH1 Assignment" "%O" 0 (kRelayIDUnassigned) (kRelayIDUnassigned)
+power_v1 Relay2Assign "CH2 Assignment" "%O" 0 (kRelayIDUnassigned) (kRelayIDUnassigned)
+power_v1 Relay3Assign "CH3 Assignment" "%O" 0 (kRelayIDUnassigned) (kRelayIDUnassigned)
+power_v1 Relay4Assign "CH4 Assignment" "%O" 0 (kRelayIDUnassigned) (kRelayIDUnassigned)
 
 ################################################################################
 
 PARAMETERS power_v3
 
 foreach channel {1 2 3 4 5} {
-    power_v3 CH${channel}Type "CH${channel} type" "%T" 0 (LIN::kRelayTypeMax-1) LIN::kRelayType5AGeneric
+    power_v3 CH${channel}Type "CH${channel} type" "%T" 0 (kRelayTypeMax-1) kRelayType5AGeneric
 }
 foreach channel {1 2 3 4 5} {
     foreach assign {1 2 3 4} {
-        power_v3 CH${channel}Assign${assign} "CH${channel} Assignment ${assign}" "%O" 0 (LIN::kRelayIDUnassigned) (LIN::kRelayIDUnassigned)
+        power_v3 CH${channel}Assign${assign} "CH${channel} Assignment ${assign}" "%O" 0 (kRelayIDUnassigned) (kRelayIDUnassigned)
     }
     foreach assign {1 2 3 4} {
         power_v3 CH${channel}PWM${assign} "CH${channel} PWM ${assign}" "%u%%" 0 100 0    

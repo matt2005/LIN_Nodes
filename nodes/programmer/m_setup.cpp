@@ -154,15 +154,15 @@ SetupMode::draw()
 
                 switch (pgm_read_byte(fmt + 1)) {
                 case 'O':
-                    tab = LIN::namesForRelayID;
+                    tab = namesForRelayID;
                     break;
 
                 case 'S':
-                    tab = LIN::namesForSwitchID;
+                    tab = namesForSwitchID;
                     break;
 
                 case 'T':
-                    tab = LIN::namesForRelayType;
+                    tab = namesForRelayType;
                     break;
                 }
             }

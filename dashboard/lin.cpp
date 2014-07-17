@@ -160,11 +160,8 @@ LINDev::header_received()
 {
     switch (_fid) {
     case LIN::kFrameIDRelays:
-        _waitLen = LIN::kFrameLengthRelays;
-        break;
-
     case LIN::kFrameIDECUData:
-        _waitLen = LIN::kFrameLengthECUData;
+        _waitLen = 8;
         break;
 
     default:
@@ -179,10 +176,10 @@ LINDev::response_received()
 
     switch (_fid) {
     case LIN::kFrameIDRelays:
-        ttLeftTurn = frame_bit(LIN::kRelayIDLeftTurn);
-        ttRightTurn = frame_bit(LIN::kRelayIDRightTurn);
-        ttLowBeam = frame_bit(LIN::kRelayIDHeadLights) || frame_bit(LIN::kRelayIDLowBeam);
-        ttHighBeam = frame_bit(LIN::kRelayIDHighBeam);
+        ttLeftTurn = frame_bit(kRelayIDLeftTurn);
+        ttRightTurn = frame_bit(kRelayIDRightTurn);
+        ttLowBeam = frame_bit(kRelayIDHeadLights) || frame_bit(kRelayIDLowBeam);
+        ttHighBeam = frame_bit(kRelayIDHighBeam);
         linkUp = true;
         break;
 

@@ -18,7 +18,34 @@ namespace LIN
 //
 // LIN frame IDs
 //
-typedef uint8_t FID;
+enum FrameID : uint8_t {
+    kFrameIDNone = 0x00,
+    kFrameIDRelays = 0x01,
+    kFrameIDECUData = 0x02,
+    kFrameIDConfigRequest = 0x2c,
+    kFrameIDConfigResponse = 0x2d,
+    kFrameIDMasterRequest = 0x3c,
+    kFrameIDSlaveResponse = 0x3d,
+    kFrameIDTest = 0x3f,
+};
+
+// XXX Note - it would be preferable to use the ISO 14229-1 read/write parameter
+// by identifier request and have ConfigRequest become a proxied MasterRequest,
+// with a unified SlaveResponse in either case, but it's not clear that
+// the request can be formatted in SF mode, and in any case ISO 14229-1 is not
+// publically available.
+//
+// It may be possible to reconstruct the packets using:
+// http://unifieddiagnosticservices.blogspot.com/2011/12/automotive-diagnostics-services.html
+//
+// Read request   d1/d2 = identifier
+// Read response  d1/d2 = identifier, d3/d4 = value
+// Write request  d1/d2 = identifier, d3/d4 = value
+// Write response d1/d2 = identifier
+//
+// With errors in the 'normal' fashion.
+//
+
 
 //
 // LIN node addresses for MasterRequest/SlaveResponse
@@ -31,7 +58,7 @@ enum NodeAddress : uint8_t
     kNodeAddressPowerBase       = 2,    //< 15 of these (board ID 1-15)
     kNodeAddressECU             = 18,   //< ECU data bridge
     kNodeAddressDashboard       = 19,   //< dash display (not talkative)
-    kNodeAddressProgrammer      = 20,   //< plug-in programmer
+    kNodeAddressTester      = 20,   //< plug-in programmer
 
     kNodeAddressMaxAssigned,
 

@@ -7,30 +7,7 @@
 #endif
 #include <stdint.h>
 
-namespace LIN {
 static const uint8_t protocolRevision = 1;
-
-enum FrameID : uint8_t {
-    kFrameIDNone = 0x00,
-    kFrameIDRelays = 0x01,
-    kFrameIDECUData = 0x02,
-    kFrameIDConfigRequest = 0x2c,
-    kFrameIDConfigResponse = 0x2d,
-    kFrameIDMasterRequest = 0x3c,
-    kFrameIDSlaveResponse = 0x3d,
-    kFrameIDTest = 0x3f,
-};
-
-enum FrameLength : uint8_t {
-    kFrameLengthNone = 0,
-    kFrameLengthRelays = 8,
-    kFrameLengthECUData = 8,
-    kFrameLengthConfigRequest = 8,
-    kFrameLengthConfigResponse = 8,
-    kFrameLengthMasterRequest = 8,
-    kFrameLengthSlaveResponse = 8,
-    kFrameLengthTest = 8,
-};
 
 enum SwitchID : uint8_t {
     kSwitchIDIgnition,
@@ -164,4 +141,3 @@ static PROGMEM const char namesForRelayType[] =
     "\0";
 
 
-} // namespace LIN

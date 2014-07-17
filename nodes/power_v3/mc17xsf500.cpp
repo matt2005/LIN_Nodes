@@ -85,7 +85,7 @@ public:
             chX_control.on = 1;
 
             switch (power_v3Param(kParamCH1Type + channel)) {
-            case LIN::kRelayTypeHID:
+            case kRelayTypeHID:
                 chX_control.pwm = 255;              // HID cannot be PWM controlled
                 break;
 
@@ -113,10 +113,10 @@ public:
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
             switch (power_v3Param(kParamCH1Type + channel)) {
-            case LIN::kRelayType5AGeneric:
-            case LIN::kRelayTypeLED:
-            case LIN::kRelayTypeHID:
-            case LIN::kRelayTypeLowPowerBulb:
+            case kRelayType5AGeneric:
+            case kRelayTypeLED:
+            case kRelayTypeHID:
+            case kRelayTypeLowPowerBulb:
                 over_current_control_1.oclo |= (1 << channel);
                 break;
 
@@ -137,9 +137,9 @@ public:
 
         // low-frequency PWM for motors and bulbs
         switch (paramCH1Type) {
-        case LIN::kRelayTypeLowPowerBulb:
-        case LIN::kRelayTypeHighPowerBulb:
-        case LIN::kRelayTypeMotor:
+        case kRelayTypeLowPowerBulb:
+        case kRelayTypeHighPowerBulb:
+        case kRelayTypeMotor:
             prescaler_1.prs1 = kPRSDiv4;
             break;
 
@@ -148,9 +148,9 @@ public:
         }
 
         switch (paramCH2Type) {
-        case LIN::kRelayTypeLowPowerBulb:
-        case LIN::kRelayTypeHighPowerBulb:
-        case LIN::kRelayTypeMotor:
+        case kRelayTypeLowPowerBulb:
+        case kRelayTypeHighPowerBulb:
+        case kRelayTypeMotor:
             prescaler_1.prs2 = kPRSDiv4;
             break;
 
@@ -159,9 +159,9 @@ public:
         }
 
         switch (paramCH3Type) {
-        case LIN::kRelayTypeLowPowerBulb:
-        case LIN::kRelayTypeHighPowerBulb:
-        case LIN::kRelayTypeMotor:
+        case kRelayTypeLowPowerBulb:
+        case kRelayTypeHighPowerBulb:
+        case kRelayTypeMotor:
             prescaler_1.prs3 = kPRSDiv4;
             break;
 
@@ -170,9 +170,9 @@ public:
         }
 
         switch (paramCH4Type) {
-        case LIN::kRelayTypeLowPowerBulb:
-        case LIN::kRelayTypeHighPowerBulb:
-        case LIN::kRelayTypeMotor:
+        case kRelayTypeLowPowerBulb:
+        case kRelayTypeHighPowerBulb:
+        case kRelayTypeMotor:
             prescaler_1.prs4 = kPRSDiv4;
             break;
 
@@ -181,9 +181,9 @@ public:
         }
 
         switch (paramCH5Type) {
-        case LIN::kRelayTypeLowPowerBulb:
-        case LIN::kRelayTypeHighPowerBulb:
-        case LIN::kRelayTypeMotor:
+        case kRelayTypeLowPowerBulb:
+        case kRelayTypeHighPowerBulb:
+        case kRelayTypeMotor:
             prescaler_1.prs5 = kPRSDiv4;
             break;
 
@@ -203,8 +203,8 @@ public:
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
             switch (power_v3Param(kParamCH1Type + channel)) {
-            case LIN::kRelayTypeLowPowerBulb:
-            case LIN::kRelayTypeHighPowerBulb:
+            case kRelayTypeLowPowerBulb:
+            case kRelayTypeHighPowerBulb:
                 break;
 
             default:
@@ -228,7 +228,7 @@ public:
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
             switch (power_v3Param(kParamCH1Type + channel)) {
-            case LIN::kRelayTypeLED:
+            case kRelayTypeLED:
                 olled_control.olled_en |= (1 << channel);
                 break;
 

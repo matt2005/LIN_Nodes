@@ -21,7 +21,6 @@ package require cmdline
 
 set linenumber -1
 set revision -1
-set frames [dict create]
 set enums [dict create]
 set parameters [dict create]
 
@@ -37,18 +36,6 @@ namespace eval ::cmds {
             error "duplicate revision keyword"
         }
         set revision $val
-    }
-
-    proc frame {frame_name frame_id {frame_length 8}} {
-        global frames
-
-        if {[dict exists $frames $frame_name]} {
-            error "duplicate frame name '${frame_name}'"
-        }
-        dict set frames $frame_name [dict create    \
-            id $frame_id                            \
-            length $frame_length                    \
-        ]
     }
 
     proc enum {enum_name elements} {
@@ -99,7 +86,6 @@ set parser [interp create -safe]
 
 # add our basic verbs
 $parser alias REVISION ::cmds::revision
-$parser alias FRAME ::cmds::frame
 $parser alias ENUM ::cmds::enum
 $parser alias PARAMETERS ::cmds::parameters
 
@@ -118,22 +104,7 @@ puts $fh "# define PROGMEM"
 puts $fh "#endif"
 puts $fh "#include <stdint.h>"
 puts $fh ""
-puts $fh "namespace LIN {"
 puts $fh "static const uint8_t protocolRevision = $revision;"
-puts $fh ""
-
-# emit frame definitions
-puts $fh "enum FrameID : uint8_t {"
-dict for {name info} $frames {
-    puts $fh "    kFrameID$name = [dict get ${info} id],"
-}
-puts $fh "};"
-puts $fh ""
-puts $fh "enum FrameLength : uint8_t {"
-dict for {name info} $frames {
-    puts $fh "    kFrameLength$name = [dict get ${info} length],"
-}
-puts $fh "};"
 puts $fh ""
 
 # emit enum defintions
@@ -153,7 +124,6 @@ dict for {enum_name enum_data} $enums {
     puts $fh ""
 }
 puts $fh ""
-puts $fh "} // namespace LIN"
 close $fh
 
 # Generate parameter files

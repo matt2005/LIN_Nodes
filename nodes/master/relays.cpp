@@ -175,12 +175,12 @@ static void
 powerSignals(RelayBits &f)
 {
     // ignition on?
-    if (Switches::test(LIN::kSwitchIDIgnition)) {
-        f.set(LIN::kRelayIDIgnition);
+    if (Switches::test(kSwitchIDIgnition)) {
+        f.set(kRelayIDIgnition);
 
         // start switch on?
-        if (Switches::test(LIN::kSwitchIDStart)) {
-            f.set(LIN::kRelayIDStart);
+        if (Switches::test(kSwitchIDStart)) {
+            f.set(kRelayIDStart);
         }
     }
 }
@@ -189,15 +189,15 @@ static void
 markerLights(RelayBits &f)
 {
     // markers and city lights?
-    if (Switches::test(LIN::kSwitchIDMarkerLights)) {
+    if (Switches::test(kSwitchIDMarkerLights)) {
 
         awakeDelay.reset();                     // markers are on, stay awake
 
-        f.set(LIN::kRelayIDMarkers);
+        f.set(kRelayIDMarkers);
 
         // Note: overridden by turnSignals below
-        f.set(LIN::kRelayIDLeftTurnMarker);
-        f.set(LIN::kRelayIDRightTurnMarker);
+        f.set(kRelayIDLeftTurnMarker);
+        f.set(kRelayIDRightTurnMarker);
     }
 }
 
@@ -212,33 +212,33 @@ turnSignals(RelayBits &f)
     if ((paramTurnBlinkPeriod == 0) ||
         (paramTurnBlinkPeriod > 100)) {
 
-        if (Switches::test(LIN::kSwitchIDLeftTurn)) {
-            f.set(LIN::kRelayIDLeftTurn);
-            f.clear(LIN::kRelayIDLeftTurnMarker);
+        if (Switches::test(kSwitchIDLeftTurn)) {
+            f.set(kRelayIDLeftTurn);
+            f.clear(kRelayIDLeftTurnMarker);
         }
 
-        if (Switches::test(LIN::kSwitchIDRightTurn)) {
-            f.set(LIN::kRelayIDRightTurn);
-            f.clear(LIN::kRelayIDRightTurnMarker);
+        if (Switches::test(kSwitchIDRightTurn)) {
+            f.set(kRelayIDRightTurn);
+            f.clear(kRelayIDRightTurnMarker);
         }
 
         return;
     }
 
     // smart hazard warning lights?
-    if (Switches::test(LIN::kSwitchIDHazard)) {
+    if (Switches::test(kSwitchIDHazard)) {
 
         awakeDelay.reset();                     // hazards are on, stay awake
 
         // start the blinker
-        if (Switches::changed(LIN::kSwitchIDHazard)) {
+        if (Switches::changed(kSwitchIDHazard)) {
             turnBlinker.start();
         }
 
         // both signals track the blinker
         if (turnBlinker.state()) {
-            f.set(LIN::kRelayIDLeftTurn);
-            f.set(LIN::kRelayIDRightTurn);
+            f.set(kRelayIDLeftTurn);
+            f.set(kRelayIDRightTurn);
         }
 
         return;
@@ -246,7 +246,7 @@ turnSignals(RelayBits &f)
     } else {
 
         // hazard blinker just turned off?
-        if (Switches::changed(LIN::kSwitchIDHazard)) {
+        if (Switches::changed(kSwitchIDHazard)) {
             turnBlinker.cancel();
         }
 
@@ -255,47 +255,47 @@ turnSignals(RelayBits &f)
     }
 
     // parking markers?
-    if (!Switches::test(LIN::kSwitchIDIgnition)) {
+    if (!Switches::test(kSwitchIDIgnition)) {
 
         // parking lights - no blink
-        if (Switches::test(LIN::kSwitchIDLeftTurn)) {
+        if (Switches::test(kSwitchIDLeftTurn)) {
             awakeDelay.reset();                     // parking markers are on, stay awake
-            f.set(LIN::kRelayIDLeftTurn);
+            f.set(kRelayIDLeftTurn);
         }
 
-        if (Switches::test(LIN::kSwitchIDRightTurn)) {
+        if (Switches::test(kSwitchIDRightTurn)) {
             awakeDelay.reset();                     // parking markers are on, stay awake
-            f.set(LIN::kRelayIDRightTurn);
+            f.set(kRelayIDRightTurn);
         }
 
         return;
     }
 
     // smart turn signals?
-    if (Switches::test(LIN::kSwitchIDIgnition)) {
+    if (Switches::test(kSwitchIDIgnition)) {
         static bool blinkLeft;
 
         // cancel/restart blinker
-        if (Switches::changed_to_on(LIN::kSwitchIDLeftTurn)) {
+        if (Switches::changed_to_on(kSwitchIDLeftTurn)) {
             turnBlinker.start();
             blinkLeft = true;
         }
 
-        if (Switches::changed_to_on(LIN::kSwitchIDRightTurn)) {
+        if (Switches::changed_to_on(kSwitchIDRightTurn)) {
             turnBlinker.start();
             blinkLeft = false;
         }
 
         // stop blinker
-        if (Switches::changed_to_off(LIN::kSwitchIDLeftTurn) ||
-            Switches::changed_to_off(LIN::kSwitchIDRightTurn)) {
+        if (Switches::changed_to_off(kSwitchIDLeftTurn) ||
+            Switches::changed_to_off(kSwitchIDRightTurn)) {
             turnBlinker.stop();
         }
 
         // signals on to suit
         if (turnBlinker.state()) {
-            f.set(blinkLeft ? LIN::kRelayIDLeftTurn : LIN::kRelayIDRightTurn);
-            f.clear(blinkLeft ? LIN::kRelayIDLeftTurnMarker : LIN::kRelayIDRightTurnMarker);
+            f.set(blinkLeft ? kRelayIDLeftTurn : kRelayIDRightTurn);
+            f.clear(blinkLeft ? kRelayIDLeftTurnMarker : kRelayIDRightTurnMarker);
         }
     }
 }
@@ -306,60 +306,60 @@ headLights(RelayBits &f)
     static bool highBeamToggle;
 
     // lights up if forced
-    if (Switches::test(LIN::kSwitchIDLightsUp)) {
-        f.set(LIN::kRelayIDLightsUp);
+    if (Switches::test(kSwitchIDLightsUp)) {
+        f.set(kRelayIDLightsUp);
 
         // otherwise lights down if nothing is on
 
-    } else if (!Switches::test(LIN::kSwitchIDMarkerLights) &&
-               !Switches::test(LIN::kSwitchIDHeadLights) &&
-               !Switches::test(LIN::kSwitchIDHighBeam)) {
-        f.set(LIN::kRelayIDLightsDown);
+    } else if (!Switches::test(kSwitchIDMarkerLights) &&
+               !Switches::test(kSwitchIDHeadLights) &&
+               !Switches::test(kSwitchIDHighBeam)) {
+        f.set(kRelayIDLightsDown);
     }
 
     // force lights up for test/maintenance
 
     // no headlights without ignition
-    if (!Switches::test(LIN::kSwitchIDIgnition)) {
+    if (!Switches::test(kSwitchIDIgnition)) {
         return;
     }
 
     // clear the highbeam toggle when ignition turns on
-    if (Switches::changed(LIN::kSwitchIDIgnition)) {
+    if (Switches::changed(kSwitchIDIgnition)) {
         highBeamToggle = false;
     }
 
     // handle the high-beam toggle input
-    if (Switches::changed_to_on(LIN::kSwitchIDHighBeamToggle)) {
+    if (Switches::changed_to_on(kSwitchIDHighBeamToggle)) {
         highBeamToggle = !highBeamToggle;
     }
 
     // test for any headlight on
-    if (Switches::test(LIN::kSwitchIDHeadLights) ||
-        Switches::test(LIN::kSwitchIDHighBeam)) {
+    if (Switches::test(kSwitchIDHeadLights) ||
+        Switches::test(kSwitchIDHighBeam)) {
 
         // headlights and markers on and popups up
-        f.set(LIN::kRelayIDHeadLights);
-        f.set(LIN::kRelayIDMarkers);
-        f.set(LIN::kRelayIDLightsUp);
-        f.clear(LIN::kRelayIDLightsDown);         // for safety
+        f.set(kRelayIDHeadLights);
+        f.set(kRelayIDMarkers);
+        f.set(kRelayIDLightsUp);
+        f.clear(kRelayIDLightsDown);         // for safety
 
         // test for high beam; headlights off while starting
-        if (!Switches::test(LIN::kSwitchIDStart)) {
-            if (Switches::test(LIN::kSwitchIDHighBeam) ||
+        if (!Switches::test(kSwitchIDStart)) {
+            if (Switches::test(kSwitchIDHighBeam) ||
                 highBeamToggle) {
-                f.set(LIN::kRelayIDHighBeam);
+                f.set(kRelayIDHighBeam);
 
             } else {
-                f.set(LIN::kRelayIDLowBeam);
+                f.set(kRelayIDLowBeam);
             }
         }
     }
 
     // foglights
     // XXX require other lights?
-    if (Switches::test(LIN::kSwitchIDFogLight)) {
-        f.set(LIN::kRelayIDFogLights);
+    if (Switches::test(kSwitchIDFogLight)) {
+        f.set(kRelayIDFogLights);
     }
 }
 
@@ -367,22 +367,22 @@ static void
 tailLights(RelayBits &f)
 {
     // brake lights
-    if (Switches::test(LIN::kSwitchIDBrake)) {
+    if (Switches::test(kSwitchIDBrake)) {
 
         // start the blinker when the switch comes on
-        if (Switches::changed(LIN::kSwitchIDBrake)) {
+        if (Switches::changed(kSwitchIDBrake)) {
             brakeBlinker.start();
         }
 
         // brake light on if the blinker & pedal both agree
         if (brakeBlinker.state()) {
-            f.set(LIN::kRelayIDBrake);
+            f.set(kRelayIDBrake);
         }
     }
 
     // reverse lights
-    if (Switches::test(LIN::kSwitchIDReverse)) {
-        f.set(LIN::kRelayIDReverse);
+    if (Switches::test(kSwitchIDReverse)) {
+        f.set(kRelayIDReverse);
     }
 }
 
@@ -390,23 +390,23 @@ static void
 interiorLights(RelayBits &f)
 {
     // door just closed - start interior lighting timer
-    if (Switches::changed_to_off(LIN::kSwitchIDDoor)) {
+    if (Switches::changed_to_off(kSwitchIDDoor)) {
         interiorLightsDelay.set_seconds(paramInteriorLightTime);
     }
 
     // if ignition is on, cancel interior light timer
-    if (Switches::test(LIN::kSwitchIDIgnition)) {
+    if (Switches::test(kSwitchIDIgnition)) {
         interiorLightsDelay.clear();
     }
 
     // interior light on?
-    if (Switches::test(LIN::kSwitchIDDoor) ||          // door open or
-        Switches::test(LIN::kSwitchIDInteriorLight) || // light switch on or
+    if (Switches::test(kSwitchIDDoor) ||          // door open or
+        Switches::test(kSwitchIDInteriorLight) || // light switch on or
         !interiorLightsDelay.expired()) {        // timer not expired
 
         awakeDelay.reset();                     // lights are on, stay awake
 
-        f.set(LIN::kRelayIDInteriorLight);
+        f.set(kRelayIDInteriorLight);
 
         // XXX nice to have a time limit on the interior light when
         //     ignition is off to prevent battery drain
@@ -419,10 +419,10 @@ pathLights(RelayBits &f)
     static bool ignitionWasOn;
 
     // detect ignition transition to off
-    if (Switches::changed_to_off(LIN::kSwitchIDIgnition)) {
+    if (Switches::changed_to_off(kSwitchIDIgnition)) {
 
         // door already open?
-        if (Switches::test(LIN::kSwitchIDDoor)) {
+        if (Switches::test(kSwitchIDDoor)) {
             // path lighting
             pathwayLightingDelay.set_seconds(paramPathLightTime);
 
@@ -432,7 +432,7 @@ pathLights(RelayBits &f)
     }
 
     // door opens after ignition off
-    if (Switches::changed_to_on(LIN::kSwitchIDDoor) &&
+    if (Switches::changed_to_on(kSwitchIDDoor) &&
         ignitionWasOn) {
 
         // path lighting
@@ -444,8 +444,8 @@ pathLights(RelayBits &f)
     }
 
     // ignition off and alarm unlock changed?
-    if (!Switches::test(LIN::kSwitchIDIgnition) &&
-        Switches::changed(LIN::kSwitchIDDoorUnlock)) {
+    if (!Switches::test(kSwitchIDIgnition) &&
+        Switches::changed(kSwitchIDDoorUnlock)) {
 
         // welcome lighting
         pathwayLightingDelay.set_seconds(paramWelcomeLightTime);
@@ -456,7 +456,7 @@ pathLights(RelayBits &f)
 
         awakeDelay.reset();                     // path lights are on, stay awake
 
-        f.set(LIN::kRelayIDMarkers);
+        f.set(kRelayIDMarkers);
         // XXX other pathway lights? town lights?
     }
 }
@@ -464,22 +464,22 @@ pathLights(RelayBits &f)
 static void
 climateControl(RelayBits f)
 {
-    if (Switches::test(LIN::kSwitchIDIgnition) &&
-        !Switches::test(LIN::kSwitchIDStart)) {
-        if (Switches::test(LIN::kSwitchIDCabinFan1)) {
-            f.set(LIN::kRelayIDCabinFan1);
+    if (Switches::test(kSwitchIDIgnition) &&
+        !Switches::test(kSwitchIDStart)) {
+        if (Switches::test(kSwitchIDCabinFan1)) {
+            f.set(kRelayIDCabinFan1);
         }
 
-        if (Switches::test(LIN::kSwitchIDCabinFan2)) {
-            f.set(LIN::kRelayIDCabinFan2);
+        if (Switches::test(kSwitchIDCabinFan2)) {
+            f.set(kRelayIDCabinFan2);
         }
 
-        if (Switches::test(LIN::kSwitchIDCabinFan3)) {
-            f.set(LIN::kRelayIDCabinFan3);
+        if (Switches::test(kSwitchIDCabinFan3)) {
+            f.set(kRelayIDCabinFan3);
         }
 
-        if (Switches::test(LIN::kSwitchIDRearDefrost)) {
-            f.set(LIN::kRelayIDRearDefrost);
+        if (Switches::test(kSwitchIDRearDefrost)) {
+            f.set(kRelayIDRearDefrost);
         }
     }
 }
@@ -487,23 +487,23 @@ climateControl(RelayBits f)
 static void
 windowWipers(RelayBits f)
 {
-    if (Switches::test(LIN::kSwitchIDIgnition) &&
-        !Switches::test(LIN::kSwitchIDStart)) {
+    if (Switches::test(kSwitchIDIgnition) &&
+        !Switches::test(kSwitchIDStart)) {
 
         // avoid issues with overlap between wiper switch settings
-        if (Switches::changed_to_on(LIN::kSwitchIDWiperInt)) {
+        if (Switches::changed_to_on(kSwitchIDWiperInt)) {
             wiperDelay.reset();
         }
 
-        if (Switches::test(LIN::kSwitchIDWiperHigh)) {
-            f.set(LIN::kRelayIDWiperHigh);
+        if (Switches::test(kSwitchIDWiperHigh)) {
+            f.set(kRelayIDWiperHigh);
 
-        } else if (Switches::test(LIN::kSwitchIDWiperLow)) {
-            f.set(LIN::kRelayIDWiperLow);
+        } else if (Switches::test(kSwitchIDWiperLow)) {
+            f.set(kRelayIDWiperLow);
 
-        } else if (Switches::test(LIN::kSwitchIDWiperInt)) {
+        } else if (Switches::test(kSwitchIDWiperInt)) {
             if (wiperDelay.state()) {
-                f.set(LIN::kRelayIDWiperLow);
+                f.set(kRelayIDWiperLow);
             }
         }
     }
@@ -519,12 +519,12 @@ tick()
     // - doors are open
     // - remote lock/unlock signal changed
     //
-    if (Switches::test(LIN::kSwitchIDIgnition) ||
-        Switches::test(LIN::kSwitchIDHazard) ||
-        Switches::test(LIN::kSwitchIDLeftTurn) ||
-        Switches::test(LIN::kSwitchIDRightTurn) ||
-        Switches::test(LIN::kSwitchIDDoor) ||
-        Switches::changed(LIN::kSwitchIDDoorUnlock)) {
+    if (Switches::test(kSwitchIDIgnition) ||
+        Switches::test(kSwitchIDHazard) ||
+        Switches::test(kSwitchIDLeftTurn) ||
+        Switches::test(kSwitchIDRightTurn) ||
+        Switches::test(kSwitchIDDoor) ||
+        Switches::changed(kSwitchIDDoorUnlock)) {
 
         awakeDelay.reset();
         gMaster.set_sleep_enable(false);

@@ -17,8 +17,8 @@ struct Debounce {
 };
 
 static const uint8_t    kDebounceCycles = 5; // XXX needs to be computed/tuned
-static const uint8_t    kStateBytes = (LIN::kSwitchIDMax + 7) / 8;
-static Debounce         _state[LIN::kSwitchIDMax];
+static const uint8_t    kStateBytes = (kSwitchIDMax + 7) / 8;
+static Debounce         _state[kSwitchIDMax];
 
 void
 init()
@@ -64,7 +64,7 @@ changed_to_off(uint8_t id)
 bool
 changed()
 {
-    for (uint8_t id = 0; id < LIN::kSwitchIDMax; id++) {
+    for (uint8_t id = 0; id < kSwitchIDMax; id++) {
         if (changed(id)) {
             return true;
         }
@@ -83,7 +83,7 @@ scan()
         rawstate[i] = 0;
     }
 
-#define SET(x)  do { if (x < LIN::kSwitchIDMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
+#define SET(x)  do { if (x < kSwitchIDMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
 #define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
 
     // fetch the switch inputs
@@ -91,7 +91,7 @@ scan()
 
     // hardcoded ignition input on SP0
     if (MC33972::test(MC33972::kInputSP0)) {
-        SET(LIN::kSwitchIDIgnition);
+        SET(kSwitchIDIgnition);
     }
 
     // SP1-SP7
@@ -109,7 +109,7 @@ scan()
     }
 
     // debounce raw state
-    for (uint8_t i = 0; i < LIN::kSwitchIDMax; i++) {
+    for (uint8_t i = 0; i < kSwitchIDMax; i++) {
 
         // if no change, reset debounce timer (also clears
         // 'changed' state

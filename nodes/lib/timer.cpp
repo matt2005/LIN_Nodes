@@ -75,6 +75,12 @@ Timer::tick()
     Decrementer::tick();
 }
 
+void
+Ticker::tick(void *arg)
+{
+    (reinterpret_cast<Ticker *>(arg))->_ticked = true;
+}
+
 Decrementer *Decrementer::_first;
 
 Decrementer::Decrementer(Timer::Timeval initialCount) :

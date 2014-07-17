@@ -77,6 +77,29 @@ private:
     static volatile Timeval _now;
 };
 
+class Ticker : public Timer
+{
+public:
+    Ticker(Timer::Timeval interval) : 
+        Timer(Ticker::tick, this, interval),
+        _ticked(false)
+    {
+    }
+
+    bool                did_tick()
+    {
+        if (_ticked) {
+            _ticked = false;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    volatile bool       _ticked;
+    static void         tick(void *arg);
+};
+
 class Timestamp
 {
 public:

@@ -11,33 +11,15 @@
 
 // Schedule used in normal operation
 //
-PROGMEM const LIN::FrameID Master::_normalSchedule[] = {
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDRelays,
+PROGMEM const LIN::FrameID Master::_schedule[] = {
     LIN::kFrameIDRelays,
     LIN::kFrameIDMasterRequest, // skipped if no work
     LIN::kFrameIDSlaveResponse, // skipped if no work
+    LIN::kFrameIDConfigRequest, // skipped if no programmer
+    LIN::kFrameIDConfigResponse,// skipped if no programmer
 };
 
-const uint8_t Master::_normalScheduleLength = sizeof(Master::_normalSchedule) / sizeof(LIN::FrameID);
-
-// Schedule used when the programmer has been seen - should never
-// be more than 50ms between the programmer being ready to send a
-// request and the response being posted
-//
-// Note that master request/slave response and config request/response
-// must not overlap, as slaves only have a single response buffer for each.
-//
-PROGMEM const LIN::FrameID Master::_configSchedule[] = {
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDConfigRequest,
-    LIN::kFrameIDConfigResponse,// skipped if no work
-    LIN::kFrameIDMasterRequest, // skipped if no work
-    LIN::kFrameIDSlaveResponse, // skipped if no work
-};
-
-const uint8_t Master::_configScheduleLength = sizeof(Master::_configSchedule) / sizeof(LIN::FrameID);
+const uint8_t Master::_scheduleLength = sizeof(Master::_schedule) / sizeof(Master::_schedule[0]);
 
 Master::Master() :
     _eventTimer((Timer::Callback)Master::event, this, 10),
@@ -45,7 +27,6 @@ Master::Master() :
     _requestFrame(nullptr),
     _responseFrame(nullptr),
     _configParam(0),
-    _sendConfigResponseHeader(false),
     _sendConfigResponseFrame(false),
     _sleepEnable(false),
     _sleepActive(false),
@@ -70,7 +51,7 @@ Master::do_request_response(LIN::Frame &frame)
     // wait for 2 cycles total (fatal if not completed by then)
     Timestamp t;
 
-    while (!t.is_older_than(schedule_length() * 10 * 2)) {
+    while (!t.is_older_than(_scheduleLength * 10 * 2)) {
         wdt_reset();
 
         if (_responseFrame == nullptr) {
@@ -95,42 +76,49 @@ Master::_event()
 {
     LIN::FrameID fid;
 
-    // if sleep is active, send nothing
-    if (_sleepActive) {
-        Board::lin_CS(false);
-        return;
-    }
-
     do {
 
-        if (_eventIndex >= schedule_length()) {
+        if (_eventIndex >= _scheduleLength) {
             // we hit the end of the pattern
             _eventIndex = 0;
 
-            // no programmer present, yes we can sleep
-            if (!_programmerMode && _sleepEnable) {
+            // safe point in the schedule to enable sleep
+            if (_sleepEnable) {
                 _sleepActive = true;
                 return;
             }
+
+#ifdef pinDebugStrobe
+            // toggle the trigger signal for the first frame in each cycle
+            pinDebugStrobe.toggle();
+#endif
+
+        }
+
+        // if sleep is active and not in programmer mode, send nothing
+        // XXX should actually stop the schedule in this mode
+        if (!_programmerMode && _sleepActive) {
+            Board::lin_CS(false);
+            return;
         }
 
         fid = schedule_entry(_eventIndex++);
 
         switch (fid) {
 
+        case LIN::kFrameIDConfigRequest:
         case LIN::kFrameIDConfigResponse:
 
-            // don't send ConfigResponse unless we know we need to
-            if (!_sendConfigResponseHeader) {
+            // only send in programmer mode
+            if (!_programmerMode) {
                 continue;
             }
 
-            _sendConfigResponseHeader = false;
             break;
 
         case LIN::kFrameIDMasterRequest:
 
-            // only send while a request/response cycle is running
+            // skip unless we have a request frame
             if (_requestFrame == nullptr) {
                 continue;
             }
@@ -139,7 +127,7 @@ Master::_event()
 
         case LIN::kFrameIDSlaveResponse:
 
-            // only send while a request/response cycle is running
+            // skip unless we want a response
             if (_responseFrame == nullptr) {
                 continue;
             }
@@ -158,15 +146,6 @@ Master::_event()
     // turn on the LIN driver
     Board::lin_CS(true);
 
-    // toggle post the trigger signal for the first frame in each cycle
-#ifdef pinDebugStrobe
-
-    if (_eventIndex == 1) {
-        pinDebugStrobe.toggle();
-    }
-
-#endif
-
     // and transmit the header
     send_header(fid);
 }
@@ -181,12 +160,12 @@ Master::header_received(LIN::FrameID fid)
         break;
 
     case LIN::kFrameIDConfigRequest:
-        // if the programmer is attached, it will send the response
+        // collect any response from the programmer
         expect_response(8);
         break;
 
     case LIN::kFrameIDConfigResponse:
-        // we may want to send the config response ourselves...
+        // we may want to send the config response ourselves
         handle_config_response();
         break;
 
@@ -220,6 +199,7 @@ Master::response_received(LIN::FrameID fid, LIN::Frame &frame)
     switch (fid) {
 
     case LIN::kFrameIDConfigRequest:
+        // may be a request for us
         handle_config_request(reinterpret_cast<LIN::ConfigFrame &>(frame));
         break;
 
@@ -245,9 +225,6 @@ Master::handle_config_request(LIN::ConfigFrame &frame)
     if (frame.flavour() == LIN::kCFNop) {
         return;
     }
-
-    // we will want to send a ConfigResponse header later
-    _sendConfigResponseHeader = true;
 
     // if this request is for us...
     if (frame.nad() == LIN::kNodeAddressMaster) {

@@ -43,6 +43,13 @@ main(void)
     // run the master logic forever
     for (;;) {
         wdt_reset();
+#ifdef DEBUG
+
+        if (Board::freemem() < 64) {
+            Board::panic(Board::kPanicCodeLowMemory);
+        }
+
+#endif
         Switches::scan();
         Relays::tick();
 
@@ -52,7 +59,7 @@ main(void)
                          2,
                          LIN::kServiceTesterPresent,
                          0);
-            gMaster.do_request_response(f);
+            //gMaster.do_request_response(f);
 
             if (f.sid() == (LIN::kServiceTesterPresent | LIN::kServiceIDResponseOffset)) {
                 // positive response from programmer

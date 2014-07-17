@@ -47,7 +47,6 @@ public:
     void            set_programmer_mode(bool enable)
     {
         _programmerMode = enable;
-        set_sleep_enable(false);
     }
 
 protected:
@@ -55,10 +54,8 @@ protected:
     virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
 
 private:
-    static const LIN::FrameID _normalSchedule[];
-    static const uint8_t      _normalScheduleLength;
-    static const LIN::FrameID _configSchedule[];
-    static const uint8_t      _configScheduleLength;
+    static const LIN::FrameID _schedule[];
+    static const uint8_t      _scheduleLength;
 
     Timer           _eventTimer;
     uint8_t         _eventIndex;
@@ -66,22 +63,14 @@ private:
     LIN::Frame       *volatile _responseFrame;
     uint8_t         _configParam;
 
-    volatile bool   _sendConfigResponseHeader: 1;
     volatile bool   _sendConfigResponseFrame: 1;
     bool            _sleepEnable: 1;
     bool            _sleepActive: 1;
     bool            _programmerMode: 1;
 
-    uint8_t         schedule_length() const
+    static LIN::FrameID schedule_entry(uint8_t idx)
     {
-        return _programmerMode ? _configScheduleLength : _normalScheduleLength;
-    }
-
-    LIN::FrameID    schedule_entry(uint8_t idx) const
-    {
-        return (LIN::FrameID)pgm_read_byte(_programmerMode ?
-                                           &_configSchedule[idx] :
-                                           &_normalSchedule[idx]);
+        return (LIN::FrameID)pgm_read_byte(&_schedule[idx]);
     }
 
     /// Event initiator

@@ -33,7 +33,8 @@ enum PanicCode : uint8_t {
     kPanicCodeRecovery  = 2,
     kPanicCodeSPI       = 3,
     kPanicCodeLIN       = 4,
-    kPanicCodeAssert    = 5
+    kPanicCodeAssert    = 5,
+    kPanicCodeLowMemory = 6
 };
 
 /// Panic with a status code

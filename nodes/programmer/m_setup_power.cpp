@@ -16,8 +16,6 @@ namespace Menu
 void
 SetupPowerMode::init(uint8_t nad)
 {
-    _ident = nad - LIN::kNodeAddressPowerBase;
-
     uint8_t flavour = 0;
 
     if (gSlave.get_parameter(nad, 0, flavour) == 1) {    // XXX kBoardFunctionID value
@@ -33,7 +31,7 @@ SetupPowerMode::init(uint8_t nad)
 void
 SetupPowerMode::print_title() const
 {
-    gDisplay.printf(PSTR("Power %1u Setup:"), _ident);
+    gDisplay.printf(PSTR("Power %1u Setup:"), ident());
 }
 
 Parameter
@@ -59,6 +57,7 @@ SetupPowerMode::param_names() const
 {
     return (_flavour == kFlavourV1) ? power_v1ParamNames : power_v3ParamNames;
 }
+
 PGM_P
 SetupPowerMode::param_formats() const
 {

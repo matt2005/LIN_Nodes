@@ -48,6 +48,12 @@ ExploreSetupMode::select()
 // +--------------------+
 //
 
+uint8_t  SetupMode::_param;
+uint8_t  SetupMode::_value;
+uint8_t  SetupMode::_nad;
+uint8_t  SetupMode::_max_param;
+bool     SetupMode::_editing;
+
 Mode *
 SetupMode::action(Encoder::Event bp)
 {

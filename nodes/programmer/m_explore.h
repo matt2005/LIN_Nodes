@@ -15,11 +15,11 @@ public:
     virtual Mode    *action(Encoder::Event bp) override;
 
 protected:
-    uint8_t         _node;
+    static uint8_t  _node;
     virtual Mode    *select();
 
 private:
-    static Bitarray<LIN::kNodeAddressMaxAssigned> presentMask;
+    static Bitarray<LIN::kNodeAddressMaxAssigned> _presentMask;
 
     void            draw();
     static uint8_t  search_up(uint8_t from);

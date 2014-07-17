@@ -10,7 +10,8 @@
 namespace Menu
 {
 
-Bitarray<LIN::kNodeAddressMaxAssigned> ExploreMode::presentMask;
+Bitarray<LIN::kNodeAddressMaxAssigned> ExploreMode::_presentMask;
+uint8_t                                ExploreMode::_node;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Explore mode
@@ -59,7 +60,7 @@ ExploreMode::action(Encoder::Event bp)
         switch (_node) {
         case 0:
             // force rescan on re-entry from top menu
-            presentMask.reset();
+            _presentMask.reset();
             return &modeTop;
 
         default:
@@ -79,9 +80,9 @@ ExploreMode::action(Encoder::Event bp)
 
         // do we have a valid scan result with a master node?
         // (i.e. are we re-entering from an edit state?)
-        if (!presentMask.test(LIN::kNodeAddressMaster)) {
-            presentMask.reset();
-            presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
+        if (!_presentMask.test(LIN::kNodeAddressMaster)) {
+            _presentMask.reset();
+            _presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
             _node = LIN::kNodeAddressMaster;
 
             for (uint8_t i = LIN::kNodeAddressMaster; i < LIN::kNodeAddressMaxAssigned; i++) {
@@ -92,7 +93,7 @@ ExploreMode::action(Encoder::Event bp)
                 uint8_t dummy;
 
                 if (gSlave.get_parameter(i, 0, dummy)) {
-                    presentMask.set(i);
+                    _presentMask.set(i);
                 } else if (i == LIN::kNodeAddressMaster) {
                     error(PSTR(" Master node not\n responding."));
                     Board::ms_delay(3000);
@@ -185,7 +186,7 @@ uint8_t
 ExploreMode::search_up(uint8_t from)
 {
     for (uint8_t newNode = from + 1; newNode < LIN::kNodeAddressMaxAssigned; newNode++) {
-        if (presentMask.test(newNode)) {
+        if (_presentMask.test(newNode)) {
             return newNode;
         }
     }
@@ -200,7 +201,7 @@ ExploreMode::search_down(uint8_t from)
         uint8_t newNode = from - 1;
 
         do {
-            if (presentMask.test(newNode)) {
+            if (_presentMask.test(newNode)) {
                 return newNode;
             }
         } while (newNode-- >= 0);

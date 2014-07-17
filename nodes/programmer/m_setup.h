@@ -10,13 +10,6 @@ namespace Menu
 class SetupMode : public Mode
 {
 public:
-    SetupMode() :
-        _param(0),
-        _value(0),
-        _nad(0),
-        _max_param(0),
-        _editing(false)
-    {}
 
     virtual Mode    *action(Encoder::Event bp) override;
 
@@ -28,13 +21,13 @@ protected:
 
     void            _init(uint8_t nad, uint8_t max_param);
 
-    uint8_t         _param;
-    uint8_t         _value;
+    static uint8_t  _param;
+    static uint8_t  _value;
+    static uint8_t  _nad;
 
 private:
-    uint8_t         _nad;
-    uint8_t         _max_param;
-    bool            _editing;
+    static uint8_t  _max_param;
+    static bool     _editing;
 
     void            draw();
 };
@@ -55,7 +48,6 @@ class SetupPowerMode : public SetupMode
 {
 public:
     SetupPowerMode() :
-        _ident(0),
         _flavour(kFlavourV1)
     {
     }
@@ -73,9 +65,9 @@ private:
         kFlavourV3
     };
 
-    uint8_t         _ident;
     Flavour         _flavour;
 
+    uint8_t         ident() const { return _nad - LIN::kNodeAddressPowerBase; }
     PGM_P           param_names() const;
     PGM_P           param_formats() const;
 };

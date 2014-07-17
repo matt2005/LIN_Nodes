@@ -29,7 +29,7 @@ enum FrameID : uint8_t {
     kFrameIDTest = 0x3f,
 };
 
-// XXX Note - it would be preferable to use the ISO 14229-1 read/write parameter
+// XXX Note - it would be preferable to use the ISO 14229 read/write parameter
 // by identifier request and have ConfigRequest become a proxied MasterRequest,
 // with a unified SlaveResponse in either case, but it's not clear that
 // the request can be formatted in SF mode, and in any case ISO 14229-1 is not
@@ -45,7 +45,12 @@ enum FrameID : uint8_t {
 //
 // With errors in the 'normal' fashion.
 //
-
+// Master could issue a 'get config request' frame & cache response, then send 
+// that response as part of a MasterRequest.
+// Master will need to interlock between this & its own requests... how does this
+// work if the master is responding to the SlaveResponse? Does it need to be blind
+// to its own responses?
+//
 
 //
 // LIN node addresses for MasterRequest/SlaveResponse

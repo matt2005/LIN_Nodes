@@ -72,7 +72,6 @@ main(void)
                 gMaster.set_tester_present(true);
 
             } else {
-                // no response or explicit negative response
                 gMaster.set_tester_present(false);
             }
         }

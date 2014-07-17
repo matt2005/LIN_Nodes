@@ -50,9 +50,11 @@ Master::do_request_response(LIN::Frame &frame)
     // schedule runner. Don't expect a reply for broadcast frames.
     cli();
     _requestFrame = &frame;
+
     if (frame.nad() != LIN::kNodeAddressBroadcast) {
         _responseFrame = &frame;
     }
+
     sei();
 
     // wait for 2 cycles total (fatal if not completed by then)
@@ -87,7 +89,7 @@ Master::_event()
     // and don't transmit anything.
     if (!_awake) {
         Board::lin_CS(false);
-        return;        
+        return;
     }
 
     do {
@@ -213,7 +215,7 @@ Master::response_received(LIN::FrameID fid, LIN::Frame &frame)
     case LIN::kFrameIDSlaveResponse:
 
         // if we are expecting a response, copy it back
-        if (_responseFrame != nullptr) {
+        if ((_requestFrame == nullptr) && (_responseFrame != nullptr)) {
             _responseFrame->copy(frame);
             _responseFrame = nullptr;
         }

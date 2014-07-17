@@ -21,7 +21,7 @@ protected:
 private:
     static Bitarray<LIN::kNodeAddressMaxAssigned> _presentMask;
 
-    void            draw();
+    static void     draw();
     static uint8_t  search_up(uint8_t from);
     static uint8_t  search_down(uint8_t from);
 };

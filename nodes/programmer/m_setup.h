@@ -19,7 +19,7 @@ protected:
     virtual PGM_P   param_name() const;
     virtual PGM_P   param_format() const;
 
-    void            _init(uint8_t nad, uint8_t max_param);
+    static void     _init(uint8_t nad, uint8_t max_param);
 
     static uint8_t  _param;
     static uint8_t  _value;
@@ -35,7 +35,7 @@ private:
 class SetupMasterMode : public SetupMode
 {
 public:
-    void            init();
+    static void     init();
 
 protected:
     virtual void    print_title() const override;
@@ -67,7 +67,7 @@ private:
 
     Flavour         _flavour;
 
-    uint8_t         ident() const { return _nad - LIN::kNodeAddressPowerBase; }
+    static uint8_t  ident() { return _nad - LIN::kNodeAddressPowerBase; }
     PGM_P           param_names() const;
     PGM_P           param_formats() const;
 };

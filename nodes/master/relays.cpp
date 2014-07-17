@@ -161,7 +161,7 @@ public:
     void                reset() { set_milliseconds(kStayAwakeTime); }
 
 private:
-    static const Timer::Timeval kStayAwakeTime = 50000;
+    static const Timer::Timeval kStayAwakeTime = 50000U;
 };
 
 static TurnBlinker      turnBlinker;
@@ -210,7 +210,7 @@ turnSignals(RelayBits &f)
 
     // external blinker mode?
     if ((paramTurnBlinkPeriod == 0) ||
-        (paramTurnBlinkPeriod > 100)) {
+        (paramTurnBlinkPeriod > 100U)) {
 
         if (Switches::test(kSwitchIDLeftTurn)) {
             f.set(kRelayIDLeftTurn);

@@ -22,7 +22,7 @@ PROGMEM const LIN::FrameID Master::_schedule[] = {
 const uint8_t Master::_scheduleLength = sizeof(Master::_schedule) / sizeof(Master::_schedule[0]);
 
 Master::Master() :
-    _eventTimer((Timer::Callback)Master::event, this, 10),
+    _eventTimer((Timer::Callback)Master::event, this, 10U),
     _eventIndex(0),
     _requestFrame(nullptr),
     _responseFrame(nullptr),
@@ -56,7 +56,7 @@ Master::do_request_response(LIN::Frame &frame)
     // wait for 2 cycles total (fatal if not completed by then)
     Timestamp t;
 
-    while (!t.is_older_than(_scheduleLength * 10 * 2)) {
+    while (!t.is_older_than(_scheduleLength * 10U * 2U)) {
         wdt_reset();
 
         if (_responseFrame == nullptr) {

@@ -13,6 +13,8 @@
 namespace Menu
 {
 
+SetupPowerMode::Flavour SetupPowerMode::_flavour = kFlavourV1;
+
 void
 SetupPowerMode::init(uint8_t nad)
 {
@@ -53,13 +55,13 @@ SetupPowerMode::param_format() const
 }
 
 PGM_P
-SetupPowerMode::param_names() const
+SetupPowerMode::param_names()
 {
     return (_flavour == kFlavourV1) ? power_v1ParamNames : power_v3ParamNames;
 }
 
 PGM_P
-SetupPowerMode::param_formats() const
+SetupPowerMode::param_formats()
 {
     return (_flavour == kFlavourV1) ? power_v1ParamFormats : power_v3ParamFormats;
 }

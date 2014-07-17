@@ -47,11 +47,7 @@ protected:
 class SetupPowerMode : public SetupMode
 {
 public:
-    SetupPowerMode() :
-        _flavour(kFlavourV1)
-    {
-    }
-    void            init(uint8_t nad);
+    static void     init(uint8_t nad);
 
 protected:
     virtual void    print_title() const override;
@@ -60,16 +56,16 @@ protected:
     virtual PGM_P   param_format() const override;
 
 private:
-    enum Flavour {
+    enum Flavour : uint8_t {
         kFlavourV1,
         kFlavourV3
     };
 
-    Flavour         _flavour;
+    static Flavour  _flavour;
 
     static uint8_t  ident() { return _nad - LIN::kNodeAddressPowerBase; }
-    PGM_P           param_names() const;
-    PGM_P           param_formats() const;
+    static PGM_P    param_names();
+    static PGM_P    param_formats();
 };
 
 } // namespace Menu

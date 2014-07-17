@@ -46,11 +46,13 @@ Master::do_request_response(LIN::Frame &frame)
         return;
     }
 
-    // post the frame for the schedule to see, avoid races with the
-    // schedule runner
+    // Post the frame for the schedule to see, avoid races with the
+    // schedule runner. Don't expect a reply for broadcast frames.
     cli();
     _requestFrame = &frame;
-    _responseFrame = &frame;
+    if (frame.nad() != LIN::kNodeAddressBroadcast) {
+        _responseFrame = &frame;
+    }
     sei();
 
     // wait for 2 cycles total (fatal if not completed by then)
@@ -59,7 +61,7 @@ Master::do_request_response(LIN::Frame &frame)
     while (!t.is_older_than(_scheduleLength * 10U * 2U)) {
         wdt_reset();
 
-        if (_responseFrame == nullptr) {
+        if ((_requestFrame == nullptr) && (_responseFrame == nullptr)) {
             break;
         }
     }

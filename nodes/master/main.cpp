@@ -18,7 +18,7 @@ bool __cxa_guard_acquire() { return true; }
 void __cxa_guard_release() {}
 
 Master          gMaster;
-Ticker          programmerCheck(100);  // check every second
+Ticker          testerCheck(1000);  // check every second
 
 void
 main(void)
@@ -43,6 +43,7 @@ main(void)
     // run the master logic forever
     for (;;) {
         wdt_reset();
+
 #ifdef DEBUG
 
         if (Board::freemem() < 64) {
@@ -50,24 +51,29 @@ main(void)
         }
 
 #endif
+
+        // scan the switch array
         Switches::scan();
+
+        // Run the relay logic, update our idea of what the vehicle state should be.
+        // Results are broadcast routinely anytime the vehicle is awake.
         Relays::tick();
 
         // periodic check for the programmer on the bus
-        if (programmerCheck.did_tick()) {
-            LIN::Frame f(LIN::kNodeAddressProgrammer,
+        if (testerCheck.did_tick()) {
+            LIN::Frame f(LIN::kNodeAddressTester,
                          2,
                          LIN::kServiceTesterPresent,
                          0);
-            //gMaster.do_request_response(f);
+            gMaster.do_request_response(f);
 
             if (f.sid() == (LIN::kServiceTesterPresent | LIN::kServiceIDResponseOffset)) {
                 // positive response from programmer
-                gMaster.set_programmer_mode(true);
+                gMaster.set_tester_present(true);
 
             } else {
                 // no response or explicit negative response
-                gMaster.set_programmer_mode(false);
+                gMaster.set_tester_present(false);
             }
         }
     }

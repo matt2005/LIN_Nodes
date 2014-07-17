@@ -9,7 +9,7 @@ class ProgrammerSlave : public Slave
 {
 public:
     ProgrammerSlave() :
-        Slave(LIN::kNodeAddressProgrammer),
+        Slave(LIN::kNodeAddressTester),
         _state(kStateIdle),
         _paramValue(0),
         _nodeAddress(0),

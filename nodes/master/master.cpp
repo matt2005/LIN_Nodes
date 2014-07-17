@@ -15,8 +15,8 @@ PROGMEM const LIN::FrameID Master::_schedule[] = {
     LIN::kFrameIDRelays,
     LIN::kFrameIDMasterRequest, // skipped if no work
     LIN::kFrameIDSlaveResponse, // skipped if no work
-    LIN::kFrameIDConfigRequest, // skipped if no programmer
-    LIN::kFrameIDConfigResponse,// skipped if no programmer
+    LIN::kFrameIDConfigRequest, // skipped if no tester
+    LIN::kFrameIDConfigResponse,// skipped if no tester
 };
 
 const uint8_t Master::_scheduleLength = sizeof(Master::_schedule) / sizeof(Master::_schedule[0]);
@@ -28,9 +28,9 @@ Master::Master() :
     _responseFrame(nullptr),
     _configParam(0),
     _sendConfigResponseFrame(false),
-    _sleepEnable(false),
-    _sleepActive(false),
-    _programmerMode(false)
+    _sleepRequest(false),
+    _awake(true),
+    _testerPresent(false)
 {
 #ifdef pinDebugStrobe
     pinDebugStrobe.clear();
@@ -41,6 +41,11 @@ Master::Master() :
 void
 Master::do_request_response(LIN::Frame &frame)
 {
+    // ignored if not awake
+    if (!_awake) {
+        return;
+    }
+
     // post the frame for the schedule to see, avoid races with the
     // schedule runner
     cli();
@@ -76,15 +81,22 @@ Master::_event()
 {
     LIN::FrameID fid;
 
+    // If the network is not awake, make sure the transceiver is turned off
+    // and don't transmit anything.
+    if (!_awake) {
+        Board::lin_CS(false);
+        return;        
+    }
+
     do {
 
         if (_eventIndex >= _scheduleLength) {
             // we hit the end of the pattern
             _eventIndex = 0;
 
-            // safe point in the schedule to enable sleep
-            if (_sleepEnable) {
-                _sleepActive = true;
+            // safe point in the schedule to enable sleep, if requested and allowed
+            if (_sleepRequest && !_testerPresent) {
+                _awake = false;
                 return;
             }
 
@@ -95,13 +107,6 @@ Master::_event()
 
         }
 
-        // if sleep is active and not in programmer mode, send nothing
-        // XXX should actually stop the schedule in this mode
-        if (!_programmerMode && _sleepActive) {
-            Board::lin_CS(false);
-            return;
-        }
-
         fid = schedule_entry(_eventIndex++);
 
         switch (fid) {
@@ -110,7 +115,7 @@ Master::_event()
         case LIN::kFrameIDConfigResponse:
 
             // only send in programmer mode
-            if (!_programmerMode) {
+            if (!_testerPresent) {
                 continue;
             }
 

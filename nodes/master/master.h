@@ -26,27 +26,27 @@ public:
     /// Enable / disable sleep
     ///
     /// @param enable           If true, sleep is enabled. The master will enter
-    ///                         sleep mode at the end of the current schedule loop
+    ///                         sleep mode at the end of the current cycle
     ///                         if it is not in config mode.
     ///                         If false, sleep is inhibited.
     ///
     void            set_sleep_enable(bool enable)
     {
-        _sleepEnable = enable;
+        _sleepRequest = enable;
 
         if (!enable) {
-            _sleepActive = false;
+            _awake = true;
         }
     }
 
-    /// Enable / disable programmer mode
+    /// Enable / disable tester mode
     ///
-    /// @param enable           If true, adjust the schedule to permit the programmer
-    ///                         to issue requests to nodes on the bus.
+    /// @param enable           If true, inhibits sleep and enables support for the
+    ///                         tester in the schedule.
     ///
-    void            set_programmer_mode(bool enable)
+    void            set_tester_present(bool enable)
     {
-        _programmerMode = enable;
+        _testerPresent = enable;
     }
 
 protected:
@@ -59,14 +59,14 @@ private:
 
     Timer           _eventTimer;
     uint8_t         _eventIndex;
-    LIN::Frame       *volatile _requestFrame;
-    LIN::Frame       *volatile _responseFrame;
+    LIN::Frame      *volatile _requestFrame;
+    LIN::Frame      *volatile _responseFrame;
     uint8_t         _configParam;
 
     volatile bool   _sendConfigResponseFrame: 1;
-    bool            _sleepEnable: 1;
-    bool            _sleepActive: 1;
-    bool            _programmerMode: 1;
+    bool            _sleepRequest: 1;
+    bool            _awake: 1;
+    bool            _testerPresent: 1;
 
     static LIN::FrameID schedule_entry(uint8_t idx)
     {

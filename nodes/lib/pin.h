@@ -25,8 +25,8 @@ public:
     public:
         constexpr Pin(const Port &port, uint8_t pin) : _port(port), _bit(1 << pin) {}
 
-        void cfg_output()       {          _port.DDR |=  _bit; }
-        void cfg_input_no_pull()  { clear(); _port.DDR &= ~_bit; }
+        void cfg_output()        {          _port.DDR |=  _bit; }
+        void cfg_input_no_pull() { clear(); _port.DDR &= ~_bit; }
         void cfg_input_pullup()  { set();   _port.DDR &= ~_bit; }
 
         void set()             { _port.PORT |=  _bit; }

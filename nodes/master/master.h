@@ -55,14 +55,14 @@ protected:
     virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
 
 private:
-    static const LIN::FrameID normalSchedule[];
-    static const LIN::FrameID configSchedule[];
+    static const LIN::FrameID _normalSchedule[];
+    static const LIN::FrameID _configSchedule[];
 
     Timer           _eventTimer;
     uint8_t         _eventIndex;
 
     uint8_t         _configParam;
-    uint8_t         _configDecayTimer;
+    uint8_t         _programmerGraceTimer;
 
     volatile bool   _sendRequest: 1;
     volatile bool   _getResponse: 1;

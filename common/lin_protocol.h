@@ -19,14 +19,14 @@ namespace LIN
 // LIN frame IDs
 //
 enum FrameID : uint8_t {
-    kFrameIDNone = 0x00,
-    kFrameIDRelays = 0x01,
-    kFrameIDECUData = 0x02,
-    kFrameIDConfigRequest = 0x2c,
-    kFrameIDConfigResponse = 0x2d,
-    kFrameIDMasterRequest = 0x3c,
-    kFrameIDSlaveResponse = 0x3d,
-    kFrameIDTest = 0x3f,
+    kFrameIDNone            = 0x00,
+    kFrameIDRelays          = 0x01,
+    kFrameIDECUData         = 0x02,
+    kFrameIDConfigRequest   = 0x2c,
+    kFrameIDConfigResponse  = 0x2d,
+    kFrameIDMasterRequest   = 0x3c,
+    kFrameIDSlaveResponse   = 0x3d,
+    kFrameIDTest            = 0x3f,
 };
 
 // XXX Note - it would be preferable to use the ISO 14229 read/write parameter
@@ -45,7 +45,7 @@ enum FrameID : uint8_t {
 //
 // With errors in the 'normal' fashion.
 //
-// Master could issue a 'get config request' frame & cache response, then send 
+// Master could issue a 'get config request' frame & cache response, then send
 // that response as part of a MasterRequest.
 // Master will need to interlock between this & its own requests... how does this
 // work if the master is responding to the SlaveResponse? Does it need to be blind
@@ -55,15 +55,14 @@ enum FrameID : uint8_t {
 //
 // LIN node addresses for MasterRequest/SlaveResponse
 //
-enum NodeAddress : uint8_t
-{
+enum NodeAddress : uint8_t {
     kNodeAddressSleep           = 0,
 
     kNodeAddressMaster          = 1,    //< always NAD 1
     kNodeAddressPowerBase       = 2,    //< 15 of these (board ID 1-15)
     kNodeAddressECU             = 18,   //< ECU data bridge
     kNodeAddressDashboard       = 19,   //< dash display (not talkative)
-    kNodeAddressTester      = 20,   //< plug-in programmer
+    kNodeAddressTester          = 20,   //< plug-in programmer
 
     kNodeAddressMaxAssigned,
 
@@ -74,8 +73,7 @@ enum NodeAddress : uint8_t
 //
 // LIN service IDs for  MasterRequest/SlaveResponse
 //
-enum ServiceID : uint8_t
-{
+enum ServiceID : uint8_t {
     kServiceReadDataByID        = 0x22,
     kServiceWriteDataByID       = 0x2e,
     kServiceTesterPresent       = 0x3e,
@@ -107,7 +105,7 @@ enum ServiceError : uint8_t {
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
 
-class Frame 
+class Frame
 {
 public:
 
@@ -141,7 +139,7 @@ public:
         _b[4] = buf[4];
         _b[5] = buf[5];
         _b[6] = buf[6];
-        _b[7] = buf[7];        
+        _b[7] = buf[7];
     }
 
     // ReadByID request factory
@@ -154,7 +152,7 @@ public:
 
     // frame data copier - avoids some ambiguity around volatile
     // frames
-    void                copy(const volatile Frame &f) volatile 
+    void                copy(const volatile Frame &f) volatile
     {
         _b[0] = f._b[0];
         _b[1] = f._b[1];
@@ -175,10 +173,10 @@ public:
         _b[4] = array[4];
         _b[5] = array[5];
         _b[6] = array[6];
-        _b[7] = array[7];        
+        _b[7] = array[7];
     }
 
-    void                clear(const volatile Frame &f) volatile 
+    void                clear(const volatile Frame &f) volatile
     {
         _b[0] = 0;
         _b[1] = 0;
@@ -214,19 +212,19 @@ private:
 class RelayFrame : public Frame
 {
 public:
-    void        set(RelayID relay) 
+    void        set(RelayID relay)
     {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] |= bit;
     }
-    void        clear(RelayID relay) 
+    void        clear(RelayID relay)
     {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] &= ~bit;
     }
-    bool        test(RelayID relay) const volatile 
+    bool        test(RelayID relay) const volatile
     {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);

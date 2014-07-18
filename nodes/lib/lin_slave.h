@@ -24,25 +24,8 @@ protected:
 
     LIN::NodeAddress _nad;               //< node address 
 
-    /// Called when a header has been received.
-    ///
-    /// Must be implemented by the subclass.
-    ///
-    /// @param fid              The FID from the received header.
-    ///
-    virtual void    header_received(LIN::FrameID fid) override;
-    
-    /// Called when a response requested by expect_response has been received.
-    ///
-    /// @param fid              The FID from the header associated with this
-    ///                         response.
-    /// @param frame            The received response frame.
-    ///
-    virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
-    
-    /// Called when a response has been sent
-    ///
-    virtual void    response_sent() override;
+    virtual void    st_header_received() override;
+    virtual void    st_response_received(LIN::Frame &frame) override;
 
     /// Called when the network is told to sleep.
     ///

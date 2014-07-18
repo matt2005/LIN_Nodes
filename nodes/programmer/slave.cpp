@@ -77,9 +77,9 @@ ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 }
 
 void
-ProgrammerSlave::header_received(LIN::FrameID fid)
+ProgrammerSlave::st_header_received()
 {
-    switch (fid) {
+    switch (current_FrameID()) {
     case LIN::kFrameIDConfigRequest:
         if (_state == kStateSetWaitRequest) {
             LIN::ConfigFrame f;
@@ -89,7 +89,7 @@ ProgrammerSlave::header_received(LIN::FrameID fid)
             f.param() = _paramIndex;
             f.value() = _paramValue;
 
-            send_response(f, 8);
+            st_send_response(f, 8);
             _state = kStateSetWaitSent;
 
         } else if (_state == kStateGetWaitRequest) {
@@ -99,7 +99,7 @@ ProgrammerSlave::header_received(LIN::FrameID fid)
             f.flavour() = LIN::kCFGetParam;
             f.param() = _paramIndex;
 
-            send_response(f, 8);
+            st_send_response(f, 8);
             _state = kStateGetWaitResponse;
 
         } else if (_state == kStateGetWaitResponse) {
@@ -115,28 +115,29 @@ ProgrammerSlave::header_received(LIN::FrameID fid)
             f.nad() = 0;
             f.flavour() = LIN::kCFNop;
 
-            send_response(f, 8);
+            st_send_response(f, 8);
         }
 
         break;
 
     case LIN::kFrameIDConfigResponse:
         if (_state == kStateGetWaitResponse) {
-            expect_response(8);
+            st_expect_response(8);
         }
 
         break;
 
     default:
+        Slave::st_header_received();
         break;
     }
 }
 
 void
-ProgrammerSlave::response_received(LIN::FrameID fid, LIN::Frame &frame)
+ProgrammerSlave::st_response_received(LIN::Frame &frame)
 {
     // slave responding to a parameter request?
-    if ((fid == LIN::kFrameIDConfigResponse) &&
+    if ((current_FrameID() == LIN::kFrameIDConfigResponse) &&
         (_state == kStateGetWaitResponse)) {
 
         auto cf = reinterpret_cast<LIN::ConfigFrame &>(frame);
@@ -153,12 +154,12 @@ ProgrammerSlave::response_received(LIN::FrameID fid, LIN::Frame &frame)
         }
 
     } else {
-        debug("unexpected response %u in state %u", fid, _state);
+        Slave::st_response_received(frame);
     }
 }
 
 void
-ProgrammerSlave::response_sent()
+ProgrammerSlave::st_response_sent()
 {
     if (_state == kStateSetWaitSent) {
         _state = kStateIdle;

@@ -28,9 +28,9 @@ public:
     void            setSuspend(bool suspended) { _suspended = suspended; }
 
 protected:
-    virtual void    header_received(LIN::FrameID fid) override;
-    virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
-    virtual void    response_sent() override;
+    virtual void    st_header_received() override;
+    virtual void    st_response_received(LIN::Frame &frame) override;
+    virtual void    st_response_sent() override;
     virtual void    sleep_requested(SleepType type) override;
     virtual void    master_request(LIN::Frame &frame) override;
 

@@ -9,30 +9,30 @@ RelaySlave::RelaySlave(uint8_t BoardID) :
 }
 
 void
-RelaySlave::header_received(LIN::FrameID fid)
+RelaySlave::st_header_received()
 {
-    switch (fid) {
+    switch (current_FrameID()) {
     case LIN::kFrameIDRelays:
-        expect_response(8);
+        st_expect_response(8);
         break;
 
     default:
-        Slave::header_received(fid);
+        Slave::st_header_received();
         break;
     }
 }
 
 void
-RelaySlave::response_received(LIN::FrameID fid, LIN::Frame &frame)
+RelaySlave::st_response_received(LIN::Frame &frame)
 {
-    switch (fid) {
+    switch (current_FrameID()) {
 
     case LIN::kFrameIDRelays:
         relayFrame.copy(frame);
         break;
 
     default:
-        Slave::response_received(fid, frame);
+        Slave::st_response_received(frame);
         break;
     }
 }

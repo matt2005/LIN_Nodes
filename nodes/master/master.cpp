@@ -22,14 +22,14 @@ PROGMEM const LIN::FrameID Master::_schedule[] = {
 const uint8_t Master::_scheduleLength = sizeof(Master::_schedule) / sizeof(Master::_schedule[0]);
 
 Master::Master() :
-    _eventTimer((Timer::Callback)Master::event, this, 10U),
-    _eventIndex(0),
+    _mtTimer((Timer::Callback)Master::master_task, this, _frameTime),
+    _mtIndex(0),
+    _mtAwake(true),
+    _mtSleepRequest(false),
     _requestFrame(nullptr),
     _responseFrame(nullptr),
     _configParam(0),
     _sendConfigResponseFrame(false),
-    _sleepRequest(false),
-    _awake(true),
     _testerPresent(false)
 {
 #ifdef pinDebugStrobe
@@ -41,8 +41,8 @@ Master::Master() :
 void
 Master::do_request_response(LIN::Frame &frame)
 {
-    // ignored if not awake
-    if (!_awake) {
+    // ignored if the network is not awake
+    if (!_mtAwake) {
         return;
     }
 
@@ -60,7 +60,7 @@ Master::do_request_response(LIN::Frame &frame)
     // wait for 2 cycles total (fatal if not completed by then)
     Timestamp t;
 
-    while (!t.is_older_than(_scheduleLength * 10U * 2U)) {
+    while (!t.is_older_than(_scheduleLength * _frameTime * 2U)) {
         wdt_reset();
 
         if ((_requestFrame == nullptr) && (_responseFrame == nullptr)) {
@@ -73,34 +73,33 @@ Master::do_request_response(LIN::Frame &frame)
 }
 
 void
-Master::event(void *arg)
+Master::master_task(void *arg)
 {
     auto *master = reinterpret_cast<Master *>(arg);
 
-    master->_event();
+    master->_master_task();
 }
 
 void
-Master::_event()
+Master::_master_task()
 {
-    LIN::FrameID fid;
-
     // If the network is not awake, make sure the transceiver is turned off
     // and don't transmit anything.
-    if (!_awake) {
-        Board::lin_CS(false);
+    if (!_mtAwake) {
         return;
     }
 
     do {
 
-        if (_eventIndex >= _scheduleLength) {
+        if (_mtIndex >= _scheduleLength) {
             // we hit the end of the pattern
-            _eventIndex = 0;
+            _mtIndex = 0;
 
             // safe point in the schedule to enable sleep, if requested and allowed
-            if (_sleepRequest && !_testerPresent) {
-                _awake = false;
+            if (_mtSleepRequest && !_testerPresent) {
+                _mtAwake = false;
+                // turn off the transceiver
+                Board::lin_CS(false);
                 return;
             }
 
@@ -111,8 +110,10 @@ Master::_event()
 
         }
 
-        fid = schedule_entry(_eventIndex++);
+        // get the next frame from the schedule
+        LIN::FrameID fid = schedule_entry(_mtIndex++);
 
+        // special handling for optional frame types
         switch (fid) {
 
         case LIN::kFrameIDConfigRequest:
@@ -129,6 +130,13 @@ Master::_event()
 
             // skip unless we have a request frame
             if (_requestFrame == nullptr) {
+
+                // if we still have a response frame, it's because we didn't
+                // get a response when we called for it earlier; kill it now
+                if (_responseFrame != nullptr) {
+                    _responseFrame = nullptr;
+                }
+
                 continue;
             }
 
@@ -148,29 +156,25 @@ Master::_event()
             break;
         }
 
+        // and transmit the header (will turn on the transceiver if required)
+        mt_send_header(fid);
+
         break;
     } while (1);
-
-
-    // turn on the LIN driver
-    Board::lin_CS(true);
-
-    // and transmit the header
-    send_header(fid);
 }
 
 void
-Master::header_received(LIN::FrameID fid)
+Master::st_header_received()
 {
-    switch (fid) {
+    switch (current_FrameID()) {
     case LIN::kFrameIDRelays:
         // send the relay state
-        send_response(relayFrame, 8);
+        st_send_response(relayFrame, 8);
         break;
 
     case LIN::kFrameIDConfigRequest:
         // collect any response from the programmer
-        expect_response(8);
+        st_expect_response(8);
         break;
 
     case LIN::kFrameIDConfigResponse:
@@ -182,30 +186,27 @@ Master::header_received(LIN::FrameID fid)
 
         // send the request if we have one
         if (_requestFrame != nullptr) {
-            send_response(*_requestFrame, 8);
+            st_send_response(*_requestFrame, 8);
             _requestFrame = nullptr;
-
-        } else {
-            // kill any stale response waiter
-            _responseFrame = nullptr;
         }
 
         break;
 
     case LIN::kFrameIDSlaveResponse:
         // arrange to receive the response
-        expect_response(8);
+        st_expect_response(8);
         break;
 
     default:
+        LINDev::st_header_received();
         break;
     }
 }
 
 void
-Master::response_received(LIN::FrameID fid, LIN::Frame &frame)
+Master::st_response_received(LIN::Frame &frame)
 {
-    switch (fid) {
+    switch (current_FrameID()) {
 
     case LIN::kFrameIDConfigRequest:
         // may be a request for us
@@ -223,6 +224,7 @@ Master::response_received(LIN::FrameID fid, LIN::Frame &frame)
         break;
 
     default:
+        LINDev::st_response_received(frame);
         break;
     }
 }
@@ -268,5 +270,5 @@ Master::handle_config_response()
     f.param() = _configParam;
     f.value() = masterParam(_configParam);
 
-    send_response(f, 8);
+    st_send_response(f, 8);
 }

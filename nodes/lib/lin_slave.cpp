@@ -22,17 +22,17 @@ Slave::Slave(LIN::NodeAddress nad) :
 }
 
 void
-Slave::header_received(LIN::FrameID fid)
+Slave::st_header_received()
 {
-    switch (fid) {
+    switch (current_FrameID()) {
     case LIN::kFrameIDConfigRequest:
         _sendConfigResponse = false;    // clear stale config response
-        expect_response(8);
+        st_expect_response(8);
         break;
 
     case LIN::kFrameIDMasterRequest:
         _sendSlaveResponse = false;     // clear stale slave response
-        expect_response(8);
+        st_expect_response(8);
         break;
 
     case LIN::kFrameIDConfigResponse:
@@ -41,13 +41,13 @@ Slave::header_received(LIN::FrameID fid)
 
     case LIN::kFrameIDSlaveResponse:
         if (_sendSlaveResponse) {
-            send_response(_response, 8);
+            st_send_response(_response, 8);
             _sendSlaveResponse = false;
         }
         break;
 
     default:
-        break;
+        LINDev::st_header_received();
     }
 
     // reset the idle timeout
@@ -55,9 +55,9 @@ Slave::header_received(LIN::FrameID fid)
 }
 
 void
-Slave::response_received(LIN::FrameID fid, LIN::Frame &frame)
+Slave::st_response_received(LIN::Frame &frame)
 {
-    switch (fid) {
+    switch (current_FrameID()) {
     case LIN::kFrameIDConfigRequest:
         config_request(reinterpret_cast<LIN::ConfigFrame &>(frame));
         break;
@@ -75,13 +75,9 @@ Slave::response_received(LIN::FrameID fid, LIN::Frame &frame)
         break;
 
     default:
+        LINDev::st_response_received(frame);
         break;
     }
-}
-
-void
-Slave::response_sent()
-{
 }
 
 void
@@ -170,7 +166,7 @@ Slave::config_response()
     f.value() = get_param(_configParam);
     //f.value() = Parameter(_configParam).get();
 
-    send_response(f, 8);  
+    st_send_response(f, 8);  
 }
 
 uint8_t

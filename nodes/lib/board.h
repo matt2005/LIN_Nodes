@@ -78,8 +78,10 @@ lin_CS(bool state)
 #if defined(DEBUG) && defined(pinDebugTX)
 extern Serial debugPort;
 # define debug(fmt, args...)    Board::debugPort.printf(PSTR(fmt "\n"), ## args)
+# define debugc(c)              Board::debugPort.putc(c)
 #else
 # define debug(fmt, args)       do {} while(0)
+# define debugc(c)              do {} while(0)
 #endif
 
 } //namespace Board

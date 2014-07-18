@@ -32,10 +32,10 @@ public:
     ///
     void            set_sleep_enable(bool enable)
     {
-        _sleepRequest = enable;
+        _mtSleepRequest = enable;
 
         if (!enable) {
-            _awake = true;
+            _mtAwake = true;
         }
     }
 
@@ -50,32 +50,36 @@ public:
     }
 
 protected:
-    virtual void    header_received(LIN::FrameID fid) override;
-    virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame) override;
+    virtual void    st_header_received() override;
+    virtual void    st_response_received(LIN::Frame &frame) override;
 
 private:
-    static const LIN::FrameID _schedule[];
-    static const uint8_t      _scheduleLength;
+    static const LIN::FrameID   _schedule[];
+    static const uint8_t        _scheduleLength;
+    static const uint8_t        _frameTime = 10U;   //< milliseconds
 
-    Timer           _eventTimer;
-    uint8_t         _eventIndex;
+    // master task state
+    Timer           _mtTimer;
+    uint8_t         _mtIndex;
+    bool            _mtAwake;
+    bool            _mtSleepRequest;
+
+    /// master task
+    static void     master_task(void *arg);
+    void            _master_task();
+
+    // slave task state
     LIN::Frame      *volatile _requestFrame;
     LIN::Frame      *volatile _responseFrame;
     uint8_t         _configParam;
 
-    volatile bool   _sendConfigResponseFrame: 1;
-    bool            _sleepRequest: 1;
-    bool            _awake: 1;
-    bool            _testerPresent: 1;
+    bool            _sendConfigResponseFrame;
+    bool            _testerPresent;
 
     static LIN::FrameID schedule_entry(uint8_t idx)
     {
         return (LIN::FrameID)pgm_read_byte(&_schedule[idx]);
     }
-
-    /// Event initiator
-    static void     event(void *arg);
-    void            _event();
 
     /// Config request handler
     ///

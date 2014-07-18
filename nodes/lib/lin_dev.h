@@ -11,9 +11,13 @@ class LINDev
 public:
     LINDev();
     
-    /// Initialise the block
+    /// Do one-time block initialisation
     ///
-    void            init();
+    static void     init();
+
+    /// Re-initialise the block
+    ///
+    static void     reinit();
 
     /// Called from the transfer-complete ISR
     ///
@@ -41,26 +45,24 @@ public:
     Util::Counter8  errors[kErrorMax];     //< error counters
 
 protected:
-    /// Ask the driver to pay attention to the next response that it sees.
+    /// Send a LIN header from the master task.
+    ///
+    /// @param fid              The Frame ID to send in the header.
+    ///
+    static void     mt_send_header(LIN::FrameID fid);
+
+    /// Called by the slave task from st_st_header_received when it wants the
+    /// response associated with a header.
     ///
     /// This will usually be the response associated with an interesting
     /// header.
     ///
     /// @param length           The length of the response to be received.
     ///
-    void            expect_response(uint8_t length);
+    void            st_expect_response(uint8_t length = 8);
     
-    /// Send a LIN header. This is strictly speaking a master function, but
-    /// it shares functionality with the slave.
-    ///
-    /// @param fid              The Frame ID to send in the header.
-    ///
-    void            send_header(LIN::FrameID fid);
-
-    /// Send a response.
-    ///
-    /// Subclass implementation of header_received will call when it wants to
-    /// send a response for an interesting header.
+    /// Called by the slave task from st_st_header_received when it wants to
+    /// send a response.
     ///
     /// Responses are always sent in LIN 2.x format, unless the FID from the
     /// header implies 1.x (i.e. SlaveResponse).
@@ -68,11 +70,11 @@ protected:
     /// @param frame            The response frame to send.
     /// @param length           The length of the response frame.
     ///
-    void            send_response(const LIN::Frame &frame, uint8_t length);
+    void            st_send_response(const LIN::Frame &frame, uint8_t length);
 
-    void            send_response(const volatile LIN::Frame &frame, uint8_t length)
+    void            st_send_response(const volatile LIN::Frame &frame, uint8_t length)
     {
-        send_response(const_cast<const LIN::Frame&>(frame), length);
+        st_send_response(const_cast<const LIN::Frame&>(frame), length);
     }
 
     /// Called when a header has been received.
@@ -81,23 +83,21 @@ protected:
     ///
     /// @param fid              The FID from the received header.
     ///
-    virtual void    header_received(LIN::FrameID fid);
+    virtual void    st_header_received();
     
-    /// Called when a response requested by expect_response has been received.
+    /// Called when a response requested by st_expect_response has been received.
     ///
     /// @param fid              The FID from the header associated with this
     ///                         response.
     /// @param frame            The received response frame.
     ///
-    virtual void    response_received(LIN::FrameID fid, LIN::Frame &frame);
+    virtual void    st_response_received(LIN::Frame &frame);
     
-    /// Called when a response has been sent
+    /// Called when a response has been sent.
     ///
-    virtual void    response_sent();
-
-    /// Wait until the LBUSY bit is cleared
+    /// Can be used to disable the LIN transceiver after transmission is complete.
     ///
-    static void     wait_busy() { while (LINSIR & (1 << LBUSY)) {} }
+    virtual void    st_response_sent();
 
     /// Fetch the current FID from the hardware
     ///

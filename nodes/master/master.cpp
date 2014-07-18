@@ -47,7 +47,8 @@ Master::do_request_response(LIN::Frame &frame)
     }
 
     // Post the frame for the schedule to see, avoid races with the
-    // schedule runner. Don't expect a reply for broadcast frames.
+    // schedule runner. Don't expect a reply for broadcast frames (that's
+    // what the functional NAD appears to be for).
     cli();
     _requestFrame = &frame;
 
@@ -75,9 +76,7 @@ Master::do_request_response(LIN::Frame &frame)
 void
 Master::master_task(void *arg)
 {
-    auto *master = reinterpret_cast<Master *>(arg);
-
-    master->_master_task();
+    reinterpret_cast<Master *>(arg)->_master_task();
 }
 
 void

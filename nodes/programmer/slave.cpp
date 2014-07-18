@@ -175,8 +175,6 @@ ProgrammerSlave::sleep_requested(SleepType type)
 void
 ProgrammerSlave::master_request(LIN::Frame &frame)
 {
-    Board::panic(6);
-
     switch (frame.sid()) {
     case LIN::kServiceTesterPresent:
         // always send a positive response

@@ -198,7 +198,7 @@ LINDev::mt_send_header(LIN::FrameID fid)
     }
 
     // select 1x or 2x mode
-    if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
+    if (fid >= LIN::kFrameIDMasterRequest) {
         Lin_1x_enable();
         Lin_1x_set_id(fid);
         Lin_1x_set_len(8);

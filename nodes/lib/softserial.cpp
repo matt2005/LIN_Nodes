@@ -8,7 +8,7 @@
 #ifdef pinDebugTX
 
 // 57600
-#define BIT_DELAY  17
+#define BIT_DELAY  16
 
 Serial::Serial()
 {

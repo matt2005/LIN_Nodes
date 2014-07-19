@@ -1,3 +1,4 @@
+#include <avr/interrupt.h>
 
 #include "board.h"
 #include "bitarray.h"
@@ -552,8 +553,10 @@ tick()
     climateControl(f);
     windowWipers(f);
 
-    // update the copy we are sending to nodes
+    // atomically update the copy we are sending to nodes
+    cli();
     gMaster.relayFrame.copy(f);
+    sei();
 
 }
 

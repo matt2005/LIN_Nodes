@@ -40,6 +40,9 @@ main(void)
     // enable interrupts; timers and LIN events will start.
     sei();
 
+    // Hysteresis for tester checks
+    uint8_t testerDebounce = 0;
+
     // run the master logic forever
     for (;;) {
         wdt_reset();
@@ -71,10 +74,16 @@ main(void)
             if (f.sid() == (LIN::kServiceTesterPresent | LIN::kServiceIDResponseOffset)) {
                 // positive response from programmer
                 gMaster.set_tester_present(true);
+                testerDebounce = 3;
                 debug("+");
 
             } else {
-                gMaster.set_tester_present(false);
+                if (testerDebounce > 0) {
+                    testerDebounce--;
+                    debugc('-');
+                } else {
+                    gMaster.set_tester_present(false);
+                }
                 debug("!");
             }
         }

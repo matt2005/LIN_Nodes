@@ -20,11 +20,12 @@ SetupPowerMode::init(uint8_t nad)
 {
     uint8_t flavour = 0;
 
-    if (gSlave.get_parameter(nad, 0, flavour) == 1) {    // XXX kBoardFunctionID value
-        _flavour = kFlavourV1;
-
-    } else {
-        _flavour = kFlavourV3;
+    if (gSlave.get_parameter(nad, 0, flavour)) {
+        if (_flavour == 1) {        // XXX kBoardFunctionID value
+            _flavour = kFlavourV1;
+        } else {
+            _flavour = kFlavourV3;
+        }
     }
 
     _init(nad, Util::strtablen(param_names()) - 1);

@@ -288,8 +288,9 @@ configure()
     pinSWSYNCB.cfg_input_pullup();
 #endif
 
-    // take the device out of reset
+    // take the device out of reset and wait the undocumented tENBL
     pinSWRSTB.set();
+    Board::ms_delay(1);
 
     // check that it's the device we expect
     Status stat = get_status(kDeviceID);
@@ -348,8 +349,9 @@ transfer(Command cmd)
     (void)SPSR;
     (void)SPDR;
 
-    // select the slave
+    // select the slave and ensure we wait tLEAD
     pinCS.clear();
+    Board::us_delay(1);
 
     // send/recv high byte first
     SPDR = cmd.raw[1];
@@ -361,8 +363,10 @@ transfer(Command cmd)
     wait();
     s.raw[0] = SPDR;
 
-    // deselect the slave
+    // ensure tLAG delay, deselect the slave and wait at least tCS
+    Board::us_delay(1);
     pinCS.set();
+    Board::us_delay(1);
 
 //debug("RX: %4x", s.val);
 

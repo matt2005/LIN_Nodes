@@ -64,7 +64,6 @@ main(void)
 
         // periodic check for the programmer on the bus
         if (testerCheck.did_tick()) {
-            debugc('A');
             LIN::Frame f(LIN::kNodeAddressTester,
                          2,
                          LIN::kServiceTesterPresent,
@@ -75,16 +74,13 @@ main(void)
                 // positive response from programmer
                 gMaster.set_tester_present(true);
                 testerDebounce = 3;
-                debug("+");
 
             } else {
                 if (testerDebounce > 0) {
                     testerDebounce--;
-                    debugc('-');
                 } else {
                     gMaster.set_tester_present(false);
                 }
-                debug("!");
             }
         }
     }

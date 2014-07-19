@@ -71,6 +71,7 @@ PROGMEM const char masterParamFormats[] =
     "\0";
 
 PROGMEM const uint8_t masterParamInfo[] = {
+    0, 0, 0,
     0, (kSwitchIDUnassigned), (kSwitchIDUnassigned),
     0, (kSwitchIDUnassigned), (kSwitchIDUnassigned),
     0, (kSwitchIDUnassigned), (kSwitchIDUnassigned),

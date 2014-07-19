@@ -25,21 +25,21 @@ ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
             wdt_reset();
 
             if (_state == kStateIdle) {
-                uint8_t readback;
+                uint8_t readback = ~value;
 
                 if (get_parameter(nad, param, readback) && (readback == value)) {
                     return true;
 
                 } else {
                     debug("set: readback %u not %u", readback, value);
+                    break;
                 }
             }
         }
-
-        debug("set: timed out in state %u", _state);
+        debug("set: failed in state %u", _state);
     }
 
-    debug("set: failed");
+    debug("set: failed after retries");
     return false;
 }
 
@@ -72,7 +72,7 @@ ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 
         debug("get: timed out in state %u", _state);
     }
-
+    debug("get: failed after retries");
     return false;
 }
 

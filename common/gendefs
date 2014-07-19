@@ -180,6 +180,7 @@ dict for {node node_params} $parameters {
     puts $fh "    \"\\0\";"
     puts $fh ""
     puts $fh "PROGMEM const uint8_t ${node}ParamInfo\[\] = {"
+    puts $fh "    0, 0, 0,"
     dict for {param_name param_info} $node_params {
         set min [dict get $param_info min]
         set max [dict get $param_info max]

@@ -21,6 +21,7 @@ PROGMEM const char power_v1ParamFormats[] =
     "\0";
 
 PROGMEM const uint8_t power_v1ParamInfo[] = {
+    0, 0, 0,
     0, (kRelayIDUnassigned), (kRelayIDUnassigned),
     0, (kRelayIDUnassigned), (kRelayIDUnassigned),
     0, (kRelayIDUnassigned), (kRelayIDUnassigned),

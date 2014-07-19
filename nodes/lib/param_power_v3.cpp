@@ -103,6 +103,7 @@ PROGMEM const char power_v3ParamFormats[] =
     "\0";
 
 PROGMEM const uint8_t power_v3ParamInfo[] = {
+    0, 0, 0,
     0, (kRelayTypeMax-1), kRelayType5AGeneric,
     0, (kRelayTypeMax-1), kRelayType5AGeneric,
     0, (kRelayTypeMax-1), kRelayType5AGeneric,

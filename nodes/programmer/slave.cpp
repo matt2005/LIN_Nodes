@@ -164,6 +164,7 @@ ProgrammerSlave::st_response_sent()
     if (_state == kStateSetWaitSent) {
         _state = kStateIdle;
     }
+    Slave::st_response_sent();
 }
 
 void

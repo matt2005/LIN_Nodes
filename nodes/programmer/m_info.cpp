@@ -32,6 +32,7 @@ InfoMode::action(Encoder::Event bp)
     switch (bp) {
 
     case Encoder::kEventPress:
+        gSlave.set_suspend(false);
         return &modeTop;
 
     case Encoder::kEventActivate:
@@ -41,6 +42,7 @@ InfoMode::action(Encoder::Event bp)
         gDisplay.printf(PSTR("proto %3u"), protocolRevision);
         gDisplay.move(0, 2);
         gDisplay.printf(PSTR("free  %3u"), Board::freemem());
+        gSlave.set_suspend(true);
         break;
 
     default:

@@ -99,6 +99,10 @@ LINDev::isr_TC()
         // ack the interrupt
         Lin_clear_idok_it();
 
+        // turn off the LIN transmitter 
+        // (we might have turned it on to send the header)
+        Board::lin_CS(false);
+
         // handle the header
         st_header_received();
 
@@ -127,6 +131,10 @@ LINDev::isr_TC()
     }
 
     if (LINSIR & (1 << LTXOK)) {
+
+        // turn off the LIN transmitter 
+        // (we turned it on to send the response)
+        Board::lin_CS(false);
 
         st_response_sent();
 

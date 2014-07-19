@@ -25,7 +25,7 @@ public:
     bool            is_idle()                const { return _state == kStateIdle; }
     bool            is_error()               const { return _state == kStateError; }
 
-    void            setSuspend(bool suspended) { _suspended = suspended; }
+    void            set_suspend(bool suspended) { _suspended = suspended; }
 
 protected:
     virtual void    st_header_received() override;

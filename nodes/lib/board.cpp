@@ -129,9 +129,9 @@ sleep()
         ms_delay(1);
         pinLINTX.cfg_output();
         ms_delay(1);
-        pinLINTX.clear();
-        ms_delay(1);
         pinLINCS.clear();
+        ms_delay(1);
+        pinLINTX.clear();
         ms_delay(10);
         // if we failed to go to sleep, the watchdog will pull us
         // back out via the reset path

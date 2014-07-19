@@ -145,7 +145,6 @@ Slave::config_request(LIN::ConfigFrame &frame)
     }
     if (frame.flavour() == LIN::kCFSetParam) {
         set_param(frame.param(), frame.value());
-        //Parameter(frame.param()).set(frame.value());
         return;
     }
 }
@@ -163,8 +162,11 @@ Slave::config_response()
     f.nad() = _nad;
     f.flavour() = LIN::kCFGetParam;
     f.param() = _configParam;
-    f.value() = get_param(_configParam);
-    //f.value() = Parameter(_configParam).get();
+    if (_configParam == 0) {
+        f.value() = kBoardFunctionID;
+    } else {
+        f.value() = get_param(_configParam);
+    }
 
     st_send_response(f, 8);  
 }

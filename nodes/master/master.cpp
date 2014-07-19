@@ -13,24 +13,24 @@
 //
 PROGMEM const LIN::FrameID Master::_schedule[] = {
     LIN::kFrameIDRelays,
+    LIN::kFrameIDProxyRequest,  // skipped if no tester
     LIN::kFrameIDMasterRequest, // skipped if no work
     LIN::kFrameIDSlaveResponse, // skipped if no work
-    LIN::kFrameIDConfigRequest, // skipped if no tester
-    LIN::kFrameIDConfigResponse,// skipped if no tester
 };
 
 const uint8_t Master::_scheduleLength = sizeof(Master::_schedule) / sizeof(Master::_schedule[0]);
 
 Master::Master() :
+    Slave(LIN::kNodeAddressMaster),
     _mtTimer((Timer::Callback)Master::master_task, this, _frameTime),
     _mtIndex(0),
     _mtAwake(true),
     _mtSleepRequest(false),
     _requestFrame(nullptr),
     _responseFrame(nullptr),
-    _configParam(0),
-    _sendConfigResponseFrame(false),
-    _testerPresent(false)
+    _testerPresent(false),
+    _haveProxyRequest(false),
+    _haveProxyResponse(false)
 {
 #ifdef pinDebugStrobe
     pinDebugStrobe.clear();
@@ -115,11 +115,11 @@ Master::_master_task()
         // special handling for optional frame types
         switch (fid) {
 
-        case LIN::kFrameIDConfigRequest:
-        case LIN::kFrameIDConfigResponse:
+        case LIN::kFrameIDProxyRequest:
 
-            // only send in programmer mode
-            if (!_testerPresent) {
+            // only send in programmer mode, don't send if we are in the process of
+            // handling one
+            if (!_testerPresent || _haveProxyRequest) {
                 continue;
             }
 
@@ -127,11 +127,12 @@ Master::_master_task()
 
         case LIN::kFrameIDMasterRequest:
 
-            // skip unless we have a request frame
-            if (_requestFrame == nullptr) {
+            // skip unless we have a request frame or a proxy frame
+            if ((_requestFrame == nullptr) && !_haveProxyRequest) {
 
                 // if we still have a response frame, it's because we didn't
                 // get a response when we called for it earlier; kill it now
+                // so that the waiter can wake up more quickly
                 if (_responseFrame != nullptr) {
                     _responseFrame = nullptr;
                 }
@@ -168,32 +169,49 @@ Master::st_header_received()
     switch (current_FrameID()) {
     case LIN::kFrameIDRelays:
         // send the relay state
-        st_send_response(relayFrame, 8);
+        st_send_response(relayFrame);
         break;
 
-    case LIN::kFrameIDConfigRequest:
+    case LIN::kFrameIDProxyRequest:
         // collect any response from the programmer
-        st_expect_response(8);
-        break;
-
-    case LIN::kFrameIDConfigResponse:
-        // we may want to send the config response ourselves
-        handle_config_response();
+        st_expect_response();
         break;
 
     case LIN::kFrameIDMasterRequest:
 
-        // send the request if we have one
+        // send the explicit request if we have one
         if (_requestFrame != nullptr) {
-            st_send_response(*_requestFrame, 8);
+            st_send_response(*_requestFrame);
             _requestFrame = nullptr;
+
+            // send the proxied request if we have one
+
+        } else if (_haveProxyRequest) {
+            st_send_response(_proxyFrame);
+
+            // if the proxy request was for us, we
+            // need to prepare a reply
+            if (master_request(_proxyFrame)) {
+                _haveProxyResponse = true;
+            }
+
+            _haveProxyRequest = false;
         }
 
         break;
 
     case LIN::kFrameIDSlaveResponse:
-        // arrange to receive the response
-        st_expect_response(8);
+
+        // if we have a proxy response, we should send it
+        if (_haveProxyResponse) {
+            st_send_response(_proxyFrame);
+            _haveProxyResponse = false;
+
+        } else if (_responseFrame != nullptr) {
+            // arrange to receive the response for our own use
+            st_expect_response();
+        }
+
         break;
 
     default:
@@ -207,9 +225,10 @@ Master::st_response_received(LIN::Frame &frame)
 {
     switch (current_FrameID()) {
 
-    case LIN::kFrameIDConfigRequest:
-        // may be a request for us
-        handle_config_request(reinterpret_cast<LIN::ConfigFrame &>(frame));
+    case LIN::kFrameIDProxyRequest:
+        // save for re-transmission
+        _proxyFrame.copy(frame);
+        _haveProxyRequest = true;
         break;
 
     case LIN::kFrameIDSlaveResponse:
@@ -229,45 +248,19 @@ Master::st_response_received(LIN::Frame &frame)
 }
 
 void
-Master::handle_config_request(LIN::ConfigFrame &frame)
+Master::sleep_requested(SleepType type)
 {
-    // ignore this frame?
-    if (frame.flavour() == LIN::kCFNop) {
-        return;
-    }
+    // ignore this
+}
 
-    // if this request is for us...
-    if (frame.nad() == LIN::kNodeAddressMaster) {
-
-        // request for a parameter from us
-        if (frame.flavour() == LIN::kCFGetParam) {
-            _configParam = frame.param();
-            _sendConfigResponseFrame = true;
-        }
-
-        // request to set a parameter
-        if (frame.flavour() == LIN::kCFSetParam) {
-            // XXX should range-check parameter index and value here...
-            masterParam(frame.param()).set(frame.value());
-        }
-    }
+uint8_t
+Master::get_param(uint8_t param)
+{
+    return masterParam(param);
 }
 
 void
-Master::handle_config_response()
+Master::set_param(uint8_t param, uint8_t value)
 {
-    if (!_sendConfigResponseFrame) {
-        return;
-    }
-
-    _sendConfigResponseFrame = false;
-
-    LIN::ConfigFrame f;
-
-    f.nad() = LIN::kNodeAddressMaster;
-    f.flavour() = LIN::kCFGetParam;
-    f.param() = _configParam;
-    f.value() = masterParam(_configParam);
-
-    st_send_response(f, 8);
+    masterParam(param).set(value);
 }

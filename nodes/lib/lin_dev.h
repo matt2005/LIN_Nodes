@@ -27,9 +27,6 @@ public:
     ///
     void            isr_error();
 
-    // test mode
-    void            master_test();
-
     enum Error : uint8_t {
         kErrorLine,                       //< readback error when transmitting
         kErrorChecksum,                   //< received data checksum mismatch
@@ -70,9 +67,9 @@ protected:
     /// @param frame            The response frame to send.
     /// @param length           The length of the response frame.
     ///
-    void            st_send_response(const LIN::Frame &frame, uint8_t length);
+    void            st_send_response(const LIN::Frame &frame, uint8_t length = 8);
 
-    void            st_send_response(const volatile LIN::Frame &frame, uint8_t length)
+    void            st_send_response(const volatile LIN::Frame &frame, uint8_t length = 8)
     {
         st_send_response(const_cast<const LIN::Frame&>(frame), length);
     }

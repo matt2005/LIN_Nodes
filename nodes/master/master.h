@@ -5,10 +5,10 @@
 #include <stdint.h>
 
 #include "lin_protocol.h"
-#include "lin_dev.h"
+#include "lin_slave.h"
 #include "timer.h"
 
-class Master : public LINDev
+class Master : public Slave
 {
 public:
     Master();
@@ -52,6 +52,9 @@ public:
 protected:
     virtual void    st_header_received() override;
     virtual void    st_response_received(LIN::Frame &frame) override;
+    virtual void    sleep_requested(SleepType type) override;
+    virtual uint8_t get_param(uint8_t param) override;
+    virtual void    set_param(uint8_t param, uint8_t value) override;
 
 private:
     static const LIN::FrameID   _schedule[];
@@ -69,12 +72,13 @@ private:
     void            _master_task();
 
     // slave task state
+    LIN::Frame      _proxyFrame;
     LIN::Frame      *volatile _requestFrame;
     LIN::Frame      *volatile _responseFrame;
-    uint8_t         _configParam;
 
-    bool            _sendConfigResponseFrame;
     bool            _testerPresent;
+    bool            _haveProxyRequest;
+    bool            _haveProxyResponse;
 
     static LIN::FrameID schedule_entry(uint8_t idx)
     {

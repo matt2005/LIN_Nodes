@@ -25,23 +25,14 @@ void
 Slave::st_header_received()
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDConfigRequest:
-        _sendConfigResponse = false;    // clear stale config response
-        st_expect_response(8);
-        break;
-
     case LIN::kFrameIDMasterRequest:
         _sendSlaveResponse = false;     // clear stale slave response
-        st_expect_response(8);
-        break;
-
-    case LIN::kFrameIDConfigResponse:
-        config_response();
+        st_expect_response();
         break;
 
     case LIN::kFrameIDSlaveResponse:
         if (_sendSlaveResponse) {
-            st_send_response(_response, 8);
+            st_send_response(_response);
             _sendSlaveResponse = false;
         }
         break;
@@ -58,10 +49,6 @@ void
 Slave::st_response_received(LIN::Frame &frame)
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDConfigRequest:
-        config_request(reinterpret_cast<LIN::ConfigFrame &>(frame));
-        break;
-
     case LIN::kFrameIDMasterRequest:
         // check for broadcast sleep request
         if (frame.nad() == LIN::kNodeAddressSleep) {
@@ -70,7 +57,9 @@ Slave::st_response_received(LIN::Frame &frame)
         // check for directly addressed or broadcast master request
         if ((frame.nad() == _nad) ||
             (frame.nad() == LIN::kNodeAddressBroadcast)) {
-            master_request(frame);
+            if (master_request(frame)) {
+                slave_response(frame);
+            }
         }
         break;
 
@@ -87,11 +76,31 @@ Slave::sleep_requested(SleepType type)
     Board::sleep();
 }
 
-void
+bool
 Slave::master_request(LIN::Frame &frame)
 {
+    bool reply = false;
     // ReadByID
-    if (frame.sid() == LIN::kServiceIDReadByID) {
+    switch (frame.sid()) {
+
+    case LIN::kServiceIDReadDataByID: {
+        frame.pci() = 5;
+        frame.sid() |= LIN::kServiceIDResponseOffset;
+        frame.d3() = get_param(frame.d1());     // XXX high ID byte ignored
+        frame.d4() = 0;
+        reply = true;
+        break;
+    }
+
+    case LIN::kServiceIDWriteDataByID: {
+        set_param(frame.d1(), frame.d3());      // XXX high bytes ignored
+        frame.pci() = 3;
+        frame.sid() |= LIN::kServiceIDResponseOffset;
+        reply = true;
+        break;
+    }
+
+    case LIN::kServiceIDReadByID: {
         switch (frame.d1()) {
         case LIN::kReadByIDProductID:
             frame.pci() = 6;
@@ -101,6 +110,7 @@ Slave::master_request(LIN::Frame &frame)
             frame.d3() = kBoardFunctionID;
             frame.d4() = Board::get_mode();
             frame.d5() = 0;
+            reply = true;
             break;
 
         case LIN::kReadByIDErrorCounters:
@@ -114,6 +124,7 @@ Slave::master_request(LIN::Frame &frame)
             frame.d3() = errors[kErrorProtocol];
             frame.d4() = errors[kErrorSlave1];
             frame.d5() = errors[kErrorSlave2];
+            reply = true;
             break;
 
         default:
@@ -125,50 +136,14 @@ Slave::master_request(LIN::Frame &frame)
             frame.d3() = 0xff;
             frame.d4() = 0xff;
             frame.d5() = 0xff;
+            reply = true;
             break;
         }
-
-        slave_response(frame);
+        break;
     }
-}
-
-void
-Slave::config_request(LIN::ConfigFrame &frame)
-{
-    if (frame.nad() != _nad) {
-        return;
-    }
-    if (frame.flavour() == LIN::kCFGetParam) {
-        _configParam = frame.param();
-        _sendConfigResponse = true;
-        return;
-    }
-    if (frame.flavour() == LIN::kCFSetParam) {
-        set_param(frame.param(), frame.value());
-        return;
-    }
-}
-
-void
-Slave::config_response()
-{
-    if (!_sendConfigResponse) {
-        return;
-    }
-    _sendConfigResponse = false;
-
-    LIN::ConfigFrame f;
-
-    f.nad() = _nad;
-    f.flavour() = LIN::kCFGetParam;
-    f.param() = _configParam;
-    if (_configParam == 0) {
-        f.value() = kBoardFunctionID;
-    } else {
-        f.value() = get_param(_configParam);
     }
 
-    st_send_response(f, 8);  
+    return reply;
 }
 
 uint8_t

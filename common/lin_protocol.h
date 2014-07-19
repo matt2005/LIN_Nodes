@@ -22,8 +22,7 @@ enum FrameID : uint8_t {
     kFrameIDNone            = 0x00,
     kFrameIDRelays          = 0x01,
     kFrameIDECUData         = 0x02,
-    kFrameIDConfigRequest   = 0x2c,
-    kFrameIDConfigResponse  = 0x2d,
+    kFrameIDProxyRequest    = 0x3b,
     kFrameIDMasterRequest   = 0x3c,
     kFrameIDSlaveResponse   = 0x3d,
     kFrameIDTest            = 0x3f,
@@ -74,9 +73,9 @@ enum NodeAddress : uint8_t {
 // LIN service IDs for  MasterRequest/SlaveResponse
 //
 enum ServiceID : uint8_t {
-    kServiceReadDataByID        = 0x22,
-    kServiceWriteDataByID       = 0x2e,
-    kServiceTesterPresent       = 0x3e,
+    kServiceIDReadDataByID      = 0x22,
+    kServiceIDWriteDataByID     = 0x2e,
+    kServiceIDTesterPresent     = 0x3e,
     kServiceIDReadByID          = 0xb2,
     kServiceIDDataDump          = 0xb4,
 

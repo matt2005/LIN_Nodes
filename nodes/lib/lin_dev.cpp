@@ -48,50 +48,6 @@ LINDev::reinit()
 }
 
 void
-LINDev::master_test()
-{
-    // XXX testing
-    debug("LIN testing");
-
-    // no interrupts
-    Lin_clear_enable_it();
-
-    // disable frame timeouts
-    LINCR |= (1 << LCONF1);
-
-    // no watchdog
-    wdt_disable();
-
-    for (;;) {
-        mt_send_header(LIN::kFrameIDTest);
-
-        while (!Is_lin_header_ready()) {
-            if (LINSIR & (1 << LERR)) {
-                debug("frame TX error %2x", Lin_get_error_status());
-                Board::panic(Board::kPanicCodeLIN);
-            }
-        }
-
-        if (Lin_get_id() != LIN::kFrameIDTest) {
-            debug("FID mismatch, got %2x", Lin_get_id());
-            Board::panic(Board::kPanicCodeLIN);
-        }
-
-        LIN::Frame f(1,2,3,4,5,6,7,8);
-        st_send_response(f, 8);
-
-        while (LINSIR & (1 << LBUSY)) {
-            if (LINSIR & (1 << LERR)) {
-                debug("frame TX error %2x", Lin_get_error_status());
-                Board::panic(Board::kPanicCodeLIN);
-            }
-        }
-
-        Board::ms_delay(100);
-    }
-}
-
-void
 LINDev::isr_TC() 
 {
     if (Is_lin_header_ready()) {

@@ -17,6 +17,7 @@ public:
     }
 
     operator uint8_t () const { return get(); }
+    void operator = (uint8_t v) { set(v); }
 
     uint8_t     get() const
     {

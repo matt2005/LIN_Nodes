@@ -13,7 +13,7 @@ RelaySlave::st_header_received()
 {
     switch (current_FrameID()) {
     case LIN::kFrameIDRelays:
-        st_expect_response(8);
+        st_expect_response();
         break;
 
     default:

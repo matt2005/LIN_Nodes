@@ -38,8 +38,10 @@ protected:
     /// this node.
     ///
     /// @param frame            The response frame
+    /// @return                 If true, the (modified) frame should be sent
+    ///                         as a slave response.
     ///
-    virtual void    master_request(LIN::Frame &frame);
+    virtual bool    master_request(LIN::Frame &frame);
 
     /// Prepare a response to the LIN::kSlaveResponse message.
     ///
@@ -53,7 +55,7 @@ protected:
 
     /// Get a parameter
     ///
-    /// Called when handling config requests
+    /// Called when handling kServiceIDReadDataByID
     ///
     /// @param param            Parameter index to be read.
     /// @return                 The parameter's current value.
@@ -62,7 +64,7 @@ protected:
 
     /// Set a parameter
     ///
-    /// Called when handling config responses
+    /// Called when handling kServiceIDWriteDataByID
     ///
     /// @param param            Parameter index to be written
     /// @param value            Value to be written.
@@ -72,13 +74,8 @@ protected:
 private:
     Timer           _idleTimer;         //< Bus idle timer
     LIN::Frame      _response;          //< canned response frame
-    uint8_t         _configParam;       //< parameter to send for ConfigResponse
 
     bool            _sendSlaveResponse:1;
-    bool            _sendConfigResponse:1;
 
     static void     idle_timeout(void *arg); //< idle timeout callback
-
-    void            config_request(LIN::ConfigFrame &frame);
-    void            config_response();
 };

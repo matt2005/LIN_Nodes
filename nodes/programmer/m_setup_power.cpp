@@ -23,6 +23,7 @@ SetupPowerMode::init(uint8_t nad)
     if (gSlave.get_parameter(nad, 0, flavour)) {
         if (_flavour == 1) {        // XXX kBoardFunctionID value
             _flavour = kFlavourV1;
+
         } else {
             _flavour = kFlavourV3;
         }

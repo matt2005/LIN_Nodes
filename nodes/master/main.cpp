@@ -66,11 +66,11 @@ main(void)
         if (testerCheck.did_tick()) {
             LIN::Frame f(LIN::kNodeAddressTester,
                          2,
-                         LIN::kServiceTesterPresent,
+                         LIN::kServiceIDTesterPresent,
                          0);
             gMaster.do_request_response(f);
 
-            if (f.sid() == (LIN::kServiceTesterPresent | LIN::kServiceIDResponseOffset)) {
+            if (f.sid() == (LIN::kServiceIDTesterPresent | LIN::kServiceIDResponseOffset)) {
                 // positive response from programmer
                 gMaster.set_tester_present(true);
                 testerDebounce = 3;
@@ -78,6 +78,7 @@ main(void)
             } else {
                 if (testerDebounce > 0) {
                     testerDebounce--;
+
                 } else {
                     gMaster.set_tester_present(false);
                 }

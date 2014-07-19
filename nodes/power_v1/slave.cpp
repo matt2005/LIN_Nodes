@@ -13,7 +13,7 @@ RelaySlave::st_header_received()
 {
     switch (current_FrameID()) {
     case LIN::kFrameIDRelays:
-        st_expect_response(8);
+        st_expect_response();
         break;
 
     default:
@@ -46,5 +46,5 @@ RelaySlave::get_param(uint8_t param)
 void
 RelaySlave::set_param(uint8_t param, uint8_t value)
 {
-    power_v1Param(param).set(value);
+    power_v1Param(param) = value;
 }

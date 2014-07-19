@@ -11,9 +11,9 @@ public:
     ProgrammerSlave() :
         Slave(LIN::kNodeAddressTester),
         _state(kStateIdle),
-        _paramValue(0),
         _nodeAddress(0),
         _paramIndex(0),
+        _paramValue(0),
         _suspended(false)
     {}
 
@@ -30,30 +30,28 @@ public:
 protected:
     virtual void    st_header_received() override;
     virtual void    st_response_received(LIN::Frame &frame) override;
-    virtual void    st_response_sent() override;
     virtual void    sleep_requested(SleepType type) override;
-    virtual void    master_request(LIN::Frame &frame) override;
+    virtual bool    master_request(LIN::Frame &frame) override;
 
 private:
     enum State : uint8_t {
         kStateIdle,
         kStateError,
 
-        kStateSetWaitRequest,
-        kStateSetWaitSent,
-
-        kStateGetWaitRequest,
-        kStateGetWaitResponse,
-        kStateGetComplete,
+        kStateSetParam,
+        kStateGetParam,
+        kStateWaitParam
     };
 
     volatile State      _state;
-    volatile uint8_t    _paramValue;
 
     uint8_t             _nodeAddress;
     uint8_t             _paramIndex;
+    volatile uint8_t    _paramValue;
 
     bool                _suspended;
+
+    bool                wait_complete();
 };
 
 extern ProgrammerSlave gSlave;

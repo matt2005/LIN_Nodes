@@ -96,6 +96,7 @@ enum Increment : uint16_t {
 struct Command {
     union {
         uint8_t     raw[2];
+        uint16_t    val;
 
         // bitfields are all LSB first
 
@@ -239,6 +240,7 @@ enum DeviceType : uint16_t {
 
 union Status {
     uint8_t     raw[2];
+    uint16_t    val;
 
     struct {
         uint16_t    qsf: 5;

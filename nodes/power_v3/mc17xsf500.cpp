@@ -294,8 +294,8 @@ configure()
     // check that it's the device we expect
     Status stat = get_status(kDeviceID);
 
-    if (stat.device_id.device_type != 1) {
-        debug("SPI !MC17SXF500");
+    if ((stat.device_id.device_type != 1) || (stat.device_id.device_family != 0)) {
+        debug("SPI !MC17SXF500 %4x", stat.val);
         Board::panic(Board::kPanicCodeSPI);
     }
 
@@ -339,6 +339,8 @@ transfer(Command cmd)
 
     toggle = !toggle;
 
+//debug("TX: %4x", cmd.val);
+
     // Configure SPI for mode 2 master at 2MHz, MSB first
     SPCR = (1 << SPE) | (1 << MSTR) | (1 << CPHA);
 
@@ -362,6 +364,8 @@ transfer(Command cmd)
     // deselect the slave
     pinCS.set();
 
+//debug("RX: %4x", s.val);
+
     return s;
 }
 
@@ -374,7 +378,14 @@ get_status(StatusRegister reg)
     (void)transfer(CmdInit1().soa(reg));
 
     // send a normal init_1 command and return the status previously selected
-    return transfer(CmdInit1());
+    Status s = transfer(CmdInit1());
+
+    if ((s.val >> 12) != reg) {
+        debug("SPI status read %2x got %2x", reg, s.val >> 12);
+        Board::panic(Board::kPanicCodeSPI);
+    }
+
+    return s;
 }
 
 static void

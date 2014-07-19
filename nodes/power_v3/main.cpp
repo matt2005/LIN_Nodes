@@ -25,7 +25,7 @@ main(void)
     power_v3ParamAll(init);
 
     // construct the slave
-    RelaySlave  slave(id);
+    RelaySlave slave(id);
     slave.init();
 
     // initialise the power switch

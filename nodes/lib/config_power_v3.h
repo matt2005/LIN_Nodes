@@ -1,24 +1,24 @@
 #pragma once
 
 //
-// v3 power node
+// v3.1 power node
 //
 
 static const uint8_t kBoardFunctionID = 2;
 
-#define pinMode1       portB[0]
+#define pinMode1       portB[3]
 #define pinMode2       portB[5]
-#define pinMode4       portB[3]
+#define pinMode4       portB[0]
 #define pinMode8       portB[4]
 
 #define pinLINRX       portA[0]
 #define pinLINTX       portA[1]
-#define pinLINCS       portB[6]
+#define pinLINCS       portA[3]
 
 #define pinMOSI        portA[4]
 #define pinMISO        portA[2]
 #define pinSCK         portA[5]
-#define pinCS          portA[3]
+#define pinCS          portA[6]
 #define pinSWCLK       portB[6]
 #define pinSWCSNS      portA[7]
 #define pinSWSYNCB     portB[1]

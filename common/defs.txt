@@ -66,6 +66,15 @@ ENUM RelayType {
     Motor
 }
 
+ENUM LINError {
+    Line
+    Checksum
+    Parity
+    Framing
+    Synchronisation
+    Protocol
+}
+
 ################################################################################
 
 PARAMETERS master

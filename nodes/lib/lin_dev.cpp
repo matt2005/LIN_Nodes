@@ -100,19 +100,19 @@ LINDev::isr_error()
 {
 
     if (Lin_get_error_status() & (1 << LBERR)) {
-        errors[kErrorLine]++;
+        errors[kLINErrorLine]++;
     }
     if (Lin_get_error_status() & (1 << LCERR)) {
-        errors[kErrorChecksum]++;
+        errors[kLINErrorChecksum]++;
     }
     if (Lin_get_error_status() & (1 << LPERR)) {
-        errors[kErrorParity]++;
+        errors[kLINErrorParity]++;
     }
     if (Lin_get_error_status() & (1 << LFERR)) {
-        errors[kErrorFraming]++;
+        errors[kLINErrorFraming]++;
     }
     if (Lin_get_error_status() & (1 << LSERR)) {
-        errors[kErrorSynchronisation]++;
+        errors[kLINErrorSynchronisation]++;
     }
 
     // reset to default mode

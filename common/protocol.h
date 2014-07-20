@@ -140,4 +140,23 @@ static PROGMEM const char namesForRelayType[] =
     "Motor\0"
     "\0";
 
+enum LINError : uint8_t {
+    kLINErrorLine,
+    kLINErrorChecksum,
+    kLINErrorParity,
+    kLINErrorFraming,
+    kLINErrorSynchronisation,
+    kLINErrorProtocol,
+    kLINErrorMax
+};
+
+static PROGMEM const char namesForLINError[] = 
+    "Line\0"
+    "Checksum\0"
+    "Parity\0"
+    "Framing\0"
+    "Synchronisation\0"
+    "Protocol\0"
+    "\0";
+
 

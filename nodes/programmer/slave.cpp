@@ -10,10 +10,17 @@
 bool
 ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
 {
+    return set_data_by_id(nad, 0, param, value);
+}
+
+bool
+ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value)
+{
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
         _nodeAddress = nad;
-        _paramIndex = param;
+        _paramPage = page;
+        _paramIndex = index;
         _paramValue = value;
         _state = kStateSetParam;
         sei();
@@ -24,7 +31,7 @@ ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
 
         uint8_t readback = ~value;
 
-        if (get_parameter(nad, param, readback) && (readback == value)) {
+        if (get_parameter(nad, index, readback) && (readback == value)) {
             return true;
         }
 
@@ -38,10 +45,27 @@ ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
 bool
 ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 {
+    uint16_t tmp;
+
+    bool result = get_data_by_id(nad, 0, param, tmp);
+    value = tmp & 0xff;
+    return result;
+}
+
+bool
+ProgrammerSlave::get_error_count(uint8_t nad, uint8_t err, uint16_t &count)
+{
+    return get_data_by_id(nad, 1, err, count);
+}
+
+bool
+ProgrammerSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t &value)
+{
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
         _nodeAddress = nad;
-        _paramIndex = param;
+        _paramPage = page;
+        _paramIndex = index;
         _paramValue = 0;
         _state = kStateGetParam;
         sei();
@@ -69,9 +93,9 @@ ProgrammerSlave::st_header_received()
                                         5,
                                         LIN::kServiceIDWriteDataByID,
                                         _paramIndex,
-                                        0,
-                                        _paramValue,
-                                        0));
+                                        _paramPage,
+                                        _paramValue & 0xff,
+                                        _paramValue << 8));
             _state = kStateIdle;
             break;
 
@@ -80,7 +104,7 @@ ProgrammerSlave::st_header_received()
                                         3,
                                         LIN::kServiceIDReadDataByID,
                                         _paramIndex,
-                                        0));
+                                        _paramPage));
             _state = kStateWaitParam;
             break;
 
@@ -128,12 +152,13 @@ ProgrammerSlave::st_response_received(LIN::Frame &frame)
 
             // sanity-check the response
             if ((frame.pci() != 5) ||
-                (frame.d1() != _paramIndex)) {
+                (frame.d1() != _paramIndex) ||
+                (frame.d2() != _paramPage)) {
                 _state = kStateError;
                 debug("get: frame err");
 
             } else {
-                _paramValue = frame.d3();
+                _paramValue = frame.d3() | (frame.d4() << 8);
                 _state = kStateIdle;
             }
         }

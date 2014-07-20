@@ -5,6 +5,7 @@
 #include "util.h"
 #include "lin_drv.h"
 #include "lin_protocol.h"
+#include "protocol.h"
 
 class LINDev
 {
@@ -27,19 +28,17 @@ public:
     ///
     void            isr_error();
 
-    enum Error : uint8_t {
-        kErrorLine,                       //< readback error when transmitting
-        kErrorChecksum,                   //< received data checksum mismatch
-        kErrorParity,                     //< header parity error
-        kErrorFraming,                    //< framing error
-        kErrorSynchronisation,            //< bitrate synchronisation error
-        kErrorProtocol,                   //< slave protocol error
-        kErrorSlave1,                     //< slave private error 1
-        kErrorSlave2,                     //< slave private error 2
-        kErrorMax
-    };
+//    enum Error : uint8_t {
+//        kErrorLine,                       //< readback error when transmitting
+//        kErrorChecksum,                   //< received data checksum mismatch
+//        kErrorParity,                     //< header parity error
+//        kErrorFraming,                    //< framing error
+//        kErrorSynchronisation,            //< bitrate synchronisation error
+//        kErrorProtocol,                   //< slave protocol error
+//        kErrorMax
+//    };
 
-    Util::Counter8  errors[kErrorMax];     //< error counters
+    Util::Counter16  errors[kLINErrorMax];     //< error counters
 
 protected:
     /// Send a LIN header from the master task.

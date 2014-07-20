@@ -65,7 +65,6 @@ enum ServiceID : uint8_t {
 //
 enum ReadByID : uint8_t {
     kReadByIDProductID          = 0,
-    kReadByIDErrorCounters      = 32,
 };
 
 //

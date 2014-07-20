@@ -85,25 +85,52 @@ Slave::master_request(LIN::Frame &frame)
     switch (frame.sid()) {
 
     case LIN::kServiceIDReadDataByID: {
-        if (frame.pci() == 3) {
+        if (frame.pci() != 3) {
+            frame.set_error(LIN::kServiceErrorIncorrectLength);
+        } else {
             frame.pci() = 5;
             frame.sid() |= LIN::kServiceIDResponseOffset;
-            frame.d3() = get_param(frame.d1());     // XXX high ID byte ignored
-            frame.d4() = 0;
-        } else {
-            frame.set_error(LIN::kServiceErrorIncorrectLength);
+            // select parameter page
+            switch (frame.d2()) {
+            case 0:
+                // page 0 - setup parameters
+                frame.d3() = get_param(frame.d1());
+                frame.d4() = 0;
+                break;
+            case 1:
+                // page 1 - error counters
+                if (frame.d1() < kLINErrorMax) {
+                    frame.d3() = errors[frame.d1()];
+                    frame.d4() = 0;
+                } else {
+                    frame.set_error(LIN::kServiceErrorOutOfRange);
+                }
+                break;
+            default:
+                frame.set_error(LIN::kServiceErrorOutOfRange);
+                break;
+            }
         }
         reply = true;
         break;
     }
 
     case LIN::kServiceIDWriteDataByID: {
-        if (frame.pci() == 5) {
-            set_param(frame.d1(), frame.d3());      // XXX high bytes ignored
+        if (frame.pci() != 5) {
+            frame.set_error(LIN::kServiceErrorIncorrectLength);
+        } else {
             frame.pci() = 3;
             frame.sid() |= LIN::kServiceIDResponseOffset;
-        } else {
-            frame.set_error(LIN::kServiceErrorIncorrectLength);
+
+            // select parameter page
+            switch (frame.d2()) {
+            case 0:
+                set_param(frame.d1(), frame.d3());      // XXX high bytes ignored
+                break;
+            default:
+                frame.set_error(LIN::kServiceErrorOutOfRange);
+                break;
+            }
         }
         reply = true;
         break;
@@ -119,20 +146,6 @@ Slave::master_request(LIN::Frame &frame)
             frame.d3() = kBoardFunctionID;
             frame.d4() = Board::get_mode();
             frame.d5() = 0;
-            reply = true;
-            break;
-
-        case LIN::kReadByIDErrorCounters:
-            frame.pci() = 6;
-            frame.sid() |= LIN::kServiceIDResponseOffset;
-            frame.d1() = errors[kErrorLine];
-            frame.d2() = errors[kErrorChecksum] + 
-                         errors[kErrorParity] + 
-                         errors[kErrorFraming] +
-                         errors[kErrorSynchronisation];
-            frame.d3() = errors[kErrorProtocol];
-            frame.d4() = errors[kErrorSlave1];
-            frame.d5() = errors[kErrorSlave2];
             reply = true;
             break;
 

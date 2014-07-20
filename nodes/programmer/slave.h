@@ -21,6 +21,7 @@ public:
 
     bool            set_parameter(uint8_t nad, uint8_t param, uint8_t value);
     bool            get_parameter(uint8_t nad, uint8_t param, uint8_t &value);
+    bool            get_error_count(uint8_t nad, uint8_t err, uint16_t &count);
 
     bool            is_idle()                const { return _state == kStateIdle; }
     bool            is_error()               const { return _state == kStateError; }
@@ -46,12 +47,15 @@ private:
     volatile State      _state;
 
     uint8_t             _nodeAddress;
+    uint8_t             _paramPage;
     uint8_t             _paramIndex;
-    volatile uint8_t    _paramValue;
+    volatile uint16_t    _paramValue;
 
     bool                _suspended;
 
     bool                wait_complete();
+    bool                get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t &value);
+    bool                set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value);
 };
 
 extern ProgrammerSlave gSlave;

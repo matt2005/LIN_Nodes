@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "slave.h"
+#include "board.h"
 #include "param_power_v3.h"
 
 RelaySlave::RelaySlave(uint8_t BoardID) :
@@ -41,6 +42,10 @@ RelaySlave::st_response_received(LIN::Frame &frame)
 uint8_t
 RelaySlave::get_param(uint8_t param)
 {
+    if (param == 0) {
+        return kBoardFunctionID;
+    }
+
     return power_v3Param(param);
 }
 

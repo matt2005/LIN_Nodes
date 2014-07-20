@@ -53,6 +53,7 @@ Slave::st_response_received(LIN::Frame &frame)
         // check for broadcast sleep request
         if (frame.nad() == LIN::kNodeAddressSleep) {
             sleep_requested(kSleepTypeRequested);
+            break;
         }
         // check for directly addressed or broadcast master request
         if ((frame.nad() == _nad) ||
@@ -84,18 +85,26 @@ Slave::master_request(LIN::Frame &frame)
     switch (frame.sid()) {
 
     case LIN::kServiceIDReadDataByID: {
-        frame.pci() = 5;
-        frame.sid() |= LIN::kServiceIDResponseOffset;
-        frame.d3() = get_param(frame.d1());     // XXX high ID byte ignored
-        frame.d4() = 0;
+        if (frame.pci() == 3) {
+            frame.pci() = 5;
+            frame.sid() |= LIN::kServiceIDResponseOffset;
+            frame.d3() = get_param(frame.d1());     // XXX high ID byte ignored
+            frame.d4() = 0;
+        } else {
+            frame.set_error(LIN::kServiceErrorIncorrectLength);
+        }
         reply = true;
         break;
     }
 
     case LIN::kServiceIDWriteDataByID: {
-        set_param(frame.d1(), frame.d3());      // XXX high bytes ignored
-        frame.pci() = 3;
-        frame.sid() |= LIN::kServiceIDResponseOffset;
+        if (frame.pci() == 5) {
+            set_param(frame.d1(), frame.d3());      // XXX high bytes ignored
+            frame.pci() = 3;
+            frame.sid() |= LIN::kServiceIDResponseOffset;
+        } else {
+            frame.set_error(LIN::kServiceErrorIncorrectLength);
+        }
         reply = true;
         break;
     }
@@ -129,13 +138,7 @@ Slave::master_request(LIN::Frame &frame)
 
         default:
             // send an error
-            frame.pci() = 3;
-            frame.sid() = LIN::kServiceIDErrorResponse;
-            frame.d1() = LIN::kServiceIDReadByID;
-            frame.d2() = LIN::kServiceErrorFunctionNotSupported;
-            frame.d3() = 0xff;
-            frame.d4() = 0xff;
-            frame.d5() = 0xff;
+            frame.set_error(LIN::kServiceErrorFunctionNotSupported);
             reply = true;
             break;
         }

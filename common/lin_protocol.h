@@ -28,29 +28,6 @@ enum FrameID : uint8_t {
     kFrameIDTest            = 0x3f,
 };
 
-// XXX Note - it would be preferable to use the ISO 14229 read/write parameter
-// by identifier request and have ConfigRequest become a proxied MasterRequest,
-// with a unified SlaveResponse in either case, but it's not clear that
-// the request can be formatted in SF mode, and in any case ISO 14229-1 is not
-// publically available.
-//
-// It may be possible to reconstruct the packets using:
-// http://unifieddiagnosticservices.blogspot.com/2011/12/automotive-diagnostics-services.html
-//
-// Read request   d1/d2 = identifier
-// Read response  d1/d2 = identifier, d3/d4 = value
-// Write request  d1/d2 = identifier, d3/d4 = value
-// Write response d1/d2 = identifier
-//
-// With errors in the 'normal' fashion.
-//
-// Master could issue a 'get config request' frame & cache response, then send
-// that response as part of a MasterRequest.
-// Master will need to interlock between this & its own requests... how does this
-// work if the master is responding to the SlaveResponse? Does it need to be blind
-// to its own responses?
-//
-
 //
 // LIN node addresses for MasterRequest/SlaveResponse
 //
@@ -100,6 +77,7 @@ enum ServiceError : uint8_t {
     kServiceErrorConditionsNotCorrect   = 0x22,
     kServiceErrorOutOfRange             = 0x31,
     kServiceErrorAccessDenied           = 0x33,
+    kServiceGeneralFailure              = 0x72
 };
 
 static const uint16_t   kSupplierID = 0xb007;   //< a random-ish number
@@ -201,6 +179,18 @@ public:
     volatile uint8_t    &d4()   volatile { return _b[6]; }
     volatile uint8_t    &d5()   volatile { return _b[7]; }
 
+    // convert to error reply
+    void                set_error(ServiceError err) 
+    {
+        pci() = 2;
+        d1() = sid();
+        sid() = kServiceIDErrorResponse;
+        d2() = err;
+        d3() = 0xff;
+        d4() = 0xff;
+        d5() = 0xff;
+    }
+
     // direct buffer access
     volatile uint8_t    *buf() volatile { return &_b[0]; }
 
@@ -242,23 +232,6 @@ public:
     volatile uint8_t    &voltage()              volatile { return (*this)[5]; } //< tenths of a volt
     volatile uint8_t    &AFR()                  volatile { return (*this)[6]; } //< ratio tenths, 10.0 : 20.0
     volatile uint8_t    &roadSpeed()            volatile { return (*this)[7]; } //< mph
-};
-
-enum ConfigFlavour : uint8_t {
-    kCFGetParam,
-    kCFSetParam,
-    kCFNop = 0xff
-};
-
-class ConfigFrame : public Frame
-{
-public:
-
-    volatile uint8_t    &nad()     volatile { return (*this)[0]; }
-    volatile uint8_t    &flavour() volatile { return (*this)[1]; }
-    volatile uint8_t    &param()   volatile { return (*this)[2]; }
-    volatile uint8_t    &value()   volatile { return (*this)[3]; }
-
 };
 
 } // namespace LIN

@@ -13,64 +13,28 @@
 //
 PROGMEM const LIN::FrameID Master::_schedule[] = {
     LIN::kFrameIDRelays,
-    LIN::kFrameIDProxyRequest,  // skipped if no tester
-    LIN::kFrameIDMasterRequest, // skipped if no work
-    LIN::kFrameIDSlaveResponse, // skipped if no work
+    LIN::kFrameIDProxyRequest,
+    LIN::kFrameIDMasterRequest,
+    LIN::kFrameIDSlaveResponse,
 };
 
 const uint8_t Master::_scheduleLength = sizeof(Master::_schedule) / sizeof(Master::_schedule[0]);
 
 Master::Master() :
     Slave(LIN::kNodeAddressMaster),
+    _testerPresent(0),
     _mtTimer((Timer::Callback)Master::master_task, this, _frameTime),
     _mtIndex(0),
     _mtAwake(true),
     _mtSleepRequest(false),
-    _requestFrame(nullptr),
-    _responseFrame(nullptr),
-    _testerPresent(false),
-    _haveProxyRequest(false),
-    _haveProxyResponse(false)
+    _stProxyRequest(false),
+    _stProxyResponse(false),
+    _stExpectResponse(false)
 {
 #ifdef pinDebugStrobe
     pinDebugStrobe.clear();
     pinDebugStrobe.cfg_output();
 #endif
-}
-
-void
-Master::do_request_response(LIN::Frame &frame)
-{
-    // ignored if the network is not awake
-    if (!_mtAwake) {
-        return;
-    }
-
-    // Post the frame for the schedule to see, avoid races with the
-    // schedule runner. Don't expect a reply for broadcast frames (that's
-    // what the functional NAD appears to be for).
-    cli();
-    _requestFrame = &frame;
-
-    if (frame.nad() != LIN::kNodeAddressBroadcast) {
-        _responseFrame = &frame;
-    }
-
-    sei();
-
-    // wait for 2 cycles total (fatal if not completed by then)
-    Timestamp t;
-
-    while (!t.is_older_than(_scheduleLength * _frameTime * 2U)) {
-        wdt_reset();
-
-        if ((_requestFrame == nullptr) && (_responseFrame == nullptr)) {
-            break;
-        }
-    }
-
-    _requestFrame = nullptr;
-    _responseFrame = nullptr;
 }
 
 void
@@ -117,9 +81,7 @@ Master::_master_task()
 
         case LIN::kFrameIDProxyRequest:
 
-            // only send in programmer mode, don't send if we are in the process of
-            // handling one
-            if (!_testerPresent || _haveProxyRequest) {
+            if (_testerPresent == 0) {
                 continue;
             }
 
@@ -127,27 +89,18 @@ Master::_master_task()
 
         case LIN::kFrameIDMasterRequest:
 
-            // skip unless we have a request frame or a proxy frame
-            if ((_requestFrame == nullptr) && !_haveProxyRequest) {
-
-                // if we still have a response frame, it's because we didn't
-                // get a response when we called for it earlier; kill it now
-                // so that the waiter can wake up more quickly
-                if (_responseFrame != nullptr) {
-                    _responseFrame = nullptr;
-                }
-
-                continue;
-            }
+            // XXX optimise - only send when we have something to send
 
             break;
 
         case LIN::kFrameIDSlaveResponse:
 
-            // skip unless we want a response
-            if (_responseFrame == nullptr) {
+            // only send when something is expected to respond
+            if (!_stProxyResponse && !_stExpectResponse) {
                 continue;
             }
+
+            _stExpectResponse = false;
 
             break;
 
@@ -156,7 +109,7 @@ Master::_master_task()
             break;
         }
 
-        // and transmit the header (will turn on the transceiver if required)
+        // and transmit the header
         mt_send_header(fid);
 
         break;
@@ -179,35 +132,43 @@ Master::st_header_received()
 
     case LIN::kFrameIDMasterRequest:
 
-        // send the explicit request if we have one
-        if (_requestFrame != nullptr) {
-            st_send_response(*_requestFrame);
-            _requestFrame = nullptr;
-
-            // send the proxied request if we have one
-
-        } else if (_haveProxyRequest) {
-            st_send_response(_proxyFrame);
+        // if we have promised to proxy a request, send it immediately
+        if (_stProxyRequest) {
+            st_send_response(_stProxyFrame);
 
             // if the proxy request was for us, we
             // need to prepare a reply
-            if (master_request(_proxyFrame)) {
-                _haveProxyResponse = true;
+            if ((_stProxyFrame.nad() == LIN::kNodeAddressMaster) &&
+                (master_request(_stProxyFrame))) {
+                _stProxyResponse = true;
             }
 
-            _haveProxyRequest = false;
+            _stProxyRequest = false;
+
+        } else {
+            // XXX should be more flexible about what we send here...
+            st_send_response(LIN::Frame(LIN::kNodeAddressTester,
+                                        2,
+                                        LIN::kServiceIDTesterPresent,
+                                        0,
+                                        _testerPresent));
+
+            if (_testerPresent > 0) {
+                _testerPresent--;
+            }
         }
 
+        _stExpectResponse = true;
         break;
 
     case LIN::kFrameIDSlaveResponse:
 
         // if we have a proxy response, we should send it
-        if (_haveProxyResponse) {
-            st_send_response(_proxyFrame);
-            _haveProxyResponse = false;
+        if (_stProxyResponse) {
+            st_send_response(_stProxyFrame);
+            _stProxyResponse = false;
 
-        } else if (_responseFrame != nullptr) {
+        } else {
             // arrange to receive the response for our own use
             st_expect_response();
         }
@@ -223,25 +184,27 @@ Master::st_header_received()
 void
 Master::st_response_received(LIN::Frame &frame)
 {
+
     switch (current_FrameID()) {
 
     case LIN::kFrameIDProxyRequest:
         // save for re-transmission
-        _proxyFrame.copy(frame);
-        _haveProxyRequest = true;
+        _stProxyFrame.copy(frame);
+        _stProxyRequest = true;
         break;
 
     case LIN::kFrameIDSlaveResponse:
 
-        // if we are expecting a response, copy it back
-        if ((_requestFrame == nullptr) && (_responseFrame != nullptr)) {
-            _responseFrame->copy(frame);
-            _responseFrame = nullptr;
+        // is this a response from a tester?
+        if ((frame.nad() == LIN::kNodeAddressTester) &&
+            (frame.sid() == (LIN::kServiceIDTesterPresent | LIN::kServiceIDResponseOffset))) {
+            _testerPresent = 0xff;
         }
 
         break;
 
     default:
+        // intentional bypass of Slave::st_response_received
         LINDev::st_response_received(frame);
         break;
     }
@@ -256,6 +219,10 @@ Master::sleep_requested(SleepType type)
 uint8_t
 Master::get_param(uint8_t param)
 {
+    if (param == 0) {
+        return kBoardFunctionID;
+    }
+
     return masterParam(param);
 }
 

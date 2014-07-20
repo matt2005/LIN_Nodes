@@ -18,7 +18,6 @@ bool __cxa_guard_acquire() { return true; }
 void __cxa_guard_release() {}
 
 Master          gMaster;
-Ticker          testerCheck(1000);  // check every second
 
 void
 main(void)
@@ -40,9 +39,6 @@ main(void)
     // enable interrupts; timers and LIN events will start.
     sei();
 
-    // Hysteresis for tester checks
-    uint8_t testerDebounce = 0;
-
     // run the master logic forever
     for (;;) {
         wdt_reset();
@@ -62,28 +58,6 @@ main(void)
         // Results are broadcast routinely anytime the vehicle is awake.
         Relays::tick();
 
-        // periodic check for the programmer on the bus
-        if (testerCheck.did_tick()) {
-            LIN::Frame f(LIN::kNodeAddressTester,
-                         2,
-                         LIN::kServiceIDTesterPresent,
-                         0);
-            gMaster.do_request_response(f);
-
-            if (f.sid() == (LIN::kServiceIDTesterPresent | LIN::kServiceIDResponseOffset)) {
-                // positive response from programmer
-                gMaster.set_tester_present(true);
-                testerDebounce = 3;
-
-            } else {
-                if (testerDebounce > 0) {
-                    testerDebounce--;
-
-                } else {
-                    gMaster.set_tester_present(false);
-                }
-            }
-        }
     }
 }
 

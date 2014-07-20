@@ -15,14 +15,6 @@ public:
 
     volatile LIN::RelayFrame relayFrame;
 
-    /// Send a Master Request frame, then a Slave Response to
-    /// gather the slave's reply.
-    ///
-    /// @param frame            The frame to send, and the buffer into which
-    ///                         the response (if any) will be placed.
-    ///
-    void            do_request_response(LIN::Frame &frame);
-
     /// Enable / disable sleep
     ///
     /// @param enable           If true, sleep is enabled. The master will enter
@@ -39,16 +31,6 @@ public:
         }
     }
 
-    /// Enable / disable tester mode
-    ///
-    /// @param enable           If true, inhibits sleep and enables support for the
-    ///                         tester in the schedule.
-    ///
-    void            set_tester_present(bool enable)
-    {
-        _testerPresent = enable;
-    }
-
 protected:
     virtual void    st_header_received() override;
     virtual void    st_response_received(LIN::Frame &frame) override;
@@ -61,6 +43,8 @@ private:
     static const uint8_t        _scheduleLength;
     static const uint8_t        _frameTime = 10U;   //< milliseconds
 
+    uint8_t         _testerPresent;         //< nonzero when a tester is present
+
     // master task state
     Timer           _mtTimer;
     uint8_t         _mtIndex;
@@ -72,23 +56,16 @@ private:
     void            _master_task();
 
     // slave task state
-    LIN::Frame      _proxyFrame;
-    LIN::Frame      *volatile _requestFrame;
-    LIN::Frame      *volatile _responseFrame;
+    LIN::Frame      _stProxyFrame;
 
-    bool            _testerPresent;
-    bool            _haveProxyRequest;
-    bool            _haveProxyResponse;
+    bool            _stProxyRequest;      //< true when _proxyFrame needs to be sent as a Master Request
+    bool            _stProxyResponse;     //< true when _proxyFrame needs to be sent as a Slave Response
+    bool            _stExpectResponse;
 
     static LIN::FrameID schedule_entry(uint8_t idx)
     {
         return (LIN::FrameID)pgm_read_byte(&_schedule[idx]);
     }
-
-    /// Config request handler
-    ///
-    void            handle_config_request(LIN::ConfigFrame &frame);
-    void            handle_config_response();
 };
 
 extern Master gMaster;

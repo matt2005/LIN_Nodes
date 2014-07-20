@@ -19,7 +19,6 @@ ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
         sei();
 
         if (!wait_complete()) {
-            debug("set: failed to set");
             continue;
         }
 
@@ -48,7 +47,6 @@ ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
         sei();
 
         if (!wait_complete()) {
-            debug("get: failed to get");
             continue;
         }
 
@@ -79,11 +77,17 @@ ProgrammerSlave::st_header_received()
 
         case kStateGetParam:
             st_send_response(LIN::Frame(_nodeAddress,
-                                        5,
+                                        3,
                                         LIN::kServiceIDReadDataByID,
                                         _paramIndex,
                                         0));
             _state = kStateWaitParam;
+            break;
+
+        case kStateWaitParam:
+            // we have missed (or it never arrived) the reply to
+            // the ReadDataByID operation
+            _state = kStateError;
             break;
 
         default:
@@ -95,9 +99,15 @@ ProgrammerSlave::st_header_received()
     case LIN::kFrameIDSlaveResponse:
         if (_state == kStateWaitParam) {
             st_expect_response();
+            break;
         }
 
-        break;
+    // If this is the response phase for the Tester Present sniff, we need to let
+    // the generic slave code handle sending our response. Otherwise, if this is
+    // something we are interested in, we should have set up to expect the response
+    // above.
+
+    // FALLTHROUGH
 
     default:
         Slave::st_header_received();
@@ -110,12 +120,17 @@ ProgrammerSlave::st_response_received(LIN::Frame &frame)
 {
     switch (current_FrameID()) {
     case LIN::kFrameIDSlaveResponse:
-        if (_state == kStateWaitParam) {
-            if ((frame.nad() != _nodeAddress) ||
-                (frame.pci() != 5) ||
-                (frame.sid() != (LIN::kServiceIDReadDataByID | LIN::kServiceIDResponseOffset)) ||
+
+        // is this a response to a current request?
+        if ((_state == kStateWaitParam) &&
+            (frame.nad() == _nodeAddress) &&
+            (frame.sid() == (LIN::kServiceIDReadDataByID | LIN::kServiceIDResponseOffset))) {
+
+            // sanity-check the response
+            if ((frame.pci() != 5) ||
                 (frame.d1() != _paramIndex)) {
                 _state = kStateError;
+                debug("get: frame err");
 
             } else {
                 _paramValue = frame.d3();
@@ -145,9 +160,13 @@ ProgrammerSlave::master_request(LIN::Frame &frame)
 
     switch (frame.sid()) {
     case LIN::kServiceIDTesterPresent:
-        // always send a positive response
-        frame.sid() |= LIN::kServiceIDResponseOffset;
-        reply = true;
+
+        // always send a positive response to a directly-addressed request
+        if (frame.nad() == LIN::kNodeAddressTester) {
+            frame.sid() |= LIN::kServiceIDResponseOffset;
+            reply = true;
+        }
+
         break;
 
     default:
@@ -164,6 +183,8 @@ ProgrammerSlave::wait_complete()
     Timestamp t;
 
     while (!t.is_older_than(100)) {
+        wdt_reset();
+
         switch (_state) {
         case kStateIdle:
             return true;
@@ -178,6 +199,7 @@ ProgrammerSlave::wait_complete()
         }
     }
 
-    debug("wait_complete: timeout");
+    debug("wait_complete: %2u timeout in %1u", _nodeAddress, _state);
+    _state = kStateIdle;
     return false;
 }

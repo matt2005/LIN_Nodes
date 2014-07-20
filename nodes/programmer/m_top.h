@@ -17,7 +17,7 @@ namespace Menu
 class TopMode : public Mode
 {
 public:
-    virtual Mode    *action(Encoder::Event bp);
+    virtual Mode    *action(Encoder::Event bp) override;
 private:
     uint8_t         _index;
     void            draw();
@@ -25,10 +25,9 @@ private:
 
 extern TopMode              modeTop;
 extern ExploreSetupMode     modeExploreSetup;
-extern SetupMasterMode      modeSetupMaster;
+extern SetupMode            modeSetup;
 extern ExploreTestMode      modeExploreTest;
 extern TestMode             modeTest;
-extern SetupPowerMode       modeSetupPower;
 extern EditMode             modeEdit;
 extern InfoMode             modeInfo;
 } // namespace Menu

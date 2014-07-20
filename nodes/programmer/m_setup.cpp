@@ -1,6 +1,9 @@
 
 #include "util.h"
 #include "board.h"
+#include "param_master.h"
+#include "param_power_v1.h"
+#include "param_power_v3.h"
 
 #include "lin_protocol.h"
 #include "protocol.h"
@@ -17,12 +20,9 @@ ExploreSetupMode::select()
     switch (_node) {
 
     case LIN::kNodeAddressMaster:
-        modeSetupMaster.init();
-        return &modeSetupMaster;
-
     case LIN::kNodeAddressPowerBase ...(LIN::kNodeAddressPowerBase + 15):
-        modeSetupPower.init(_node);
-        return &modeSetupPower;
+        modeSetup.init(_node);
+        return &modeSetup;
 
     default:
         break;
@@ -49,11 +49,12 @@ ExploreSetupMode::select()
 // +--------------------+
 //
 
-uint8_t  SetupMode::_param;
-uint8_t  SetupMode::_value;
-uint8_t  SetupMode::_nad;
-uint8_t  SetupMode::_max_param;
-bool     SetupMode::_editing;
+uint8_t         SetupMode::_nad;
+uint8_t         SetupMode::_param;
+uint8_t         SetupMode::_value;
+SetupMode::Flavour SetupMode::_flavour;
+uint8_t         SetupMode::_max_param;
+bool            SetupMode::_editing;
 
 Mode *
 SetupMode::action(Encoder::Event bp)
@@ -124,10 +125,32 @@ SetupMode::action(Encoder::Event bp)
 }
 
 void
-SetupMode::_init(uint8_t nad, uint8_t max_param)
+SetupMode::init(uint8_t nad)
 {
+    uint8_t flavour = 0;
+
+    if (gSlave.get_parameter(nad, 0, flavour)) {
+        switch (flavour) {          // XXX kBoardFunctionID value
+        case 0:
+            _flavour = kFlavourMaster;
+            break;
+
+        case 1:
+            _flavour = kFlavourPowerV1;
+            break;
+
+        case 2:
+            _flavour = kFlavourPowerV3;
+            break;
+
+        default:
+            // XXX should retry / bail out
+            Board::panic(Board::kPanicCodeAssert);
+        }
+    }
+
     _nad = nad;
-    _max_param = max_param;
+    _max_param = Util::strtablen(param_names()) - 1;
 }
 
 void
@@ -138,7 +161,7 @@ SetupMode::draw()
     gDisplay.move(0, 1);
     gDisplay.printf(PSTR(">>"));
     gDisplay.printf((_param == 0) ?
-                    PSTR("Back to node list") :
+                    PSTR("Back") :
                     param_name());
     gDisplay.move(2, 2);
 
@@ -182,5 +205,82 @@ SetupMode::draw()
         }
     }
 }
+
+void
+SetupMode::print_title()
+{
+    const char *msg = PSTR("unknown");
+
+    switch (_flavour) {
+    case kFlavourMaster:
+        msg = PSTR("Master");
+        break;
+
+    case kFlavourPowerV1:
+    case kFlavourPowerV3:
+        msg = PSTR("Power Node");
+        break;
+
+    default:
+        Board::panic(Board::kPanicCodeAssert);
+    }
+
+    gDisplay.printf(PSTR("%s Setup:"), msg);
+}
+
+Parameter
+SetupMode::param()
+{
+    switch (_flavour) {
+    case kFlavourMaster:
+        return masterParam(_param);
+
+    case kFlavourPowerV1:
+        return power_v1Param(_param);
+
+    case kFlavourPowerV3:
+        return power_v3Param(_param);
+
+    default:
+        Board::panic(Board::kPanicCodeAssert);
+    }
+}
+
+PGM_P
+SetupMode::param_names()
+{
+    switch (_flavour) {
+    case kFlavourMaster:
+        return masterParamNames;
+
+    case kFlavourPowerV1:
+        return power_v1ParamNames;
+
+    case kFlavourPowerV3:
+        return power_v3ParamNames;
+
+    default:
+        Board::panic(Board::kPanicCodeAssert);
+    }
+}
+
+PGM_P
+SetupMode::param_formats()
+{
+    switch (_flavour) {
+    case kFlavourMaster:
+        return masterParamFormats;
+
+    case kFlavourPowerV1:
+        return power_v1ParamFormats;
+
+    case kFlavourPowerV3:
+        return power_v3ParamFormats;
+
+    default:
+        Board::panic(Board::kPanicCodeAssert);
+    }
+}
+
 
 } // namespace Menu

@@ -13,16 +13,6 @@ namespace Menu
 class EditMode : public Mode
 {
 public:
-    EditMode() :
-        _from(nullptr),
-        _value(nullptr),
-        _region(Display::Position(0, 0), Display::Dimension(0, 0)),
-        _min(0),
-        _max(0),
-        _fmt(nullptr),
-        _stringtab(nullptr)
-    {}
-
     void    init(Mode *parent,
                  uint8_t *value,
                  Display::Region r,
@@ -66,19 +56,19 @@ public:
     }
 
     virtual Mode    *action(Encoder::Event bp) override;
-    void            draw();
+    void     draw();
 
 private:
-    Mode            *_from;
-    uint8_t         *_value;
-    Display::Region _region;
-    uint8_t         _min;
-    uint8_t         _max;
-    const char      *_fmt;
-    const char      *_stringtab;
+    static Mode            *_from;
+    static uint8_t         *_value;
+    static Display::Region _region;
+    static uint8_t         _min;
+    static uint8_t         _max;
+    static const char      *_fmt;
+    static const char      *_stringtab;
 
-    void            increment();
-    void            decrement();
+    static void            increment();
+    static void            decrement();
 };
 
 } // namespace Menu

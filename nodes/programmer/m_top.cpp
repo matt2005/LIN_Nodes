@@ -12,10 +12,9 @@ namespace Menu
 
 TopMode             modeTop;
 ExploreSetupMode    modeExploreSetup;
-SetupMasterMode     modeSetupMaster;
+SetupMode           modeSetup;
 ExploreTestMode     modeExploreTest;
 TestMode            modeTest;
-SetupPowerMode      modeSetupPower;
 EditMode            modeEdit;
 InfoMode            modeInfo;
 

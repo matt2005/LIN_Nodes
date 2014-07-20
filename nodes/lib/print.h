@@ -42,7 +42,7 @@ public:
     struct Region
     {
         constexpr Region(Position at, Dimension size) : p(at), d(size) {}
-        constexpr Region(uint8_t x, uint8_t y, uint8_t width, uint8_t height) : p(x, y), d(width, height) {}
+        constexpr Region(uint8_t x = 0, uint8_t y = 0, uint8_t width = 0, uint8_t height = 0) : p(x, y), d(width, height) {}
         Position    p;
         Dimension   d;
     };

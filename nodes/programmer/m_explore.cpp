@@ -154,7 +154,7 @@ ExploreMode::draw()
 
         switch (base) {
         case 0:
-            gDisplay.printf(PSTR("Back to Top Menu"));
+            gDisplay.printf(PSTR("Back"));
             break;
 
         case 1:

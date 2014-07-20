@@ -24,8 +24,8 @@ DEFINES		+= -DBOARD_$(BOARD)
 CHECKOPTS	 = --enable=warning		\
 		   --enable=performance		\
 		   --enable=information		\
-		   --enable=style		\
-		   --inconclusive
+		   --enable=style
+#		   --inconclusive
 
 INCLUDES	 = -I$(TOPDIR)/common		\
 		   -I$(SRCROOT)/lib

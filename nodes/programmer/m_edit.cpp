@@ -13,6 +13,14 @@ namespace Menu
 // Value edit mode
 //
 
+Mode            *EditMode::_from;
+uint8_t         *EditMode::_value;
+Display::Region EditMode::_region;
+uint8_t         EditMode::_min;
+uint8_t         EditMode::_max;
+const char      *EditMode::_fmt;
+const char      *EditMode::_stringtab;
+
 Mode *
 EditMode::action(Encoder::Event bp)
 {

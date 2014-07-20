@@ -71,7 +71,7 @@ ENUM LINError {
     Checksum
     Parity
     Framing
-    Synchronisation
+    Synch
     Protocol
 }
 

@@ -46,21 +46,63 @@ ExploreTestMode::select()
 Mode *
 TestMode::action(Encoder::Event bp)
 {
+    bool wantDraw = false;
+
     switch (bp) {
+
+    case Encoder::kEventUp:
+        if (_index > 0) {
+            _index--;
+            wantDraw = true;
+        }
+        break;
+
+    case Encoder::kEventDown:
+        if ((_index + 4) < Util::strtablen(namesForLINError)) {
+            _index++;
+            wantDraw = true;
+        }
+        break;
 
     case Encoder::kEventPress:
         return &modeExploreTest;
 
     case Encoder::kEventActivate:
-        gDisplay.clear();
-        gDisplay.printf(PSTR(">back"));
+        _index = 0;
+        wantDraw = true;
         break;
 
     default:
         break;
     }
 
+    // refresh the display every second
+    if (_refreshed.is_older_than(1000)) {
+        wantDraw = true;
+        _refreshed.update();
+    }
+
+    if (wantDraw) {
+        draw();
+    }
     return this;
+}
+
+void
+TestMode::draw()
+{
+    gDisplay.clear();
+
+    for (uint8_t row = 0; row < 4; row++) {
+        if ((_index + row) >= Util::strtablen(namesForLINError)) {
+            break;
+        }
+
+        uint16_t count = 55555U;
+        gSlave.get_error_count(_nad, _index + row, count);
+        gDisplay.move(0, row);
+        gDisplay.printf(PSTR("%u %s"), count, Util::strtab(namesForLINError, _index + row));
+    }
 }
 
 } // namespace Menu

@@ -145,7 +145,7 @@ enum LINError : uint8_t {
     kLINErrorChecksum,
     kLINErrorParity,
     kLINErrorFraming,
-    kLINErrorSynchronisation,
+    kLINErrorSynch,
     kLINErrorProtocol,
     kLINErrorMax
 };
@@ -155,7 +155,7 @@ static PROGMEM const char namesForLINError[] =
     "Checksum\0"
     "Parity\0"
     "Framing\0"
-    "Synchronisation\0"
+    "Synch\0"
     "Protocol\0"
     "\0";
 

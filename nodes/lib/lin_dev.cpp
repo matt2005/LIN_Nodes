@@ -112,7 +112,7 @@ LINDev::isr_error()
         errors[kLINErrorFraming]++;
     }
     if (Lin_get_error_status() & (1 << LSERR)) {
-        errors[kLINErrorSynchronisation]++;
+        errors[kLINErrorSynch]++;
     }
 
     // reset to default mode

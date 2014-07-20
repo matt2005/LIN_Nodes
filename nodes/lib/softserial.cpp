@@ -1,4 +1,5 @@
 
+#include <avr/power.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 
@@ -10,15 +11,14 @@
 // 57600
 #define BIT_DELAY  16
 
-Serial::Serial()
-{
-    pinDebugTX.set();
-    pinDebugTX.cfg_output();
-}
-
 void
 Serial::write(uint8_t c)
 {
+    // do minimal init - we might be called at any time
+    clock_prescale_set(clock_div_1);
+    pinDebugTX.set();
+    pinDebugTX.cfg_output();
+
     tx(c);
     wdt_reset();
     Board::us_delay(200);

@@ -7,9 +7,6 @@
 
 class Serial : public Print
 {
-public:
-    Serial();
-
 protected:
     virtual void    write(uint8_t c) override;
 

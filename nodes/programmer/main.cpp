@@ -1,15 +1,4 @@
 
-//
-// LIN network programmer
-//
-// Master periodically emits kFrameIDConfigRequest headers. The programmer may
-// respond with a ConfigFrame describing a configuration request to
-// the network. Following a ConfigFrame the master will emit
-// a kFrameIDConfigResponse header, and the addressed node (which may be the
-// master) may respond with a ConfigFrame. Not all programmer requests expect
-// a response.
-//
-
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 

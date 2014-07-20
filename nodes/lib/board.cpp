@@ -119,19 +119,13 @@ sleep()
     // Put the board to sleep.
     //
     for (;;) {
-        LINCR = LSWRES;
-        ms_delay(1);
-        pinLINTX.set();
-        ms_delay(1);
-        pinLINCS.set();
-        ms_delay(1);
-        pinLINCS.cfg_output();
-        ms_delay(1);
-        pinLINTX.cfg_output();
-        ms_delay(1);
-        pinLINCS.clear();
-        ms_delay(1);
-        pinLINTX.clear();
+        LINCR = LSWRES;         // stop the LIN block
+        ms_delay(10);           // wait for any frame to complete
+        pinLINTX.set();         // make sure TX is 1
+        pinLINCS.clear();       // make sure CS is 0
+        pinLINCS.cfg_output();  // make sure CS is an output (will be low now)
+        pinLINTX.cfg_output();  // make sure TX is an output (will be high now)
+        pinLINTX.clear();       // drive TX low to turn off power
         ms_delay(10);
         // if we failed to go to sleep, the watchdog will pull us
         // back out via the reset path

@@ -161,8 +161,9 @@ ProgrammerSlave::master_request(LIN::Frame &frame)
     switch (frame.sid()) {
     case LIN::kServiceIDTesterPresent:
 
-        // always send a positive response to a directly-addressed request
-        if (frame.nad() == LIN::kNodeAddressTester) {
+        // send a positive response to a directly-addressed request
+        // unless suspended
+        if (!_suspended && (frame.nad() == LIN::kNodeAddressTester)) {
             frame.sid() |= LIN::kServiceIDResponseOffset;
             reply = true;
         }

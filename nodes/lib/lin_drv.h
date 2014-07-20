@@ -70,7 +70,7 @@
 
 // ---- Use LIN 1.x protocol
 
-#define Lin_1x_set_type()   ( LINCR|= LIN_1X )
+//#define Lin_1x_set_type()   ( LINCR|= LIN_1X )
 #define	Lin_1x_enable()     ( LINCR = LIN_1X|(1<<LENA)|(0<<LCMD2) )
 #define	Lin_1x_set_id(id)   { LINIDR &= ~LIN_1X_ID_MASK; LINIDR |= id & LIN_1X_ID_MASK; }
 #define Lin_1x_set_len(len) { LINIDR &= ~LIN_1X_LEN_MASK; LINIDR |= (((len+4)<<2) & LIN_1X_LEN_MASK); }
@@ -80,7 +80,7 @@
 
 // ---- Use LIN 2.x protocol
 
-#define Lin_2x_set_type()   ( LINCR|= LIN_2X )
+//#define Lin_2x_set_type()   ( LINCR|= LIN_2X )
 #define Lin_2x_enable()     ( LINCR = LIN_2X|(1<<LENA)|(0<<LCMD2) )
 #define Lin_2x_set_id(id)   { LINIDR &= ~LIN_2X_ID_MASK; LINIDR |= id & LIN_2X_ID_MASK; }
 // Lin_2x_set_len(len) . Not available in LIN 2.1
@@ -91,7 +91,7 @@
 // ---- Shared C-macros
 
     // Use of any protocol
-#define Lin_set_type(ltype) (( ltype == LIN_2X ) ? Lin_2x_set_type(): Lin_1x_set_type() )
+//#define Lin_set_type(ltype) (( ltype == LIN_2X ) ? Lin_2x_set_type(): Lin_1x_set_type() )
 #define Lin_get_type()      ( LINCR & (1<<LIN1X) )																							
 #define Lin_set_len(len)    ( LINDLR = (len<<LTXDL0)|(len &(0x0F<<LRXDL0) )
 

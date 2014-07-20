@@ -75,10 +75,6 @@ LINDev::isr_TC()
             f[i] = Lin_get_data();
         }
 
-        // reset to default mode, might have been in 1x mode
-        // to handle this frame
-        Lin_2x_set_type();
-
         // ack the interrupt
         Lin_clear_rxok_it();
 
@@ -137,9 +133,9 @@ LINDev::st_expect_response(uint8_t length)
 
     // select 1x mode for FIDs that require it
     if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
-        Lin_1x_set_type();
+        Lin_1x_enable();
     } else {
-        Lin_2x_set_type();
+        Lin_2x_enable();
         Lin_set_rx_len(length);
     }
 
@@ -192,9 +188,9 @@ LINDev::st_send_response(const LIN::Frame &f, uint8_t length)
 
     // select 1x mode for FIDs that require it
     if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
-        Lin_1x_set_type();
+        Lin_1x_enable();
     } else {
-        Lin_2x_set_type();
+        Lin_2x_enable();
         Lin_set_tx_len(length);
     }
 

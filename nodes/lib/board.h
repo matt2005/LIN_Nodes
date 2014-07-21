@@ -21,6 +21,9 @@
 #if defined(BOARD_PROGRAMMER_V1)
 # include "config_programmer_v1.h"
 #endif
+#if defined(BOARD_USB_LINK)
+# include "config_usb_link.h"
+#endif
 #ifndef pinLINRX
 # error Need to define a board type
 #endif

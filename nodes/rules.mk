@@ -10,17 +10,19 @@ CC		 = avr-gcc
 CXX		 = avr-g++
 CPPCHECK	 = cppcheck
 SIZE		 = avr-size
+OBJCOPY		 = avr-objcopy
 AVRDUDE		 = avrdude
 
 MCU		 = attiny167
 
-# default fusing is for the internal oscillator
-OSC_FUSES	 = -U hfuse:w:0xd7:m -U efuse:w:0xff:m -U lfuse:w:0x62:m
-RES_FUSES	 = -U hfuse:w:0xd7:m -U efuse:w:0xff:m -U lfuse:w:0x6c:m
+# default fusing is for the internal oscillator @ 8MHz
+OSC_FUSES	 = -U hfuse:w:0xd7:m -U efuse:w:0xfe:m -U lfuse:w:0x62:m
 FUSES		?= $(OSC_FUSES)
+F_CPU		?= 8000000
 
 ARCHFLAGS	 = -mmcu=$(MCU)
-DEFINES		+= -DBOARD_$(BOARD)
+DEFINES		+= -DBOARD_$(BOARD)		\
+		   -DF_CPU=$(F_CPU)UL
 CHECKOPTS	 = --enable=warning		\
 		   --enable=performance		\
 		   --enable=information		\
@@ -46,7 +48,6 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -MMD				\
 		   $(INCLUDES)			\
 		   $(DEFINES)			\
-		   -DF_CPU=8000000UL		\
 		   $(if $(DEBUG),-DDEBUG)
 
 CFLAGS		 = $(COMPILEFLAGS)		\
@@ -70,6 +71,7 @@ vpath %.cpp	$(SRCROOT)/lib
 vpath %.h	$(SRCROOT)/lib
 
 ELF		:= $(BUILDDIR)/$(PROG).elf
+HEX		:= $(BUILDDIR)/$(PROG).hex
 
 OBJS		:= $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
 DEPS		:= $(OBJS:.o=.d)
@@ -88,6 +90,12 @@ build:	$(ELF)
 upload: $(ELF)
 #	$(AVRDUDE) -p $(MCU) -c usbasp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
 	$(AVRDUDE) -B 8 -p $(MCU) -c jtag2isp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
+
+usbload: $(HEX)
+	micronucleus $<
+
+$(HEX): $(ELF)
+	$q $(OBJCOPY) -Oihex $< $@
 
 $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 	@echo LINK $(notdir $@)

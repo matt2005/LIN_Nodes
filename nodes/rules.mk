@@ -22,7 +22,9 @@ F_CPU		?= 8000000
 
 ARCHFLAGS	 = -mmcu=$(MCU)
 DEFINES		+= -DBOARD_$(BOARD)		\
-		   -DF_CPU=$(F_CPU)UL
+		   -DF_CPU=$(F_CPU)UL		\
+		   $(if $(DEBUG),-DDEBUG)
+
 CHECKOPTS	 = --enable=warning		\
 		   --enable=performance		\
 		   --enable=information		\
@@ -30,7 +32,9 @@ CHECKOPTS	 = --enable=warning		\
 #		   --inconclusive
 
 INCLUDES	 = -I$(TOPDIR)/common		\
-		   -I$(SRCROOT)/lib
+		   -I$(SRCROOT)/lib		\
+		   -I$(SRCROOT)/$(PROG)		\
+		   $(foreach dir,$(SUBDIRS),-I$(SRCROOT)/$(PROG)/$(dir))
 
 # -O2 gives best code size, -O3 gives best RAM usage
 COMPILEFLAGS	 = $(ARCHFLAGS)			\
@@ -47,8 +51,7 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -fdata-sections		\
 		   -MMD				\
 		   $(INCLUDES)			\
-		   $(DEFINES)			\
-		   $(if $(DEBUG),-DDEBUG)
+		   $(DEFINES)
 
 CFLAGS		 = $(COMPILEFLAGS)		\
 		   -std=gnu11			\
@@ -59,6 +62,10 @@ CXXFLAGS	 = $(COMPILEFLAGS)		\
 		   -fno-exceptions		\
 		   -fno-rtti
 
+ASFLAGS		 = $(ARCHFLAGS)			\
+		   $(INCLUDES)			\
+		   $(DEFINES)
+
 LDFLAGS		 = $(ARCHFLAGS)			\
 		   -gdwarf-2			\
 		   -Wl,-gc-sections		\
@@ -66,9 +73,10 @@ LDFLAGS		 = $(ARCHFLAGS)			\
 		   -fno-exceptions		\
 		   -fno-rtti
 
-vpath %.c	$(SRCROOT)/lib
-vpath %.cpp	$(SRCROOT)/lib
-vpath %.h	$(SRCROOT)/lib
+vpath %.c	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
+vpath %.cpp	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
+vpath %.S	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
+vpath %.h	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
 
 ELF		:= $(BUILDDIR)/$(PROG).elf
 HEX		:= $(BUILDDIR)/$(PROG).hex
@@ -121,5 +129,10 @@ $(filter %.cpp.o,$(OBJS)): $(BUILDDIR)/%.o: %
 	@mkdir -p $(dir $@)
 	@echo CXX $(notdir $<)
 	$q $(CXX) -c -o $@ $(CXXFLAGS) $(abspath $<)
+
+$(filter %.S.o,$(OBJS)): $(BUILDDIR)/%.o: %
+	@mkdir -p $(dir $@)
+	@echo CXX $(notdir $<)
+	$q $(CC) -c -o $@ $(ASFLAGS) $(abspath $<)
 
 -include $(DEPS)

@@ -8,7 +8,9 @@
 DEBUG		 = YES
 
 PROG		 = usb_link
-SRCS		 = main.cpp
+SRCS		 = main.cpp \
+		   usbdrv.c \
+		   usbdrvasm.S
 
 SRCS		+= board.cpp \
 		   print.cpp \
@@ -16,6 +18,7 @@ SRCS		+= board.cpp \
 		   timer.cpp \
 		   util.cpp
 
+SUBDIRS		 = usbdrv
 BOARD		 = USB_LINK
 DEFINES		+= -DGIT_VERSION=$(shell git log -1 --pretty=format:%h)
 FUSES		:=

@@ -57,6 +57,8 @@ main(void)
     Board::init();
     debug("USB Link starting");
 
+    pinLINCS.cfg_output();
+
     //Board::panic(Board::kPanicCodeRecovery);
 
     usbInit();

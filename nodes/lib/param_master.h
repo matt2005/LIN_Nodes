@@ -36,6 +36,7 @@ extern const char masterParamFormats[];
 #define kParamBrakeBlinkPeriod 27
 #define kParamBrakeBlinkCount 28
 #define kParamWiperInterval 29
+#define kMasterParamMax 29
 #define masterParam(_index) Parameter((_index), &masterParamInfo[(_index) * 3])
 
 #define paramSPAssign1 masterParam(kParamSPAssign1)

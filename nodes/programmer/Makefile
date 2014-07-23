@@ -25,6 +25,5 @@ SRCS		+= board.cpp \
 		   util.cpp
 
 BOARD		 = PROGRAMMER_V1
-DEFINES		+= -DGIT_VERSION=$(shell git log -1 --pretty=format:%h)
 
 include ../rules.mk

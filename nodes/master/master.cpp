@@ -139,7 +139,7 @@ Master::st_header_received()
             // if the proxy request was for us, we
             // need to prepare a reply
             if ((_stProxyFrame.nad() == LIN::kNodeAddressMaster) &&
-                (master_request(_stProxyFrame))) {
+                (st_master_request(_stProxyFrame))) {
                 _stProxyResponse = true;
             }
 
@@ -211,23 +211,59 @@ Master::st_response_received(LIN::Frame &frame)
 }
 
 void
-Master::sleep_requested(SleepType type)
+Master::st_sleep_requested(SleepType type)
 {
     // ignore this
 }
 
-uint8_t
-Master::get_param(uint8_t param)
+bool
+Master::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
 {
-    if (param == 0) {
-        return kBoardFunctionID;
+    bool result = false;
+
+    switch (page) {
+    case kDataPageStatus:
+        // XXX should implement this in a somewhat-generic fashion?
+        break;
+
+    case kDataPageNodeParameters:
+        if (index < kMasterParamMax) {
+            value = masterParam(index);
+            result = true;
+        }
+
+        break;
+
     }
 
-    return masterParam(param);
+    if (!result) {
+        result = Slave::st_read_data(page, index, value);
+    }
+
+    return result;
 }
 
-void
-Master::set_param(uint8_t param, uint8_t value)
+bool
+Master::st_write_data(uint8_t page, uint8_t index, uint16_t value)
 {
-    masterParam(param).set(value);
+    bool result = false;
+
+    switch (page) {
+    case kDataPageNodeParameters:
+        if (index < kMasterParamMax) {
+            masterParam(index).set(value & 0xff);
+            result = true;
+        }
+
+        break;
+
+    default:
+        break;
+    }
+
+    if (!result) {
+        result = Slave::st_write_data(page, index, value);
+    }
+
+    return result;
 }

@@ -9,6 +9,68 @@
 
 static const uint8_t protocolRevision = 1;
 
+enum DataPage : uint8_t {
+    kDataPageIdentification,
+    kDataPageStatus,
+    kDataPageLINErrors,
+    kDataPageNodeStatus,
+    kDataPageNodeParameters,
+    kDataPageMax
+};
+
+static PROGMEM const char namesForDataPage[] = 
+    "Identification\0"
+    "Status\0"
+    "LINErrors\0"
+    "NodeStatus\0"
+    "NodeParameters\0"
+    "\0";
+
+enum NodeInfo : uint8_t {
+    kNodeInfoProtocolVersion,
+    kNodeInfoGitHash0,
+    kNodeInfoGitHash1,
+    kNodeInfoMax
+};
+
+static PROGMEM const char namesForNodeInfo[] = 
+    "ProtocolVersion\0"
+    "GitHash0\0"
+    "GitHash1\0"
+    "\0";
+
+enum NodeStatus : uint8_t {
+    kNodeStatusWatchdogResets,
+    kNodeStatusSupplyVoltage,
+    kNodeStatusTemperature,
+    kNodeStatusMax
+};
+
+static PROGMEM const char namesForNodeStatus[] = 
+    "WatchdogResets\0"
+    "SupplyVoltage\0"
+    "Temperature\0"
+    "\0";
+
+enum LINError : uint8_t {
+    kLINErrorLine,
+    kLINErrorChecksum,
+    kLINErrorParity,
+    kLINErrorFraming,
+    kLINErrorSynch,
+    kLINErrorProtocol,
+    kLINErrorMax
+};
+
+static PROGMEM const char namesForLINError[] = 
+    "Line\0"
+    "Checksum\0"
+    "Parity\0"
+    "Framing\0"
+    "Synch\0"
+    "Protocol\0"
+    "\0";
+
 enum SwitchID : uint8_t {
     kSwitchIDIgnition,
     kSwitchIDStart,
@@ -62,6 +124,15 @@ static PROGMEM const char namesForSwitchID[] =
     "WiperHigh\0"
     "RearDefrost\0"
     "Unassigned\0"
+    "\0";
+
+enum MasterStatus : uint8_t {
+    kMasterStatusSummary,
+    kMasterStatusMax
+};
+
+static PROGMEM const char namesForMasterStatus[] = 
+    "Summary\0"
     "\0";
 
 enum RelayID : uint8_t {
@@ -119,6 +190,82 @@ static PROGMEM const char namesForRelayID[] =
     "Unassigned\0"
     "\0";
 
+enum RelayFault : uint8_t {
+    kRelayFaultNone,
+    kRelayFaultOpenCircuit,
+    kRelayFaultOverCurrent,
+    kRelayFaultOverTemperature,
+    kRelayFaultShortToGround,
+    kRelayFaultShortToBattery,
+    kRelayFaultMax
+};
+
+static PROGMEM const char namesForRelayFault[] = 
+    "None\0"
+    "OpenCircuit\0"
+    "OverCurrent\0"
+    "OverTemperature\0"
+    "ShortToGround\0"
+    "ShortToBattery\0"
+    "\0";
+
+enum RelayStatus : uint8_t {
+    kRelayStatusSummary,
+    kRelayStatusRelay1Faults,
+    kRelayStatusRelay2Faults,
+    kRelayStatusRelay3Faults,
+    kRelayStatusRelay4Faults,
+    kRelayStatusRelay5Faults,
+    kRelayStatusRelay6Faults,
+    kRelayStatusRelay7Faults,
+    kRelayStatusRelay8Faults,
+    kRelayStatusRelay1PresentFault,
+    kRelayStatusRelay2PresentFault,
+    kRelayStatusRelay3PresentFault,
+    kRelayStatusRelay4PresentFault,
+    kRelayStatusRelay5PresentFault,
+    kRelayStatusRelay6PresentFault,
+    kRelayStatusRelay7PresentFault,
+    kRelayStatusRelay8PresentFault,
+    kRelayStatusRelay1LoadCurrent,
+    kRelayStatusRelay2LoadCurrent,
+    kRelayStatusRelay3LoadCurrent,
+    kRelayStatusRelay4LoadCurrent,
+    kRelayStatusRelay5LoadCurrent,
+    kRelayStatusRelay6LoadCurrent,
+    kRelayStatusRelay7LoadCurrent,
+    kRelayStatusRelay8LoadCurrent,
+    kRelayStatusMax
+};
+
+static PROGMEM const char namesForRelayStatus[] = 
+    "Summary\0"
+    "Relay1Faults\0"
+    "Relay2Faults\0"
+    "Relay3Faults\0"
+    "Relay4Faults\0"
+    "Relay5Faults\0"
+    "Relay6Faults\0"
+    "Relay7Faults\0"
+    "Relay8Faults\0"
+    "Relay1PresentFault\0"
+    "Relay2PresentFault\0"
+    "Relay3PresentFault\0"
+    "Relay4PresentFault\0"
+    "Relay5PresentFault\0"
+    "Relay6PresentFault\0"
+    "Relay7PresentFault\0"
+    "Relay8PresentFault\0"
+    "Relay1LoadCurrent\0"
+    "Relay2LoadCurrent\0"
+    "Relay3LoadCurrent\0"
+    "Relay4LoadCurrent\0"
+    "Relay5LoadCurrent\0"
+    "Relay6LoadCurrent\0"
+    "Relay7LoadCurrent\0"
+    "Relay8LoadCurrent\0"
+    "\0";
+
 enum RelayType : uint8_t {
     kRelayType5AGeneric,
     kRelayType10AGeneric,
@@ -138,25 +285,6 @@ static PROGMEM const char namesForRelayType[] =
     "LowPowerBulb\0"
     "HighPowerBulb\0"
     "Motor\0"
-    "\0";
-
-enum LINError : uint8_t {
-    kLINErrorLine,
-    kLINErrorChecksum,
-    kLINErrorParity,
-    kLINErrorFraming,
-    kLINErrorSynch,
-    kLINErrorProtocol,
-    kLINErrorMax
-};
-
-static PROGMEM const char namesForLINError[] = 
-    "Line\0"
-    "Checksum\0"
-    "Parity\0"
-    "Framing\0"
-    "Synch\0"
-    "Protocol\0"
     "\0";
 
 

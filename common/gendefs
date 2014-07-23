@@ -138,11 +138,12 @@ dict for {node node_params} $parameters {
     puts $fh "extern const char ${node}ParamNames\[\];"
     puts $fh "extern const char ${node}ParamFormats\[\];"
     puts $fh ""
-    set index 1
+    set index 0
     dict for {param_name param_info} $node_params {
-        puts $fh "#define kParam${param_name} ${index}"
         incr index
+        puts $fh "#define kParam${param_name} ${index}"
     }
+    puts $fh "#define k[string totitle ${node}]ParamMax ${index}"
     puts $fh "#define ${node}Param(_index) Parameter((_index), &${node}ParamInfo\[(_index) * 3\])"
     puts $fh ""
     dict for {param_name param_info} $node_params {

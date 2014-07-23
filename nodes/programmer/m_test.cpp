@@ -55,6 +55,7 @@ TestMode::action(Encoder::Event bp)
             _index--;
             wantDraw = true;
         }
+
         break;
 
     case Encoder::kEventDown:
@@ -62,6 +63,7 @@ TestMode::action(Encoder::Event bp)
             _index++;
             wantDraw = true;
         }
+
         break;
 
     case Encoder::kEventPress:
@@ -85,6 +87,7 @@ TestMode::action(Encoder::Event bp)
     if (wantDraw) {
         draw();
     }
+
     return this;
 }
 

@@ -34,9 +34,9 @@ public:
 protected:
     virtual void    st_header_received() override;
     virtual void    st_response_received(LIN::Frame &frame) override;
-    virtual void    sleep_requested(SleepType type) override;
-    virtual uint8_t get_param(uint8_t param) override;
-    virtual void    set_param(uint8_t param, uint8_t value) override;
+    virtual void    st_sleep_requested(SleepType type) override;
+    virtual bool    st_read_data(uint8_t page, uint8_t index, uint16_t &value) override;
+    virtual bool    st_write_data(uint8_t page, uint8_t index, uint16_t value) override;
 
 private:
     static const LIN::FrameID   _schedule[];

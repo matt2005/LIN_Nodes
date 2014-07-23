@@ -23,7 +23,10 @@ F_CPU		?= 8000000
 ARCHFLAGS	 = -mmcu=$(MCU)
 DEFINES		+= -DBOARD_$(BOARD)		\
 		   -DF_CPU=$(F_CPU)UL		\
-		   $(if $(DEBUG),-DDEBUG)
+		   $(if $(DEBUG),-DDEBUG)	\
+		   -DGIT_VERSION=$(shell git log -1 --pretty=format:%h) \
+		   -DGIT_HEX_VERSION=0x$(shell git log -1 --pretty=format:%h)
+
 
 CHECKOPTS	 = --enable=warning		\
 		   --enable=performance		\

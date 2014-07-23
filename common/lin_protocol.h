@@ -39,6 +39,7 @@ enum NodeAddress : uint8_t {
     kNodeAddressECU             = 18,   //< ECU data bridge
     kNodeAddressDashboard       = 19,   //< dash display (not talkative)
     kNodeAddressTester          = 20,   //< plug-in programmer
+    kNodeAddressSniffer         = 21,   //< USB-based sniff/management tool
 
     kNodeAddressMaxAssigned,
 

@@ -10,7 +10,7 @@
 bool
 ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
 {
-    return set_data_by_id(nad, 0, param, value);
+    return set_data_by_id(nad, kDataPageNodeParameters, param, value);
 }
 
 bool
@@ -47,7 +47,7 @@ ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 {
     uint16_t tmp;
 
-    bool result = get_data_by_id(nad, 0, param, tmp);
+    bool result = get_data_by_id(nad, kDataPageNodeParameters, param, tmp);
     value = tmp & 0xff;
     return result;
 }
@@ -55,7 +55,7 @@ ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 bool
 ProgrammerSlave::get_error_count(uint8_t nad, uint8_t err, uint16_t &count)
 {
-    return get_data_by_id(nad, 1, err, count);
+    return get_data_by_id(nad, kDataPageLINErrors, err, count);
 }
 
 bool
@@ -173,13 +173,13 @@ ProgrammerSlave::st_response_received(LIN::Frame &frame)
 }
 
 void
-ProgrammerSlave::sleep_requested(SleepType type)
+ProgrammerSlave::st_sleep_requested(SleepType type)
 {
     // XXX never sleep
 }
 
 bool
-ProgrammerSlave::master_request(LIN::Frame &frame)
+ProgrammerSlave::st_master_request(LIN::Frame &frame)
 {
     bool reply = false;
 

@@ -5,20 +5,23 @@
 #include "lin_slave.h"
 #include "board.h"
 
-void
-Slave::idle_timeout(void *arg)
-{
-    auto slave = (Slave *)arg;
 
-    slave->sleep_requested(kSleepTypeIdle);
+Slave::Slave(LIN::NodeAddress nad, bool polled) :
+    LINDev(polled),
+    _nad(nad)
+{
 }
 
-Slave::Slave(LIN::NodeAddress nad) :
-    _nad(nad),
-    _idleTimer(&Slave::idle_timeout, this)
+void
+Slave::tick()
 {
-    // start the idle timeout
-    _idleTimer.set_remaining(kIdleTimeout);
+    // do any low-level work first
+    LINDev::tick();
+
+    // ... and if we're still idle and timed out, go to sleep
+    if (_lastActivity.is_older_than(4000)) {
+        st_sleep_requested(kSleepTypeIdle);
+    }
 }
 
 void
@@ -42,7 +45,7 @@ Slave::st_header_received()
     }
 
     // reset the idle timeout
-    _idleTimer.set_remaining(kIdleTimeout);
+    _lastActivity.update();
 }
 
 void

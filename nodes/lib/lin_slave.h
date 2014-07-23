@@ -12,7 +12,9 @@
 class Slave : public LINDev
 {
 public:
-    Slave(LIN::NodeAddress nad);
+    Slave(LIN::NodeAddress nad, bool polled = kLINDevInterrupts);
+
+    virtual void    tick() override;
 
 protected:
 

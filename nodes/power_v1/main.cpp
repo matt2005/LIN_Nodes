@@ -58,6 +58,7 @@ main(void)
     // run the relay logic forever
     for (;;) {
         wdt_reset();
+        slave.tick();
 
         // adjust outputs to match our commanded value
         if (slave.test_relay((RelayID)paramRelay1Assign.get())) {

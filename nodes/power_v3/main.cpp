@@ -37,6 +37,7 @@ main(void)
     // run the output logic forever
     for (;;) {
         wdt_reset();
+        slave.tick();
 
         // sort out parameter layout
         const uint8_t base = kParamCH1Assign1;

@@ -17,7 +17,8 @@ ISR(LIN_ERR_vect)
     _dev->isr_error();
 }
 
-LINDev::LINDev()
+LINDev::LINDev(bool polled) :
+    _polled(polled)
 {
     _dev = this;
 }
@@ -43,8 +44,19 @@ LINDev::reinit()
     Lin_set_baudrate(CONF_LINBRR);
     Lin_2x_enable();
 
-    // Enable interrupts
-    Lin_set_enable_it();
+    // Enable interrupts if we are not running polled
+    if (!_polled) {
+        Lin_set_enable_it();
+    }
+}
+
+void
+LINDev::tick()
+{
+    if (_polled) {
+        isr_TC();
+        isr_error();
+    }
 }
 
 void

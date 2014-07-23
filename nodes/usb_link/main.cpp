@@ -3,6 +3,7 @@
 #include <avr/interrupt.h>
 
 #include "board.h"
+#include "lin_slave.h"
 
 extern "C" {
 #include "usbdrv.h"
@@ -51,6 +52,9 @@ static uchar    dataBuffer[4];  /* buffer must stay valid when usbFunctionSetup 
     return 0;   /* default for not implemented requests: return no data back to host */
 }
 
+
+Slave slave(LIN::kNodeAddressSniffer, true);    //< polled-mode slave driver
+
 void
 main(void)
 {
@@ -70,10 +74,13 @@ main(void)
     }
     usbDeviceConnect();
 
+    slave.init();
+
     sei();
 
     for (;;) {
         wdt_reset();
+        slave.tick();
         usbPoll();
     }
 }

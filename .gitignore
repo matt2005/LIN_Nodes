@@ -7,3 +7,10 @@ tools/lindump
 tools/log
 nodes/usb_link/lintool/lintool
 nodes/usb_link/lintool/lintool.dSYM/*
+*.o
+*.bin
+*.lst
+*.hex
+*.map
+
+nodes/usb_link/micronucleus/usbdrv/oddebug.c.lst

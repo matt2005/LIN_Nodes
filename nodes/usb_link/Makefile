@@ -9,6 +9,7 @@ DEBUG		 = YES
 
 PROG		 = usb_link
 SRCS		 = main.cpp \
+		   slave.cpp \
 		   usbdrv.c \
 		   usbdrvasm.S
 

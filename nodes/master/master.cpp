@@ -184,7 +184,6 @@ Master::st_header_received()
 void
 Master::st_response_received(LIN::Frame &frame)
 {
-
     switch (current_FrameID()) {
 
     case LIN::kFrameIDProxyRequest:

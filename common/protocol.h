@@ -10,7 +10,7 @@
 static const uint8_t protocolRevision = 1;
 
 enum DataPage : uint8_t {
-    kDataPageIdentification,
+    kDataPageInfo,
     kDataPageStatus,
     kDataPageLINErrors,
     kDataPageNodeStatus,
@@ -19,7 +19,7 @@ enum DataPage : uint8_t {
 };
 
 static PROGMEM const char namesForDataPage[] = 
-    "Identification\0"
+    "Info\0"
     "Status\0"
     "LINErrors\0"
     "NodeStatus\0"
@@ -28,25 +28,29 @@ static PROGMEM const char namesForDataPage[] =
 
 enum NodeInfo : uint8_t {
     kNodeInfoProtocolVersion,
-    kNodeInfoGitHash0,
-    kNodeInfoGitHash1,
+    kNodeInfoBoardFunction,
+    kNodeInfoBootloaderMode,
+    kNodeInfoFirmwareVersion,
+    kNodeInfoFirmwarePageSize,
     kNodeInfoMax
 };
 
 static PROGMEM const char namesForNodeInfo[] = 
     "ProtocolVersion\0"
-    "GitHash0\0"
-    "GitHash1\0"
+    "BoardFunction\0"
+    "BootloaderMode\0"
+    "FirmwareVersion\0"
+    "FirmwarePageSize\0"
     "\0";
 
-enum NodeStatus : uint8_t {
-    kNodeStatusWatchdogResets,
-    kNodeStatusSupplyVoltage,
-    kNodeStatusTemperature,
-    kNodeStatusMax
+enum BasicStatus : uint8_t {
+    kBasicStatusWatchdogResets,
+    kBasicStatusSupplyVoltage,
+    kBasicStatusTemperature,
+    kBasicStatusMax
 };
 
-static PROGMEM const char namesForNodeStatus[] = 
+static PROGMEM const char namesForBasicStatus[] = 
     "WatchdogResets\0"
     "SupplyVoltage\0"
     "Temperature\0"

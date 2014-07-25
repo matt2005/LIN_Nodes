@@ -8,13 +8,7 @@
 #include "slave.h"
 
 bool
-ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
-{
-    return set_data_by_id(nad, kDataPageNodeParameters, param, value);
-}
-
-bool
-ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value)
+ToolSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value)
 {
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
@@ -28,14 +22,6 @@ ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
         if (!wait_complete()) {
             continue;
         }
-
-        uint8_t readback = ~value;
-
-        if (get_parameter(nad, index, readback) && (readback == value)) {
-            return true;
-        }
-
-        debug("set: readback %u not %u", readback, value);
     }
 
     debug("set: failed after retries");
@@ -43,23 +29,7 @@ ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
 }
 
 bool
-ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
-{
-    uint16_t tmp;
-
-    bool result = get_data_by_id(nad, kDataPageNodeParameters, param, tmp);
-    value = tmp & 0xff;
-    return result;
-}
-
-bool
-ProgrammerSlave::get_error_count(uint8_t nad, uint8_t err, uint16_t &count)
-{
-    return get_data_by_id(nad, kDataPageLINErrors, err, count);
-}
-
-bool
-ProgrammerSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t &value)
+ToolSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t &value)
 {
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
@@ -83,8 +53,11 @@ ProgrammerSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
 }
 
 void
-ProgrammerSlave::st_header_received()
+ToolSlave::st_header_received()
 {
+    _history.pushFID(current_FrameID());
+    bool sending = false;
+
     switch (current_FrameID()) {
     case LIN::kFrameIDProxyRequest:
         switch (_state) {
@@ -96,6 +69,8 @@ ProgrammerSlave::st_header_received()
                                         _dataPage,
                                         _dataValue & 0xff,
                                         _dataValue << 8));
+            // XXX should push response into history ring
+            sending = true;
             _state = kStateIdle;
             break;
 
@@ -105,6 +80,8 @@ ProgrammerSlave::st_header_received()
                                         LIN::kServiceIDReadDataByID,
                                         _dataIndex,
                                         _dataPage));
+            // XXX should push response into history ring
+            sending = true;
             _state = kStateWaitData;
             break;
 
@@ -117,27 +94,24 @@ ProgrammerSlave::st_header_received()
         default:
             break;
         }
-
         break;
-
-    case LIN::kFrameIDSlaveResponse:
-        // are we expecting someone else to be sending a response?
-        if (_state == kStateWaitData) {
-            st_expect_response();
-            break;
-        }
-        // no - maybe we are expected to send the response?
-        // FALLTHROUGH
 
     default:
         Slave::st_header_received();
         break;
     }
+
+    // if we aren't actively sending, we want the response for logging purposes
+    if (!sending) {
+        st_expect_response();
+    }
 }
 
 void
-ProgrammerSlave::st_response_received(LIN::Frame &frame)
+ToolSlave::st_response_received(LIN::Frame &frame)
 {
+    _history.pushResponse(frame);
+
     switch (current_FrameID()) {
     case LIN::kFrameIDSlaveResponse:
 
@@ -169,13 +143,13 @@ ProgrammerSlave::st_response_received(LIN::Frame &frame)
 }
 
 void
-ProgrammerSlave::st_sleep_requested(SleepType type)
+ToolSlave::st_sleep_requested(SleepType type)
 {
     // XXX never sleep
 }
 
 bool
-ProgrammerSlave::st_master_request(LIN::Frame &frame)
+ToolSlave::st_master_request(LIN::Frame &frame)
 {
     bool reply = false;
 
@@ -183,8 +157,7 @@ ProgrammerSlave::st_master_request(LIN::Frame &frame)
     case LIN::kServiceIDTesterPresent:
 
         // send a positive response to a directly-addressed request
-        // unless suspended
-        if (!_suspended && (frame.nad() == LIN::kNodeAddressTester)) {
+        if ((frame.nad() == LIN::kNodeAddressTester)) {
             frame.sid() |= LIN::kServiceIDResponseOffset;
             reply = true;
         }
@@ -200,7 +173,7 @@ ProgrammerSlave::st_master_request(LIN::Frame &frame)
 }
 
 bool
-ProgrammerSlave::wait_complete()
+ToolSlave::wait_complete()
 {
     Timestamp t;
 

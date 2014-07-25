@@ -28,7 +28,7 @@ REVISION 1
 #
 
 ENUM DataPage {
-    Identification
+    Info
     Status
     LINErrors
     NodeStatus
@@ -38,8 +38,10 @@ ENUM DataPage {
 # Page 0
 ENUM NodeInfo {
     ProtocolVersion
-    GitHash0
-    GitHash1
+    BoardFunction
+    BootloaderMode
+    FirmwareVersion
+    FirmwarePageSize
 }
 
 # Page 1 

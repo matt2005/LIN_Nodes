@@ -169,4 +169,18 @@ freemem()
     return mem;
 }
 
+void
+enter_bootloader()
+{
+    // make sure the watchdog doesn't catch us while we're updating the EEPROM
+    wdt_reset();
+
+    // write magic to the EEPROM to cause us to wait in the bootloader
+    eeprom_write_word((uint16_t *)(E2END - 2), 0x4f42);
+
+    // and wait for the watchdog to reset us
+    for (;;) 
+        ;
+}
+
 } // namespace Board

@@ -66,6 +66,10 @@ void us_delay(uint16_t us);
 ///
 uint16_t freemem();
 
+/// Reboot into the bootloader
+///
+void enter_bootloader();
+
 /// Set the LIN CS state
 ///
 static inline void

@@ -1,6 +1,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
+#include <avr/io.h>
 
 #include "lin_slave.h"
 #include "board.h"
@@ -153,9 +154,11 @@ Slave::st_master_request(LIN::Frame &frame)
 
 static const PROGMEM uint16_t page0[] = 
 {
+    1,                              // XXX protocol version
     (uint16_t)kBoardFunctionID,
-    GIT_HEX_VERSION & 0xffff,
-    GIT_HEX_VERSION >> 16
+    0,                              // bootloader mode (not)
+    RELEASE_VERSION,
+    SPM_PAGESIZE,
 };
 
 bool
@@ -164,7 +167,7 @@ Slave::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
     bool result = false;
 
     switch (page) {
-    case kDataPageIdentification:
+    case kDataPageInfo:
         if (index < (sizeof(page0) / sizeof(page0[0]))) {
             value = pgm_read_word(&page0[index]);
             result = true;
@@ -185,5 +188,12 @@ Slave::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
 bool
 Slave::st_write_data(uint8_t page, uint8_t index, uint16_t value)
 {
+    // 
+    if ((page == kDataPageInfo) && 
+        (index == kNodeInfoBootloaderMode) &&
+        (value == 0x4f42)) {        // 'BO'
+        Board::enter_bootloader();
+    }
+
     return false;
 }

@@ -25,7 +25,8 @@ DEFINES		+= -DBOARD_$(BOARD)		\
 		   -DF_CPU=$(F_CPU)UL		\
 		   $(if $(DEBUG),-DDEBUG)	\
 		   -DGIT_VERSION=$(shell git log -1 --pretty=format:%h) \
-		   -DGIT_HEX_VERSION=0x$(shell git log -1 --pretty=format:%h)
+		   -DGIT_HEX_VERSION=0x$(shell git log -1 --pretty=format:%h) \
+		   -DRELEASE_VERSION=0x0001
 
 
 CHECKOPTS	 = --enable=warning		\

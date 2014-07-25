@@ -1,35 +1,69 @@
-/* Name: requests.h
- * Project: custom-class, a basic USB example
- * Author: Christian Starkjohann
- * Creation Date: 2008-04-09
- * Tabsize: 4
- * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
- */
+#pragma once
 
-/* This header is shared between the firmware and the host software. It
- * defines the USB request numbers (and optionally data types) used to
- * communicate between the host and the device.
- */
+#pragma pack(push, 1)
 
-#ifndef __REQUESTS_H_INCLUDED__
-#define __REQUESTS_H_INCLUDED__
+enum USBRequest
+{
+    kUSBRequestStatus,
+    kUSBRequestGetHistory,
+    kUSBRequestReadData,
+    kUSBRequestWriteData,
+    kUSBRequestBeginUpdate,
+    kUSBRequestUpdateData,
+    kUSBRequestFinishUpdate
+};
 
-#define CUSTOM_RQ_ECHO          0
-/* Request that the device sends back wValue and wIndex. This is used with
- * random data to test the reliability of the communication.
- */
-#define CUSTOM_RQ_SET_STATUS    1
-/* Set the LED status. Control-OUT.
- * The requested status is passed in the "wValue" field of the control
- * transfer. No OUT data is sent. Bit 0 of the low byte of wValue controls
- * the LED.
- */
+struct RQStatus
+{
+    uint8_t flags;
+#define RQ_STATUS_CONNECTED         (1<<0)  //< set when connected to a working network
+};
 
-#define CUSTOM_RQ_GET_STATUS    2
-/* Get the current LED status. Control-IN.
- * This control transfer involves a 1 byte data phase where the device sends
- * the current status to the host. The status is in bit 0 of the byte.
- */
+struct RQHistory
+{
+    uint8_t fid_flags;
+#define RQ_HISTORY_RESPONSE_VALID   (1<<7)
+    uint8_t response[8];
+};
 
-#endif /* __REQUESTS_H_INCLUDED__ */
+struct RQData
+{
+    uint8_t nad;
+    uint8_t page;
+    uint8_t index;
+    uint16_t value;
+};
+
+struct RQBeginUpdate
+{
+    uint8_t nad;                        //< node that we are going to update
+};
+
+struct RQUpdateData
+{
+    uint8_t     sequence;               //< low 8 bits of program address (high bits are implicit)
+    uint8_t     data[8];                //< next 8 bytes of program data
+};
+
+struct RQFinishUpdate
+{
+    uint16_t    length;                 //< total length of image (may be up to 7 less than transferred)
+    uint16_t    crc;                    //< crc-16 of firmware over total length
+};
+
+union USBDataIn
+{
+    struct RQStatus         status;
+    struct RQHistory        history;
+    struct RQData           data;
+};
+
+union USBDataOut
+{
+    struct RQData           data;
+    struct RQBeginUpdate    begin;
+    struct RQUpdateData     update;
+    struct RQFinishUpdate   finish;
+};
+
+#pragma pack(pop)

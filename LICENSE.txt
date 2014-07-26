@@ -1,0 +1,12 @@
+Unless otherwise marked, this work is subject to:
+
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+
+The Micronucleus bootloader in nodes/usb_link/micronucleus and the v-usb library
+in nodes/usb_link/usbdrv have their own license conditions; see their respective
+License.txt files. These conditions may affect your use of the usb_link node.

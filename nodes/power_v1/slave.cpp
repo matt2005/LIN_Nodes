@@ -1,3 +1,12 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
+
 #include <string.h>
 
 #include "slave.h"
@@ -38,18 +47,58 @@ RelaySlave::st_response_received(LIN::Frame &frame)
     }
 }
 
-uint8_t
-RelaySlave::get_param(uint8_t param)
+bool
+RelaySlave::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
 {
-    if (param == 0) {
-        return kBoardFunctionID;
+    bool result = false;
+
+    switch (page) {
+    case kDataPageStatus:
+        // XXX should implement this in a somewhat-generic fashion?
+        break;
+
+    case kDataPageNodeStatus:
+        // XXX need to gather / report status
+        break;
+
+    case kDataPageNodeParameters:
+        if (index < kPower_v1ParamMax) {
+            value = power_v1Param(index);
+            result = true;
+        }
+
+        break;
+
     }
 
-    return power_v1Param(param);
+    if (!result) {
+        result = Slave::st_read_data(page, index, value);
+    }
+
+    return result;
 }
 
-void
-RelaySlave::set_param(uint8_t param, uint8_t value)
+bool
+RelaySlave::st_write_data(uint8_t page, uint8_t index, uint16_t value)
 {
-    power_v1Param(param) = value;
+    bool result = false;
+
+    switch (page) {
+    case kDataPageNodeParameters:
+        if (index < kPower_v1ParamMax) {
+            power_v1Param(index).set(value & 0xff);
+            result = true;
+        }
+
+        break;
+
+    default:
+        break;
+    }
+
+    if (!result) {
+        result = Slave::st_write_data(page, index, value);
+    }
+
+    return result;
 }

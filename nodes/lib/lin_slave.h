@@ -1,4 +1,14 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
+
 ///@file lin_slave.h
+
 ///
 /// LIN driver wrapper for slaves
 ///
@@ -12,7 +22,9 @@
 class Slave : public LINDev
 {
 public:
-    Slave(LIN::NodeAddress nad);
+    Slave(LIN::NodeAddress nad, bool polled = kLINDevInterrupts);
+
+    virtual void    tick() override;
 
 protected:
 
@@ -32,47 +44,54 @@ protected:
     /// @param type             Indicates whether this is a requested or idle
     ///                         timeout sleep request.
     ///
-    virtual void    sleep_requested(SleepType type);
+    virtual void    st_sleep_requested(SleepType type);
 
     /// Called when a LIN::kMasterRequest response is received that addresses
     /// this node.
+    ///
+    /// The default handler deals with kServiceIDReadDataByID, 
+    /// kServiceIDWriteDataByID, kServiceIDReadByID/kReadByIDProductID.
     ///
     /// @param frame            The response frame
     /// @return                 If true, the (modified) frame should be sent
     ///                         as a slave response.
     ///
-    virtual bool    master_request(LIN::Frame &frame);
+    virtual bool    st_master_request(LIN::Frame &frame);
 
     /// Prepare a response to the LIN::kSlaveResponse message.
     ///
     /// @param frame            The frame to send in response.
     ///
-    void            slave_response(const LIN::Frame &frame) 
+    void            st_slave_response(const LIN::Frame &frame) 
     {
         _response.copy(frame);
         _sendSlaveResponse = true;
     }
 
-    /// Get a parameter
+    /// Handler for kServiceIDReadDataByID.
     ///
-    /// Called when handling kServiceIDReadDataByID
+    /// The default handler deals with requests for page 0 and some fields in page 1.
     ///
-    /// @param param            Parameter index to be read.
-    /// @return                 The parameter's current value.
+    /// @param page             Data page being read
+    /// @param index            Data index to be read.
+    /// @param value            The parameter's current value.
+    /// @return                 True if the parameter is supported and the value has
+    ///                         been returned.
     ///
-    virtual uint8_t         get_param(uint8_t param);
+    virtual bool            st_read_data(uint8_t page, uint8_t index, uint16_t &value);
 
-    /// Set a parameter
+    /// Handler for kServiceIDWriteDataByID
     ///
-    /// Called when handling kServiceIDWriteDataByID
-    ///
-    /// @param param            Parameter index to be written
+    /// @param page             Data page being written
+    /// @param index            Data index to be written
     /// @param value            Value to be written.
+    /// @return                 True if the data was accepted (note that not all
+    ///                         writes check errors, data must be read back to be sure).
     ///
-    virtual void            set_param(uint8_t param, uint8_t value);
+    virtual bool            st_write_data(uint8_t page, uint8_t index, uint16_t value);
 
 private:
-    Timer           _idleTimer;         //< Bus idle timer
+    Timestamp       _lastActivity;      //< Bus idle timer
     LIN::Frame      _response;          //< canned response frame
 
     bool            _sendSlaveResponse:1;

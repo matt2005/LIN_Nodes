@@ -1,3 +1,11 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
 
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
@@ -10,7 +18,7 @@
 bool
 ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
 {
-    return set_data_by_id(nad, 0, param, value);
+    return set_data_by_id(nad, kDataPageNodeParameters, param, value);
 }
 
 bool
@@ -19,10 +27,10 @@ ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
         _nodeAddress = nad;
-        _paramPage = page;
-        _paramIndex = index;
-        _paramValue = value;
-        _state = kStateSetParam;
+        _dataPage = page;
+        _dataIndex = index;
+        _dataValue = value;
+        _state = kStateSetData;
         sei();
 
         if (!wait_complete()) {
@@ -47,7 +55,7 @@ ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 {
     uint16_t tmp;
 
-    bool result = get_data_by_id(nad, 0, param, tmp);
+    bool result = get_data_by_id(nad, kDataPageNodeParameters, param, tmp);
     value = tmp & 0xff;
     return result;
 }
@@ -55,7 +63,7 @@ ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
 bool
 ProgrammerSlave::get_error_count(uint8_t nad, uint8_t err, uint16_t &count)
 {
-    return get_data_by_id(nad, 1, err, count);
+    return get_data_by_id(nad, kDataPageLINErrors, err, count);
 }
 
 bool
@@ -64,17 +72,17 @@ ProgrammerSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
         _nodeAddress = nad;
-        _paramPage = page;
-        _paramIndex = index;
-        _paramValue = 0;
-        _state = kStateGetParam;
+        _dataPage = page;
+        _dataIndex = index;
+        _dataValue = 0;
+        _state = kStateGetData;
         sei();
 
         if (!wait_complete()) {
             continue;
         }
 
-        value = _paramValue;
+        value = _dataValue;
         return true;
     }
 
@@ -88,27 +96,27 @@ ProgrammerSlave::st_header_received()
     switch (current_FrameID()) {
     case LIN::kFrameIDProxyRequest:
         switch (_state) {
-        case kStateSetParam:
+        case kStateSetData:
             st_send_response(LIN::Frame(_nodeAddress,
                                         5,
                                         LIN::kServiceIDWriteDataByID,
-                                        _paramIndex,
-                                        _paramPage,
-                                        _paramValue & 0xff,
-                                        _paramValue << 8));
+                                        _dataIndex,
+                                        _dataPage,
+                                        _dataValue & 0xff,
+                                        _dataValue << 8));
             _state = kStateIdle;
             break;
 
-        case kStateGetParam:
+        case kStateGetData:
             st_send_response(LIN::Frame(_nodeAddress,
                                         3,
                                         LIN::kServiceIDReadDataByID,
-                                        _paramIndex,
-                                        _paramPage));
-            _state = kStateWaitParam;
+                                        _dataIndex,
+                                        _dataPage));
+            _state = kStateWaitData;
             break;
 
-        case kStateWaitParam:
+        case kStateWaitData:
             // we have missed (or it never arrived) the reply to
             // the ReadDataByID operation
             _state = kStateError;
@@ -121,17 +129,13 @@ ProgrammerSlave::st_header_received()
         break;
 
     case LIN::kFrameIDSlaveResponse:
-        if (_state == kStateWaitParam) {
+        // are we expecting someone else to be sending a response?
+        if (_state == kStateWaitData) {
             st_expect_response();
             break;
         }
-
-    // If this is the response phase for the Tester Present sniff, we need to let
-    // the generic slave code handle sending our response. Otherwise, if this is
-    // something we are interested in, we should have set up to expect the response
-    // above.
-
-    // FALLTHROUGH
+        // no - maybe we are expected to send the response?
+        // FALLTHROUGH
 
     default:
         Slave::st_header_received();
@@ -146,19 +150,19 @@ ProgrammerSlave::st_response_received(LIN::Frame &frame)
     case LIN::kFrameIDSlaveResponse:
 
         // is this a response to a current request?
-        if ((_state == kStateWaitParam) &&
+        if ((_state == kStateWaitData) &&
             (frame.nad() == _nodeAddress) &&
             (frame.sid() == (LIN::kServiceIDReadDataByID | LIN::kServiceIDResponseOffset))) {
 
             // sanity-check the response
             if ((frame.pci() != 5) ||
-                (frame.d1() != _paramIndex) ||
-                (frame.d2() != _paramPage)) {
+                (frame.d1() != _dataIndex) ||
+                (frame.d2() != _dataPage)) {
                 _state = kStateError;
                 debug("get: frame err");
 
             } else {
-                _paramValue = frame.d3() | (frame.d4() << 8);
+                _dataValue = frame.d3() | (frame.d4() << 8);
                 _state = kStateIdle;
             }
         }
@@ -173,13 +177,13 @@ ProgrammerSlave::st_response_received(LIN::Frame &frame)
 }
 
 void
-ProgrammerSlave::sleep_requested(SleepType type)
+ProgrammerSlave::st_sleep_requested(SleepType type)
 {
     // XXX never sleep
 }
 
 bool
-ProgrammerSlave::master_request(LIN::Frame &frame)
+ProgrammerSlave::st_master_request(LIN::Frame &frame)
 {
     bool reply = false;
 

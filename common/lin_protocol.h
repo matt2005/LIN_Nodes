@@ -1,8 +1,20 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
+
 ///@file lin_protocol.h
+
 ///
-/// Common LIN protocol definitions.
+/// LIN protocol definitions
 ///
-/// See also protocol.txt, .awk and .h
+/// Generally conformant with the LIN 2.1 specification where applicable.
+///
+/// Extensions are tagged NS.
 ///
 #pragma once
 
@@ -19,17 +31,17 @@ namespace LIN
 // LIN frame IDs
 //
 enum FrameID : uint8_t {
-    kFrameIDNone            = 0x00,
-    kFrameIDRelays          = 0x01,
-    kFrameIDECUData         = 0x02,
-    kFrameIDProxyRequest    = 0x3b,
+    kFrameIDRelays          = 0x01,     // NS
+    kFrameIDECUData         = 0x02,     // NS
+    kFrameIDProxyRequest    = 0x3b,     // NS
     kFrameIDMasterRequest   = 0x3c,
     kFrameIDSlaveResponse   = 0x3d,
-    kFrameIDTest            = 0x3f,
 };
 
 //
 // LIN node addresses for MasterRequest/SlaveResponse
+//
+// Addresses aside from sleep/functional/broadcast are NS
 //
 enum NodeAddress : uint8_t {
     kNodeAddressSleep           = 0,
@@ -38,7 +50,7 @@ enum NodeAddress : uint8_t {
     kNodeAddressPowerBase       = 2,    //< 15 of these (board ID 1-15)
     kNodeAddressECU             = 18,   //< ECU data bridge
     kNodeAddressDashboard       = 19,   //< dash display (not talkative)
-    kNodeAddressTester          = 20,   //< plug-in programmer
+    kNodeAddressTester          = 20,   //< test/diagnostic tool
 
     kNodeAddressMaxAssigned,
 
@@ -87,44 +99,20 @@ public:
 
     // Generic constructor
     //Frame() {}
-    Frame(uint8_t b0 = 0,
-          uint8_t b1 = 0,
-          uint8_t b2 = 0,
-          uint8_t b3 = 0,
-          uint8_t b4 = 0,
-          uint8_t b5 = 0,
-          uint8_t b6 = 0,
-          uint8_t b7 = 0)
-    {
-        _b[0] = b0;
-        _b[1] = b1;
-        _b[2] = b2;
-        _b[3] = b3;
-        _b[4] = b4;
-        _b[5] = b5;
-        _b[6] = b6;
-        _b[7] = b7;
-    }
+    constexpr Frame(uint8_t b0 = 0,
+                    uint8_t b1 = 0,
+                    uint8_t b2 = 0,
+                    uint8_t b3 = 0,
+                    uint8_t b4 = 0,
+                    uint8_t b5 = 0,
+                    uint8_t b6 = 0,
+                    uint8_t b7 = 0) :
+        _b { b0, b1, b2, b3, b4, b5, b6, b7 }
+    {}
 
-    Frame(const uint8_t *buf)
-    {
-        _b[0] = buf[0];
-        _b[1] = buf[1];
-        _b[2] = buf[2];
-        _b[3] = buf[3];
-        _b[4] = buf[4];
-        _b[5] = buf[5];
-        _b[6] = buf[6];
-        _b[7] = buf[7];
-    }
-
-    // ReadByID request factory
-    static Frame        makeReadByIDRequest(uint8_t nad, ReadByID flavor)
-    {
-        Frame f(nad, 2, kServiceIDReadByID, flavor);
-
-        return f;
-    }
+    constexpr Frame(const uint8_t *buf) :
+        _b { buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7] }
+    {}
 
     // frame data copier - avoids some ambiguity around volatile
     // frames
@@ -168,15 +156,15 @@ public:
     volatile uint8_t &operator[](uint8_t index) volatile { return _b[index]; }
     const volatile uint8_t &operator[](uint8_t index) const volatile { return _b[index]; }
 
-    // field access by name
-    volatile uint8_t    &nad()  volatile { return _b[0]; }
-    volatile uint8_t    &pci()  volatile { return _b[1]; }
-    volatile uint8_t    &sid()  volatile { return _b[2]; }
-    volatile uint8_t    &d1()   volatile { return _b[3]; }
-    volatile uint8_t    &d2()   volatile { return _b[4]; }
-    volatile uint8_t    &d3()   volatile { return _b[5]; }
-    volatile uint8_t    &d4()   volatile { return _b[6]; }
-    volatile uint8_t    &d5()   volatile { return _b[7]; }
+    // standard transport fields for single frames
+    volatile uint8_t    &nad()  volatile { return (*this)[0]; }
+    volatile uint8_t    &pci()  volatile { return (*this)[1]; }
+    volatile uint8_t    &sid()  volatile { return (*this)[2]; }
+    volatile uint8_t    &d1()   volatile { return (*this)[3]; }
+    volatile uint8_t    &d2()   volatile { return (*this)[4]; }
+    volatile uint8_t    &d3()   volatile { return (*this)[5]; }
+    volatile uint8_t    &d4()   volatile { return (*this)[6]; }
+    volatile uint8_t    &d5()   volatile { return (*this)[7]; }
 
     // convert to error reply
     void                set_error(ServiceError err) 
@@ -191,12 +179,13 @@ public:
     }
 
     // direct buffer access
-    volatile uint8_t    *buf() volatile { return &_b[0]; }
+    //volatile uint8_t    *buf() volatile { return &_b[0]; }
 
 private:
     uint8_t _b[8];
 };
 
+// NS
 class RelayFrame : public Frame
 {
 public:
@@ -220,6 +209,7 @@ public:
     }
 };
 
+// NS
 class ECUDataFrame : public Frame
 {
 public:

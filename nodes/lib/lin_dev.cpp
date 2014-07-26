@@ -1,3 +1,11 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
 
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
@@ -17,7 +25,9 @@ ISR(LIN_ERR_vect)
     _dev->isr_error();
 }
 
-LINDev::LINDev()
+LINDev::LINDev(bool polled) :
+    _polled(polled),
+    _responseCopyBack(false)
 {
     _dev = this;
 }
@@ -43,8 +53,19 @@ LINDev::reinit()
     Lin_set_baudrate(CONF_LINBRR);
     Lin_2x_enable();
 
-    // Enable interrupts
-    Lin_set_enable_it();
+    // Enable interrupts if we are not running polled
+    if (!_polled) {
+        Lin_set_enable_it();
+    }
+}
+
+void
+LINDev::tick()
+{
+    if (_polled) {
+        isr_error();
+        isr_TC();
+    }
 }
 
 void
@@ -65,12 +86,11 @@ LINDev::isr_TC()
     }
 
     if (Is_lin_rx_response_ready()) {
-        LIN::Frame f;
-
         // reset the FIFO readout pointer
         Lin_clear_index();
 
-        // copy FIFO data into the frame
+        // copy FIFO data into a frame
+        LIN::Frame f;
         for (uint8_t i = 0; i < 8; i++) {
             f[i] = Lin_get_data();
         }
@@ -92,55 +112,71 @@ LINDev::isr_TC()
 
         // and clear the interrupt
         Lin_clear_txok_it();
+
+        // if we wanted to also receive this frame...
+        if (_responseCopyBack) {
+            _responseCopyBack = false;
+
+            // reset the FIFO readout pointer
+            Lin_clear_index();
+
+            // copy FIFO data into a frame
+            LIN::Frame f;
+            for (uint8_t i = 0; i < 8; i++) {
+                f[i] = Lin_get_data();
+            }
+
+            // handle the frame
+            st_response_received(f);
+        }
     }
 }
 
 void
 LINDev::isr_error()
 {
+    uint8_t status = Lin_get_error_status();
 
-    if (Lin_get_error_status() & (1 << LBERR)) {
-        errors[kLINErrorLine]++;
-    }
-    if (Lin_get_error_status() & (1 << LCERR)) {
-        errors[kLINErrorChecksum]++;
-    }
-    if (Lin_get_error_status() & (1 << LPERR)) {
-        errors[kLINErrorParity]++;
-    }
-    if (Lin_get_error_status() & (1 << LFERR)) {
-        errors[kLINErrorFraming]++;
-    }
-    if (Lin_get_error_status() & (1 << LSERR)) {
-        errors[kLINErrorSynch]++;
-    }
+    if (status != 0) {
+        if (status & (1 << LBERR)) {
+            errors[kLINErrorLine]++;
+        }
+        if (status & (1 << LCERR)) {
+            errors[kLINErrorChecksum]++;
+        }
+        if (status & (1 << LPERR)) {
+            errors[kLINErrorParity]++;
+        }
+        if (status & (1 << LFERR)) {
+            errors[kLINErrorFraming]++;
+        }
+        if (status & (1 << LSERR)) {
+            errors[kLINErrorSynch]++;
+        }
 
-    // reset to default mode
-    Lin_2x_enable();
+        // reset to default mode
+        reinit();
 
-    // clear the interrupt
-    Lin_clear_err_it();
+        // clear the interrupt
+        Lin_clear_err_it();
+    }
 }
 
 void
 LINDev::st_expect_response(uint8_t length)
 {
+    // may be called more than once, or when also transmitting
     if (LINSIR & (1 << LBUSY)) {
-        debug("LIN busy when waiting for response LINSIR=%2x LINERR=%2x", LINSIR, Lin_get_error_status());
-        Board::panic(Board::kPanicCodeLIN);
-        return;
-    }
 
-    // select 1x mode for FIDs that require it
-    if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
-        Lin_1x_enable();
+        // are we actually in the process of sending a response?
+        if ((LINCR & LIN_CMD_MASK) == LIN_TX_RESPONSE) {
+            // arrange for a copy-back after transmission completes
+            _responseCopyBack = true;
+        }
     } else {
-        Lin_2x_enable();
         Lin_set_rx_len(length);
+        Lin_rx_response();
     }
-
-    // and configure to receive the response
-    Lin_rx_response();
 }
 
 void
@@ -157,44 +193,35 @@ LINDev::mt_send_header(LIN::FrameID fid)
         Board::panic(Board::kPanicCodeLIN);
     }
 
-    // select 1x or 2x mode
-    if (fid >= LIN::kFrameIDMasterRequest) {
-        Lin_1x_enable();
-        Lin_1x_set_id(fid);
-        Lin_1x_set_len(8);
-    } else {
-        Lin_2x_set_id(fid);
-    }
-
     // disable frame timeouts
     // XXX revisit?
     LINCR |= (1 << LCONF1);
 
     // send header
+    Lin_2x_set_id(fid);
     Lin_tx_header();
 }
 
 void
 LINDev::st_send_response(const LIN::Frame &f, uint8_t length)
 {
+    // may be called to send a response after we're already listening for one
     if (LINSIR & (1 << LBUSY)) {
-        debug("TX response while busy LINSIR=%2x LINERR=%2x", LINSIR, LINERR);
-        Board::panic(Board::kPanicCodeLIN);
-        return;
+        if ((LINCR & LIN_CMD_MASK) == LIN_TX_RESPONSE) {    
+            Lin_abort();
+            Lin_clear_err_it();
+            _responseCopyBack = true;
+        } else {
+            debug("TX response while busy LINCR=%2x LINSIR=%2x", LINCR, LINSIR);
+            Board::panic(Board::kPanicCodeLIN);
+        }
     }
 
     // turn on the LIN transmitter
     Board::lin_CS(true);
 
-    // select 1x mode for FIDs that require it
-    if (current_FrameID() >= LIN::kFrameIDMasterRequest) {
-        Lin_1x_enable();
-    } else {
-        Lin_2x_enable();
-        Lin_set_tx_len(length);
-    }
-
     // copy data to FIFO
+    Lin_set_tx_len(length);
     Lin_clear_index();
     for (uint8_t i = 0; i < length; i++) {
         Lin_set_data(f[i]);

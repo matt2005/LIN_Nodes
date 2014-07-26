@@ -1,24 +1,36 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
 
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
+#include <avr/io.h>
 
 #include "lin_slave.h"
 #include "board.h"
 
-void
-Slave::idle_timeout(void *arg)
-{
-    auto slave = (Slave *)arg;
 
-    slave->sleep_requested(kSleepTypeIdle);
+Slave::Slave(LIN::NodeAddress nad, bool polled) :
+    LINDev(polled),
+    _nad(nad)
+{
 }
 
-Slave::Slave(LIN::NodeAddress nad) :
-    _nad(nad),
-    _idleTimer(&Slave::idle_timeout, this)
+void
+Slave::tick()
 {
-    // start the idle timeout
-    _idleTimer.set_remaining(kIdleTimeout);
+    // do any low-level work first
+    LINDev::tick();
+
+    // ... and if we're still idle and timed out, go to sleep
+    if (_lastActivity.is_older_than(4000)) {
+        st_sleep_requested(kSleepTypeIdle);
+    }
 }
 
 void
@@ -42,7 +54,7 @@ Slave::st_header_received()
     }
 
     // reset the idle timeout
-    _idleTimer.set_remaining(kIdleTimeout);
+    _lastActivity.update();
 }
 
 void
@@ -52,14 +64,14 @@ Slave::st_response_received(LIN::Frame &frame)
     case LIN::kFrameIDMasterRequest:
         // check for broadcast sleep request
         if (frame.nad() == LIN::kNodeAddressSleep) {
-            sleep_requested(kSleepTypeRequested);
+            st_sleep_requested(kSleepTypeRequested);
             break;
         }
         // check for directly addressed or broadcast master request
         if ((frame.nad() == _nad) ||
             (frame.nad() == LIN::kNodeAddressBroadcast)) {
-            if (master_request(frame)) {
-                slave_response(frame);
+            if (st_master_request(frame)) {
+                st_slave_response(frame);
             }
         }
         break;
@@ -71,14 +83,14 @@ Slave::st_response_received(LIN::Frame &frame)
 }
 
 void
-Slave::sleep_requested(SleepType type)
+Slave::st_sleep_requested(SleepType type)
 {
     // default behaviour is to behave as requested
     Board::sleep();
 }
 
 bool
-Slave::master_request(LIN::Frame &frame)
+Slave::st_master_request(LIN::Frame &frame)
 {
     bool reply = false;
     // ReadByID
@@ -88,27 +100,15 @@ Slave::master_request(LIN::Frame &frame)
         if (frame.pci() != 3) {
             frame.set_error(LIN::kServiceErrorIncorrectLength);
         } else {
-            frame.pci() = 5;
-            frame.sid() |= LIN::kServiceIDResponseOffset;
-            // select parameter page
-            switch (frame.d2()) {
-            case 0:
-                // page 0 - setup parameters
-                frame.d3() = get_param(frame.d1());
-                frame.d4() = 0;
-                break;
-            case 1:
-                // page 1 - error counters
-                if (frame.d1() < kLINErrorMax) {
-                    frame.d3() = errors[frame.d1()];
-                    frame.d4() = 0;
-                } else {
-                    frame.set_error(LIN::kServiceErrorOutOfRange);
-                }
-                break;
-            default:
+            uint16_t value;
+
+            // look to see if we handle this one...
+            if (st_read_data(frame.d2(), frame.d1(), value)) {
+                frame.pci() = 5;
+                frame.sid() |= LIN::kServiceIDResponseOffset;
+            } else {
+                // generic error...
                 frame.set_error(LIN::kServiceErrorOutOfRange);
-                break;
             }
         }
         reply = true;
@@ -119,17 +119,15 @@ Slave::master_request(LIN::Frame &frame)
         if (frame.pci() != 5) {
             frame.set_error(LIN::kServiceErrorIncorrectLength);
         } else {
-            frame.pci() = 3;
-            frame.sid() |= LIN::kServiceIDResponseOffset;
+            uint16_t value = ((uint16_t)frame.d4() << 8) | frame.d3();
 
-            // select parameter page
-            switch (frame.d2()) {
-            case 0:
-                set_param(frame.d1(), frame.d3());      // XXX high bytes ignored
-                break;
-            default:
+            // see if we can handle this one
+            if (st_write_data(frame.d2(), frame.d1(), value)) {
+                frame.pci() = 3;
+                frame.sid() |= LIN::kServiceIDResponseOffset;
+            } else {
+                // generic error...
                 frame.set_error(LIN::kServiceErrorOutOfRange);
-                break;
             }
         }
         reply = true;
@@ -162,13 +160,48 @@ Slave::master_request(LIN::Frame &frame)
     return reply;
 }
 
-uint8_t
-Slave::get_param(uint8_t param)
+static const PROGMEM uint16_t page0[] = 
 {
-    return 0;
+    1,                              // XXX protocol version
+    (uint16_t)kBoardFunctionID,
+    0,                              // bootloader mode (not)
+    RELEASE_VERSION,
+    SPM_PAGESIZE,
+};
+
+bool
+Slave::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
+{
+    bool result = false;
+
+    switch (page) {
+    case kDataPageInfo:
+        if (index < (sizeof(page0) / sizeof(page0[0]))) {
+            value = pgm_read_word(&page0[index]);
+            result = true;
+        }
+        break;
+    case kDataPageLINErrors:
+        if (index < kLINErrorMax) {
+            value = errors[index];
+            result = true;
+        }
+    default:
+        break;
+    }
+
+    return result;
 }
 
-void
-Slave::set_param(uint8_t param, uint8_t value)
+bool
+Slave::st_write_data(uint8_t page, uint8_t index, uint16_t value)
 {
+    // 
+    if ((page == kDataPageInfo) && 
+        (index == kNodeInfoBootloaderMode) &&
+        (value == 0x4f42)) {        // 'BO'
+        Board::enter_bootloader();
+    }
+
+    return false;
 }

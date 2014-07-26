@@ -1,3 +1,11 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
 
 #include <avr/pgmspace.h>
 
@@ -55,6 +63,7 @@ TestMode::action(Encoder::Event bp)
             _index--;
             wantDraw = true;
         }
+
         break;
 
     case Encoder::kEventDown:
@@ -62,6 +71,7 @@ TestMode::action(Encoder::Event bp)
             _index++;
             wantDraw = true;
         }
+
         break;
 
     case Encoder::kEventPress:
@@ -85,6 +95,7 @@ TestMode::action(Encoder::Event bp)
     if (wantDraw) {
         draw();
     }
+
     return this;
 }
 

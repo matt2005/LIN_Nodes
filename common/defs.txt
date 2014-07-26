@@ -1,5 +1,75 @@
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.
+# ----------------------------------------------------------------------------
+
 REVISION 1
 
+#
+# General protocol definitions
+#
+# Node parameters and stats are read/written using the 
+# Read/WriteDataByID service, in general accordance with ISO 14992-1.
+#
+# The schema is custom, with the data ID split into a page (d2) and
+# index (d1) tuple.
+# 
+# Page 0 is a (standard, static) information page. This page should be available
+# in both normal and bootloader modes.
+#
+# Page 1 is a (standard, dynamic) status page.
+#
+# Page 2 is a (standard, dynamic) link error counter page.
+#
+# Page 3 contains (node-specific, read-only) node status information.
+# Index 0 is always a status summary word; a value of zero will always
+# indicate the nominal, functional condition. Any bit set in the summary
+# word indicates a fault condition.
+#
+# Page 4 contains (node-specific, read-write, non-volatile) parameters.
+#
+# In general, voltages are in millivolts, currents in milliamperes, temperatures
+# are in degrees celcius. Error counters saturate rather than resetting.
+#
+
+ENUM DataPage {
+    Info
+    Status
+    LINErrors
+    NodeStatus
+    NodeParameters
+}
+
+# Page 0
+ENUM NodeInfo {
+    ProtocolVersion
+    BoardFunction
+    BootloaderMode
+    FirmwareVersion
+    FirmwarePageSize
+}
+
+# Page 1 
+ENUM BasicStatus {
+    WatchdogResets
+    SupplyVoltage
+    Temperature
+}
+
+# Page 2
+ENUM LINError {
+    Line
+    Checksum
+    Parity
+    Framing
+    Synch
+    Protocol
+}
+
+################################################################################
+# Master node
 ################################################################################
 
 ENUM SwitchID {
@@ -29,6 +99,32 @@ ENUM SwitchID {
     Unassigned
 }
 
+ENUM MasterStatus {
+    Summary
+}
+
+PARAMETERS master
+
+foreach assign {1 2 3 4 5 6 7} {
+    master SPAssign${assign} "SP${assign} Input" "%S" 0 (kSwitchIDUnassigned) (kSwitchIDUnassigned)
+}
+foreach assign {0 1 2 3 4 5 6 7 8 9 10 11 12 13} {
+    master SGAssign${assign} "SG${assign} Input" "%S" 0 (kSwitchIDUnassigned) (kSwitchIDUnassigned)
+}
+                            ##################
+master TurnBlinkPeriod     "TurnBlinkPeriod"       "%3u0ms"        0       255                         0
+master PassingBlinkCount   "PassingBlinkCount"     "%3u blinks"    0       10                          0
+master PathLightTime       "PathLightTime"         "%3us"          0       60                          0
+master InteriorLightTime   "InteriorLightTime"     "%3us"          0       60                          0
+master WelcomeLightTime    "WelcomeLightTime"      "%3us"          0       60                          0
+master BrakeBlinkPeriod    "BrakeBlinkPeriod"      "%3u0ms"        0       100                         0
+master BrakeBlinkCount     "BrakeBlinkCount"       "%3u blinks"    0       10                          0
+master WiperInterval       "WiperInterval"         "%3u00ms"       0       50                          0
+
+################################################################################
+# Generic power node definitions
+################################################################################
+
 ENUM RelayID {
     Ignition
     Start
@@ -56,46 +152,45 @@ ENUM RelayID {
     Unassigned
 }
 
-ENUM RelayType {
-    5AGeneric
-    10AGeneric
-    LED
-    HID
-    LowPowerBulb
-    HighPowerBulb
-    Motor
+ENUM RelayFault {
+    None
+    OpenCircuit
+    OverCurrent
+    OverTemperature
+    ShortToGround
+    ShortToBattery
 }
 
-ENUM LINError {
-    Line
-    Checksum
-    Parity
-    Framing
-    Synch
-    Protocol
+ENUM RelayStatus {
+    Summary
+    Relay1Faults
+    Relay2Faults
+    Relay3Faults
+    Relay4Faults
+    Relay5Faults
+    Relay6Faults
+    Relay7Faults
+    Relay8Faults
+    Relay1PresentFault
+    Relay2PresentFault
+    Relay3PresentFault
+    Relay4PresentFault
+    Relay5PresentFault
+    Relay6PresentFault
+    Relay7PresentFault
+    Relay8PresentFault
+    Relay1LoadCurrent
+    Relay2LoadCurrent
+    Relay3LoadCurrent
+    Relay4LoadCurrent
+    Relay5LoadCurrent
+    Relay6LoadCurrent
+    Relay7LoadCurrent
+    Relay8LoadCurrent
 }
 
 ################################################################################
-
-PARAMETERS master
-
-foreach assign {1 2 3 4 5 6 7} {
-    master SPAssign${assign} "SP${assign} Input" "%S" 0 (kSwitchIDUnassigned) (kSwitchIDUnassigned)
-}
-foreach assign {0 1 2 3 4 5 6 7 8 9 10 11 12 13} {
-    master SGAssign${assign} "SG${assign} Input" "%S" 0 (kSwitchIDUnassigned) (kSwitchIDUnassigned)
-}
-                            ##################
-master TurnBlinkPeriod     "TurnBlinkPeriod"       "%3u0ms"        0       255                         0
-master PassingBlinkCount   "PassingBlinkCount"     "%3u blinks"    0       10                          0
-master PathLightTime       "PathLightTime"         "%3us"          0       60                          0
-master InteriorLightTime   "InteriorLightTime"     "%3us"          0       60                          0
-master WelcomeLightTime    "WelcomeLightTime"      "%3us"          0       60                          0
-master BrakeBlinkPeriod    "BrakeBlinkPeriod"      "%3u0ms"        0       100                         0
-master BrakeBlinkCount     "BrakeBlinkCount"       "%3u blinks"    0       10                          0
-master WiperInterval       "WiperInterval"         "%3u00ms"       0       50                          0
-
-################################################################################
+# V1 power node
 
 PARAMETERS power_v1
 
@@ -105,6 +200,17 @@ power_v1 Relay3Assign "CH3 Assignment" "%O" 0 (kRelayIDUnassigned) (kRelayIDUnas
 power_v1 Relay4Assign "CH4 Assignment" "%O" 0 (kRelayIDUnassigned) (kRelayIDUnassigned)
 
 ################################################################################
+# V3 power node
+
+ENUM RelayType {
+    5AGeneric
+    10AGeneric
+    LED
+    HID
+    LowPowerBulb
+    HighPowerBulb
+    Motor
+}
 
 PARAMETERS power_v3
 

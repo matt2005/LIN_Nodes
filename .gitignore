@@ -3,7 +3,14 @@ Nodes.sublime-workspace
 Documentation/parameters.numbers/preview-micro.jpg
 Documentation/parameters.numbers/preview-web.jpg
 Documentation/parameters.numbers/preview.jpg
-
 tools/lindump
-
 tools/log
+nodes/usb_link/lintool/lintool
+nodes/usb_link/lintool/lintool.dSYM/*
+*.o
+*.bin
+*.lst
+*.hex
+*.map
+
+nodes/usb_link/micronucleus/usbdrv/oddebug.c.lst

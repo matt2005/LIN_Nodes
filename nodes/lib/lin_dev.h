@@ -1,3 +1,12 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
+
 ///@file lin_dev.h
 
 #pragma once
@@ -10,15 +19,23 @@
 class LINDev
 {
 public:
-    LINDev();
+    static const bool   kLINDevInterrupts = false;
+    static const bool   kLINDevPolled = true;
+
+    LINDev(bool polled = kLINDevInterrupts);
     
     /// Do one-time block initialisation
     ///
-    static void     init();
+    void            init();
 
     /// Re-initialise the block
     ///
-    static void     reinit();
+    void            reinit();
+
+    /// Perform periodic actions; polls for new activity in polled 
+    /// mode.
+    ///
+    virtual void    tick();
 
     /// Called from the transfer-complete ISR
     ///
@@ -45,7 +62,7 @@ protected:
     ///
     /// @param fid              The Frame ID to send in the header.
     ///
-    static void     mt_send_header(LIN::FrameID fid);
+    void            mt_send_header(LIN::FrameID fid);
 
     /// Called by the slave task from st_st_header_received when it wants the
     /// response associated with a header.
@@ -100,5 +117,7 @@ protected:
     static LIN::FrameID current_FrameID() { return (LIN::FrameID)Lin_get_id(); }
 
 private:
+    bool            _polled:1;
+    bool            _responseCopyBack:1;
 };
 

@@ -52,6 +52,7 @@ extern const char power_v3ParamFormats[];
 #define kParamCH5PWM2 43
 #define kParamCH5PWM3 44
 #define kParamCH5PWM4 45
+#define kPower_v3ParamMax 45
 #define power_v3Param(_index) Parameter((_index), &power_v3ParamInfo[(_index) * 3])
 
 #define paramCH1Type power_v3Param(kParamCH1Type)

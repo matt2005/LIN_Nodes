@@ -11,6 +11,7 @@ extern const char power_v1ParamFormats[];
 #define kParamRelay2Assign 2
 #define kParamRelay3Assign 3
 #define kParamRelay4Assign 4
+#define kPower_v1ParamMax 4
 #define power_v1Param(_index) Parameter((_index), &power_v1ParamInfo[(_index) * 3])
 
 #define paramRelay1Assign power_v1Param(kParamRelay1Assign)

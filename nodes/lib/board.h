@@ -1,4 +1,14 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
+
 ///@file board.h
+
 ///
 /// Board pin definitions
 ///
@@ -20,6 +30,9 @@
 #endif
 #if defined(BOARD_PROGRAMMER_V1)
 # include "config_programmer_v1.h"
+#endif
+#if defined(BOARD_USB_LINK)
+# include "config_usb_link.h"
 #endif
 #ifndef pinLINRX
 # error Need to define a board type
@@ -62,6 +75,10 @@ void us_delay(uint16_t us);
 /// @return         The number of free bytes left between the BSS and stack
 ///
 uint16_t freemem();
+
+/// Reboot into the bootloader
+///
+void enter_bootloader();
 
 /// Set the LIN CS state
 ///

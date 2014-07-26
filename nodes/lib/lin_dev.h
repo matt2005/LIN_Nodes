@@ -108,6 +108,7 @@ protected:
     static LIN::FrameID current_FrameID() { return (LIN::FrameID)Lin_get_id(); }
 
 private:
-    bool            _polled;
+    bool            _polled:1;
+    bool            _responseCopyBack:1;
 };
 

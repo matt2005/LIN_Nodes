@@ -16,8 +16,11 @@ ToolSlave slave;    //< polled-mode slave driver
 usbMsgLen_t
 usbFunctionSetup(uchar data[8])
 {
-    usbRequest_t    *rq = (usbRequest_t *)&data[0];
-    static USBDataIn  reply;
+    usbRequest_t        *rq = (usbRequest_t *)&data[0];
+    static USBDataIn    reply;
+
+    // reply will always be from the same place
+    usbMsgPtr = (unsigned char *)&reply;
 
     switch (rq->bRequest) {
     case kUSBRequestStatus:
@@ -25,8 +28,9 @@ usbFunctionSetup(uchar data[8])
         return sizeof(reply.status);
 
     case kUSBRequestGetHistory:
-        if (slave.get_history(reply.history.fid_flags, reply.history.response)) {
-            return sizeof(reply.history);
+        if (slave.get_history(reply.history.frame) && 
+            (reply.history.frame[0] & RQ_HISTORY_FRAME_VALID)) {
+            return (reply.history.frame[0] & RQ_HISTORY_RESPONSE_VALID) ? 9 : 1;
         }
         // if no history, no reply
         break;

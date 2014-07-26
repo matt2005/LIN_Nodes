@@ -1,15 +1,15 @@
-USBFLAGS	:= $(shell libusb-config --cflags)
-USBLIBS		:= $(shell libusb-config --libs)
+USBFLAGS	:= $(shell pkg-config --cflags libusb-1.0)
+USBLIBS		:= $(shell pkg-config --libs libusb-1.0)
 
-SRCS		 = lintool.c opendevice.c
+SRCS		 = lintool.cpp
 
-CC		 = cc
-CFLAGS		 = $(USBFLAGS) -O -g -Wall
+CXX		 = c++
+FLAGS		 = -std=gnu++11 $(USBFLAGS) -O0 -g -Wall
 
 PROG		 = lintool
 
 $(PROG):	$(SRCS)
-	$(CC) -o $@ $(CFLAGS) $(SRCS) $(USBLIBS)
+	$(CXX) -o $@ $(FLAGS) $(SRCS) $(USBLIBS)
 
 clean:
 	rm -rf $(PROG) $(PROG).dSYM

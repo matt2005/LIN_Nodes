@@ -21,9 +21,10 @@ struct RQStatus
 
 struct RQHistory
 {
-    uint8_t fid_flags;
-#define RQ_HISTORY_RESPONSE_VALID   (1<<7)
-    uint8_t response[8];
+#define RQ_HISTORY_FRAME_VALID      (1<<7)  //< set in frame[0] when the response is valid
+#define RQ_HISTORY_RESPONSE_VALID   (1<<6)  //< set in frame[0] when the response is valid
+#define RQ_HISTORY_FID_MASK         (0x3f)  //< mask for frame[0] to extract FID
+    uint8_t frame[9];
 };
 
 struct RQData

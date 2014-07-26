@@ -7,6 +7,16 @@
 
 #include "slave.h"
 
+ ToolSlave::ToolSlave() :
+        Slave(LIN::kNodeAddressTester, true),
+        _state(kStateIdle),
+        _nodeAddress(0),
+        _dataPage(0),
+        _dataIndex(0),
+        _dataValue(0)
+{
+}
+
 bool
 ToolSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value)
 {

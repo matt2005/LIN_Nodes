@@ -9,7 +9,11 @@
 #ifdef pinDebugTX
 
 // 57600
-#define BIT_DELAY  16
+#if F_CPU == 8000000
+# define BIT_DELAY  16
+#elif F_CPU == 16000000
+# define BIT_DELAY  36
+#endif
 
 void
 Serial::write(uint8_t c)

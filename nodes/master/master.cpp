@@ -147,7 +147,7 @@ Master::st_header_received()
 
             // if the proxy request was for us, we
             // need to prepare a reply
-            if ((_stProxyFrame.nad() == LIN::kNodeAddressMaster) &&
+            if ((_stProxyFrame.nad() == _nad) &&
                 (st_master_request(_stProxyFrame))) {
                 _stProxyResponse = true;
             }

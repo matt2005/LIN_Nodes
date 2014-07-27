@@ -19,11 +19,11 @@ class SlaveHistory
 {
 public:
 
-    SlaveHistory() : 
+    SlaveHistory() :
         _savedFID(0),
         _FIDValid(false),
         _nextIn(0),
-        _nextOut(0) 
+        _nextOut(0)
     {
     }
 

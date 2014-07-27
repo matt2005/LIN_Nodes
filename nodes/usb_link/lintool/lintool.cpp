@@ -105,11 +105,11 @@ request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *d
 }
 
 uint8_t
-get_status()
+get_status(unsigned which = RQ_STATUS_FLAGS)
 {
     uint8_t status = 0;
 
-    int result = request_in(kUSBRequestStatus, 0, 0, &status, sizeof(status));
+    int result = request_in(kUSBRequestStatus, 0, which, &status, sizeof(status));
 
     if (result < 0) {
         errx(1, "get_status: USB error %s", libusb_strerror((enum libusb_error)result));
@@ -266,5 +266,7 @@ main(int argc, const char *argv[])
         }
         log_history(false);
     }
+
+    warnx("free memory: %u", get_status(RQ_STATUS_FREEMEM));
 }
 

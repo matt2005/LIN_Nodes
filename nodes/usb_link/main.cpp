@@ -34,16 +34,29 @@ usbFunctionSetup(uchar data[8])
     case kUSBRequestStatus:
         status = 0;
 
-        if (slave.is_data_ready()) {
-            status |= RQ_STATUS_DATA_READY;
-        }
+        switch (rq->wIndex.bytes[0]) {
+        case RQ_STATUS_FLAGS:
 
-        if (slave.is_data_error()) {
-            status |= RQ_STATUS_DATA_ERROR;
-        }
+            if (slave.is_data_ready()) {
+                status |= RQ_STATUS_DATA_READY;
+            }
 
-        if (slave.is_awake()) {
-            status |= RQ_STATUS_AWAKE;
+            if (slave.is_data_error()) {
+                status |= RQ_STATUS_DATA_ERROR;
+            }
+
+            if (slave.is_awake()) {
+                status |= RQ_STATUS_AWAKE;
+            }
+
+            break;
+
+        case RQ_STATUS_FREEMEM:
+            status = Board::freemem();
+            break;
+
+        default:
+            break;
         }
 
         usbMsgPtr = &status;

@@ -12,7 +12,7 @@
 #pragma pack(push, 1)
 
 enum USBRequest {
-    kUSBRequestStatus,              // wValue = ignored, wIndex = ignored
+    kUSBRequestStatus,              // wValue = ignored, wIndex = status kind
     kUSBRequestGetHistory,          // wValue = ignored, wIndex = ignored, IN = RQHistory
 
     kUSBRequestSelectNode,          // wValue = node address, wIndex = ignored
@@ -26,9 +26,12 @@ enum USBRequest {
     kUSBRequestFinishUpdate
 };
 
+#define RQ_STATUS_FLAGS         0
 #define RQ_STATUS_DATA_READY        (1<<0)
 #define RQ_STATUS_DATA_ERROR        (1<<1)
 #define RQ_STATUS_AWAKE             (1<<2)
+
+#define RQ_STATUS_FREEMEM       1
 
 // kUSBRequestGetHistory -> IN
 struct RQHistory {

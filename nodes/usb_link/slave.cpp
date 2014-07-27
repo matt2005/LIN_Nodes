@@ -112,6 +112,7 @@ ToolSlave::st_response_received(LIN::Frame &frame)
                 (frame.d1() != _dataIndex) ||
                 (frame.d2() != _dataPage)) {
                 _state = kStateError;
+
             } else {
                 _dataValue = frame.d3() | (frame.d4() << 8);
                 _state = kStateIdle;
@@ -168,6 +169,7 @@ SlaveHistory::sawFID(uint8_t fid)
             _nextIn = next(_nextIn);
         }
     }
+
     _savedFID = fid;
     _FIDValid = true;
 }
@@ -178,9 +180,11 @@ SlaveHistory::sawResponse(LIN::Frame &f)
     if (!full()) {
         _entries[_nextIn].bytes[0] = _savedFID | RQ_HISTORY_RESPONSE_VALID;
         _FIDValid = false;
+
         for (uint8_t i = 0; i < 8; i++) {
             _entries[_nextIn].bytes[i + 1] = f[i];
         }
+
         _nextIn = next(_nextIn);
     }
 }

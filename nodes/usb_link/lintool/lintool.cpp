@@ -110,9 +110,11 @@ get_status()
     uint8_t status = 0;
 
     int result = request_in(kUSBRequestStatus, 0, 0, &status, sizeof(status));
+
     if (result < 0) {
         errx(1, "get_status: USB error %s", libusb_strerror((enum libusb_error)result));
     }
+
     warnx("status: 0x%02x", status);
     return status;
 }
@@ -121,6 +123,7 @@ void
 set_node(uint8_t node)
 {
     int result = request(kUSBRequestSelectNode, node, 0);
+
     if (result < 0) {
         errx(1, "set_node: USB error %s", libusb_strerror((enum libusb_error)result));
     }
@@ -130,6 +133,7 @@ bool
 write_data(uint16_t index, uint16_t value)
 {
     int result = request(kUSBRequestWriteData, value, index);
+
     if (result < 0) {
         errx(1, "set: USB error %s", libusb_strerror((enum libusb_error)result));
     }
@@ -148,12 +152,14 @@ read_data(uint16_t index, uint16_t &value)
         errx(1, "read_data: setup, USB error %s", libusb_strerror((enum libusb_error)result));
     }
 
+    // spin waiting for the transaction to complere
     for (unsigned tries = 0; tries < 10; tries++) {
         usleep(10000);                  // 10ms per try
         uint8_t status = get_status();
 
         if (status & RQ_STATUS_DATA_ERROR) {
-            errx(1, "read_data: LIN error");
+            warnx("read_data: LIN error");
+            break;
         }
 
         if (status & RQ_STATUS_DATA_READY) {
@@ -166,6 +172,7 @@ read_data(uint16_t index, uint16_t &value)
             if (result != 2) {
                 errx(1, "read_data: fetch, data error, %d", result);
             }
+
             return true;
         }
 
@@ -187,7 +194,7 @@ trace(uint8_t frame[9])
 }
 
 void
-log()
+log_history(bool forever = true)
 {
     for (;;) {
         uint8_t frame[9];
@@ -195,31 +202,45 @@ log()
         int result = trace(frame);
 
         if (result == 0) {
+            if (!forever) {
+                return;
+            }
             continue;
         }
 
-        if (frame[0] & RQ_HISTORY_FRAME_VALID) {
-            printf("%02x: ", frame[0] & RQ_HISTORY_FID_MASK);
+        printf("%02x: ", frame[0] & RQ_HISTORY_FID_MASK);
 
-            if (frame[0] & RQ_HISTORY_RESPONSE_VALID) {
-                printf("%02x %02x %02x %02x %02x %02x %02x %02x",
-                       frame[1],
-                       frame[2],
-                       frame[3],
-                       frame[4],
-                       frame[5],
-                       frame[6],
-                       frame[7],
-                       frame[8]);
-            }
-
-        } else {
-            printf("??");
+        if (frame[0] & RQ_HISTORY_RESPONSE_VALID) {
+            printf("%02x %02x %02x %02x %02x %02x %02x %02x",
+                   frame[1],
+                   frame[2],
+                   frame[3],
+                   frame[4],
+                   frame[5],
+                   frame[6],
+                   frame[7],
+                   frame[8]);
         }
 
         printf("\n");
     }
 }
+
+void
+clear_history()
+{
+    for (;;) {
+        uint8_t frame[9];
+
+        int result = trace(frame);
+
+        if (result == 0) {
+            return;
+        }
+    }
+}
+
+
 
 int
 main(int argc, const char *argv[])
@@ -230,16 +251,20 @@ main(int argc, const char *argv[])
         errx(1, "network not awake");
     }
 
+    clear_history();
+
     for (unsigned i = 1; i < 20; i++) {
 
-        set_node(2);
+        set_node(i);
         uint16_t value = 0xffff;
 
         if (read_data(0, value)) {
             warnx("%d: got %d", i, value);
+
         } else {
             warnx("%d: no response", i);
         }
+        log_history(false);
     }
 }
 

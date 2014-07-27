@@ -8,20 +8,31 @@
 # ----------------------------------------------------------------------------
 # 
 #
-# Generator for magic numbers, class definitions and the like.
+# Generator for magic numbers, class definitions and the like. This is not
+# a real LDF parser, but it serves a similar purpose.
 #
-# Parses a DSL from the input file and generates code to suit
+# Parses a DSL from the input file and generates code to suit. Note that the
+# input is Tcl, so normal language constructs are available to simplify
+# code generation.
 #
 # DSL grammar:
 #
-# revision <revision-number>
+# REVISION <revision-number>
+#   Sets the protocol revision number
 #
-# frame <frame-name> <frame-id> <frame-length>
-#
-# enum <enum-name> { <element-name> [<element-name>...]}
+# ENUM <enum-name> { <element-name> [<element-name>...]}
+#   Generates an enumeration and a table of strings matching the
+#   individual element names. The first element is always zero.
+#   Each element is named k<enum-name><element-name>, and an 
+#   element named k<enum-name>Max is appended to the end of the
+#   enumeration.
 #
 # parameters <node-name>
+#   Declares the existence of a node <node-name>, for which parameters
+#   can be defined.
+#
 # <node-name> <parameter-name> "display-name" "format-string" <minimum-value> <maximum-value> <default-value>
+#   Defines a parameter for previously-delcared node.
 #
 
 package require fileutil

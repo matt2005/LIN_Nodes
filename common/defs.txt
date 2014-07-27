@@ -8,7 +8,9 @@
 REVISION 1
 
 #
-# General protocol definitions
+# General protocol definitions.
+#
+# XXX should be possible to express all of this in an LDF
 #
 # Node parameters and stats are read/written using the 
 # Read/WriteDataByID service, in general accordance with ISO 14992-1.

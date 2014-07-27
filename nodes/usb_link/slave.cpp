@@ -48,8 +48,7 @@ ToolSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index)
 void
 ToolSlave::st_header_received()
 {
-    _history.pushFID(current_FrameID());
-    bool sending = false;
+    _history.sawFID(current_FrameID());
 
     switch (current_FrameID()) {
     case LIN::kFrameIDProxyRequest:
@@ -62,7 +61,6 @@ ToolSlave::st_header_received()
                                         _dataPage,
                                         _dataValue & 0xff,
                                         _dataValue << 8));
-            sending = true;
             _state = kStateIdle;
             break;
 
@@ -72,7 +70,6 @@ ToolSlave::st_header_received()
                                         LIN::kServiceIDReadDataByID,
                                         _dataIndex,
                                         _dataPage));
-            sending = true;
             _state = kStateWaitData;
             break;
 
@@ -93,16 +90,14 @@ ToolSlave::st_header_received()
         break;
     }
 
-    // if we aren't actively sending, we want the response for logging purposes
-    if (!sending) {
-        st_expect_response();
-    }
+    // we always want to see the response, for logging purposes
+    st_expect_response();
 }
 
 void
 ToolSlave::st_response_received(LIN::Frame &frame)
 {
-    _history.pushResponse(frame);
+    _history.sawResponse(frame);
 
     switch (current_FrameID()) {
     case LIN::kFrameIDSlaveResponse:
@@ -117,10 +112,10 @@ ToolSlave::st_response_received(LIN::Frame &frame)
                 (frame.d1() != _dataIndex) ||
                 (frame.d2() != _dataPage)) {
                 _state = kStateError;
-
             } else {
                 _dataValue = frame.d3() | (frame.d4() << 8);
                 _state = kStateIdle;
+                debugc('t');
             }
         }
 
@@ -161,5 +156,44 @@ ToolSlave::st_master_request(LIN::Frame &frame)
     }
 
     return reply;
+}
+
+void
+SlaveHistory::sawFID(uint8_t fid)
+{
+    // do we have a saved FID for a frame with no response?
+    if (_FIDValid) {
+        if (!full()) {
+            _entries[_nextIn].bytes[0] = _savedFID;
+            _nextIn = next(_nextIn);
+        }
+    }
+    _savedFID = fid;
+    _FIDValid = true;
+}
+
+void
+SlaveHistory::sawResponse(LIN::Frame &f)
+{
+    if (!full()) {
+        _entries[_nextIn].bytes[0] = _savedFID | RQ_HISTORY_RESPONSE_VALID;
+        _FIDValid = false;
+        for (uint8_t i = 0; i < 8; i++) {
+            _entries[_nextIn].bytes[i + 1] = f[i];
+        }
+        _nextIn = next(_nextIn);
+    }
+}
+
+uint8_t *
+SlaveHistory::get()
+{
+    if (empty()) {
+        return nullptr;
+    }
+
+    uint8_t *result = &_entries[_nextOut].bytes[0];
+    _nextOut = next(_nextOut);
+    return result;
 }
 

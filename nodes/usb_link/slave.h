@@ -19,73 +19,34 @@ class SlaveHistory
 {
 public:
 
-    SlaveHistory() : _nextIn(0), _nextOut(0) {}
+    SlaveHistory() : 
+        _savedFID(0),
+        _FIDValid(false),
+        _nextIn(0),
+        _nextOut(0) 
+    {
+    }
 
     /// Save a received FID into the nextIn entry regardless of whether
     /// we are ready to push the remainder of the frame just yet.
     ///
     /// @param fid              A just-received FID
     ///
-    void            pushFID(uint8_t fid)
-    {
-        // Have we already pushed a FID, but not a response? If so, there
-        // was no response in the frame, so we should push an empty entry if
-        // we can.
-        //
-        if (_entries[_nextIn].bytes[0] & RQ_HISTORY_FRAME_VALID) {
-            if (full()) {
-                // overflow, try to mark this
-                _entries[_nextIn].bytes[0] = 0xbf;
-
-            } else {
-                // advance without a response in the frame
-                _nextIn = next(_nextIn);
-            }
-        }
-
-        // Set the FID in the next-in frame regardless of whether we
-        // can actually use it yet...
-        fid = (fid | RQ_HISTORY_FRAME_VALID) & ~RQ_HISTORY_RESPONSE_VALID;
-        _entries[_nextIn].bytes[0] = fid;
-    }
+    void            sawFID(uint8_t fid);
 
     /// Push a just-received or just-about-to-be-sent response (plus the
     /// previously-saved FID) into the ring if there is space for it.
     ///
     /// @param f                The response to push.
     ///
-    void            pushResponse(LIN::Frame &f)
-    {
-        if (full()) {
-            // ring overflow, set a magic FID to help us debug
-            _entries[_nextIn].bytes[0] = 0xff;
-
-        } else {
-            // copy the response and advance the ring
-            for (uint8_t i = 0; i < 8; i++) {
-                _entries[_nextIn].bytes[i + 1] = f[i];
-            }
-
-            _entries[_nextIn].bytes[0] |= RQ_HISTORY_RESPONSE_VALID;
-            _nextIn = next(_nextIn);
-        }
-    }
+    void            sawResponse(LIN::Frame &f);
 
     /// Get a pointer to the oldest frame in the queue.
     /// This will remain valid until at least the next poll cycle.
     ///
     /// @return                 true if a frame was pulled
     ///
-    uint8_t         *pull()
-    {
-        if (empty()) {
-            return nullptr;
-        }
-
-        uint8_t *result = &_entries[_nextOut].bytes[0];
-        _nextOut = next(_nextOut);
-        return result;
-    }
+    uint8_t         *get();
 
 private:
     struct Entry {
@@ -95,6 +56,8 @@ private:
     static const uint8_t    _size = 8;
     Entry                   _entries[_size + 1];
 
+    uint8_t                 _savedFID;
+    bool                    _FIDValid;
     uint8_t                 _nextIn;
     volatile uint8_t        _nextOut;
 
@@ -108,7 +71,7 @@ class ToolSlave : public Slave
 public:
     ToolSlave();
 
-    uint8_t         *get_history() { return _history.pull(); }
+    uint8_t         *get_history() { return _history.get(); }
 
     void            get_data_by_id(uint8_t nad, uint8_t page, uint8_t index);
     void            set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value);

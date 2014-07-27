@@ -52,8 +52,7 @@ usbFunctionSetup(uchar data[8])
     case kUSBRequestGetHistory:
         usbMsgPtr = slave.get_history();
 
-        if ((usbMsgPtr != nullptr) &&
-            (*usbMsgPtr & RQ_HISTORY_FRAME_VALID)) {
+        if (usbMsgPtr != nullptr) {
             return (*usbMsgPtr & RQ_HISTORY_RESPONSE_VALID) ? 9 : 1;
         }
 

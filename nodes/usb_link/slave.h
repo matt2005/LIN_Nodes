@@ -36,9 +36,10 @@ public:
             if (full()) {
                 // overflow, try to mark this
                 _entries[_nextIn].bytes[0] = 0xbf;
+
             } else {
                 // advance without a response in the frame
-                _nextIn = next(_nextIn);            
+                _nextIn = next(_nextIn);
             }
         }
 
@@ -52,48 +53,47 @@ public:
     /// previously-saved FID) into the ring if there is space for it.
     ///
     /// @param f                The response to push.
-    /// 
+    ///
     void            pushResponse(LIN::Frame &f)
     {
         if (full()) {
             // ring overflow, set a magic FID to help us debug
-            _entries[_nextIn].bytes[0] = 0xff;            
+            _entries[_nextIn].bytes[0] = 0xff;
+
         } else {
             // copy the response and advance the ring
             for (uint8_t i = 0; i < 8; i++) {
                 _entries[_nextIn].bytes[i + 1] = f[i];
             }
+
             _entries[_nextIn].bytes[0] |= RQ_HISTORY_RESPONSE_VALID;
             _nextIn = next(_nextIn);
         }
     }
 
-    /// Pull a frame out of the queue
+    /// Get a pointer to the oldest frame in the queue.
+    /// This will remain valid until at least the next poll cycle.
     ///
-    /// @param buf              destination buffer
     /// @return                 true if a frame was pulled
     ///
-    bool            pull(uint8_t buf[9])
+    uint8_t         *pull()
     {
         if (empty()) {
-            return false;
+            return nullptr;
         }
-        for (uint8_t i = 0; i < 9; i++) {
-            buf[i] = _entries[_nextOut].bytes[i];
-        }
-        _entries[_nextOut].bytes[0] = 0;
+
+        uint8_t *result = &_entries[_nextOut].bytes[0];
         _nextOut = next(_nextOut);
-        return true;
+        return result;
     }
 
 private:
-    struct Entry
-    {
+    struct Entry {
         uint8_t     bytes[9];
     };
 
     static const uint8_t    _size = 8;
-    volatile Entry          _entries[_size + 1];
+    Entry                   _entries[_size + 1];
 
     uint8_t                 _nextIn;
     volatile uint8_t        _nextOut;
@@ -103,18 +103,20 @@ private:
     bool            full() const { return next(_nextIn) == _nextOut; }
 };
 
-
-
-
 class ToolSlave : public Slave
 {
 public:
     ToolSlave();
 
-    bool            get_history(uint8_t buf[9]) { return _history.pull(buf); }
+    uint8_t         *get_history() { return _history.pull(); }
 
-    bool            get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t &value);
-    bool            set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value);
+    void            get_data_by_id(uint8_t nad, uint8_t page, uint8_t index);
+    void            set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value);
+
+    uint16_t        *get_data() { return &_dataValue; }
+
+    bool            is_data_ready() const { return _state != kStateIdle; }
+    bool            is_data_error() const { return _state == kStateError; }
 
 protected:
     virtual void    st_header_received() override;
@@ -133,12 +135,10 @@ private:
     };
 
     SlaveHistory        _history;
-    volatile State      _state;
+    State               _state;
 
     uint8_t             _nodeAddress;
     uint8_t             _dataPage;
     uint8_t             _dataIndex;
-    volatile uint16_t   _dataValue;
-
-    bool                wait_complete();
+    uint16_t            _dataValue;
 };

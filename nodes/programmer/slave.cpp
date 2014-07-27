@@ -129,13 +129,15 @@ ProgrammerSlave::st_header_received()
         break;
 
     case LIN::kFrameIDSlaveResponse:
+
         // are we expecting someone else to be sending a response?
         if (_state == kStateWaitData) {
             st_expect_response();
             break;
         }
-        // no - maybe we are expected to send the response?
-        // FALLTHROUGH
+
+    // no - maybe we are expected to send the response?
+    // FALLTHROUGH
 
     default:
         Slave::st_header_received();

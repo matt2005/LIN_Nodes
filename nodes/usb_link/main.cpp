@@ -21,34 +21,59 @@ extern "C" {
 
 ToolSlave slave;    //< polled-mode slave driver
 
+static uint8_t      currentNAD;
+
 usbMsgLen_t
 usbFunctionSetup(uchar data[8])
 {
     usbRequest_t        *rq = (usbRequest_t *)&data[0];
-    static USBDataIn    reply;
-
-    // reply will always be from the same place
-    usbMsgPtr = (unsigned char *)&reply;
+    static uint8_t      status;
 
     switch (rq->bRequest) {
+
     case kUSBRequestStatus:
-        reply.status.flags = RQ_STATUS_CONNECTED;
-        return sizeof(reply.status);
+        status = 0;
+
+        if (slave.is_data_ready()) {
+            status |= RQ_STATUS_DATA_READY;
+        }
+
+        if (slave.is_data_error()) {
+            status |= RQ_STATUS_DATA_ERROR;
+        }
+
+        usbMsgPtr = &status;
+        return sizeof(status);
 
     case kUSBRequestGetHistory:
-        if (slave.get_history(reply.history.frame) && 
-            (reply.history.frame[0] & RQ_HISTORY_FRAME_VALID)) {
-            return (reply.history.frame[0] & RQ_HISTORY_RESPONSE_VALID) ? 9 : 1;
+        usbMsgPtr = slave.get_history();
+
+        if ((usbMsgPtr != nullptr) &&
+            (*usbMsgPtr & RQ_HISTORY_FRAME_VALID)) {
+            return (*usbMsgPtr & RQ_HISTORY_RESPONSE_VALID) ? 9 : 1;
         }
+
         // if no history, no reply
         break;
 
+    case kUSBRequestSelectNode:
+        currentNAD = rq->wValue.bytes[0];
+        break;
+
     case kUSBRequestReadData:
-        // XXX how do we stall until the read completes / times out?
+        slave.get_data_by_id(currentNAD, rq->wIndex.bytes[0], rq->wIndex.bytes[1]);
+        break;
+
+    case kUSBRequestReadResult:
+        if (slave.is_data_ready()) {
+            usbMsgPtr = (uint8_t *)slave.get_data();
+            return sizeof(uint16_t);
+        }
+
         break;
 
     case kUSBRequestWriteData:
-        // XXX how do we stall until the read completes / times out?
+        slave.set_data_by_id(currentNAD, rq->wIndex.bytes[0], rq->wIndex.bytes[1], rq->wValue.word);
         break;
 
     case kUSBRequestBeginUpdate:
@@ -91,6 +116,8 @@ main(void)
         wdt_reset();
         slave.tick();
         usbPoll();
+
+        // Look for work
     }
 }
 

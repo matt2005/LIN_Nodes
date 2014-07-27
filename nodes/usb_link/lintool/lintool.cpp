@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <err.h>
 #include <libusb-1.0/libusb.h>
 
@@ -32,9 +33,11 @@ init()
     ssize_t cnt = libusb_get_device_list(NULL, &list);
     ssize_t i = 0;
     int err = 0;
+
     if (cnt < 0) {
         errx(1, "usb: no devices");
     }
+
     for (i = 0; i < cnt; i++) {
         libusb_device *device = list[i];
         struct libusb_device_descriptor desc;
@@ -48,77 +51,157 @@ init()
             (desc.idProduct == bytes_to_short(USB_CFG_DEVICE_ID))) {
 
             err = libusb_open(device, &handle);
+
             if (err) {
                 errx(1, "usb: open");
             }
+
             goto found;
         }
     }
+
     errx(1, "LIN interface not found");
 found:
     libusb_free_device_list(list, 1);
 }
 
-bool
-set(uint16_t index, uint16_t value)
+uint8_t
+get_status()
+{
+    uint8_t status = 0;
+
+    int result = libusb_control_transfer(handle,
+                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
+                                         kUSBRequestStatus,
+                                         0,
+                                         0,
+                                         &status,
+                                         sizeof(status),
+                                         5000);
+
+    if (result < 0) {
+        errx(1, "get_status: USB error %s", libusb_strerror((enum libusb_error)result));
+    }
+
+    warnx("status: %02x", status);
+    return status;
+}
+
+void
+set_node(uint8_t node)
 {
     int result = libusb_control_transfer(handle,
-                                 LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
-                                 kUSBRequestWriteData,
-                                 value,
-                                 index,
-                                 nullptr,
-                                 0,
-                                 5000);
+                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
+                                         kUSBRequestSelectNode,
+                                         node,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         5000);
+
+    if (result < 0) {
+        errx(1, "set_node: USB error %s", libusb_strerror((enum libusb_error)result));
+    }
+}
+
+bool
+write_data(uint16_t index, uint16_t value)
+{
+    int result = libusb_control_transfer(handle,
+                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
+                                         kUSBRequestWriteData,
+                                         value,
+                                         index,
+                                         nullptr,
+                                         0,
+                                         5000);
 
     // XXX some errors should be OK
     if (result < 0) {
         errx(1, "set: USB error %s", libusb_strerror((enum libusb_error)result));
     }
+
     return true;
 }
 
 bool
-get(uint16_t index, uint16_t &value)
+read_data(uint16_t index, uint16_t &value)
 {
-    int result = libusb_control_transfer(handle,
-                                 LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
-                                 kUSBRequestReadData,
-                                 0,
-                                 index,
-                                 (uint8_t *)&value,
-                                 sizeof(value),
-                                 5000);
+    int result;
 
-    // XXX errors might be OK
+    warnx("read_data: setup");
+
+    result = libusb_control_transfer(handle,
+                                     LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
+                                     kUSBRequestReadData,
+                                     0,
+                                     index,
+                                     nullptr,
+                                     0,
+                                     5000);
+
     if (result < 0) {
-        errx(1, "get: USB error %s", libusb_strerror((enum libusb_error)result));
+        errx(1, "read_data: setup, USB error %s", libusb_strerror((enum libusb_error)result));
     }
-    return (result == 2) ? true : false;
+
+    for (unsigned tries = 0; tries < 10; tries++) {
+        warnx("read_data: wait");
+        usleep(10000);                  // 10ms per try
+        warnx("read_data: status");
+        uint8_t status = get_status();
+
+        if (status & RQ_STATUS_DATA_READY) {
+            result = libusb_control_transfer(handle,
+                                             LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
+                                             kUSBRequestReadResult,
+                                             0,
+                                             0,
+                                             (uint8_t *)&value,
+                                             sizeof(value),
+                                             5000);
+
+            if (result < 0) {
+                errx(1, "read_data: fetch, USB error %s", libusb_strerror((enum libusb_error)result));
+            }
+
+            if (result != 2) {
+                errx(1, "read_data: fetch, data error, %d", result);
+            }
+
+            return true;
+        }
+
+        if (status & RQ_STATUS_DATA_ERROR) {
+            errx(1, "read_data: LIN error");
+        }
+    }
+
+    warnx("read_data: timeout");
+    return false;
 }
 
 int
 trace(uint8_t frame[9])
 {
     int result = libusb_control_transfer(handle,
-                                 LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
-                                 kUSBRequestGetHistory,
-                                 0,
-                                 0,
-                                 frame,
-                                 9,
-                                 5000);
+                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
+                                         kUSBRequestGetHistory,
+                                         0,
+                                         0,
+                                         frame,
+                                         9,
+                                         5000);
+
     if (result < 0) {
         errx(1, "trace: USB error %s", libusb_strerror((enum libusb_error)result));
     }
+
     return result;
 }
 
-int
-main(int argc, const char *argv[])
+void
+log()
 {
-    init();
-
     for (;;) {
         uint8_t frame[9];
 
@@ -130,20 +213,37 @@ main(int argc, const char *argv[])
 
         if (frame[0] & RQ_HISTORY_FRAME_VALID) {
             printf("%02x: ", frame[0] & RQ_HISTORY_FID_MASK);
+
             if (frame[0] & RQ_HISTORY_RESPONSE_VALID) {
                 printf("%02x %02x %02x %02x %02x %02x %02x %02x",
-                    frame[1],
-                    frame[2],
-                    frame[3],
-                    frame[4],
-                    frame[5],
-                    frame[6],
-                    frame[7],
-                    frame[8]);
+                       frame[1],
+                       frame[2],
+                       frame[3],
+                       frame[4],
+                       frame[5],
+                       frame[6],
+                       frame[7],
+                       frame[8]);
             }
+
         } else {
             printf("??");
         }
+
         printf("\n");
     }
 }
+
+int
+main(int argc, const char *argv[])
+{
+    init();
+
+    set_node(1);
+    uint16_t value = 0xffff;
+
+    read_data(0, value);
+
+    errx(0, "got %d", value);
+}
+

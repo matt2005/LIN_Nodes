@@ -15,59 +15,34 @@
 
 #include "slave.h"
 
- ToolSlave::ToolSlave() :
-        Slave(LIN::kNodeAddressTester, true),
-        _state(kStateIdle),
-        _nodeAddress(0),
-        _dataPage(0),
-        _dataIndex(0),
-        _dataValue(0)
+ToolSlave::ToolSlave() :
+    Slave(LIN::kNodeAddressTester, true),
+    _state(kStateIdle),
+    _nodeAddress(0),
+    _dataPage(0),
+    _dataIndex(0),
+    _dataValue(0)
 {
 }
 
-bool
+void
 ToolSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value)
 {
-    for (uint8_t tries = 0; tries < 3; tries++) {
-        cli();
-        _nodeAddress = nad;
-        _dataPage = page;
-        _dataIndex = index;
-        _dataValue = value;
-        _state = kStateSetData;
-        sei();
-
-        if (!wait_complete()) {
-            continue;
-        }
-    }
-
-    debug("set: failed after retries");
-    return false;
+    _nodeAddress = nad;
+    _dataPage = page;
+    _dataIndex = index;
+    _dataValue = value;
+    _state = kStateSetData;
 }
 
-bool
-ToolSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t &value)
+void
+ToolSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index)
 {
-    for (uint8_t tries = 0; tries < 3; tries++) {
-        cli();
-        _nodeAddress = nad;
-        _dataPage = page;
-        _dataIndex = index;
-        _dataValue = 0;
-        _state = kStateGetData;
-        sei();
-
-        if (!wait_complete()) {
-            continue;
-        }
-
-        value = _dataValue;
-        return true;
-    }
-
-    debug("get: failed after retries");
-    return false;
+    _nodeAddress = nad;
+    _dataPage = page;
+    _dataIndex = index;
+    _dataValue = 0;
+    _state = kStateGetData;
 }
 
 void
@@ -87,7 +62,6 @@ ToolSlave::st_header_received()
                                         _dataPage,
                                         _dataValue & 0xff,
                                         _dataValue << 8));
-            // XXX should push response into history ring
             sending = true;
             _state = kStateIdle;
             break;
@@ -98,7 +72,6 @@ ToolSlave::st_header_received()
                                         LIN::kServiceIDReadDataByID,
                                         _dataIndex,
                                         _dataPage));
-            // XXX should push response into history ring
             sending = true;
             _state = kStateWaitData;
             break;
@@ -112,6 +85,7 @@ ToolSlave::st_header_received()
         default:
             break;
         }
+
         break;
 
     default:
@@ -143,7 +117,6 @@ ToolSlave::st_response_received(LIN::Frame &frame)
                 (frame.d1() != _dataIndex) ||
                 (frame.d2() != _dataPage)) {
                 _state = kStateError;
-                debug("get: frame err");
 
             } else {
                 _dataValue = frame.d3() | (frame.d4() << 8);
@@ -190,29 +163,3 @@ ToolSlave::st_master_request(LIN::Frame &frame)
     return reply;
 }
 
-bool
-ToolSlave::wait_complete()
-{
-    Timestamp t;
-
-    while (!t.is_older_than(100)) {
-        wdt_reset();
-
-        switch (_state) {
-        case kStateIdle:
-            return true;
-
-        case kStateError:
-            debug("wait_complete: error");
-            _state = kStateIdle;
-            return false;
-
-        default:
-            break;
-        }
-    }
-
-    debug("wait_complete: %2u timeout in %1u", _nodeAddress, _state);
-    _state = kStateIdle;
-    return false;
-}

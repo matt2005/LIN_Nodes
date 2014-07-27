@@ -11,5 +11,10 @@ PROG		 = lintool
 $(PROG):	$(SRCS)
 	$(CXX) -o $@ $(FLAGS) $(SRCS) $(USBLIBS)
 
+.PHONY: clean
 clean:
 	rm -rf $(PROG) $(PROG).dSYM
+
+.PHONY: reformat
+reformat:
+	../../../etc/reformat.sh $(SRCS)

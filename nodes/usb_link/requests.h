@@ -28,6 +28,7 @@ enum USBRequest {
 
 #define RQ_STATUS_DATA_READY        (1<<0)
 #define RQ_STATUS_DATA_ERROR        (1<<1)
+#define RQ_STATUS_AWAKE             (1<<2)
 
 // kUSBRequestGetHistory -> IN
 struct RQHistory {

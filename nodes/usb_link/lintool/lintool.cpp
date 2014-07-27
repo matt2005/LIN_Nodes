@@ -65,40 +65,62 @@ found:
     libusb_free_device_list(list, 1);
 }
 
+int
+request(uint8_t bRequest, uint16_t wValue, uint16_t wIndex)
+{
+    return libusb_control_transfer(handle,
+                                   LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
+                                   bRequest,
+                                   wValue,
+                                   wIndex,
+                                   nullptr,
+                                   0,
+                                   5000);
+}
+
+int
+request_in(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength)
+{
+    return libusb_control_transfer(handle,
+                                   LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
+                                   bRequest,
+                                   wValue,
+                                   wIndex,
+                                   data,
+                                   wLength,
+                                   5000);
+}
+
+int
+request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength)
+{
+    return libusb_control_transfer(handle,
+                                   LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
+                                   bRequest,
+                                   wValue,
+                                   wIndex,
+                                   data,
+                                   wLength,
+                                   5000);
+}
+
 uint8_t
 get_status()
 {
     uint8_t status = 0;
 
-    int result = libusb_control_transfer(handle,
-                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
-                                         kUSBRequestStatus,
-                                         0,
-                                         0,
-                                         &status,
-                                         sizeof(status),
-                                         5000);
-
+    int result = request_in(kUSBRequestStatus, 0, 0, &status, sizeof(status));
     if (result < 0) {
         errx(1, "get_status: USB error %s", libusb_strerror((enum libusb_error)result));
     }
-
-    warnx("status: %02x", status);
+    warnx("status: 0x%02x", status);
     return status;
 }
 
 void
 set_node(uint8_t node)
 {
-    int result = libusb_control_transfer(handle,
-                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
-                                         kUSBRequestSelectNode,
-                                         node,
-                                         0,
-                                         nullptr,
-                                         0,
-                                         5000);
-
+    int result = request(kUSBRequestSelectNode, node, 0);
     if (result < 0) {
         errx(1, "set_node: USB error %s", libusb_strerror((enum libusb_error)result));
     }
@@ -107,16 +129,7 @@ set_node(uint8_t node)
 bool
 write_data(uint16_t index, uint16_t value)
 {
-    int result = libusb_control_transfer(handle,
-                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
-                                         kUSBRequestWriteData,
-                                         value,
-                                         index,
-                                         nullptr,
-                                         0,
-                                         5000);
-
-    // XXX some errors should be OK
+    int result = request(kUSBRequestWriteData, value, index);
     if (result < 0) {
         errx(1, "set: USB error %s", libusb_strerror((enum libusb_error)result));
     }
@@ -129,36 +142,22 @@ read_data(uint16_t index, uint16_t &value)
 {
     int result;
 
-    warnx("read_data: setup");
-
-    result = libusb_control_transfer(handle,
-                                     LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
-                                     kUSBRequestReadData,
-                                     0,
-                                     index,
-                                     nullptr,
-                                     0,
-                                     5000);
+    result = request(kUSBRequestReadData, 0, index);
 
     if (result < 0) {
         errx(1, "read_data: setup, USB error %s", libusb_strerror((enum libusb_error)result));
     }
 
     for (unsigned tries = 0; tries < 10; tries++) {
-        warnx("read_data: wait");
         usleep(10000);                  // 10ms per try
-        warnx("read_data: status");
         uint8_t status = get_status();
 
+        if (status & RQ_STATUS_DATA_ERROR) {
+            errx(1, "read_data: LIN error");
+        }
+
         if (status & RQ_STATUS_DATA_READY) {
-            result = libusb_control_transfer(handle,
-                                             LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
-                                             kUSBRequestReadResult,
-                                             0,
-                                             0,
-                                             (uint8_t *)&value,
-                                             sizeof(value),
-                                             5000);
+            result = request_in(kUSBRequestReadResult, 0, 0, (uint8_t *)&value, sizeof(value));
 
             if (result < 0) {
                 errx(1, "read_data: fetch, USB error %s", libusb_strerror((enum libusb_error)result));
@@ -167,30 +166,18 @@ read_data(uint16_t index, uint16_t &value)
             if (result != 2) {
                 errx(1, "read_data: fetch, data error, %d", result);
             }
-
             return true;
         }
 
-        if (status & RQ_STATUS_DATA_ERROR) {
-            errx(1, "read_data: LIN error");
-        }
     }
 
-    warnx("read_data: timeout");
     return false;
 }
 
 int
 trace(uint8_t frame[9])
 {
-    int result = libusb_control_transfer(handle,
-                                         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
-                                         kUSBRequestGetHistory,
-                                         0,
-                                         0,
-                                         frame,
-                                         9,
-                                         5000);
+    int result = request_in(kUSBRequestGetHistory, 0, 0, frame, 9);
 
     if (result < 0) {
         errx(1, "trace: USB error %s", libusb_strerror((enum libusb_error)result));
@@ -239,11 +226,20 @@ main(int argc, const char *argv[])
 {
     init();
 
-    set_node(1);
-    uint16_t value = 0xffff;
+    if (!(get_status() & RQ_STATUS_AWAKE)) {
+        errx(1, "network not awake");
+    }
 
-    read_data(0, value);
+    for (unsigned i = 1; i < 20; i++) {
 
-    errx(0, "got %d", value);
+        set_node(2);
+        uint16_t value = 0xffff;
+
+        if (read_data(0, value)) {
+            warnx("%d: got %d", i, value);
+        } else {
+            warnx("%d: no response", i);
+        }
+    }
 }
 

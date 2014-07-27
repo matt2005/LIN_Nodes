@@ -42,6 +42,10 @@ usbFunctionSetup(uchar data[8])
             status |= RQ_STATUS_DATA_ERROR;
         }
 
+        if (slave.is_awake()) {
+            status |= RQ_STATUS_AWAKE;
+        }
+
         usbMsgPtr = &status;
         return sizeof(status);
 
@@ -108,6 +112,7 @@ main(void)
 
     usbDeviceConnect();
 
+    Timer::init();
     slave.init();
 
     sei();
@@ -116,8 +121,6 @@ main(void)
         wdt_reset();
         slave.tick();
         usbPoll();
-
-        // Look for work
     }
 }
 

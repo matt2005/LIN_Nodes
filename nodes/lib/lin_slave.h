@@ -18,13 +18,14 @@
 #include "lin_dev.h"
 #include "lin_protocol.h"
 #include "timer.h"
-
+#include "board.h"
 class Slave : public LINDev
 {
 public:
     Slave(LIN::NodeAddress nad, bool polled = kLINDevInterrupts);
 
     virtual void    tick() override;
+    bool            is_awake() const { return !_lastActivity.is_older_than(100); }
 
 protected:
 

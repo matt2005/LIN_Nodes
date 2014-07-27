@@ -34,6 +34,13 @@ public:
     ///
     Timer(Callback callback, void *arg = nullptr, Timeval interval = 0);
 
+    /// Initialise the timer system.
+    ///
+    /// This call may be required if time needs to work but there are no timers
+    /// or decrementers in the system.
+    ///
+    static void         init();
+
     /// Set the delay until the timer expires.
     ///
     /// Note that a value of 1 means that it will elapse on the next tick, and a value of
@@ -59,8 +66,8 @@ public:
 
     /// Returns the delta beetween some time in the past and now.
     ///
-    /// Note that due to the limited range of Timeval, intervals greater
-    /// than ~65 seconds will be truncated.
+    /// Note that due to the limited range of Timeval, past events older than
+    /// ~65 seconds will give incorrect values (the return value is truncated).
     ///
     /// @param then             The time in the past
     /// @return                 The time difference in milliseconds
@@ -119,7 +126,7 @@ public:
     bool            is_older_than(Timer::Timeval interval) const { return time_since() > interval; }
     void            update() { _taken = Timer::time_now(); }
 
-private:
+//private:
     volatile Timer::Timeval _taken;
 };
 

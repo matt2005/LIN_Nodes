@@ -24,27 +24,37 @@ Timer::Timer(Callback callback, void *arg, uint16_t interval) :
     _next(_first)
 {
     if (_first == nullptr) {
-
-        // Reset Timer0
-        TIMSK0 = 0;     // interrupts off
-        TCCR0B = 0;     // timer off
-        TCCR0A = 0;     // output off
-        TCNT0 = 0;      // reset counter
-        OCR0A = 0;      // clear the compare value
-        ASSR = 0;
-
-        // Configure for a 1ms tick
-        TIFR0 = ((1 << OCF0A) | (1 << TOV0));   // interrupt on overflow / reset
-        TCCR0A = 0x02;                          // output off, mode 2
-        OCR0A = (F_CPU / 1000 / 64);            // tick every 1ms
-        TCCR0B = 0x04;                          // prescaler divide by 64 and timer on
-
-        TIMSK0 |= 1 << OCIE0A;                  // compare interrupt on
+        init();
     }
     _first = this;
 }
 
-ISR(TIMER0_COMPA_vect)
+void
+Timer::init()
+{
+    // Check whether the timer is already configured
+    if (TIMSK0 & (1 << OCIE0A)) {
+        return;
+    }
+
+    // Reset Timer0
+    TIMSK0 = 0;     // interrupts off
+    TCCR0B = 0;     // timer off
+    TCCR0A = 0;     // output off
+    TCNT0 = 0;      // reset counter
+    OCR0A = 0;      // clear the compare value
+    ASSR = 0;
+
+    // Configure for a 1ms tick
+    TIFR0 = ((1 << OCF0A) | (1 << TOV0));   // interrupt on overflow / reset
+    TCCR0A = 0x02;                          // output off, mode 2
+    OCR0A = (F_CPU / 1000 / 64);            // tick every 1ms
+    TCCR0B = 0x04;                          // prescaler divide by 64 and timer on
+
+    TIMSK0 |= 1 << OCIE0A;                  // compare interrupt on
+}
+
+ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)
 {
     Timer::tick();
 }

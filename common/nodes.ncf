@@ -2,11 +2,10 @@
 // Experimental node configuration file
 //
 // XXX not currently in use or guaranteed even close to correct.
-// XXX no tool exists to parse this
 // XXX would benefit from some templates exposing frame members, etc.
 // XXX LIN API not very good, do not generate code to conform
 // XXX NCF lacks a mechanism for defining parameters; the parameters
-///    clause here is nonstandard
+//     clause here is nonstandard
 //
 // Note: none of these nodes support Assign Frame Identifier Range, as
 //       all frame identifiers in the network are fixed.
@@ -14,6 +13,42 @@
 
 node_capability_file;
 LIN_language_version = "2.1+";
+
+node generic {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0000;
+        variant = 0x00;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }    
+    diagnostic {
+        NAD = 1 to 127;
+        diagnostic_class = 1;
+        support_sid = 0x22, 0x2e, 0xb2;
+    }
+    frames {}
+    parameters {
+        ProtocolVersion     { page = 0; }
+        BoardFunction       { page = 0; }
+        BootloaderMode      { page = 0; }
+        FirmwareVersion     { page = 0; }
+        FirmwarePageSize    { page = 0; }
+
+        WatchdogResets      { page = 1; }
+        SupplyVoltage       { page = 1; }
+        Temperature         { page = 1; }
+
+        Line                { page = 2; }
+        Checksum            { page = 2; }
+        Parity              { page = 2; }
+        Framing             { page = 2; }
+        Synch               { page = 2; }
+        Protocol            { page = 2; }
+    }
+    encoding {}
+}
 
 node master {
     general {
@@ -62,35 +97,35 @@ node master {
         }
     }
     parameters {
-        SP1Assign               { init_value = 0; input; }
-        SP2Assign               { init_value = 0; input; }
-        SP3Assign               { init_value = 0; input; }
-        SP4Assign               { init_value = 0; input; }
-        SP5Assign               { init_value = 0; input; }
-        SP6Assign               { init_value = 0; input; }
-        SP7Assign               { init_value = 0; input; }
-        SG0Assign               { init_value = 0; input; }
-        SG1Assign               { init_value = 0; input; }
-        SG2Assign               { init_value = 0; input; }
-        SG3Assign               { init_value = 0; input; }
-        SG4Assign               { init_value = 0; input; }
-        SG5Assign               { init_value = 0; input; }
-        SG6Assign               { init_value = 0; input; }
-        SG7Assign               { init_value = 0; input; }
-        SG8Assign               { init_value = 0; input; }
-        SG9Assign               { init_value = 0; input; }
-        SG10Assign              { init_value = 0; input; }
-        SG11Assign              { init_value = 0; input; }
-        SG12Assign              { init_value = 0; input; }
-        SG13Assign              { init_value = 0; input; }
-        TurnBlinkPeriod         { init_value = 500; msec; }
-        PassingBlinkCount       { init_value = 0; }
-        PathLightTime           { init_value = 30; sec; }
-        InteriorLightTime       { init_value = 30; sec; }
-        WelcomeLightTime        { init_value = 30; sec; }
-        BrakeBlinkPeriod        { init_value = 0; msec; }
-        BrakeBlinkCount         { init_value = 0; }
-        WiperInterval           { init_value = 0; msec; }
+        SP1Assign               { page = 4; init_value = 0; input; }
+        SP2Assign               { page = 4; init_value = 0; input; }
+        SP3Assign               { page = 4; init_value = 0; input; }
+        SP4Assign               { page = 4; init_value = 0; input; }
+        SP5Assign               { page = 4; init_value = 0; input; }
+        SP6Assign               { page = 4; init_value = 0; input; }
+        SP7Assign               { page = 4; init_value = 0; input; }
+        SG0Assign               { page = 4; init_value = 0; input; }
+        SG1Assign               { page = 4; init_value = 0; input; }
+        SG2Assign               { page = 4; init_value = 0; input; }
+        SG3Assign               { page = 4; init_value = 0; input; }
+        SG4Assign               { page = 4; init_value = 0; input; }
+        SG5Assign               { page = 4; init_value = 0; input; }
+        SG6Assign               { page = 4; init_value = 0; input; }
+        SG7Assign               { page = 4; init_value = 0; input; }
+        SG8Assign               { page = 4; init_value = 0; input; }
+        SG9Assign               { page = 4; init_value = 0; input; }
+        SG10Assign              { page = 4; init_value = 0; input; }
+        SG11Assign              { page = 4; init_value = 0; input; }
+        SG12Assign              { page = 4; init_value = 0; input; }
+        SG13Assign              { page = 4; init_value = 0; input; }
+        TurnBlinkPeriod         { page = 4; init_value = 500; msec; }
+        PassingBlinkCount       { page = 4; init_value = 0; }
+        PathLightTime           { page = 4; init_value = 30; sec; }
+        InteriorLightTime       { page = 4; init_value = 30; sec; }
+        WelcomeLightTime        { page = 4; init_value = 30; sec; }
+        BrakeBlinkPeriod        { page = 4; init_value = 0; msec; }
+        BrakeBlinkCount         { page = 4; init_value = 0; }
+        WiperInterval           { page = 4; init_value = 0; msec; }
     }
     encoding {
         input {
@@ -142,10 +177,10 @@ node power_v1 {
         subscribe Relays {}
     }
     parameters {
-        Relay1Assign    { init_value = 0; output_assignment; }
-        Relay2Assign    { init_value = 0; output_assignment; }
-        Relay3Assign    { init_value = 0; output_assignment; }
-        Relay4Assign    { init_value = 0; output_assignment; }
+        Relay1Assign    { page = 4; init_value = 0; output_assignment; }
+        Relay2Assign    { page = 4; init_value = 0; output_assignment; }
+        Relay3Assign    { page = 4; init_value = 0; output_assignment; }
+        Relay4Assign    { page = 4; init_value = 0; output_assignment; }
     }
     encoding {
         output_assignment {
@@ -195,56 +230,56 @@ node power_v3 {
         subscribe Relays {}
     }
     parameters {
-        CH1Type     { init_value = 0; output_type; }
-        CH2Type     { init_value = 0; output_type; }
-        CH3Type     { init_value = 0; output_type; }
-        CH4Type     { init_value = 0; output_type; }
-        CH5Type     { init_value = 0; output_type; }
+        CH1Type     { page = 4; init_value = 0; output_type; }
+        CH2Type     { page = 4; init_value = 0; output_type; }
+        CH3Type     { page = 4; init_value = 0; output_type; }
+        CH4Type     { page = 4; init_value = 0; output_type; }
+        CH5Type     { page = 4; init_value = 0; output_type; }
 
-        CH1Assign1  { init_value = 255; output_assignment; }
-        CH1PWM1     { init_value = 0; pwm_duty_cycle; }
-        CH1Assign2  { init_value = 255; output_assignment; }
-        CH1PWM2     { init_value = 0; pwm_duty_cycle; }
-        CH1Assign3  { init_value = 255; output_assignment; }
-        CH1PWM3     { init_value = 0; pwm_duty_cycle; }
-        CH1Assign4  { init_value = 255; output_assignment; }
-        CH1PWM4     { init_value = 0; pwm_duty_cycle; }
+        CH1Assign1  { page = 4; init_value = 255; output_assignment; }
+        CH1PWM1     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH1Assign2  { page = 4; init_value = 255; output_assignment; }
+        CH1PWM2     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH1Assign3  { page = 4; init_value = 255; output_assignment; }
+        CH1PWM3     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH1Assign4  { page = 4; init_value = 255; output_assignment; }
+        CH1PWM4     { page = 4; init_value = 0;   pwm_duty_cycle; }
 
-        CH2Assign1  { init_value = 255; output_assignment; }
-        CH2PWM1     { init_value = 0; pwm_duty_cycle; }
-        CH2Assign2  { init_value = 255; output_assignment; }
-        CH2PWM2     { init_value = 0; pwm_duty_cycle; }
-        CH2Assign3  { init_value = 255; output_assignment; }
-        CH2PWM3     { init_value = 0; pwm_duty_cycle; }
-        CH2Assign4  { init_value = 255; output_assignment; }
-        CH2PWM4     { init_value = 0; pwm_duty_cycle; }
+        CH2Assign1  { page = 4; init_value = 255; output_assignment; }
+        CH2PWM1     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH2Assign2  { page = 4; init_value = 255; output_assignment; }
+        CH2PWM2     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH2Assign3  { page = 4; init_value = 255; output_assignment; }
+        CH2PWM3     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH2Assign4  { page = 4; init_value = 255; output_assignment; }
+        CH2PWM4     { page = 4; init_value = 0;   pwm_duty_cycle; }
 
-        CH3Assign1  { init_value = 255; output_assignment; }
-        CH3PWM1     { init_value = 0; pwm_duty_cycle; }
-        CH3Assign2  { init_value = 255; output_assignment; }
-        CH3PWM2     { init_value = 0; pwm_duty_cycle; }
-        CH3Assign3  { init_value = 255; output_assignment; }
-        CH3PWM3     { init_value = 0; pwm_duty_cycle; }
-        CH3Assign4  { init_value = 255; output_assignment; }
-        CH3PWM4     { init_value = 0; pwm_duty_cycle; }
+        CH3Assign1  { page = 4; init_value = 255; output_assignment; }
+        CH3PWM1     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH3Assign2  { page = 4; init_value = 255; output_assignment; }
+        CH3PWM2     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH3Assign3  { page = 4; init_value = 255; output_assignment; }
+        CH3PWM3     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH3Assign4  { page = 4; init_value = 255; output_assignment; }
+        CH3PWM4     { page = 4; init_value = 0;   pwm_duty_cycle; }
 
-        CH4Assign1  { init_value = 255; output_assignment; }
-        CH4PWM1     { init_value = 0; pwm_duty_cycle; }
-        CH4Assign2  { init_value = 255; output_assignment; }
-        CH4PWM2     { init_value = 0; pwm_duty_cycle; }
-        CH4Assign3  { init_value = 255; output_assignment; }
-        CH4PWM3     { init_value = 0; pwm_duty_cycle; }
-        CH4Assign4  { init_value = 255; output_assignment; }
-        CH4PWM4     { init_value = 0; pwm_duty_cycle; }
+        CH4Assign1  { page = 4; init_value = 255; output_assignment; }
+        CH4PWM1     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH4Assign2  { page = 4; init_value = 255; output_assignment; }
+        CH4PWM2     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH4Assign3  { page = 4; init_value = 255; output_assignment; }
+        CH4PWM3     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH4Assign4  { page = 4; init_value = 255; output_assignment; }
+        CH4PWM4     { page = 4; init_value = 0;   pwm_duty_cycle; }
 
-        CH5Assign1  { init_value = 255; output_assignment; }
-        CH5PWM1     { init_value = 0; pwm_duty_cycle; }
-        CH5Assign2  { init_value = 255; output_assignment; }
-        CH5PWM2     { init_value = 0; pwm_duty_cycle; }
-        CH5Assign3  { init_value = 255; output_assignment; }
-        CH5PWM3     { init_value = 0; pwm_duty_cycle; }
-        CH5Assign4  { init_value = 255; output_assignment; }
-        CH5PWM4     { init_value = 0; pwm_duty_cycle; }
+        CH5Assign1  { page = 4; init_value = 255; output_assignment; }
+        CH5PWM1     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH5Assign2  { page = 4; init_value = 255; output_assignment; }
+        CH5PWM2     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH5Assign3  { page = 4; init_value = 255; output_assignment; }
+        CH5PWM3     { page = 4; init_value = 0;   pwm_duty_cycle; }
+        CH5Assign4  { page = 4; init_value = 255; output_assignment; }
+        CH5PWM4     { page = 4; init_value = 0;   pwm_duty_cycle; }
     }
     encoding {
         output_type {

@@ -1,118 +1,163 @@
 PEG LIN_NCF (node_capability_file)
 
-# syntax
+##
+## syntax
+##
 
-node_capability_file            <- SPACE 'node_capability_file' SEMICOLON
-                                    language_version
-                                    node*
-                                    EOF ;
+###################################################################################################
 
-    language_version            <- 'LIN_language_version' EQUALS String SEMICOLON ;
+node_capability_file    <- SPACE 'node_capability_file' SEMICOLON
+                            language_version
+                            node*
+                            EOF ;
+
+    language_version        <- 'LIN_language_version' EQUALS String SEMICOLON ;
 
 
-    node                        <- 'node' SPACE Name OBRACE
-                                    general_definition
-                                    diagnostic_definition
-                                    frame_definition?
-                                    parameter_definition?
-                                    encoding_definition?
-                                    # XXX status_management?
-                                    free_text_definition?
-                                    CBRACE ;
+node                    <- 'node' SPACE node_name OBRACE
+                            general_definition
+                            diagnostic_definition
+                            frame_definition?
+                            parameter_definition?
+                            encoding_definition?
+                            # XXX status_management?
+                            free_text_definition?
+                            CBRACE ;
 
+    node_name           <- Name ;
+
+###################################################################################################
     
-        general_definition      <- 'general' OBRACE
-                                    'LIN_protocol_version' EQUALS String SEMICOLON
-                                    'supplier' EQUALS Integer SEMICOLON
-                                    'function' EQUALS Integer SEMICOLON
-                                    'variant' EQUALS Integer SEMICOLON
-                                    'bitrate' EQUALS bitrate_definition SEMICOLON
-                                    'sends_wake_up_signal' EQUALS String SEMICOLON
-                                    CBRACE ;
+general_definition      <- 'general' OBRACE
+                            protocol_version
+                            supplier
+                            function
+                            variant
+                            bitrate
+                            sends_wakeup
+                            CBRACE ;
 
-            bitrate_definition  <- Real SPACE 'kbps' ;  # XXX missing 'automatic' / 'select'
+    protocol_version    <- 'LIN_protocol_version' EQUALS String SEMICOLON ;
+    supplier            <- 'supplier' EQUALS Integer SEMICOLON ;
+    function            <- 'function' EQUALS Integer SEMICOLON ;
+    variant             <- 'variant' EQUALS Integer SEMICOLON ;
+    # XXX missing 'automatic' / 'select'
+    bitrate             <- 'bitrate' EQUALS Real SPACE 'kbps' SEMICOLON ;
+    sends_wakeup        <- 'sends_wake_up_signal' EQUALS String SEMICOLON ;
 
+###################################################################################################
 
-        diagnostic_definition   <- 'diagnostic' OBRACE
-                                    'NAD' EQUALS node_address SEMICOLON
-                                    'diagnostic_class' EQUALS diagnostic_class SEMICOLON
-                                    CBRACE ;
+diagnostic_definition   <- 'diagnostic' OBRACE
+                            node_address
+                            diagnostic_class
+                            support_sid?
+                            # XXX missing optional fields
+                            CBRACE ;
 
-            node_address        <- Integer 'to' Integer / Integer ; # XXX missing Integer, Integer
-            diagnostic_class    <- Integer ;
+    # XXX missing Integer, Integer
+    node_address            <- 'NAD' EQUALS (Integer 'to' Integer / Integer) SEMICOLON ;
+    diagnostic_class        <- 'diagnostic_class' EQUALS Integer SEMICOLON ;
+    support_sid             <- 'support_sid' EQUALS IntegerList SEMICOLON ;
 
+###################################################################################################
 
-        frame_definition        <- 'frames' OBRACE
-                                    single_frame*
-                                    CBRACE ;
+frame_definition        <- 'frames' OBRACE
+                            published_frame*
+                            subscribed_frame*
+                            CBRACE ;
 
-            single_frame        <- frame_kind SPACE Name OBRACE
-                                    frame_properties?
-                                    frame_signals?
-                                    CBRACE ;
+    published_frame         <- 'publish' SPACE frame_name OBRACE
+                                frame_properties?
+                                frame_signals?
+                                CBRACE ;
 
-leaf:           frame_kind      <- 'publish' / 'subscribe' ;
-                frame_properties <- 'length' EQUALS Integer SEMICOLON ;     # XXX missing fields
-                frame_signals   <- 'signals' OBRACE
+    subscribed_frame        <- 'subscribe' SPACE frame_name OBRACE
+                                # XXX duplication here seems pointless
+                                CBRACE ;
+
+        frame_name              <- Name ;
+        frame_properties        <- frame_length ;     # XXX missing fields
+
+            frame_length            <- 'length' EQUALS Integer SEMICOLON ;
+
+        frame_signals           <- 'signals' OBRACE
                                     signal*
                                     CBRACE ;
 
-                    signal      <- Name OBRACE
-                                    'init_value' EQUALS Integer SEMICOLON   # XXX missing array init
-                                    'size' EQUALS Integer SEMICOLON
-                                    'offset' EQUALS Integer SEMICOLON
-                                    (Name SEMICOLON)?
-                                    CBRACE ;
+            signal                  <- Name OBRACE
+                                        signal_init_value
+                                        signal_size
+                                        signal_offset
+                                        signal_encoding?
+                                        CBRACE ;
 
-        parameter_definition    <- 'parameters' OBRACE
-                                    parameter*
-                                    CBRACE;
+                signal_init_value       <- 'init_value' EQUALS Integer SEMICOLON ; # XXX missing array init
+                signal_size             <- 'size' EQUALS Integer SEMICOLON ;
+                signal_offset           <- 'offset' EQUALS Integer SEMICOLON ;
+                signal_encoding         <- Name SEMICOLON ;
 
-            parameter           <-  Name OBRACE
-                                    'init_value' EQUALS Integer SEMICOLON
-                                    (Name SEMICOLON)?
-                                    CBRACE ;
+###################################################################################################
 
+parameter_definition    <- 'parameters' OBRACE
+                            parameter*
+                            CBRACE;
 
-        encoding_definition     <- 'encoding' OBRACE
-                                    encoding*
-                                    CBRACE ;
+    parameter               <-  Name OBRACE
+                                parameter_init_value
+                                parameter_encoding?
+                                CBRACE ;
 
-            encoding            <- Name OBRACE
-                                    (logical_value / physical_range)*   # XXX missing BCD/ASCII
-                                    CBRACE ;
-                        
-                logical_value   <- 'logical_value' COMMA
-                                    Integer COMMA
-                                    String? SEMICOLON ;
-                physical_range  <- 'physical_value'
+        parameter_init_value    <- 'init_value' EQUALS Integer SEMICOLON ;
+        parameter_encoding      <- Name SEMICOLON ;
+
+###################################################################################################
+
+encoding_definition     <- 'encoding' OBRACE
+                            encoding*
+                            CBRACE ;
+
+    encoding                <- Name OBRACE
+                                (logical_value / physical_range)*   # XXX missing BCD/ASCII
+                                CBRACE ;
+                
+        logical_value           <- 'logical_value'
+                                    COMMA Integer
+                                    (COMMA String)?
+                                    SEMICOLON ;
+        physical_range          <- 'physical_value'
                                     COMMA Integer
                                     COMMA Integer 
                                     COMMA Real
                                     COMMA Real
                                     (COMMA String)? SEMICOLON ;
 
-        free_text_definition    <- 'free_text' OBRACE
-                                    String
-                                    CBRACE ;
+###################################################################################################
 
+free_text_definition    <- 'free_text' OBRACE
+                            String
+                            CBRACE ;
+
+###################################################################################################
 
 # terminals
         Name                    <- SPACE name_value SPACE       ;
 leaf:   name_value              <- <alpha> ([_] / <alnum>)*     ;
         Integer                 <- SPACE integer_value SPACE    ;
 leaf:   integer_value           <- '0x' <xdigit>+ / <ddigit>+   ;
+        IntegerList             <- Integer (COMMA Integer)*     ;
         Real                    <- SPACE real_value SPACE       ;
 leaf:   real_value              <- <ddigit> ('.' / <ddigit>)*   ;
-        String                  <- SPACE string_value SPACE     ;
-leaf:   string_value            <- QUOTE (!QUOTE .)* QUOTE      ;
+        String                  <- OQUOTE string_value CQUOTE   ;
+leaf:   string_value            <- (!QUOTE .)*                  ;
 
 
 # tokens
 void:   OBRACE                  <- SPACE '{' SPACE              ;
 void:   CBRACE                  <- SPACE '}' SPACE              ;
+void:   OQUOTE                  <- SPACE QUOTE                  ;
+void:   CQUOTE                  <- QUOTE SPACE                  ;
 void:   QUOTE                   <- '"'                          ;
-void:   SPACE                   <- ( <space> / EOL / COMMENT)*  ;
+void:   SPACE                   <- (<space> / EOL / COMMENT)*   ;
 void:   EQUALS                  <- SPACE '=' SPACE              ;
 void:   COMMENT                 <- '//' (!EOL .)* EOL           ;   # XXX no support for /* */
 void:   SEMICOLON               <- SPACE ';' SPACE              ;

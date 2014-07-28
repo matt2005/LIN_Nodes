@@ -27,7 +27,7 @@ node master {
     diagnostic {
         NAD = 1;
         diagnostic_class = 1;
-        // support_sid = 0x22, 0x2e, 0xb2;
+        support_sid = 0x22, 0x2e, 0xb2;
     }
     frames {
         publish Relays {
@@ -136,7 +136,7 @@ node power_v1 {
     diagnostic {
         NAD = 2 to 16;
         diagnostic_class = 1;
-        // support_sid = 0x22, 0x2e, 0xb2;
+        support_sid = 0x22, 0x2e, 0xb2;
     }
     frames {
         subscribe Relays {}
@@ -189,7 +189,7 @@ node power_v3 {
     diagnostic {
         NAD = 2 to 16;
         diagnostic_class = 1;
-        // support_sid = 0x22, 0x2e, 0xb2;
+        support_sid = 0x22, 0x2e, 0xb2;
     }
     frames {
         subscribe Relays {}
@@ -298,7 +298,7 @@ node ecu_bridge {
     diagnostic {
         NAD = 18;
         diagnostic_class = 1;
-        // support_sid = 0x22, 0x2e, 0xb2;
+        support_sid = 0x22, 0x2e, 0xb2;
     }
     frames {
         publish ECUData {
@@ -339,7 +339,7 @@ node dashboard {
     diagnostic {
         NAD = 19;
         diagnostic_class = 1;
-        // support_sid = 0xb2;
+        support_sid = 0xb2;
     }
     frames {
         subscribe Relays {}
@@ -360,7 +360,6 @@ node tester {
     diagnostic {
         NAD = 20;
         diagnostic_class = 0;
-        // support_sid = ;       
     }
     frames {}
     encoding {}

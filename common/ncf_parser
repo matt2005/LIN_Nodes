@@ -1,0 +1,152 @@
+#!/usr/bin/tclsh
+#
+# LIN NCF parser.
+#
+# Not perfect, but it understands most of the LIN node configuration format.
+#
+
+package require fileutil
+package require pt::peg::from::peg
+package require pt::peg::container
+package require pt::peg::interp
+package require pt::ast
+
+proc offset_to_line {src byteoff} {
+    set pretext [string range $src 0 $byteoff]
+    set prelines [split $pretext "\n"]
+    set line [llength $prelines]
+    set char [expr $byteoff - [string last "\n" $pretext]]
+
+    return [list $line $char]    
+}
+
+# Format an error from pt::rde over the given source
+#
+proc format_rde_error {src msg} {
+
+    lassign $msg sender byteoff candidates
+
+    if {$sender != "pt::rde"} {
+        puts "  $msg"
+    } else {
+        lassign [offset_to_line $src $byteoff] line char
+        puts -nonewline "  \[$line:$char\] expected one of:"
+        foreach cand $candidates {
+            lassign $cand type desc
+            puts -nonewline " $desc"
+        }
+        puts ""
+    }
+}
+
+# Inhale the grammar from the PEG format
+#
+proc load_grammar {parser_name} {
+
+    set grammar [fileutil::cat ncf.peg]
+    if {[catch {pt::peg::from::peg convert $grammar} result]} {
+        if {[scan "can't read \"mymode(%s)\": no such element in array" missing] == 1} {
+            puts "name '$missing' used but not defined"
+        } else {
+            puts "error parsing NCF grammar:"
+            format_rde_error $grammar $result
+        }
+        exit 1
+    }
+    pt::peg::container cont
+    cont deserialize = $result
+    pt::peg::interp $parser_name
+    $parser_name use cont
+}
+
+# Parse the node definitions
+#
+proc parse_def {parser ncf} {
+    if {[catch {$parser parset $ncf} result]} {
+        puts "error parsing $src:"
+        format_rde_error $ncf $result
+        exit 1
+    }
+    #puts [pt::ast print $result]
+    #puts $result
+    return $result
+}
+
+# Walk the AST and generate a version with values pulled in from the text
+#
+proc walk_internalise {text ast} {
+
+    set output [list]
+
+    set children [lassign $ast name first last]
+
+    switch -- $name {
+        Name -
+        String -
+        Integer -
+        Real {
+            lassign $children child
+            lassign $child flavour vstart vend
+            set output [string range $text $vstart $vend]
+        }
+        IntegerList {
+            set values [list]
+            foreach child $children {
+                lappend values [walk_internalise $text $child]
+            }
+            set output [join $values ","]
+        }
+        default {
+            set output [list $name $first]
+            foreach child $children {
+                lappend output [walk_internalise $text $child]
+            }
+        }
+    }
+    return $output
+}
+
+proc display {depth ast} {
+
+    set children [lassign $ast name byteoff]
+
+    set spaces [string repeat " " $depth]
+    puts "$spaces$name"
+    foreach child $children {
+        walk [expr $depth + 2] $child
+    }
+
+}
+
+proc walk {ast matching callback} {
+
+    set children [lassign $ast name byteoff]
+
+    if {$name == $matching} {
+        {*}$callback $children
+    } else {
+        foreach child $children {
+            walk $child $matching $callback
+        }
+    }
+}
+
+proc node_name_cb {tail} {
+    puts "NODE: $tail"
+}
+
+proc frame_name_cb {tail} {
+    puts "FRAME: $tail"
+}
+
+load_grammar ncf_parser
+lassign $argv fname
+set ncf [fileutil::cat $fname]
+set ast [parse_def ncf_parser $ncf]
+set ast [walk_internalise $ncf $ast]
+
+#display 0 $ast
+
+walk $ast "node_name" "node_name_cb"
+walk $ast "frame_name" "frame_name_cb"
+

@@ -1,0 +1,25 @@
+#!/usr/bin/tclsh
+package require Tcl 8.5
+package require fileutil
+package require pt::peg::from::peg
+package require pt::peg::container
+package require pt::peg::interp
+
+lassign $argv gname fname
+set grammar [fileutil::cat $gname]
+set source [fileutil::cat $fname]
+if {[catch {pt::peg::from::peg convert $grammar} result]} {
+    puts "grammar error: $result"
+    exit 1
+} else {
+    set cpeg $result
+}
+pt::peg::container cont
+cont deserialize = $cpeg
+pt::peg::interp myint
+myint use cont
+if {[catch {myint parset $source} result]} {
+    puts "parse error: $result"
+    exit 1
+}
+puts $result

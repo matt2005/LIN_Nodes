@@ -1,0 +1,367 @@
+//
+// Experimental node configuration file
+//
+// XXX not currently in use or guaranteed even close to correct.
+// XXX no tool exists to parse this
+// XXX would benefit from some templates exposing frame members, etc.
+// XXX LIN API not very good, do not generate code to conform
+// XXX NCF lacks a mechanism for defining parameters; the parameters
+///    clause here is nonstandard
+//
+// Note: none of these nodes support Assign Frame Identifier Range, as
+//       all frame identifiers in the network are fixed.
+// 
+
+node_capability_file;
+LIN_language_version = "2.1+";
+
+node master {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0000;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "yes";
+    }
+    diagnostic {
+        NAD = 1;
+        diagnostic_class = 1;
+        // support_sid = 0x22, 0x2e, 0xb2;
+    }
+    frames {
+        publish Relays {
+            length = 8;
+            // min_period = 10 ms;
+            // max_period = 100 ms;
+            signals {
+                Ignition        { init_value = 0; size = 1; offset = 0; }
+                Start           { init_value = 0; size = 1; offset = 1; }
+                LightsUp        { init_value = 0; size = 1; offset = 2; }
+                LightsDown      { init_value = 0; size = 1; offset = 3; }
+                HeadLights      { init_value = 0; size = 1; offset = 4; }
+                LowBeam         { init_value = 0; size = 1; offset = 5; }
+                HighBeam        { init_value = 0; size = 1; offset = 6; }
+                FogLights       { init_value = 0; size = 1; offset = 7; }
+                Markers         { init_value = 0; size = 1; offset = 8; }
+                LeftTurn        { init_value = 0; size = 1; offset = 9; }
+                LeftTurnMark    { init_value = 0; size = 1; offset = 10; }
+                RightTurn       { init_value = 0; size = 1; offset = 11; }
+                RightTurnMark   { init_value = 0; size = 1; offset = 12; }
+                Brake           { init_value = 0; size = 1; offset = 13; }
+                Reverse         { init_value = 0; size = 1; offset = 14; }
+                InteriorLight   { init_value = 0; size = 1; offset = 15; }
+                CabinFan1       { init_value = 0; size = 1; offset = 16; }
+                CabinFan2       { init_value = 0; size = 1; offset = 17; }
+                CabinFan3       { init_value = 0; size = 1; offset = 18; }
+                CabinFan4       { init_value = 0; size = 1; offset = 19; }
+                WiperLow        { init_value = 0; size = 1; offset = 20; }
+                WiperHigh       { init_value = 0; size = 1; offset = 21; }
+                RearDefrost     { init_value = 0; size = 1; offset = 22; }
+            }
+        }
+    }
+    parameters {
+        SP1Assign               { init_value = 0; input; }
+        SP2Assign               { init_value = 0; input; }
+        SP3Assign               { init_value = 0; input; }
+        SP4Assign               { init_value = 0; input; }
+        SP5Assign               { init_value = 0; input; }
+        SP6Assign               { init_value = 0; input; }
+        SP7Assign               { init_value = 0; input; }
+        SG0Assign               { init_value = 0; input; }
+        SG1Assign               { init_value = 0; input; }
+        SG2Assign               { init_value = 0; input; }
+        SG3Assign               { init_value = 0; input; }
+        SG4Assign               { init_value = 0; input; }
+        SG5Assign               { init_value = 0; input; }
+        SG6Assign               { init_value = 0; input; }
+        SG7Assign               { init_value = 0; input; }
+        SG8Assign               { init_value = 0; input; }
+        SG9Assign               { init_value = 0; input; }
+        SG10Assign              { init_value = 0; input; }
+        SG11Assign              { init_value = 0; input; }
+        SG12Assign              { init_value = 0; input; }
+        SG13Assign              { init_value = 0; input; }
+        TurnBlinkPeriod         { init_value = 500; msec; }
+        PassingBlinkCount       { init_value = 0; }
+        PathLightTime           { init_value = 30; sec; }
+        InteriorLightTime       { init_value = 30; sec; }
+        WelcomeLightTime        { init_value = 30; sec; }
+        BrakeBlinkPeriod        { init_value = 0; msec; }
+        BrakeBlinkCount         { init_value = 0; }
+        WiperInterval           { init_value = 0; msec; }
+    }
+    encoding {
+        input {
+            logical_value, 0, "Unassigned";
+            logical_value, 1, "Ignition";
+            logical_value, 2, "Start";
+            logical_value, 3, "MarkerLight";
+            logical_value, 4, "HeadLights";
+            logical_value, 5, "HighBeam";
+            logical_value, 6, "HighBeamToggle";
+            logical_value, 7, "FogLight";
+            logical_value, 8, "LeftTurn";
+            logical_value, 9, "RightTurn";
+            logical_value, 10, "Brake";
+            logical_value, 11, "Reverse";
+            logical_value, 12, "Door";
+            logical_value, 13, "InteriorLight";
+            logical_value, 14, "Hazard";
+            logical_value, 15, "DoorUnlock";
+            logical_value, 16, "LightsUp";
+            logical_value, 17, "CabinFan1";
+            logical_value, 18, "CabinFan2";
+            logical_value, 19, "CabinFan3";
+            logical_value, 20, "WiperInt";
+            logical_value, 21, "WiperLow";
+            logical_value, 22, "WiperHigh";
+            logical_value, 23, "RearDefrost";
+        }
+        msec    { physical_value, 0, 65535, 1, 0; }
+        sec     { physical_value, 0, 65535, 1, 0; }
+    }
+}
+
+node power_v1 {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0001;
+        variant = 0x10;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 2 to 16;
+        diagnostic_class = 1;
+        // support_sid = 0x22, 0x2e, 0xb2;
+    }
+    frames {
+        subscribe Relays {}
+    }
+    parameters {
+        Relay1Assign    { init_value = 0; output_assignment; }
+        Relay2Assign    { init_value = 0; output_assignment; }
+        Relay3Assign    { init_value = 0; output_assignment; }
+        Relay4Assign    { init_value = 0; output_assignment; }
+    }
+    encoding {
+        output_assignment {
+            logical_value, 0, "Unassigned";
+            logical_value, 1, "Ignition";
+            logical_value, 2, "Start";
+            logical_value, 3, "LightsUp";
+            logical_value, 4, "LightsDown";
+            logical_value, 5, "HeadLights";
+            logical_value, 6, "LowBeam";
+            logical_value, 7, "HighBeam";
+            logical_value, 8, "FogLights";
+            logical_value, 9, "Markers";
+            logical_value, 10, "LeftTurn";
+            logical_value, 11, "LeftTurnMarker";
+            logical_value, 12, "RightTurn";
+            logical_value, 13, "RightTurnMarker";
+            logical_value, 14, "Brake";
+            logical_value, 15, "Reverse";
+            logical_value, 16, "InteriorLight";
+            logical_value, 17, "CabinFan1";
+            logical_value, 18, "CabinFan2";
+            logical_value, 19, "CabinFan3";
+            logical_value, 20, "CabinFan4";
+            logical_value, 21, "WiperLow";
+            logical_value, 22, "WiperHigh";
+            logical_value, 23, "RearDefrost";
+        }
+    }
+}
+
+node power_v3 {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0002;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 2 to 16;
+        diagnostic_class = 1;
+        // support_sid = 0x22, 0x2e, 0xb2;
+    }
+    frames {
+        subscribe Relays {}
+    }
+    parameters {
+        CH1Type     { init_value = 0; output_type; }
+        CH2Type     { init_value = 0; output_type; }
+        CH3Type     { init_value = 0; output_type; }
+        CH4Type     { init_value = 0; output_type; }
+        CH5Type     { init_value = 0; output_type; }
+
+        CH1Assign1  { init_value = 255; output_assignment; }
+        CH1PWM1     { init_value = 0; pwm_duty_cycle; }
+        CH1Assign2  { init_value = 255; output_assignment; }
+        CH1PWM2     { init_value = 0; pwm_duty_cycle; }
+        CH1Assign3  { init_value = 255; output_assignment; }
+        CH1PWM3     { init_value = 0; pwm_duty_cycle; }
+        CH1Assign4  { init_value = 255; output_assignment; }
+        CH1PWM4     { init_value = 0; pwm_duty_cycle; }
+
+        CH2Assign1  { init_value = 255; output_assignment; }
+        CH2PWM1     { init_value = 0; pwm_duty_cycle; }
+        CH2Assign2  { init_value = 255; output_assignment; }
+        CH2PWM2     { init_value = 0; pwm_duty_cycle; }
+        CH2Assign3  { init_value = 255; output_assignment; }
+        CH2PWM3     { init_value = 0; pwm_duty_cycle; }
+        CH2Assign4  { init_value = 255; output_assignment; }
+        CH2PWM4     { init_value = 0; pwm_duty_cycle; }
+
+        CH3Assign1  { init_value = 255; output_assignment; }
+        CH3PWM1     { init_value = 0; pwm_duty_cycle; }
+        CH3Assign2  { init_value = 255; output_assignment; }
+        CH3PWM2     { init_value = 0; pwm_duty_cycle; }
+        CH3Assign3  { init_value = 255; output_assignment; }
+        CH3PWM3     { init_value = 0; pwm_duty_cycle; }
+        CH3Assign4  { init_value = 255; output_assignment; }
+        CH3PWM4     { init_value = 0; pwm_duty_cycle; }
+
+        CH4Assign1  { init_value = 255; output_assignment; }
+        CH4PWM1     { init_value = 0; pwm_duty_cycle; }
+        CH4Assign2  { init_value = 255; output_assignment; }
+        CH4PWM2     { init_value = 0; pwm_duty_cycle; }
+        CH4Assign3  { init_value = 255; output_assignment; }
+        CH4PWM3     { init_value = 0; pwm_duty_cycle; }
+        CH4Assign4  { init_value = 255; output_assignment; }
+        CH4PWM4     { init_value = 0; pwm_duty_cycle; }
+
+        CH5Assign1  { init_value = 255; output_assignment; }
+        CH5PWM1     { init_value = 0; pwm_duty_cycle; }
+        CH5Assign2  { init_value = 255; output_assignment; }
+        CH5PWM2     { init_value = 0; pwm_duty_cycle; }
+        CH5Assign3  { init_value = 255; output_assignment; }
+        CH5PWM3     { init_value = 0; pwm_duty_cycle; }
+        CH5Assign4  { init_value = 255; output_assignment; }
+        CH5PWM4     { init_value = 0; pwm_duty_cycle; }
+    }
+    encoding {
+        output_type {
+            logical_value, 0, "5AGeneric";
+            logical_value, 1, "10AGeneric";
+            logical_value, 2, "LED";
+            logical_value, 3, "HID";
+            logical_value, 4, "LowPowerBulb";
+            logical_value, 5, "HighPowerBulb";
+            logical_value, 6, "Motor";
+        }
+        output_assignment {
+            logical_value, 0, "Unassigned";
+            logical_value, 1, "Ignition";
+            logical_value, 2, "Start";
+            logical_value, 3, "LightsUp";
+            logical_value, 4, "LightsDown";
+            logical_value, 5, "HeadLights";
+            logical_value, 6, "LowBeam";
+            logical_value, 7, "HighBeam";
+            logical_value, 8, "FogLights";
+            logical_value, 9, "Markers";
+            logical_value, 10, "LeftTurn";
+            logical_value, 11, "LeftTurnMarker";
+            logical_value, 12, "RightTurn";
+            logical_value, 13, "RightTurnMarker";
+            logical_value, 14, "Brake";
+            logical_value, 15, "Reverse";
+            logical_value, 16, "InteriorLight";
+            logical_value, 17, "CabinFan1";
+            logical_value, 18, "CabinFan2";
+            logical_value, 19, "CabinFan3";
+            logical_value, 20, "CabinFan4";
+            logical_value, 21, "WiperLow";
+            logical_value, 22, "WiperHigh";
+            logical_value, 23, "RearDefrost";
+        }
+        pwm_duty_cycle { physical_value, 0, 100, 1, 0; }
+    }
+}
+
+node ecu_bridge {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0003;
+        variant = 0x10;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 18;
+        diagnostic_class = 1;
+        // support_sid = 0x22, 0x2e, 0xb2;
+    }
+    frames {
+        publish ECUData {
+            length = 8;
+            // min_period = 10 ms;
+            // max_period = 100 ms;
+            signals {
+                RPM                 { init_value = 0; size = 8; offset = 0;  RPM; }
+                oilPressure         { init_value = 0; size = 8; offset = 8;  PSI; }
+                oilTemperature      { init_value = 0; size = 8; offset = 16; F; }
+                coolantTemperature  { init_value = 0; size = 8; offset = 24; F; }
+                fuelPressure        { init_value = 0; size = 8; offset = 32; PSI; }
+                voltage             { init_value = 0; size = 8; offset = 40; V; }
+                AFR                 { init_value = 0; size = 8; offset = 48; lambda; }
+                roadSpeed           { init_value = 0; size = 8; offset = 56; MPH; }
+            }
+        }
+    }
+    encoding {
+        RPM     { physical_value, 0, 255, 30, 0; }
+        PSI     { physical_value, 0, 255, 1, 0; }
+        F       { physical_value, 0, 255, 1, 0; }
+        V       { physical_value, 0, 255, 0.1, 0; }
+        lambda  { physical_value, 0, 255, 0.1, 0; }
+        MPH     { physical_value, 0, 255, 1, 0; }
+    }   
+}
+
+node dashboard {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0004;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 19;
+        diagnostic_class = 1;
+        // support_sid = 0xb2;
+    }
+    frames {
+        subscribe Relays {}
+        subscribe ECUData {}
+    }
+    encoding {}
+}
+
+node tester {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0005;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "yes";
+    }
+    diagnostic {
+        NAD = 20;
+        diagnostic_class = 0;
+        // support_sid = ;       
+    }
+    frames {}
+    encoding {}
+}

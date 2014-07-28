@@ -1,0 +1,123 @@
+PEG LIN_NCF (node_capability_file)
+
+# syntax
+
+node_capability_file            <- SPACE 'node_capability_file' SEMICOLON
+                                    language_version
+                                    node*
+                                    EOF ;
+
+    language_version            <- 'LIN_language_version' EQUALS String SEMICOLON ;
+
+
+    node                        <- 'node' SPACE Name OBRACE
+                                    general_definition
+                                    diagnostic_definition
+                                    frame_definition?
+                                    parameter_definition?
+                                    encoding_definition?
+                                    # XXX status_management?
+                                    free_text_definition?
+                                    CBRACE ;
+
+    
+        general_definition      <- 'general' OBRACE
+                                    'LIN_protocol_version' EQUALS String SEMICOLON
+                                    'supplier' EQUALS Integer SEMICOLON
+                                    'function' EQUALS Integer SEMICOLON
+                                    'variant' EQUALS Integer SEMICOLON
+                                    'bitrate' EQUALS bitrate_definition SEMICOLON
+                                    'sends_wake_up_signal' EQUALS String SEMICOLON
+                                    CBRACE ;
+
+            bitrate_definition  <- Real SPACE 'kbps' ;  # XXX missing 'automatic' / 'select'
+
+
+        diagnostic_definition   <- 'diagnostic' OBRACE
+                                    'NAD' EQUALS node_address SEMICOLON
+                                    'diagnostic_class' EQUALS diagnostic_class SEMICOLON
+                                    CBRACE ;
+
+            node_address        <- Integer 'to' Integer / Integer ; # XXX missing Integer, Integer
+            diagnostic_class    <- Integer ;
+
+
+        frame_definition        <- 'frames' OBRACE
+                                    single_frame*
+                                    CBRACE ;
+
+            single_frame        <- frame_kind SPACE Name OBRACE
+                                    frame_properties?
+                                    frame_signals?
+                                    CBRACE ;
+
+leaf:           frame_kind      <- 'publish' / 'subscribe' ;
+                frame_properties <- 'length' EQUALS Integer SEMICOLON ;     # XXX missing fields
+                frame_signals   <- 'signals' OBRACE
+                                    signal*
+                                    CBRACE ;
+
+                    signal      <- Name OBRACE
+                                    'init_value' EQUALS Integer SEMICOLON   # XXX missing array init
+                                    'size' EQUALS Integer SEMICOLON
+                                    'offset' EQUALS Integer SEMICOLON
+                                    (Name SEMICOLON)?
+                                    CBRACE ;
+
+        parameter_definition    <- 'parameters' OBRACE
+                                    parameter*
+                                    CBRACE;
+
+            parameter           <-  Name OBRACE
+                                    'init_value' EQUALS Integer SEMICOLON
+                                    (Name SEMICOLON)?
+                                    CBRACE ;
+
+
+        encoding_definition     <- 'encoding' OBRACE
+                                    encoding*
+                                    CBRACE ;
+
+            encoding            <- Name OBRACE
+                                    (logical_value / physical_range)*   # XXX missing BCD/ASCII
+                                    CBRACE ;
+                        
+                logical_value   <- 'logical_value' COMMA
+                                    Integer COMMA
+                                    String? SEMICOLON ;
+                physical_range  <- 'physical_value'
+                                    COMMA Integer
+                                    COMMA Integer 
+                                    COMMA Real
+                                    COMMA Real
+                                    (COMMA String)? SEMICOLON ;
+
+        free_text_definition    <- 'free_text' OBRACE
+                                    String
+                                    CBRACE ;
+
+
+# terminals
+        Name                    <- SPACE name_value SPACE       ;
+leaf:   name_value              <- <alpha> ([_] / <alnum>)*     ;
+        Integer                 <- SPACE integer_value SPACE    ;
+leaf:   integer_value           <- '0x' <xdigit>+ / <ddigit>+   ;
+        Real                    <- SPACE real_value SPACE       ;
+leaf:   real_value              <- <ddigit> ('.' / <ddigit>)*   ;
+        String                  <- SPACE string_value SPACE     ;
+leaf:   string_value            <- QUOTE (!QUOTE .)* QUOTE      ;
+
+
+# tokens
+void:   OBRACE                  <- SPACE '{' SPACE              ;
+void:   CBRACE                  <- SPACE '}' SPACE              ;
+void:   QUOTE                   <- '"'                          ;
+void:   SPACE                   <- ( <space> / EOL / COMMENT)*  ;
+void:   EQUALS                  <- SPACE '=' SPACE              ;
+void:   COMMENT                 <- '//' (!EOL .)* EOL           ;   # XXX no support for /* */
+void:   SEMICOLON               <- SPACE ';' SPACE              ;
+void:   COMMA                   <- SPACE ',' SPACE              ;
+void:   EOL                     <- '\n\r' / '\n' / '\r'         ;
+void:   EOF                     <- !.                           ;
+
+END;

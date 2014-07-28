@@ -63,7 +63,7 @@ proc load_grammar {parser_name} {
 #
 proc parse_def {parser ncf} {
     if {[catch {$parser parset $ncf} result]} {
-        puts "error parsing $src:"
+        puts "error parsing NCF:"
         format_rde_error $ncf $result
         exit 1
     }

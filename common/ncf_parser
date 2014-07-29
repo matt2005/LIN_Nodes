@@ -1,8 +1,36 @@
 #!/usr/bin/tclsh
 #
-# LIN NCF parser.
+# LIN 2.1 NCF parser with extensions.
 #
-# Not perfect, but it understands most of the LIN node configuration format.
+# Extends <node_definition> with the addition of:
+#
+# <parameter_definition> ::= 
+#   parameters { 
+#       <parameter>[, <parameter>]
+#   }
+#
+# <parameter> :=
+#   <name> { 
+#       page = <page_id>;
+#       init_value = <initial_value> ;
+#       (<encoding_name> ;)
+#   } 
+#
+# <page_id> ::= <integer>
+# <initial_value> ::= <integer>
+#
+# Legal values for parameters are taken from the encoding, otherwise they are
+# the full range of the parameter data type (uint16_t).
+#
+# Also implements a 'template' node, which all other nodes inherit from.
+# This is a good place to put definitions that all nodes should be aware of.
+#
+# Subject to clarification via e.g. SAE J2602:
+#
+# frame names have global scope
+# encoding names have global scope
+# signal names are local to the frame in which they are defined
+# parameters are local to the node in which they are defined
 #
 
 package require fileutil
@@ -11,6 +39,9 @@ package require pt::peg::container
 package require pt::peg::interp
 package require pt::ast
 
+# Given a body of text, convert a byte offset into a 
+# line,column tuple.
+#
 proc offset_to_line {src byteoff} {
     set pretext [string range $src 0 $byteoff]
     set prelines [split $pretext "\n"]
@@ -74,56 +105,82 @@ proc parse_def {parser ncf} {
 
 # Walk the AST and generate a version with values pulled in from the text
 #
+# After processing, each node in the tree is a list of the format:
+#
+# <type> <name> <value> [<value>...]
+#
+# <value> may be a single value (for a leaf) or a list of one more subnodes.
+#
 proc walk_internalise {text ast} {
 
     set output [list]
 
-    set children [lassign $ast name first last]
+    set children [lassign $ast kind first last]
 
-    switch -- $name {
-        Name -
-        String -
-        Integer -
-        Real {
+    switch -- $kind {
+        "Name" -
+        "String" -
+        "Integer" -
+        "Real" {
+            # process the value field for each of the leaf types
             lassign $children child
             lassign $child flavour vstart vend
-            set output [string range $text $vstart $vend]
+            return [string range $text $vstart $vend]
         }
-        IntegerList {
-            set values [list]
-            foreach child $children {
-                lappend values [walk_internalise $text $child]
-            }
-            set output [join $values ","]
+    }
+    # walk the subtree
+    set subtree [list]
+    foreach child $children {
+        lappend subtree [walk_internalise $text $child]
+    }
+
+    # Consume the name property for nodes that have one
+    switch -- $kind {
+        "node_definition" -
+        "published_frame" -
+        "subscribed_frame" -
+        "signal" -
+        "parameter" -
+        "encoding" {
+            set subtree [lassign $subtree name]
         }
         default {
-            set output [list $name $first]
-            foreach child $children {
-                lappend output [walk_internalise $text $child]
-            }
+            set name {}
         }
     }
-    return $output
+
+    # Return the modified node
+    set prefix [list $kind $name]
+    return [concat $prefix $subtree]
 }
 
+# Print the AST in a readable form
+#
 proc display {depth ast} {
 
-    set children [lassign $ast name byteoff]
+    set children [lassign $ast kind name]
 
     set spaces [string repeat " " $depth]
-    puts "$spaces$name"
+    if {$name != {}} {
+        puts "$spaces$kind '$name'"
+    } else {
+        puts "$spaces$kind"        
+    }
     foreach child $children {
-        walk [expr $depth + 2] $child
+        display [expr $depth + 2] $child
     }
 
 }
 
+# Walk the AST, invoking [callback] for each node matching {matching}.
+# Children of a matched node are not walked.
+#
 proc walk {ast matching callback} {
 
-    set children [lassign $ast name byteoff]
+    set children [lassign $ast kind name]
 
-    if {$name == $matching} {
-        {*}$callback $children
+    if {$kind == $matching} {
+        {*}$callback $kind $name $children
     } else {
         foreach child $children {
             walk $child $matching $callback
@@ -131,12 +188,77 @@ proc walk {ast matching callback} {
     }
 }
 
-proc node_name_cb {tail} {
-    puts "NODE: $tail"
+# Import a frame definition
+#
+proc frame_cb {kind name ast} {
+
+    global frames
+    if {[array names frames $name] != {}} {
+        return -code 1 "Multiple publishers for frame '$name' not allowed."
+    }
+
+    set frame_dict [dict create]
+    dict set frame_dict properties {}
+    dict set frame_dict signals {}
+
+    foreach child $ast {
+        set subtree [lassign $child ckind cname]
+        switch -- $ckind {
+            "frame_properties" {
+                foreach prop $subtree {
+                    lassign $prop pkind pname pvalue
+                    dict set frame_dict properties $pkind $pvalue
+                }
+            }
+            "frame_signals" {
+                foreach signal $subtree {
+                    set properties [lassign $signal skind sname]
+                    puts "frame $name: signal $sname"
+                    dict set frame_dict signals $signal {}
+                    foreach prop $properties {
+                        lassign $prop pkind pname pvalue
+                        puts "  property $pkind = $pvalue"
+                        dict set frame_dict signals $sname $pkind $pvalue
+                    }
+                }
+            }
+        }
+    }
+    set frames($name) $frame_dict
 }
 
-proc frame_name_cb {tail} {
-    puts "FRAME: $tail"
+# Import an encoding definition
+#
+proc encoding_cb {kind name ast} {
+
+    global encodings
+    if {[array names encodings $name] != {}} {
+        return -code 1 "Multiple definitions of encoding '$name' not allowed."
+    }
+
+    set encoding_dict [dict create]
+    foreach child $ast {
+        set value [lassign $child kind name]
+
+        switch -- $kind {
+            "physical_range" {
+                lassign $value min max scale offset description
+                dict set encoding_dict range min $min
+                dict set encoding_dict range max $max
+                dict set encoding_dict range scale $scale
+                dict set encoding_dict range offset $offset
+                dict set encoding_dict range description $description
+            }
+            "logical_value" {
+                lassign $value key description
+                dict set encoding_dict $key $description
+            }
+            "default" {
+                return -code 1 "unexpected encoding kind '$kind'"
+            }
+        }        
+    }
+    set encodings($name) $encoding_dict
 }
 
 load_grammar ncf_parser
@@ -145,8 +267,24 @@ set ncf [fileutil::cat $fname]
 set ast [parse_def ncf_parser $ncf]
 set ast [walk_internalise $ncf $ast]
 
+#puts $ast
 #display 0 $ast
 
-walk $ast "node_name" "node_name_cb"
-walk $ast "frame_name" "frame_name_cb"
+# Initialise collections
+array set nodes {}
+array set frames {}
+array set encodings {}
+
+# Collect frame definitions
+walk $ast "published_frame" "frame_cb"
+
+foreach n [array names frames *] {
+    puts "$n: $frames($n)"
+}
+
+# Collect encoding definitions
+walk $ast "encoding" "encoding_cb"
+
+
+#walk $ast "node_definition" "node_cb"
 

@@ -8,23 +8,21 @@ PEG LIN_NCF (node_capability_file)
 
 node_capability_file    <- SPACE 'node_capability_file' SEMICOLON
                             language_version
-                            node*
+                            node_definition*
                             EOF ;
 
     language_version        <- 'LIN_language_version' EQUALS String SEMICOLON ;
 
 
-node                    <- 'node' SPACE node_name OBRACE
+node_definition         <- 'node' SPACE Name OBRACE
                             general_definition
                             diagnostic_definition
                             frame_definition?
                             parameter_definition?
                             encoding_definition?
-                            # XXX status_management?
+                            # status_management?
                             free_text_definition?
                             CBRACE ;
-
-    node_name           <- Name ;
 
 ###################################################################################################
     
@@ -65,7 +63,10 @@ diagnostic_definition   <- 'diagnostic' OBRACE
 
     node_address            <- 'NAD' EQUALS (Integer 'to' Integer / Integer / IntegerList) SEMICOLON ;
     diagnostic_class        <- 'diagnostic_class' EQUALS Integer SEMICOLON ;
-    support_sid             <- 'support_sid' EQUALS IntegerList SEMICOLON ;
+    support_sid             <- 'support_sid' EQUALS 
+                                Integer
+                                (COMMA Integer)*
+                                SEMICOLON ;
 
 ###################################################################################################
 
@@ -74,18 +75,17 @@ frame_definition        <- 'frames' OBRACE
                             subscribed_frame*
                             CBRACE ;
 
-    published_frame         <- 'publish' SPACE frame_name OBRACE
+    published_frame         <- 'publish' SPACE Name OBRACE
                                 frame_properties?
                                 frame_signals
                                 CBRACE ;
 
-    subscribed_frame        <- 'subscribe' SPACE frame_name OBRACE
-                                # XXX duplication here seems pointless
+    # XXX duplication here seems pointless
+    subscribed_frame        <- 'subscribe' SPACE Name OBRACE
                                 frame_properties?
                                 frame_signals?
                                 CBRACE ;
 
-        frame_name              <- Name ;
         frame_properties        <- frame_length 
                                    frame_min_period?
                                    frame_max_period? ;
@@ -98,14 +98,13 @@ frame_definition        <- 'frames' OBRACE
                                     signal*
                                     CBRACE ;
 
-            signal                  <- signal_name OBRACE
+            signal                  <- Name OBRACE
                                         (signal_init_value / signal_init_array)
                                         signal_size
                                         signal_offset
                                         signal_encoding?
                                         CBRACE ;
 
-                signal_name             <- Name ;
                 signal_init_value       <- 'init_value' EQUALS Integer SEMICOLON ; 
                 signal_init_array       <- 'init_value' EQUALS OBRACE IntegerList CBRACE SEMICOLON ; 
                 signal_size             <- 'size' EQUALS Integer SEMICOLON ;
@@ -118,15 +117,16 @@ parameter_definition    <- 'parameters' OBRACE
                             parameter*
                             CBRACE;
 
-    parameter               <-  parameter_name OBRACE
-                                parameter_page
+    parameter               <-  Name OBRACE
                                 parameter_init_value?
+                                parameter_page
+                                parameter_offset
                                 parameter_encoding?
                                 CBRACE ;
 
-        parameter_name          <- Name ;
-        parameter_page          <- 'page' EQUALS Integer SEMICOLON ;
         parameter_init_value    <- 'init_value' EQUALS Integer SEMICOLON ;
+        parameter_page          <- 'page' EQUALS Integer SEMICOLON ;
+        parameter_offset        <- 'offset' EQUALS Integer SEMICOLON ;
         parameter_encoding      <- Name SEMICOLON ;
 
 ###################################################################################################
@@ -135,11 +135,10 @@ encoding_definition     <- 'encoding' OBRACE
                             encoding*
                             CBRACE ;
 
-    encoding                <- encoding_name OBRACE
-                                (logical_value / physical_range)*   # XXX missing BCD/ASCII
+    encoding                <- Name OBRACE
+                                (physical_range / logical_value+)   # XXX missing BCD/ASCII
                                 CBRACE ;
                 
-        encoding_name           <- Name ;
         logical_value           <- 'logical_value'
                                     COMMA Integer
                                     (COMMA String)?
@@ -150,6 +149,7 @@ encoding_definition     <- 'encoding' OBRACE
                                     COMMA Real
                                     COMMA Real
                                     (COMMA String)? SEMICOLON ;
+                                    # XXX are these usable once parsed?
 
 ###################################################################################################
 
@@ -164,7 +164,6 @@ free_text_definition    <- 'free_text' OBRACE
 leaf:   name_value              <- <alpha> ([_] / <alnum>)*     ;
         Integer                 <- SPACE integer_value SPACE    ;
 leaf:   integer_value           <- '0x' <xdigit>+ / <ddigit>+   ;
-        IntegerList             <- Integer (COMMA Integer)*     ;
         Real                    <- SPACE real_value SPACE       ;
 leaf:   real_value              <- <ddigit> ('.' / <ddigit>)*   ;
         String                  <- OQUOTE string_value CQUOTE   ;

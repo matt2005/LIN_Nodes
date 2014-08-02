@@ -18,7 +18,7 @@ enum DataPage : uint8_t {
     kDataPageMax
 };
 
-static PROGMEM const char namesForDataPage[] = 
+static PROGMEM const char namesForDataPage[] =
     "Info\0"
     "Status\0"
     "LINErrors\0"
@@ -35,7 +35,7 @@ enum NodeInfo : uint8_t {
     kNodeInfoMax
 };
 
-static PROGMEM const char namesForNodeInfo[] = 
+static PROGMEM const char namesForNodeInfo[] =
     "ProtocolVersion\0"
     "BoardFunction\0"
     "BootloaderMode\0"
@@ -50,7 +50,7 @@ enum BasicStatus : uint8_t {
     kBasicStatusMax
 };
 
-static PROGMEM const char namesForBasicStatus[] = 
+static PROGMEM const char namesForBasicStatus[] =
     "WatchdogResets\0"
     "SupplyVoltage\0"
     "Temperature\0"
@@ -66,7 +66,7 @@ enum LINError : uint8_t {
     kLINErrorMax
 };
 
-static PROGMEM const char namesForLINError[] = 
+static PROGMEM const char namesForLINError[] =
     "Line\0"
     "Checksum\0"
     "Parity\0"
@@ -103,7 +103,7 @@ enum SwitchID : uint8_t {
     kSwitchIDMax
 };
 
-static PROGMEM const char namesForSwitchID[] = 
+static PROGMEM const char namesForSwitchID[] =
     "Ignition\0"
     "Start\0"
     "MarkerLights\0"
@@ -135,7 +135,7 @@ enum MasterStatus : uint8_t {
     kMasterStatusMax
 };
 
-static PROGMEM const char namesForMasterStatus[] = 
+static PROGMEM const char namesForMasterStatus[] =
     "Summary\0"
     "\0";
 
@@ -167,7 +167,7 @@ enum RelayID : uint8_t {
     kRelayIDMax
 };
 
-static PROGMEM const char namesForRelayID[] = 
+static PROGMEM const char namesForRelayID[] =
     "Ignition\0"
     "Start\0"
     "LightsUp\0"
@@ -204,7 +204,7 @@ enum RelayFault : uint8_t {
     kRelayFaultMax
 };
 
-static PROGMEM const char namesForRelayFault[] = 
+static PROGMEM const char namesForRelayFault[] =
     "None\0"
     "OpenCircuit\0"
     "OverCurrent\0"
@@ -242,7 +242,7 @@ enum RelayStatus : uint8_t {
     kRelayStatusMax
 };
 
-static PROGMEM const char namesForRelayStatus[] = 
+static PROGMEM const char namesForRelayStatus[] =
     "Summary\0"
     "Relay1Faults\0"
     "Relay2Faults\0"
@@ -281,7 +281,7 @@ enum RelayType : uint8_t {
     kRelayTypeMax
 };
 
-static PROGMEM const char namesForRelayType[] = 
+static PROGMEM const char namesForRelayType[] =
     "5AGeneric\0"
     "10AGeneric\0"
     "LED\0"

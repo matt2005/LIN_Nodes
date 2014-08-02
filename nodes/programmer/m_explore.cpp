@@ -19,7 +19,7 @@
 namespace Menu
 {
 
-Bitarray<LIN::kNodeAddressMaxAssigned> ExploreMode::_presentMask;
+StaticBitarray<LIN::kNodeAddressMaxAssigned> ExploreMode::_presentMask;
 uint8_t                                ExploreMode::_node;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -28,5 +28,5 @@ protected:
     virtual bool    st_write_data(uint8_t page, uint8_t index, uint16_t value) override;
 
 private:
-    volatile LIN::RelayFrame relayFrame;
+    LIN::RelayFrame relayFrame;
 };

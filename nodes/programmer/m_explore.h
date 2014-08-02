@@ -28,7 +28,7 @@ protected:
     virtual Mode    *select();
 
 private:
-    static Bitarray<LIN::kNodeAddressMaxAssigned> _presentMask;
+    static StaticBitarray<LIN::kNodeAddressMaxAssigned> _presentMask;
 
     static void     draw();
     static uint8_t  search_up(uint8_t from);

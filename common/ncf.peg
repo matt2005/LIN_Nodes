@@ -20,7 +20,7 @@ node_definition         <- 'node' SPACE Name OBRACE
                             frame_definition?
                             parameter_definition?
                             encoding_definition?
-                            # status_management?
+                            status_management?
                             free_text_definition?
                             CBRACE ;
 
@@ -49,7 +49,7 @@ general_definition      <- 'general' OBRACE
                             fixed_bitrate
                             (COMMA fixed_bitrate)*
                             CBRACE ;
-    fixed_bitrate       <- Real SPACE 'kbps' ;
+    fixed_bitrate       <- (Real SPACE 'kbps') / Integer ;      # integer format as per J2602-3
     sends_wakeup        <- 'sends_wake_up_signal' EQUALS String SEMICOLON ;
 
 ###################################################################################################
@@ -58,15 +58,18 @@ diagnostic_definition   <- 'diagnostic' OBRACE
                             node_address
                             diagnostic_class
                             support_sid?
-                            # XXX missing optional fields
+                            max_message_length?
                             CBRACE ;
 
-    node_address            <- 'NAD' EQUALS (Integer 'to' Integer / Integer / IntegerList) SEMICOLON ;
+    node_address            <- 'NAD' EQUALS (node_address_range / node_address_list) SEMICOLON ;
+    node_address_range      <- Integer 'to' Integer ;
+    node_address_list       <- Integer (COMMA Integer)* ;
     diagnostic_class        <- 'diagnostic_class' EQUALS Integer SEMICOLON ;
-    support_sid             <- 'support_sid' EQUALS 
+    support_sid             <- 'support_sid' OBRACE
                                 Integer
                                 (COMMA Integer)*
-                                SEMICOLON ;
+                                CBRACE SEMICOLON ;
+    max_message_length      <- 'max_message_length' EQUALS Integer SEMICOLON ;
 
 ###################################################################################################
 
@@ -77,7 +80,7 @@ frame_definition        <- 'frames' OBRACE
 
     published_frame         <- 'publish' SPACE Name OBRACE
                                 frame_properties?
-                                frame_signals
+                                frame_signals?
                                 CBRACE ;
 
     # XXX duplication here seems pointless
@@ -88,14 +91,18 @@ frame_definition        <- 'frames' OBRACE
 
         frame_properties        <- frame_length 
                                    frame_min_period?
-                                   frame_max_period? ;
+                                   frame_max_period? 
+                                   frame_id? ;
 
             frame_length            <- 'length' EQUALS Integer SEMICOLON ;
             frame_min_period        <- 'min_period' EQUALS Integer 'ms' SEMICOLON ;
             frame_max_period        <- 'max_period' EQUALS Integer 'ms' SEMICOLON ;
+            # J2602-3 says this is <identifier>, but the LIN LDF spec says <integer>; the latter
+            # is more useful so we'll go with that.
+            frame_id                <- 'frame_id' EQUALS Integer SEMICOLON ;
 
         frame_signals           <- 'signals' OBRACE
-                                    signal*
+                                    signal+
                                     CBRACE ;
 
             signal                  <- Name OBRACE
@@ -106,7 +113,10 @@ frame_definition        <- 'frames' OBRACE
                                         CBRACE ;
 
                 signal_init_value       <- 'init_value' EQUALS Integer SEMICOLON ; 
-                signal_init_array       <- 'init_value' EQUALS OBRACE IntegerList CBRACE SEMICOLON ; 
+                signal_init_array       <- 'init_value' EQUALS OBRACE 
+                                            Integer
+                                            (COMMA Integer)*
+                                            CBRACE SEMICOLON ; 
                 signal_size             <- 'size' EQUALS Integer SEMICOLON ;
                 signal_offset           <- 'offset' EQUALS Integer SEMICOLON ;
                 signal_encoding         <- Name SEMICOLON ;
@@ -120,13 +130,13 @@ parameter_definition    <- 'parameters' OBRACE
     parameter               <-  Name OBRACE
                                 parameter_init_value?
                                 parameter_page
-                                parameter_offset
+                                parameter_index
                                 parameter_encoding?
                                 CBRACE ;
 
         parameter_init_value    <- 'init_value' EQUALS Integer SEMICOLON ;
         parameter_page          <- 'page' EQUALS Integer SEMICOLON ;
-        parameter_offset        <- 'offset' EQUALS Integer SEMICOLON ;
+        parameter_index         <- 'offset' EQUALS Integer SEMICOLON ;
         parameter_encoding      <- Name SEMICOLON ;
 
 ###################################################################################################
@@ -136,7 +146,7 @@ encoding_definition     <- 'encoding' OBRACE
                             CBRACE ;
 
     encoding                <- Name OBRACE
-                                (physical_range / logical_value+)   # XXX missing BCD/ASCII
+                                (logical_value / physical_range)+   # XXX missing BCD/ASCII
                                 CBRACE ;
                 
         logical_value           <- 'logical_value'
@@ -149,7 +159,19 @@ encoding_definition     <- 'encoding' OBRACE
                                     COMMA Real
                                     COMMA Real
                                     (COMMA String)? SEMICOLON ;
-                                    # XXX are these usable once parsed?
+
+###################################################################################################
+
+status_management       <- 'status_management' OBRACE
+                            response_error
+                            fault_state_signals?
+                            CBRACE ;
+
+    response_error          <- 'response_error' EQUALS Name SEMICOLON ;
+    fault_state_signals     <- 'fault_state_signals' EQUALS
+                                Name
+                                (COMMA Name)*
+                                SEMICOLON ;
 
 ###################################################################################################
 
@@ -160,28 +182,28 @@ free_text_definition    <- 'free_text' OBRACE
 ###################################################################################################
 
 # terminals
-        Name                    <- SPACE name_value SPACE       ;
-leaf:   name_value              <- <alpha> ([_] / <alnum>)*     ;
-        Integer                 <- SPACE integer_value SPACE    ;
-leaf:   integer_value           <- '0x' <xdigit>+ / <ddigit>+   ;
-        Real                    <- SPACE real_value SPACE       ;
-leaf:   real_value              <- <ddigit> ('.' / <ddigit>)*   ;
-        String                  <- OQUOTE string_value CQUOTE   ;
-leaf:   string_value            <- (!QUOTE .)*                  ;
+        Name            <- SPACE name_value SPACE       ;
+leaf:   name_value      <- <alpha> ([_] / <alnum>)*     ;
+        Integer         <- SPACE integer_value SPACE    ;
+leaf:   integer_value   <- '0x' <xdigit>+ / <ddigit>+   ;
+        Real            <- SPACE real_value SPACE       ;
+leaf:   real_value      <- <ddigit> ('.' / <ddigit>)*   ;
+        String          <- OQUOTE string_value CQUOTE   ;
+leaf:   string_value    <- (!QUOTE .)*                  ;
 
 
 # tokens
-void:   OBRACE                  <- SPACE '{' SPACE              ;
-void:   CBRACE                  <- SPACE '}' SPACE              ;
-void:   OQUOTE                  <- SPACE QUOTE                  ;
-void:   CQUOTE                  <- QUOTE SPACE                  ;
-void:   QUOTE                   <- '"'                          ;
-void:   SPACE                   <- (<space> / EOL / COMMENT)*   ;
-void:   EQUALS                  <- SPACE '=' SPACE              ;
-void:   COMMENT                 <- '//' (!EOL .)* EOL           ;   # XXX no support for /* */
-void:   SEMICOLON               <- SPACE ';' SPACE              ;
-void:   COMMA                   <- SPACE ',' SPACE              ;
-void:   EOL                     <- '\n\r' / '\n' / '\r'         ;
-void:   EOF                     <- !.                           ;
+void:   OBRACE          <- SPACE '{' SPACE              ;
+void:   CBRACE          <- SPACE '}' SPACE              ;
+void:   OQUOTE          <- SPACE QUOTE                  ;
+void:   CQUOTE          <- QUOTE SPACE                  ;
+void:   QUOTE           <- '"'                          ;
+void:   SPACE           <- (<space> / EOL / COMMENT)*   ;
+void:   EQUALS          <- SPACE '=' SPACE              ;
+void:   COMMENT         <- '//' (!EOL .)* EOL           ;   # XXX no support for /* */
+void:   SEMICOLON       <- SPACE ';' SPACE              ;
+void:   COMMA           <- SPACE ',' SPACE              ;
+void:   EOL             <- '\n\r' / '\n' / '\r'         ;
+void:   EOF             <- !.                           ;
 
 END;

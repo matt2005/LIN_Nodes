@@ -22,7 +22,7 @@ class Master : public Slave
 public:
     Master();
 
-    volatile LIN::RelayFrame relayFrame;
+    LIN::RelayFrame relayFrame;
 
     /// Enable / disable sleep
     ///

@@ -14,12 +14,12 @@
 node_capability_file;
 LIN_language_version = "2.1+";
 
-#
-# Generic node definition that can be used when talking to an arbitrary
-# node before it has been identified. Defines the baseline for nodes
-# in the system.
-#
-node generic {
+//
+// Generic node definition that can be used when talking to an arbitrary
+// node before it has been identified. Defines the baseline for nodes
+// in the system.
+//
+node Generic {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
@@ -29,11 +29,40 @@ node generic {
         sends_wake_up_signal = "no";
     }    
     diagnostic {
-        NAD = 1 to 127;
+        NAD = 1 to 32;
         diagnostic_class = 1;
-        support_sid = 0x22, 0x2e, 0xb2;
+        support_sid { 0x22, 0x2e, 0xb2 };
     }
-    frames {}
+    frames {
+        publish SlaveResponse {
+            length = 8;
+            frame_id = 0x3c;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }
+                d1              { init_value = 0; size = 8; offset = 24; }
+                d2              { init_value = 0; size = 8; offset = 32; }
+                d3              { init_value = 0; size = 8; offset = 40; }
+                d4              { init_value = 0; size = 8; offset = 48; }
+                d5              { init_value = 0; size = 8; offset = 56; }
+            }
+        }
+        publish DataByID {
+            length = 8;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }                
+                index           { init_value = 0; size = 16; offset = 24; }
+                value           { init_value = 0; size = 16; offset = 40; }
+                d5              { init_value = 0; size = 8; offset = 56; }
+            }
+        }
+        subscribe MasterRequest {}
+    }
     parameters {
         ProtocolVersion     { page = 0; offset = 0; }
         BoardFunction       { page = 0; offset = 1; }
@@ -52,10 +81,9 @@ node generic {
         Synch               { page = 2; offset = 4; }
         Protocol            { page = 2; offset = 5; }
     }
-    encoding {}
 }
 
-node master {
+node Master {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
@@ -67,13 +95,14 @@ node master {
     diagnostic {
         NAD = 1;
         diagnostic_class = 1;
-        support_sid = 0x22, 0x2e, 0xb2;
+        support_sid { 0x22, 0x2e, 0xb2 };
     }
     frames {
         publish Relays {
             length = 8;
             min_period = 10 ms;
             max_period = 100 ms;
+            frame_id = 0x01;
             signals {
                 Ignition        { init_value = 0; size = 1; offset = 0; }
                 Start           { init_value = 0; size = 1; offset = 1; }
@@ -100,6 +129,23 @@ node master {
                 RearDefrost     { init_value = 0; size = 1; offset = 22; }
             }
         }
+        publish MasterRequest {
+            length = 8;
+            frame_id = 0x3c;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }
+                d1              { init_value = 0; size = 8; offset = 24; }
+                d2              { init_value = 0; size = 8; offset = 32; }
+                d3              { init_value = 0; size = 8; offset = 40; }
+                d4              { init_value = 0; size = 8; offset = 48; }
+                d5              { init_value = 0; size = 8; offset = 56; }
+            }
+        }
+        subscribe ProxyRequest {}
+        subscribe SlaveResponse {}
     }
     parameters {
         SP1Assign               { init_value = 0;   page = 4; offset = 0;  input; }
@@ -111,7 +157,7 @@ node master {
         SP7Assign               { init_value = 0;   page = 4; offset = 6;  input; }
         SG0Assign               { init_value = 0;   page = 4; offset = 7;  input; }
         SG1Assign               { init_value = 0;   page = 4; offset = 8;  input; }
-        SG2Assign               { init_value = 0;   page = 4; offset = 9; input; }
+        SG2Assign               { init_value = 0;   page = 4; offset = 9;  input; }
         SG3Assign               { init_value = 0;   page = 4; offset = 10; input; }
         SG4Assign               { init_value = 0;   page = 4; offset = 11; input; }
         SG5Assign               { init_value = 0;   page = 4; offset = 12; input; }
@@ -124,12 +170,12 @@ node master {
         SG12Assign              { init_value = 0;   page = 4; offset = 19; input; }
         SG13Assign              { init_value = 0;   page = 4; offset = 20; input; }
         TurnBlinkPeriod         { init_value = 500; page = 4; offset = 21; msec; }
-        PassingBlinkCount       { init_value = 0;   page = 4; offset = 22; }
+        PassingBlinkCount       { init_value = 0;   page = 4; offset = 22; up_to_10; }
         PathLightTime           { init_value = 30;  page = 4; offset = 23; sec; }
         InteriorLightTime       { init_value = 30;  page = 4; offset = 24; sec; }
         WelcomeLightTime        { init_value = 30;  page = 4; offset = 25; sec; }
         BrakeBlinkPeriod        { init_value = 0;   page = 4; offset = 26; msec; }
-        BrakeBlinkCount         { init_value = 0;   page = 4; offset = 27; }
+        BrakeBlinkCount         { init_value = 0;   page = 4; offset = 27; up_to_10; }
         WiperInterval           { init_value = 0;   page = 4; offset = 28; msec; }
     }
     encoding {
@@ -161,10 +207,19 @@ node master {
         }
         msec    { physical_value, 0, 65535, 1, 0; }
         sec     { physical_value, 0, 65535, 1, 0; }
+        up_to_10 { physical_value, 0, 10, 1, 0; }
+        service_id {
+            logical_value, 0x22, "ReadDataByID";      
+            logical_value, 0x2e, "WriteDataByID";     
+            logical_value, 0x3e, "TesterPresent";     
+            logical_value, 0xb2, "ReadByID";          
+            logical_value, 0xb4, "DataDump";          
+            logical_value, 0x7f, "ErrorResponse";     
+        }
     }
 }
 
-node power_v1 {
+node PowerV1 {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
@@ -176,7 +231,7 @@ node power_v1 {
     diagnostic {
         NAD = 2 to 16;
         diagnostic_class = 1;
-        support_sid = 0x22, 0x2e, 0xb2;
+        support_sid { 0x22, 0x2e, 0xb2 };
     }
     frames {
         subscribe Relays {}
@@ -217,7 +272,7 @@ node power_v1 {
     }
 }
 
-node power_v3 {
+node PowerV3 {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
@@ -229,7 +284,7 @@ node power_v3 {
     diagnostic {
         NAD = 2 to 16;
         diagnostic_class = 1;
-        support_sid = 0x22, 0x2e, 0xb2;
+        support_sid { 0x22, 0x2e, 0xb2 };
     }
     frames {
         subscribe Relays {}
@@ -326,7 +381,7 @@ node power_v3 {
     }
 }
 
-node ecu_bridge {
+node ECUBridge {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
@@ -338,13 +393,14 @@ node ecu_bridge {
     diagnostic {
         NAD = 18;
         diagnostic_class = 1;
-        support_sid = 0x22, 0x2e, 0xb2;
+        support_sid { 0x22, 0x2e, 0xb2 };
     }
     frames {
         publish ECUData {
             length = 8;
             min_period = 10 ms;
             max_period = 100 ms;
+            frame_id = 0x02;
             signals {
                 RPM                 { init_value = 0; size = 8; offset = 0;  RPM; }
                 oilPressure         { init_value = 0; size = 8; offset = 8;  PSI; }
@@ -367,7 +423,7 @@ node ecu_bridge {
     }   
 }
 
-node dashboard {
+node Dashboard {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
@@ -379,7 +435,7 @@ node dashboard {
     diagnostic {
         NAD = 19;
         diagnostic_class = 1;
-        support_sid = 0xb2;
+        support_sid { 0xb2 };
     }
     frames {
         subscribe Relays {}
@@ -388,7 +444,7 @@ node dashboard {
     encoding {}
 }
 
-node tester {
+node Tester {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
@@ -401,6 +457,11 @@ node tester {
         NAD = 20;
         diagnostic_class = 0;
     }
-    frames {}
+    frames {
+        publish ProxyRequest {
+            length = 8;
+            frame_id = 0x3d;
+        }
+    }
     encoding {}
 }

@@ -22,7 +22,7 @@
 namespace Relays
 {
 
-typedef Bitarray<64> RelayBits;
+typedef StaticBitarray<64> RelayBits;
 
 class TurnBlinker : public Timer
 {

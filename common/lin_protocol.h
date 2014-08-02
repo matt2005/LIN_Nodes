@@ -47,7 +47,7 @@ enum NodeAddress : uint8_t {
     kNodeAddressSleep           = 0,
 
     kNodeAddressMaster          = 1,    //< always NAD 1
-    kNodeAddressPowerBase       = 2,    //< 15 of these (board ID 1-15)
+    kNodeAddressPowerBase       = 2,    //< 15 of these (board ID 2-16)
     kNodeAddressECU             = 18,   //< ECU data bridge
     kNodeAddressDashboard       = 19,   //< dash display (not talkative)
     kNodeAddressTester          = 20,   //< test/diagnostic tool
@@ -114,9 +114,7 @@ public:
         _b { buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7] }
     {}
 
-    // frame data copier - avoids some ambiguity around volatile
-    // frames
-    void                copy(const volatile Frame &f) volatile
+    void                copy(const Frame &f)
     {
         _b[0] = f._b[0];
         _b[1] = f._b[1];
@@ -128,7 +126,7 @@ public:
         _b[7] = f._b[7];
     }
 
-    void                copy(const Bitarray<64> &array) volatile
+    void                copy(const StaticBitarray<64> &array)
     {
         _b[0] = array[0];
         _b[1] = array[1];
@@ -140,7 +138,7 @@ public:
         _b[7] = array[7];
     }
 
-    void                clear(const volatile Frame &f) volatile
+    void                clear(const Frame &f)
     {
         _b[0] = 0;
         _b[1] = 0;
@@ -153,21 +151,21 @@ public:
     }
 
     // field access by index
-    volatile uint8_t &operator[](uint8_t index) volatile { return _b[index]; }
-    const volatile uint8_t &operator[](uint8_t index) const volatile { return _b[index]; }
+    uint8_t &operator[](uint8_t index) { return _b[index]; }
+    const uint8_t &operator[](uint8_t index) const { return _b[index]; }
 
     // standard transport fields for single frames
-    volatile uint8_t    &nad()  volatile { return (*this)[0]; }
-    volatile uint8_t    &pci()  volatile { return (*this)[1]; }
-    volatile uint8_t    &sid()  volatile { return (*this)[2]; }
-    volatile uint8_t    &d1()   volatile { return (*this)[3]; }
-    volatile uint8_t    &d2()   volatile { return (*this)[4]; }
-    volatile uint8_t    &d3()   volatile { return (*this)[5]; }
-    volatile uint8_t    &d4()   volatile { return (*this)[6]; }
-    volatile uint8_t    &d5()   volatile { return (*this)[7]; }
+    uint8_t    &nad()   { return (*this)[0]; }
+    uint8_t    &pci()   { return (*this)[1]; }
+    uint8_t    &sid()   { return (*this)[2]; }
+    uint8_t    &d1()    { return (*this)[3]; }
+    uint8_t    &d2()    { return (*this)[4]; }
+    uint8_t    &d3()    { return (*this)[5]; }
+    uint8_t    &d4()    { return (*this)[6]; }
+    uint8_t    &d5()    { return (*this)[7]; }
 
     // convert to error reply
-    void                set_error(ServiceError err) 
+    void                set_error(ServiceError err)
     {
         pci() = 2;
         d1() = sid();
@@ -179,7 +177,7 @@ public:
     }
 
     // direct buffer access
-    //volatile uint8_t    *buf() volatile { return &_b[0]; }
+    uint8_t    *buf() { return &_b[0]; }
 
 private:
     uint8_t _b[8];
@@ -201,7 +199,7 @@ public:
         uint8_t bit = 1 << (relay & 0x7);
         (*this)[index] &= ~bit;
     }
-    bool        test(RelayID relay) const volatile
+    bool        test(RelayID relay) const
     {
         uint8_t index = relay / 8;
         uint8_t bit = 1 << (relay & 0x7);
@@ -209,19 +207,30 @@ public:
     }
 };
 
-// NS
-class ECUDataFrame : public Frame
+class Signal
 {
 public:
-    volatile uint8_t    &RPM()                  volatile { return (*this)[0]; } //< engine RPM / 30, 0 = not running
-    volatile uint8_t    &oilPressure()          volatile { return (*this)[1]; } //< PSI
-    volatile uint8_t    &oilTemperature()       volatile { return (*this)[2]; } //< def. F
-    volatile uint8_t    &coolantTemperature()   volatile { return (*this)[3]; } //< deg. F
-    volatile uint8_t    &fuelPressure()         volatile { return (*this)[4]; } //< PSI
-    volatile uint8_t    &voltage()              volatile { return (*this)[5]; } //< tenths of a volt
-    volatile uint8_t    &AFR()                  volatile { return (*this)[6]; } //< ratio tenths, 10.0 : 20.0
-    volatile uint8_t    &roadSpeed()            volatile { return (*this)[7]; } //< mph
+    Signal(Frame &frame, uint8_t offset, uint8_t size) :
+        _bitarray(frame.buf()),
+        _offset(offset),
+        _size(size)
+    {
+    }
+
+    void            clear() { _bitarray.insert(0, _offset, _size); }
+
+    template<typename T>
+    void            set(T n) { _bitarray.insert<T>(n, _offset, _size); }
+
+    template<typename T>
+    T               get() { return _bitarray.extract<T>(_offset, _size); }
+
+protected:
+    Bitarray        _bitarray;
+    const uint8_t   _offset;
+    const uint8_t   _size;
 };
 
 } // namespace LIN
+
 

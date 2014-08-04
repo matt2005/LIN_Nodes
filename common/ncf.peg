@@ -129,14 +129,12 @@ parameter_definition    <- 'parameters' OBRACE
 
     parameter               <-  Name OBRACE
                                 parameter_init_value?
-                                parameter_page
-                                parameter_index
+                                parameter_address
                                 parameter_encoding?
                                 CBRACE ;
 
         parameter_init_value    <- 'init_value' EQUALS Integer SEMICOLON ;
-        parameter_page          <- 'page' EQUALS Integer SEMICOLON ;
-        parameter_index         <- 'offset' EQUALS Integer SEMICOLON ;
+        parameter_address       <- 'address' EQUALS Integer SEMICOLON ;
         parameter_encoding      <- Name SEMICOLON ;
 
 ###################################################################################################

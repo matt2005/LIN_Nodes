@@ -2,9 +2,13 @@
 #pragma once
 #include <stdint.h>
 
-namespace Encoding {
-typedef bool    (* Validator)(uint16_t value);
-} // namespace Encoding
+class Encoding
+{
+public:
+    static bool                 invalid(uint8_t encoding, uint16_t value);
+    static const PROGMEM char   *name(uint8_t encoding);
+    static const PROGMEM char   *info(uint8_t encoding, uint16_t value);
+};
 
 class Response
 {
@@ -30,7 +34,7 @@ protected:
     uint8_t         _bytes[8];
 };
 
-template<typename T, unsigned OFFSET, unsigned LENGTH>
+template<typename T, unsigned OFFSET, unsigned LENGTH, unsigned ENCODING>
 class Signal
 {
 public:
@@ -57,7 +61,7 @@ public:
             _r[_byteoffset + 1] = value >> 8;
         } else {
             // arbitrary bit range set
-            uint8_t size = SIZE;
+            uint8_t size = LENGTH;
             uint8_t offset = OFFSET;
 
             while (size) {
@@ -68,7 +72,7 @@ public:
                 }
                 size -= 1;
                 offset += 1;
-                n >>= 1;
+                value >>= 1;
             }
         }
     }
@@ -84,13 +88,13 @@ public:
             // byte-aligned word get
             return _r[_byteoffset] + (T)(_r[_byteoffset + 1]) << 8;
         } else {
-            uint8_t size = SIZE;
-            uint8_t offset = OFFSET + SIZE - 1;
+            uint8_t size = LENGTH;
+            uint8_t offset = OFFSET + LENGTH - 1;
             T value = 0;
 
             while (size) {
                 value <<= 1;
-                if (_[offset / 8] & (1 << (offset %8))) {
+                if (_r[offset / 8] & (1 << (offset %8))) {
                     value |= 1;
                 }
 
@@ -100,6 +104,8 @@ public:
             return value;
         }
     }
+
+    uint8_t         encoding() const { return ENCODING; }
 
 private:
     static const uint8_t    _byteoffset = OFFSET / 8;
@@ -111,34 +117,35 @@ private:
 class Parameter
 {
 public:
-    struct ParamInfo {
-        uint16_t            default_value;
-    };
+    typedef uint16_t Address;
+    typedef void    (* Defaulter)(const Parameter &param);
 
-    constexpr Parameter(uint8_t page, uint8_t index, ParamInfo *info) :
-        _page(page),
-        _index(index),
-        _info(info)
+    static const Address    noAddress = 0xffff;
+
+    constexpr Parameter(Address address, uint8_t encoding, Defaulter defaulter) :
+        _address(address),
+        _encoding(encoding),
+        _defaulter(defaulter)
     {
     }
 
     void            set(uint16_t value) const;  // must be implemented by the device
     uint16_t        get() const;                // must be implemented by the device
 
+    uint16_t        address() const { return _address; }
+
     void            init() const 
     {
-        if (!is_valid(get()) {
-            set(default_value());
+        if (is_invalid(get())) {
+            _defaulter(*this);
         }
     }
 
-    bool            is_valid(uint16_t value) const
+    bool            exists() const { return (address() != noAddress); }
+
+    bool            is_invalid(uint16_t value) const
     {
-        if (_info == nullptr) {
-            return false;
-        }
-        Encoding::Validator validator = (Encoding::Validator)pgm_read_ptr(&((info + index)->is_valid));
-        return validator(value);
+        return Encoding::invalid(_encoding, value);
     }
 
     bool            prev(uint16_t &value, uint16_t decrement = 1) const
@@ -147,7 +154,7 @@ public:
 
         while (new_value >= decrement) {
             new_value -= decrement;
-            if (valid(new_value)) {
+            if (!is_invalid(new_value)) {
                 value = new_value;
                 return true;
             }
@@ -161,7 +168,7 @@ public:
 
         while ((new_value + increment) > new_value) {
             new_value += increment;
-            if (valid(new_value)) {
+            if (!is_invalid(new_value)) {
                 value = new_value;
                 return true;
             }
@@ -170,22 +177,7 @@ public:
     }
 
 private:
-    uint8_t         _page;
-    uint8_t         _index;
-    ParamInfo       *_info;
-
-    ParamInfo       *info() const
-    {
-        return _info + _index;
-    }
-
-    Encoding::Validator *validator)() const
-    {
-        return pgm_read_ptr(&(info()->validator));
-    }
-
-    uint16_t        default_value() const
-    {
-        return pgm_read_word(&(info()->default_value));
-    }
+    const Address   _address;
+    const uint8_t   _encoding;
+    const Defaulter _defaulter;
 };

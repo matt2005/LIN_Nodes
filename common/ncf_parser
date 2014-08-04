@@ -615,6 +615,7 @@ namespace eval parameter {
             puts $fh "{"
             puts $fh "extern void param_default(const Parameter &param);"
             puts $fh "extern const PROGMEM char *param_name(const Parameter &param);"
+            puts $fh "extern Parameter parameter(Parameter::Address address);"
 
             puts $fh ""
             dict for {pkey pattr} [for_node $node] {
@@ -623,27 +624,6 @@ namespace eval parameter {
                 puts $fh "static const uint16_t kParam${pname} = ${address};"
             }
 
-            puts $fh ""
-            puts $fh "// parameter factory for ${node}"
-            puts $fh "constexpr Parameter"
-            puts $fh "parameter(Parameter::Address address)"
-            puts $fh "{"
-            puts $fh "    return Parameter(("
-            dict for {pkey pattr} [for_node $node] {
-                lassign [split $pkey "~"] pnode pname
-                puts $fh "        (address == kParam${pname}) ? address :"
-            }
-            puts $fh "        Parameter::noAddress), ("
-            dict for {pkey pattr} [for_node $node] {
-                lassign [split $pkey "~"] pnode pname
-                if {[dict exists $pattr parameter_encoding]} {
-                    set encoding [dict get $pattr parameter_encoding]
-                    puts $fh "        (address == kParam${pname}) ? kEncoding_${encoding} :"
-                }
-            }
-            puts $fh "        kEncoding_none),"
-            puts $fh "        param_default);"
-            puts $fh "}"
             puts $fh ""
             puts $fh "// explicit parameter subclasses for ${node}"
             dict for {pkey pattr} [for_node $node] {
@@ -677,6 +657,29 @@ namespace eval parameter {
             puts $fh ""
             puts $fh "namespace ${node}"
             puts $fh "{"
+
+            puts $fh ""
+            puts $fh "// parameter factory for ${node}"
+            puts $fh "Parameter"
+            puts $fh "parameter(Parameter::Address address)"
+            puts $fh "{"
+            puts $fh "    uint8_t encoding = kEncoding_none;"
+            puts $fh "    switch (address) {"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                puts $fh "    case kParam${pname}:"
+                if {[dict exists $pattr parameter_encoding]} {
+                    set encoding [dict get $pattr parameter_encoding]
+                    puts $fh "        encoding = kEncoding_${encoding};"
+                }
+                puts $fh "        break;"
+            }
+            puts $fh "    default:"
+            puts $fh "        address = Parameter::noAddress;"
+            puts $fh "    }"
+            puts $fh "    return Parameter(address, encoding, param_default);"
+            puts $fh "}"
+
             puts $fh ""
             puts $fh "void param_default(const Parameter &param)"
             puts $fh "{"

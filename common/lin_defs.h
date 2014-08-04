@@ -477,6 +477,7 @@ namespace Generic
 {
 extern void param_default(const Parameter &param);
 extern const PROGMEM char *param_name(const Parameter &param);
+extern Parameter parameter(Parameter::Address address);
 
 static const uint16_t kParamProtocolVersion = 0x0000;
 static const uint16_t kParamBoardFunction = 0x0001;
@@ -492,30 +493,6 @@ static const uint16_t kParamParity = 0x0202;
 static const uint16_t kParamFraming = 0x0203;
 static const uint16_t kParamSynch = 0x0204;
 static const uint16_t kParamProtocol = 0x0205;
-
-// parameter factory for Generic
-constexpr Parameter
-parameter(Parameter::Address address)
-{
-    return Parameter((
-        (address == kParamProtocolVersion) ? address :
-        (address == kParamBoardFunction) ? address :
-        (address == kParamBootloaderMode) ? address :
-        (address == kParamFirmwareVersion) ? address :
-        (address == kParamFirmwarePageSize) ? address :
-        (address == kParamWatchdogResets) ? address :
-        (address == kParamSupplyVoltage) ? address :
-        (address == kParamTemperature) ? address :
-        (address == kParamLine) ? address :
-        (address == kParamChecksum) ? address :
-        (address == kParamParity) ? address :
-        (address == kParamFraming) ? address :
-        (address == kParamSynch) ? address :
-        (address == kParamProtocol) ? address :
-        Parameter::noAddress), (
-        kEncoding_none),
-        param_default);
-}
 
 // explicit parameter subclasses for Generic
 
@@ -623,6 +600,7 @@ namespace Master
 {
 extern void param_default(const Parameter &param);
 extern const PROGMEM char *param_name(const Parameter &param);
+extern Parameter parameter(Parameter::Address address);
 
 static const uint16_t kParamSP1Assign = 0x0400;
 static const uint16_t kParamSP2Assign = 0x0401;
@@ -653,74 +631,6 @@ static const uint16_t kParamWelcomeLightTime = 0x0419;
 static const uint16_t kParamBrakeBlinkPeriod = 0x0420;
 static const uint16_t kParamBrakeBlinkCount = 0x0421;
 static const uint16_t kParamWiperInterval = 0x0422;
-
-// parameter factory for Master
-constexpr Parameter
-parameter(Parameter::Address address)
-{
-    return Parameter((
-        (address == kParamSP1Assign) ? address :
-        (address == kParamSP2Assign) ? address :
-        (address == kParamSP3Assign) ? address :
-        (address == kParamSP4Assign) ? address :
-        (address == kParamSP5Assign) ? address :
-        (address == kParamSP6Assign) ? address :
-        (address == kParamSP7Assign) ? address :
-        (address == kParamSG0Assign) ? address :
-        (address == kParamSG1Assign) ? address :
-        (address == kParamSG2Assign) ? address :
-        (address == kParamSG3Assign) ? address :
-        (address == kParamSG4Assign) ? address :
-        (address == kParamSG5Assign) ? address :
-        (address == kParamSG6Assign) ? address :
-        (address == kParamSG7Assign) ? address :
-        (address == kParamSG8Assign) ? address :
-        (address == kParamSG9Assign) ? address :
-        (address == kParamSG10Assign) ? address :
-        (address == kParamSG11Assign) ? address :
-        (address == kParamSG12Assign) ? address :
-        (address == kParamSG13Assign) ? address :
-        (address == kParamTurnBlinkPeriod) ? address :
-        (address == kParamPassingBlinkCount) ? address :
-        (address == kParamPathLightTime) ? address :
-        (address == kParamInteriorLightTime) ? address :
-        (address == kParamWelcomeLightTime) ? address :
-        (address == kParamBrakeBlinkPeriod) ? address :
-        (address == kParamBrakeBlinkCount) ? address :
-        (address == kParamWiperInterval) ? address :
-        Parameter::noAddress), (
-        (address == kParamSP1Assign) ? kEncoding_input :
-        (address == kParamSP2Assign) ? kEncoding_input :
-        (address == kParamSP3Assign) ? kEncoding_input :
-        (address == kParamSP4Assign) ? kEncoding_input :
-        (address == kParamSP5Assign) ? kEncoding_input :
-        (address == kParamSP6Assign) ? kEncoding_input :
-        (address == kParamSP7Assign) ? kEncoding_input :
-        (address == kParamSG0Assign) ? kEncoding_input :
-        (address == kParamSG1Assign) ? kEncoding_input :
-        (address == kParamSG2Assign) ? kEncoding_input :
-        (address == kParamSG3Assign) ? kEncoding_input :
-        (address == kParamSG4Assign) ? kEncoding_input :
-        (address == kParamSG5Assign) ? kEncoding_input :
-        (address == kParamSG6Assign) ? kEncoding_input :
-        (address == kParamSG7Assign) ? kEncoding_input :
-        (address == kParamSG8Assign) ? kEncoding_input :
-        (address == kParamSG9Assign) ? kEncoding_input :
-        (address == kParamSG10Assign) ? kEncoding_input :
-        (address == kParamSG11Assign) ? kEncoding_input :
-        (address == kParamSG12Assign) ? kEncoding_input :
-        (address == kParamSG13Assign) ? kEncoding_input :
-        (address == kParamTurnBlinkPeriod) ? kEncoding_msec :
-        (address == kParamPassingBlinkCount) ? kEncoding_up_to_10 :
-        (address == kParamPathLightTime) ? kEncoding_sec :
-        (address == kParamInteriorLightTime) ? kEncoding_sec :
-        (address == kParamWelcomeLightTime) ? kEncoding_sec :
-        (address == kParamBrakeBlinkPeriod) ? kEncoding_msec :
-        (address == kParamBrakeBlinkCount) ? kEncoding_up_to_10 :
-        (address == kParamWiperInterval) ? kEncoding_msec :
-        kEncoding_none),
-        param_default);
-}
 
 // explicit parameter subclasses for Master
 
@@ -933,6 +843,7 @@ namespace PowerV1
 {
 extern void param_default(const Parameter &param);
 extern const PROGMEM char *param_name(const Parameter &param);
+extern Parameter parameter(Parameter::Address address);
 
 static const uint16_t kParamRelay1Status = 0x0300;
 static const uint16_t kParamRelay2Status = 0x0301;
@@ -942,32 +853,6 @@ static const uint16_t kParamRelay1Assign = 0x0400;
 static const uint16_t kParamRelay2Assign = 0x0401;
 static const uint16_t kParamRelay3Assign = 0x0402;
 static const uint16_t kParamRelay4Assign = 0x0403;
-
-// parameter factory for PowerV1
-constexpr Parameter
-parameter(Parameter::Address address)
-{
-    return Parameter((
-        (address == kParamRelay1Status) ? address :
-        (address == kParamRelay2Status) ? address :
-        (address == kParamRelay3Status) ? address :
-        (address == kParamRelay4Status) ? address :
-        (address == kParamRelay1Assign) ? address :
-        (address == kParamRelay2Assign) ? address :
-        (address == kParamRelay3Assign) ? address :
-        (address == kParamRelay4Assign) ? address :
-        Parameter::noAddress), (
-        (address == kParamRelay1Status) ? kEncoding_v1_output_status :
-        (address == kParamRelay2Status) ? kEncoding_v1_output_status :
-        (address == kParamRelay3Status) ? kEncoding_v1_output_status :
-        (address == kParamRelay4Status) ? kEncoding_v1_output_status :
-        (address == kParamRelay1Assign) ? kEncoding_v1_output_assignment :
-        (address == kParamRelay2Assign) ? kEncoding_v1_output_assignment :
-        (address == kParamRelay3Assign) ? kEncoding_v1_output_assignment :
-        (address == kParamRelay4Assign) ? kEncoding_v1_output_assignment :
-        kEncoding_none),
-        param_default);
-}
 
 // explicit parameter subclasses for PowerV1
 
@@ -1033,6 +918,7 @@ namespace PowerV3
 {
 extern void param_default(const Parameter &param);
 extern const PROGMEM char *param_name(const Parameter &param);
+extern Parameter parameter(Parameter::Address address);
 
 static const uint16_t kParamCH1Status = 0x0300;
 static const uint16_t kParamCH2Status = 0x0301;
@@ -1084,116 +970,6 @@ static const uint16_t kParamCH5Assign3 = 0x0454;
 static const uint16_t kParamCH5PWM3 = 0x0455;
 static const uint16_t kParamCH5Assign4 = 0x0456;
 static const uint16_t kParamCH5PWM4 = 0x0457;
-
-// parameter factory for PowerV3
-constexpr Parameter
-parameter(Parameter::Address address)
-{
-    return Parameter((
-        (address == kParamCH1Status) ? address :
-        (address == kParamCH2Status) ? address :
-        (address == kParamCH3Status) ? address :
-        (address == kParamCH4Status) ? address :
-        (address == kParamCH5Status) ? address :
-        (address == kParamCH1Type) ? address :
-        (address == kParamCH2Type) ? address :
-        (address == kParamCH3Type) ? address :
-        (address == kParamCH4Type) ? address :
-        (address == kParamCH5Type) ? address :
-        (address == kParamCH1Assign1) ? address :
-        (address == kParamCH1PWM1) ? address :
-        (address == kParamCH1Assign2) ? address :
-        (address == kParamCH1PWM2) ? address :
-        (address == kParamCH1Assign3) ? address :
-        (address == kParamCH1PWM3) ? address :
-        (address == kParamCH1Assign4) ? address :
-        (address == kParamCH1PWM4) ? address :
-        (address == kParamCH2Assign1) ? address :
-        (address == kParamCH2PWM1) ? address :
-        (address == kParamCH2Assign2) ? address :
-        (address == kParamCH2PWM2) ? address :
-        (address == kParamCH2Assign3) ? address :
-        (address == kParamCH2PWM3) ? address :
-        (address == kParamCH2Assign4) ? address :
-        (address == kParamCH2PWM4) ? address :
-        (address == kParamCH3Assign1) ? address :
-        (address == kParamCH3PWM1) ? address :
-        (address == kParamCH3Assign2) ? address :
-        (address == kParamCH3PWM2) ? address :
-        (address == kParamCH3Assign3) ? address :
-        (address == kParamCH3PWM3) ? address :
-        (address == kParamCH3Assign4) ? address :
-        (address == kParamCH3PWM4) ? address :
-        (address == kParamCH4Assign1) ? address :
-        (address == kParamCH4PWM1) ? address :
-        (address == kParamCH4Assign2) ? address :
-        (address == kParamCH4PWM2) ? address :
-        (address == kParamCH4Assign3) ? address :
-        (address == kParamCH4PWM3) ? address :
-        (address == kParamCH4Assign4) ? address :
-        (address == kParamCH4PWM4) ? address :
-        (address == kParamCH5Assign1) ? address :
-        (address == kParamCH5PWM1) ? address :
-        (address == kParamCH5Assign2) ? address :
-        (address == kParamCH5PWM2) ? address :
-        (address == kParamCH5Assign3) ? address :
-        (address == kParamCH5PWM3) ? address :
-        (address == kParamCH5Assign4) ? address :
-        (address == kParamCH5PWM4) ? address :
-        Parameter::noAddress), (
-        (address == kParamCH1Status) ? kEncoding_v3_output_status :
-        (address == kParamCH2Status) ? kEncoding_v3_output_status :
-        (address == kParamCH3Status) ? kEncoding_v3_output_status :
-        (address == kParamCH4Status) ? kEncoding_v3_output_status :
-        (address == kParamCH5Status) ? kEncoding_v3_output_status :
-        (address == kParamCH1Type) ? kEncoding_output_type :
-        (address == kParamCH2Type) ? kEncoding_output_type :
-        (address == kParamCH3Type) ? kEncoding_output_type :
-        (address == kParamCH4Type) ? kEncoding_output_type :
-        (address == kParamCH5Type) ? kEncoding_output_type :
-        (address == kParamCH1Assign1) ? kEncoding_output_assignment :
-        (address == kParamCH1PWM1) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH1Assign2) ? kEncoding_output_assignment :
-        (address == kParamCH1PWM2) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH1Assign3) ? kEncoding_output_assignment :
-        (address == kParamCH1PWM3) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH1Assign4) ? kEncoding_output_assignment :
-        (address == kParamCH1PWM4) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH2Assign1) ? kEncoding_output_assignment :
-        (address == kParamCH2PWM1) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH2Assign2) ? kEncoding_output_assignment :
-        (address == kParamCH2PWM2) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH2Assign3) ? kEncoding_output_assignment :
-        (address == kParamCH2PWM3) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH2Assign4) ? kEncoding_output_assignment :
-        (address == kParamCH2PWM4) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH3Assign1) ? kEncoding_output_assignment :
-        (address == kParamCH3PWM1) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH3Assign2) ? kEncoding_output_assignment :
-        (address == kParamCH3PWM2) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH3Assign3) ? kEncoding_output_assignment :
-        (address == kParamCH3PWM3) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH3Assign4) ? kEncoding_output_assignment :
-        (address == kParamCH3PWM4) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH4Assign1) ? kEncoding_output_assignment :
-        (address == kParamCH4PWM1) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH4Assign2) ? kEncoding_output_assignment :
-        (address == kParamCH4PWM2) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH4Assign3) ? kEncoding_output_assignment :
-        (address == kParamCH4PWM3) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH4Assign4) ? kEncoding_output_assignment :
-        (address == kParamCH4PWM4) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH5Assign1) ? kEncoding_output_assignment :
-        (address == kParamCH5PWM1) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH5Assign2) ? kEncoding_output_assignment :
-        (address == kParamCH5PWM2) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH5Assign3) ? kEncoding_output_assignment :
-        (address == kParamCH5PWM3) ? kEncoding_pwm_duty_cycle :
-        (address == kParamCH5Assign4) ? kEncoding_output_assignment :
-        (address == kParamCH5PWM4) ? kEncoding_pwm_duty_cycle :
-        kEncoding_none),
-        param_default);
-}
 
 // explicit parameter subclasses for PowerV3
 

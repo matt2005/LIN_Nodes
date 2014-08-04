@@ -798,6 +798,46 @@ Encoding::info(uint8_t index, uint16_t value)
 namespace Generic
 {
 
+// parameter factory for Generic
+Parameter
+parameter(Parameter::Address address)
+{
+    uint8_t encoding = kEncoding_none;
+    switch (address) {
+    case kParamProtocolVersion:
+        break;
+    case kParamBoardFunction:
+        break;
+    case kParamBootloaderMode:
+        break;
+    case kParamFirmwareVersion:
+        break;
+    case kParamFirmwarePageSize:
+        break;
+    case kParamWatchdogResets:
+        break;
+    case kParamSupplyVoltage:
+        break;
+    case kParamTemperature:
+        break;
+    case kParamLine:
+        break;
+    case kParamChecksum:
+        break;
+    case kParamParity:
+        break;
+    case kParamFraming:
+        break;
+    case kParamSynch:
+        break;
+    case kParamProtocol:
+        break;
+    default:
+        address = Parameter::noAddress;
+    }
+    return Parameter(address, encoding, param_default);
+}
+
 void param_default(const Parameter &param)
 {
     uint16_t value;
@@ -864,6 +904,105 @@ param_name(const Parameter &param)
 
 namespace Master
 {
+
+// parameter factory for Master
+Parameter
+parameter(Parameter::Address address)
+{
+    uint8_t encoding = kEncoding_none;
+    switch (address) {
+    case kParamSP1Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSP2Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSP3Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSP4Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSP5Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSP6Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSP7Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG0Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG1Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG2Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG3Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG4Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG5Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG6Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG7Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG8Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG9Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG10Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG11Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG12Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamSG13Assign:
+        encoding = kEncoding_input;
+        break;
+    case kParamTurnBlinkPeriod:
+        encoding = kEncoding_msec;
+        break;
+    case kParamPassingBlinkCount:
+        encoding = kEncoding_up_to_10;
+        break;
+    case kParamPathLightTime:
+        encoding = kEncoding_sec;
+        break;
+    case kParamInteriorLightTime:
+        encoding = kEncoding_sec;
+        break;
+    case kParamWelcomeLightTime:
+        encoding = kEncoding_sec;
+        break;
+    case kParamBrakeBlinkPeriod:
+        encoding = kEncoding_msec;
+        break;
+    case kParamBrakeBlinkCount:
+        encoding = kEncoding_up_to_10;
+        break;
+    case kParamWiperInterval:
+        encoding = kEncoding_msec;
+        break;
+    default:
+        address = Parameter::noAddress;
+    }
+    return Parameter(address, encoding, param_default);
+}
 
 void param_default(const Parameter &param)
 {
@@ -1064,6 +1203,42 @@ param_name(const Parameter &param)
 namespace PowerV1
 {
 
+// parameter factory for PowerV1
+Parameter
+parameter(Parameter::Address address)
+{
+    uint8_t encoding = kEncoding_none;
+    switch (address) {
+    case kParamRelay1Status:
+        encoding = kEncoding_v1_output_status;
+        break;
+    case kParamRelay2Status:
+        encoding = kEncoding_v1_output_status;
+        break;
+    case kParamRelay3Status:
+        encoding = kEncoding_v1_output_status;
+        break;
+    case kParamRelay4Status:
+        encoding = kEncoding_v1_output_status;
+        break;
+    case kParamRelay1Assign:
+        encoding = kEncoding_v1_output_assignment;
+        break;
+    case kParamRelay2Assign:
+        encoding = kEncoding_v1_output_assignment;
+        break;
+    case kParamRelay3Assign:
+        encoding = kEncoding_v1_output_assignment;
+        break;
+    case kParamRelay4Assign:
+        encoding = kEncoding_v1_output_assignment;
+        break;
+    default:
+        address = Parameter::noAddress;
+    }
+    return Parameter(address, encoding, param_default);
+}
+
 void param_default(const Parameter &param)
 {
     uint16_t value;
@@ -1136,6 +1311,168 @@ param_name(const Parameter &param)
 
 namespace PowerV3
 {
+
+// parameter factory for PowerV3
+Parameter
+parameter(Parameter::Address address)
+{
+    uint8_t encoding = kEncoding_none;
+    switch (address) {
+    case kParamCH1Status:
+        encoding = kEncoding_v3_output_status;
+        break;
+    case kParamCH2Status:
+        encoding = kEncoding_v3_output_status;
+        break;
+    case kParamCH3Status:
+        encoding = kEncoding_v3_output_status;
+        break;
+    case kParamCH4Status:
+        encoding = kEncoding_v3_output_status;
+        break;
+    case kParamCH5Status:
+        encoding = kEncoding_v3_output_status;
+        break;
+    case kParamCH1Type:
+        encoding = kEncoding_output_type;
+        break;
+    case kParamCH2Type:
+        encoding = kEncoding_output_type;
+        break;
+    case kParamCH3Type:
+        encoding = kEncoding_output_type;
+        break;
+    case kParamCH4Type:
+        encoding = kEncoding_output_type;
+        break;
+    case kParamCH5Type:
+        encoding = kEncoding_output_type;
+        break;
+    case kParamCH1Assign1:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH1PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH1Assign2:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH1PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH1Assign3:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH1PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH1Assign4:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH1PWM4:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH2Assign1:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH2PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH2Assign2:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH2PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH2Assign3:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH2PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH2Assign4:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH2PWM4:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH3Assign1:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH3PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH3Assign2:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH3PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH3Assign3:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH3PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH3Assign4:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH3PWM4:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH4Assign1:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH4PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH4Assign2:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH4PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH4Assign3:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH4PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH4Assign4:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH4PWM4:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH5Assign1:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH5PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH5Assign2:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH5PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH5Assign3:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH5PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH5Assign4:
+        encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH5PWM4:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    default:
+        address = Parameter::noAddress;
+    }
+    return Parameter(address, encoding, param_default);
+}
 
 void param_default(const Parameter &param)
 {

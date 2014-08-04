@@ -46,6 +46,7 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -O2				\
 		   -funsigned-char		\
 		   -funsigned-bitfields		\
+		   -fno-inline-small-functions	\
 		   -fshort-enums		\
 		   -fno-stack-protector		\
 		   -ffreestanding		\

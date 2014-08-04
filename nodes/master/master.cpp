@@ -253,8 +253,9 @@ bool
 MasterNode::st_read_data(Parameter::Address address, uint16_t &value)
 {
     // Handle node parameters
-    if (Master::parameter(address).exists()) {
-        value = Master::parameter(address);
+    Parameter p = Master::parameter(address);
+    if (p.exists()) {
+        value = p;
         return true;
     }
 
@@ -265,8 +266,9 @@ MasterNode::st_read_data(Parameter::Address address, uint16_t &value)
 bool
 MasterNode::st_write_data(Parameter::Address address, uint16_t value)
 {
-    if (Master::parameter(address).exists()) {
-        Master::parameter(address) = value;
+    Parameter p = Master::parameter(address);
+    if (p.exists()) {
+        p = value;
         return true;
     }
 

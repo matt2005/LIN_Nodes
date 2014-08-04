@@ -133,9 +133,9 @@ node Master {
             length = 8;
             frame_id = 0x3c;
             signals {
-                nad             { init_value = 0; size = 8; offset = 0; }
+                nad             { init_value = 0; size = 8; offset = 0; node_address; }
                 length          { init_value = 0; size = 4; offset = 8; }
-                pci             { init_value = 0; size = 4; offset = 12; }
+                pci             { init_value = 0; size = 4; offset = 12; pci; }
                 sid             { init_value = 0; size = 8; offset = 16; service_id; }
                 d1              { init_value = 0; size = 8; offset = 24; }
                 d2              { init_value = 0; size = 8; offset = 32; }
@@ -217,6 +217,17 @@ node Master {
             logical_value, 0, "Disabled";
             physical_value, 1, 10, 1, 0; 
         }
+        node_address {
+            logical_value, 0, "Sleep";
+            physical_value, 1, 125, 0, 0;
+            logical_value, 126, "Functional";
+            logical_value, 127, "Broadcast";
+        }
+        pci {
+            logical_value, 0, "SingleFrame";
+            logical_value, 1, "FirstFrame";
+            logical_value, 2, "ContiuationFrame";
+        }
         service_id {
             logical_value, 0x22, "ReadDataByID";      
             logical_value, 0x2e, "WriteDataByID";     
@@ -224,6 +235,15 @@ node Master {
             logical_value, 0xb2, "ReadByID";          
             logical_value, 0xb4, "DataDump";          
             logical_value, 0x7f, "ErrorResponse";     
+        }
+        // written to the D2 signal for error replies
+        service_error {
+            logical_value, 0x12, "FunctionNotSupported";
+            logical_value, 0x13, "IncorrectLength";
+            logical_value, 0x22, "ConditionsNotCorrect";
+            logical_value, 0x31, "OutOfRange";
+            logical_value, 0x33, "AccessDenied";
+            logical_value, 0x72, "GeneralFailure";
         }
     }
 }
@@ -246,13 +266,22 @@ node PowerV1 {
         subscribe Relays {}
     }
     parameters {
-        Relay1Assign    { init_value = 0; address = 0x0400; output_assignment; }
-        Relay2Assign    { init_value = 0; address = 0x0401; output_assignment; }
-        Relay3Assign    { init_value = 0; address = 0x0402; output_assignment; }
-        Relay4Assign    { init_value = 0; address = 0x0403; output_assignment; }
+        Relay1Status    { init_value = 0; address = 0x0300; v1_output_status; }
+        Relay2Status    { init_value = 0; address = 0x0301; v1_output_status; }
+        Relay3Status    { init_value = 0; address = 0x0302; v1_output_status; }
+        Relay4Status    { init_value = 0; address = 0x0303; v1_output_status; }
+
+        Relay1Assign    { init_value = 0; address = 0x0400; v1_output_assignment; }
+        Relay2Assign    { init_value = 0; address = 0x0401; v1_output_assignment; }
+        Relay3Assign    { init_value = 0; address = 0x0402; v1_output_assignment; }
+        Relay4Assign    { init_value = 0; address = 0x0403; v1_output_assignment; }
     }
     encoding {
-        output_assignment {
+        v1_output_status {
+            logical_value, 0, "OK";
+            logical_value, 1, "Fault";
+        }
+        v1_output_assignment {
             logical_value, 0, "Unassigned";
             logical_value, 1, "Ignition";
             logical_value, 2, "Start";
@@ -299,6 +328,12 @@ node PowerV3 {
         subscribe Relays {}
     }
     parameters {
+        CH1Status   { init_value = 0;   address = 0x0300; v3_output_status; }
+        CH2Status   { init_value = 0;   address = 0x0301; v3_output_status; }
+        CH3Status   { init_value = 0;   address = 0x0302; v3_output_status; }
+        CH4Status   { init_value = 0;   address = 0x0303; v3_output_status; }
+        CH5Status   { init_value = 0;   address = 0x0304; v3_output_status; }
+
         CH1Type     { init_value = 0;   address = 0x0400; output_type; }
         CH2Type     { init_value = 0;   address = 0x0401; output_type; }
         CH3Type     { init_value = 0;   address = 0x0402; output_type; }
@@ -351,6 +386,14 @@ node PowerV3 {
         CH5PWM4     { init_value = 0;   address = 0x0457; pwm_duty_cycle; }
     }
     encoding {
+        v3_output_status {
+            logical_value, 0, "OK";
+            logical_value, 1, "OpenCircuit";
+            logical_value, 2, "OverCurrent";
+            logical_value, 3, "OverTemperature";
+            logical_value, 4, "ShortToGround";
+            logical_value, 5, "ShortToBattery";
+        }
         output_type {
             logical_value, 0, "5AGeneric";
             logical_value, 1, "10AGeneric";

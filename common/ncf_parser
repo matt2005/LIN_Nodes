@@ -47,6 +47,7 @@ namespace eval util {
     proc wrap {cmd msg} {
         global throwInfo
 
+        puts "$msg"
         set code [catch {uplevel 1 $cmd} result options]
         switch -- $code {
             100 {
@@ -83,8 +84,6 @@ namespace eval util {
     # Format an error from pt::rde over the given source
     #
     proc throw_rde_error {src msg} {
-
-        puts "argh: $msg"
 
         if {[string first "pt::rde" $msg] < 0} {
             util::throw $msg
@@ -134,6 +133,10 @@ namespace eval encoding {
         variable by_name
 
         util::wrap {
+
+            if {[exists $name]} {
+                util::throw "encoding '$name' multiply defined"
+            }
 
             # Each encoding is represented as a list of dictionaries
             dict set by_name $name [list]
@@ -215,6 +218,26 @@ namespace eval encoding {
             incr index
         }
         puts $fh "static const uint8_t kEncoding_none = 0xff;"       
+
+        # Constants for all logical values
+        #
+        dict for {name encinfo} $by_name {
+            puts $fh ""
+            puts $fh "namespace ${name}"
+            puts $fh "{"
+            foreach subencoding $encinfo {
+                dict with subencoding {
+                    switch -- $kind {
+                        "value" {
+                            if {$description != {}} {
+                                puts $fh "static const uint16_t k${description} = ${value};"
+                            }
+                        }
+                    }
+                }
+            }
+            puts $fh "} // namespace ${name}"
+        }
     }
 
     proc emit_def {fh} {
@@ -266,31 +289,17 @@ namespace eval encoding {
         # String tables for encoding names, info strings, etc.
         #
         puts $fh ""
-        puts $fh "static const PROGMEM char _encoding_names\[\] = "
-        set offset 0
-        set name_offsets [list]
         dict for {name encinfo} $by_name {
             # encoding name
-            puts $fh "    \"${name}\\0\""
-            lappend name_offsets $offset
-            incr offset [expr [string length $name] + 1]
-        }
-        puts $fh "    \"\\0\";"
-
-        puts $fh ""
-        puts $fh "static const PROGMEM char _encoding_infos\[\] = "
-        set offset 0
-        set info_offsets [list]
-        dict for {name encinfo} $by_name {
+            puts $fh "static const PROGMEM char _encoding_name_${name}\[\] = \"${name}\";"
             # subencoding info strings
+            set index 0
             foreach subencoding $encinfo {
                 set description [dict get $subencoding description]
-                puts $fh "    \"${description}\\0\""
-                lappend info_offsets $offset
-                incr offset [expr [string length $description] + 1]
+                puts $fh "static const PROGMEM char _encoding_info_${name}_${index}\[\] = \"${description}\";"
+                incr index;
             }
         }
-        puts $fh "    \"\\0\";"
 
         # Lookup function that can turn an encoding index as supplied to parameters,
         # signal definitions, etc into an encoding name.
@@ -301,9 +310,8 @@ namespace eval encoding {
         puts $fh "{"
         puts $fh "    switch (index) {"
         foreach name [dict keys $by_name] {
-            set name_offsets [lassign $name_offsets offset]
             puts $fh "    case kEncoding_${name}:"
-            puts $fh "        return &_encoding_names\[${offset}\];"
+            puts $fh "        return &_encoding_name_${name}\[0\];"
         }
         puts $fh "    }"
         puts $fh "    return nullptr;"
@@ -321,6 +329,7 @@ namespace eval encoding {
         dict for {name encinfo} $by_name {
             puts $fh "    case kEncoding_${name}:"
             puts $fh "        switch (value) {"
+            set index 0
             foreach subencoding $encinfo {
                 dict with subencoding {
                     switch -- $kind {
@@ -331,10 +340,10 @@ namespace eval encoding {
                             puts $fh "        case ${value}:"
                         }
                     }
-                    set info_offsets [lassign $info_offsets offset]
-                    puts $fh "            info = &_encoding_infos\[${offset}\];"
+                    puts $fh "            info = &_encoding_info_${name}_${index}\[0\];"
                     puts $fh "            break;"
                 }
+                incr index
             }
             puts $fh "        }"
             puts $fh "        break;"
@@ -675,14 +684,27 @@ namespace eval parameter {
             puts $fh "    }"
             puts $fh "    param.set(value);"
             puts $fh "}"
-            puts $fh ""
 
+            # String table for parameter names
+            #
             puts $fh ""
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                puts $fh "static const PROGMEM char _param_name_${pname}\[\] = \"${pname}\";"
+            }
+
             puts $fh ""
             puts $fh "const PROGMEM char *"
             puts $fh "param_name(const Parameter &param)"
             puts $fh "{"
-            puts $fh ""
+            puts $fh "    switch (param.address()) {"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                puts $fh "    case kParam${pname}:"
+                puts $fh "        return &_param_name_${pname}\[0\];"
+            }
+            puts $fh "    }"
+            puts $fh "    return nullptr;"
             puts $fh "}"
             puts $fh ""
 

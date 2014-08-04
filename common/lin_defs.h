@@ -12,21 +12,215 @@ static const uint8_t kEncoding_input = 0;
 static const uint8_t kEncoding_msec = 1;
 static const uint8_t kEncoding_sec = 2;
 static const uint8_t kEncoding_up_to_10 = 3;
-static const uint8_t kEncoding_service_id = 4;
-static const uint8_t kEncoding_output_assignment = 5;
-static const uint8_t kEncoding_output_type = 6;
-static const uint8_t kEncoding_pwm_duty_cycle = 7;
-static const uint8_t kEncoding_RPM = 8;
-static const uint8_t kEncoding_PSI = 9;
-static const uint8_t kEncoding_F = 10;
-static const uint8_t kEncoding_V = 11;
-static const uint8_t kEncoding_lambda = 12;
-static const uint8_t kEncoding_MPH = 13;
+static const uint8_t kEncoding_node_address = 4;
+static const uint8_t kEncoding_pci = 5;
+static const uint8_t kEncoding_service_id = 6;
+static const uint8_t kEncoding_service_error = 7;
+static const uint8_t kEncoding_v1_output_status = 8;
+static const uint8_t kEncoding_v1_output_assignment = 9;
+static const uint8_t kEncoding_v3_output_status = 10;
+static const uint8_t kEncoding_output_type = 11;
+static const uint8_t kEncoding_output_assignment = 12;
+static const uint8_t kEncoding_pwm_duty_cycle = 13;
+static const uint8_t kEncoding_RPM = 14;
+static const uint8_t kEncoding_PSI = 15;
+static const uint8_t kEncoding_F = 16;
+static const uint8_t kEncoding_V = 17;
+static const uint8_t kEncoding_lambda = 18;
+static const uint8_t kEncoding_MPH = 19;
 static const uint8_t kEncoding_none = 0xff;
 
-typedef Signal<uint8_t, 0, 8, kEncoding_none> signal_nad;
+namespace input
+{
+static const uint16_t kUnassigned = 0;
+static const uint16_t kIgnition = 1;
+static const uint16_t kStart = 2;
+static const uint16_t kMarkerLight = 3;
+static const uint16_t kHeadLights = 4;
+static const uint16_t kHighBeam = 5;
+static const uint16_t kHighBeamToggle = 6;
+static const uint16_t kFogLight = 7;
+static const uint16_t kLeftTurn = 8;
+static const uint16_t kRightTurn = 9;
+static const uint16_t kBrake = 10;
+static const uint16_t kReverse = 11;
+static const uint16_t kDoor = 12;
+static const uint16_t kInteriorLight = 13;
+static const uint16_t kHazard = 14;
+static const uint16_t kDoorUnlock = 15;
+static const uint16_t kLightsUp = 16;
+static const uint16_t kCabinFan1 = 17;
+static const uint16_t kCabinFan2 = 18;
+static const uint16_t kCabinFan3 = 19;
+static const uint16_t kWiperInt = 20;
+static const uint16_t kWiperLow = 21;
+static const uint16_t kWiperHigh = 22;
+static const uint16_t kRearDefrost = 23;
+} // namespace input
+
+namespace msec
+{
+static const uint16_t kDisabled = 0;
+} // namespace msec
+
+namespace sec
+{
+static const uint16_t kDisabled = 0;
+} // namespace sec
+
+namespace up_to_10
+{
+static const uint16_t kDisabled = 0;
+} // namespace up_to_10
+
+namespace node_address
+{
+static const uint16_t kSleep = 0;
+static const uint16_t kFunctional = 126;
+static const uint16_t kBroadcast = 127;
+} // namespace node_address
+
+namespace pci
+{
+static const uint16_t kSingleFrame = 0;
+static const uint16_t kFirstFrame = 1;
+static const uint16_t kContiuationFrame = 2;
+} // namespace pci
+
+namespace service_id
+{
+static const uint16_t kReadDataByID = 0x22;
+static const uint16_t kWriteDataByID = 0x2e;
+static const uint16_t kTesterPresent = 0x3e;
+static const uint16_t kReadByID = 0xb2;
+static const uint16_t kDataDump = 0xb4;
+static const uint16_t kErrorResponse = 0x7f;
+} // namespace service_id
+
+namespace service_error
+{
+static const uint16_t kFunctionNotSupported = 0x12;
+static const uint16_t kIncorrectLength = 0x13;
+static const uint16_t kConditionsNotCorrect = 0x22;
+static const uint16_t kOutOfRange = 0x31;
+static const uint16_t kAccessDenied = 0x33;
+static const uint16_t kGeneralFailure = 0x72;
+} // namespace service_error
+
+namespace v1_output_status
+{
+static const uint16_t kOK = 0;
+static const uint16_t kFault = 1;
+} // namespace v1_output_status
+
+namespace v1_output_assignment
+{
+static const uint16_t kUnassigned = 0;
+static const uint16_t kIgnition = 1;
+static const uint16_t kStart = 2;
+static const uint16_t kLightsUp = 3;
+static const uint16_t kLightsDown = 4;
+static const uint16_t kHeadLights = 5;
+static const uint16_t kLowBeam = 6;
+static const uint16_t kHighBeam = 7;
+static const uint16_t kFogLights = 8;
+static const uint16_t kMarkers = 9;
+static const uint16_t kLeftTurn = 10;
+static const uint16_t kLeftTurnMarker = 11;
+static const uint16_t kRightTurn = 12;
+static const uint16_t kRightTurnMarker = 13;
+static const uint16_t kBrake = 14;
+static const uint16_t kReverse = 15;
+static const uint16_t kInteriorLight = 16;
+static const uint16_t kCabinFan1 = 17;
+static const uint16_t kCabinFan2 = 18;
+static const uint16_t kCabinFan3 = 19;
+static const uint16_t kCabinFan4 = 20;
+static const uint16_t kWiperLow = 21;
+static const uint16_t kWiperHigh = 22;
+static const uint16_t kRearDefrost = 23;
+} // namespace v1_output_assignment
+
+namespace v3_output_status
+{
+static const uint16_t kOK = 0;
+static const uint16_t kOpenCircuit = 1;
+static const uint16_t kOverCurrent = 2;
+static const uint16_t kOverTemperature = 3;
+static const uint16_t kShortToGround = 4;
+static const uint16_t kShortToBattery = 5;
+} // namespace v3_output_status
+
+namespace output_type
+{
+static const uint16_t k5AGeneric = 0;
+static const uint16_t k10AGeneric = 1;
+static const uint16_t kLED = 2;
+static const uint16_t kHID = 3;
+static const uint16_t kLowPowerBulb = 4;
+static const uint16_t kHighPowerBulb = 5;
+static const uint16_t kMotor = 6;
+} // namespace output_type
+
+namespace output_assignment
+{
+static const uint16_t kUnassigned = 0;
+static const uint16_t kIgnition = 1;
+static const uint16_t kStart = 2;
+static const uint16_t kLightsUp = 3;
+static const uint16_t kLightsDown = 4;
+static const uint16_t kHeadLights = 5;
+static const uint16_t kLowBeam = 6;
+static const uint16_t kHighBeam = 7;
+static const uint16_t kFogLights = 8;
+static const uint16_t kMarkers = 9;
+static const uint16_t kLeftTurn = 10;
+static const uint16_t kLeftTurnMarker = 11;
+static const uint16_t kRightTurn = 12;
+static const uint16_t kRightTurnMarker = 13;
+static const uint16_t kBrake = 14;
+static const uint16_t kReverse = 15;
+static const uint16_t kInteriorLight = 16;
+static const uint16_t kCabinFan1 = 17;
+static const uint16_t kCabinFan2 = 18;
+static const uint16_t kCabinFan3 = 19;
+static const uint16_t kCabinFan4 = 20;
+static const uint16_t kWiperLow = 21;
+static const uint16_t kWiperHigh = 22;
+static const uint16_t kRearDefrost = 23;
+} // namespace output_assignment
+
+namespace pwm_duty_cycle
+{
+} // namespace pwm_duty_cycle
+
+namespace RPM
+{
+} // namespace RPM
+
+namespace PSI
+{
+} // namespace PSI
+
+namespace F
+{
+} // namespace F
+
+namespace V
+{
+} // namespace V
+
+namespace lambda
+{
+} // namespace lambda
+
+namespace MPH
+{
+} // namespace MPH
+
+typedef Signal<uint8_t, 0, 8, kEncoding_node_address> signal_nad;
 typedef Signal<uint8_t, 8, 4, kEncoding_none> signal_length;
-typedef Signal<uint8_t, 12, 4, kEncoding_none> signal_pci;
+typedef Signal<uint8_t, 12, 4, kEncoding_pci> signal_pci;
 typedef Signal<uint8_t, 16, 8, kEncoding_service_id> signal_sid;
 typedef Signal<uint8_t, 24, 8, kEncoding_none> signal_d1;
 typedef Signal<uint8_t, 32, 8, kEncoding_none> signal_d2;
@@ -447,6 +641,10 @@ namespace PowerV1
 extern void param_default(const Parameter &param);
 extern const PROGMEM char *param_name(const Parameter &param);
 
+static const uint16_t kParamRelay1Status = 0x0300;
+static const uint16_t kParamRelay2Status = 0x0301;
+static const uint16_t kParamRelay3Status = 0x0302;
+static const uint16_t kParamRelay4Status = 0x0303;
 static const uint16_t kParamRelay1Assign = 0x0400;
 static const uint16_t kParamRelay2Assign = 0x0401;
 static const uint16_t kParamRelay3Assign = 0x0402;
@@ -457,39 +655,67 @@ constexpr Parameter
 parameter(Parameter::Address address)
 {
     return Parameter((
+        (address == kParamRelay1Status) ? address :
+        (address == kParamRelay2Status) ? address :
+        (address == kParamRelay3Status) ? address :
+        (address == kParamRelay4Status) ? address :
         (address == kParamRelay1Assign) ? address :
         (address == kParamRelay2Assign) ? address :
         (address == kParamRelay3Assign) ? address :
         (address == kParamRelay4Assign) ? address :
         Parameter::noAddress), (
-        (address == kParamRelay1Assign) ? kEncoding_output_assignment :
-        (address == kParamRelay2Assign) ? kEncoding_output_assignment :
-        (address == kParamRelay3Assign) ? kEncoding_output_assignment :
-        (address == kParamRelay4Assign) ? kEncoding_output_assignment :
+        (address == kParamRelay1Status) ? kEncoding_v1_output_status :
+        (address == kParamRelay2Status) ? kEncoding_v1_output_status :
+        (address == kParamRelay3Status) ? kEncoding_v1_output_status :
+        (address == kParamRelay4Status) ? kEncoding_v1_output_status :
+        (address == kParamRelay1Assign) ? kEncoding_v1_output_assignment :
+        (address == kParamRelay2Assign) ? kEncoding_v1_output_assignment :
+        (address == kParamRelay3Assign) ? kEncoding_v1_output_assignment :
+        (address == kParamRelay4Assign) ? kEncoding_v1_output_assignment :
         kEncoding_none),
         param_default);
 }
 
 // explicit parameter subclasses for PowerV1
+class ParamRelay1Status : public Parameter
+{
+public:
+    constexpr ParamRelay1Status() : Parameter(kParamRelay1Status, kEncoding_v1_output_status, param_default) {}
+};
+class ParamRelay2Status : public Parameter
+{
+public:
+    constexpr ParamRelay2Status() : Parameter(kParamRelay2Status, kEncoding_v1_output_status, param_default) {}
+};
+class ParamRelay3Status : public Parameter
+{
+public:
+    constexpr ParamRelay3Status() : Parameter(kParamRelay3Status, kEncoding_v1_output_status, param_default) {}
+};
+class ParamRelay4Status : public Parameter
+{
+public:
+    constexpr ParamRelay4Status() : Parameter(kParamRelay4Status, kEncoding_v1_output_status, param_default) {}
+};
 class ParamRelay1Assign : public Parameter
 {
 public:
-    constexpr ParamRelay1Assign() : Parameter(kParamRelay1Assign, kEncoding_output_assignment, param_default) {}
+    constexpr ParamRelay1Assign() : Parameter(kParamRelay1Assign, kEncoding_v1_output_assignment, param_default) {}
 };
 class ParamRelay2Assign : public Parameter
 {
 public:
-    constexpr ParamRelay2Assign() : Parameter(kParamRelay2Assign, kEncoding_output_assignment, param_default) {}
+    constexpr ParamRelay2Assign() : Parameter(kParamRelay2Assign, kEncoding_v1_output_assignment, param_default) {}
 };
 class ParamRelay3Assign : public Parameter
 {
 public:
-    constexpr ParamRelay3Assign() : Parameter(kParamRelay3Assign, kEncoding_output_assignment, param_default) {}
+    constexpr ParamRelay3Assign() : Parameter(kParamRelay3Assign, kEncoding_v1_output_assignment, param_default) {}
 };
 class ParamRelay4Assign : public Parameter
 {
 public:
-    constexpr ParamRelay4Assign() : Parameter(kParamRelay4Assign, kEncoding_output_assignment, param_default) {}
+    constexpr ParamRelay4Assign() : Parameter(kParamRelay4Assign, kEncoding_v1_output_assignment, param_default) {}
 };
 
 } // namespace PowerV1
@@ -499,6 +725,11 @@ namespace PowerV3
 extern void param_default(const Parameter &param);
 extern const PROGMEM char *param_name(const Parameter &param);
 
+static const uint16_t kParamCH1Status = 0x0300;
+static const uint16_t kParamCH2Status = 0x0301;
+static const uint16_t kParamCH3Status = 0x0302;
+static const uint16_t kParamCH4Status = 0x0303;
+static const uint16_t kParamCH5Status = 0x0304;
 static const uint16_t kParamCH1Type = 0x0400;
 static const uint16_t kParamCH2Type = 0x0401;
 static const uint16_t kParamCH3Type = 0x0402;
@@ -550,6 +781,11 @@ constexpr Parameter
 parameter(Parameter::Address address)
 {
     return Parameter((
+        (address == kParamCH1Status) ? address :
+        (address == kParamCH2Status) ? address :
+        (address == kParamCH3Status) ? address :
+        (address == kParamCH4Status) ? address :
+        (address == kParamCH5Status) ? address :
         (address == kParamCH1Type) ? address :
         (address == kParamCH2Type) ? address :
         (address == kParamCH3Type) ? address :
@@ -596,6 +832,11 @@ parameter(Parameter::Address address)
         (address == kParamCH5Assign4) ? address :
         (address == kParamCH5PWM4) ? address :
         Parameter::noAddress), (
+        (address == kParamCH1Status) ? kEncoding_v3_output_status :
+        (address == kParamCH2Status) ? kEncoding_v3_output_status :
+        (address == kParamCH3Status) ? kEncoding_v3_output_status :
+        (address == kParamCH4Status) ? kEncoding_v3_output_status :
+        (address == kParamCH5Status) ? kEncoding_v3_output_status :
         (address == kParamCH1Type) ? kEncoding_output_type :
         (address == kParamCH2Type) ? kEncoding_output_type :
         (address == kParamCH3Type) ? kEncoding_output_type :
@@ -646,6 +887,31 @@ parameter(Parameter::Address address)
 }
 
 // explicit parameter subclasses for PowerV3
+class ParamCH1Status : public Parameter
+{
+public:
+    constexpr ParamCH1Status() : Parameter(kParamCH1Status, kEncoding_v3_output_status, param_default) {}
+};
+class ParamCH2Status : public Parameter
+{
+public:
+    constexpr ParamCH2Status() : Parameter(kParamCH2Status, kEncoding_v3_output_status, param_default) {}
+};
+class ParamCH3Status : public Parameter
+{
+public:
+    constexpr ParamCH3Status() : Parameter(kParamCH3Status, kEncoding_v3_output_status, param_default) {}
+};
+class ParamCH4Status : public Parameter
+{
+public:
+    constexpr ParamCH4Status() : Parameter(kParamCH4Status, kEncoding_v3_output_status, param_default) {}
+};
+class ParamCH5Status : public Parameter
+{
+public:
+    constexpr ParamCH5Status() : Parameter(kParamCH5Status, kEncoding_v3_output_status, param_default) {}
+};
 class ParamCH1Type : public Parameter
 {
 public:

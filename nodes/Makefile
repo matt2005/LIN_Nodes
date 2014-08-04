@@ -1,6 +1,5 @@
 SRCROOT		:= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-#DIRS		 = $(dir $(wildcard $(SRCROOT)/*/Makefile))
-DIRS		 = master
+DIRS		 = $(dir $(wildcard $(SRCROOT)/*/Makefile))
 MAKECMDGOALS	?= build
 
 DIR_GOALS	:= $(filter-out reformat,$(MAKECMDGOALS))

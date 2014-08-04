@@ -16,13 +16,13 @@
 #pragma once
 
 #include "lin_dev.h"
-#include "lin_protocol.h"
 #include "timer.h"
 #include "board.h"
+ 
 class Slave : public LINDev
 {
 public:
-    Slave(LIN::NodeAddress nad, bool polled = kLINDevInterrupts);
+    Slave(uint8_t nad, bool polled = kLINDevInterrupts);
 
     virtual void    tick() override;
     bool            is_awake() const { return !_lastActivity.is_older_than(100); }
@@ -35,10 +35,10 @@ protected:
     };
     static const uint16_t kIdleTimeout = 4000;  //< 4 seconds
 
-    LIN::NodeAddress _nad;               //< node address 
+    uint8_t _nad;               //< node address 
 
     virtual void    st_header_received() override;
-    virtual void    st_response_received(LIN::Frame &frame) override;
+    virtual void    st_response_received(Response &frame) override;
 
     /// Called when the network is told to sleep.
     ///
@@ -57,15 +57,15 @@ protected:
     /// @return                 If true, the (modified) frame should be sent
     ///                         as a slave response.
     ///
-    virtual bool    st_master_request(LIN::Frame &frame);
+    virtual bool    st_master_request(Response &frame);
 
     /// Prepare a response to the LIN::kSlaveResponse message.
     ///
     /// @param frame            The frame to send in response.
     ///
-    void            st_slave_response(const LIN::Frame &frame) 
+    void            st_slave_response(const Response &frame) 
     {
-        _response.copy(frame);
+        _response = frame;
         _sendSlaveResponse = true;
     }
 
@@ -73,27 +73,29 @@ protected:
     ///
     /// The default handler deals with requests for page 0 and some fields in page 1.
     ///
-    /// @param page             Data page being read
-    /// @param index            Data index to be read.
-    /// @param value            The parameter's current value.
-    /// @return                 True if the parameter is supported and the value has
+    /// @param addresss         address being read
+    /// @param value            the parameter's current value.
+    /// @return                 true if the parameter is supported and the value has
     ///                         been returned.
     ///
-    virtual bool            st_read_data(uint8_t page, uint8_t index, uint16_t &value);
+    virtual bool    st_read_data(Parameter::Address, uint16_t &value);
 
     /// Handler for kServiceIDWriteDataByID
     ///
-    /// @param page             Data page being written
-    /// @param index            Data index to be written
-    /// @param value            Value to be written.
-    /// @return                 True if the data was accepted (note that not all
+    /// @param address          address being written
+    /// @param value            value to be written.
+    /// @return                 true if the data was accepted (note that not all
     ///                         writes check errors, data must be read back to be sure).
     ///
-    virtual bool            st_write_data(uint8_t page, uint8_t index, uint16_t value);
+    virtual bool    st_write_data(Parameter::Address, uint16_t value);
+
+    /// Reformat a service request as an error response
+    ///
+    static void     st_error_response(Response &frame, uint8_t err);
 
 private:
     Timestamp       _lastActivity;      //< Bus idle timer
-    LIN::Frame      _response;          //< canned response frame
+    Response        _response;          //< canned response frame
 
     bool            _sendSlaveResponse:1;
 

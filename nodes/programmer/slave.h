@@ -37,9 +37,9 @@ public:
 
 protected:
     virtual void    st_header_received() override;
-    virtual void    st_response_received(LIN::Frame &frame) override;
+    virtual void    st_response_received(Response &frame) override;
     virtual void    st_sleep_requested(SleepType type) override;
-    virtual bool    st_master_request(LIN::Frame &frame) override;
+    virtual bool    st_master_request(Response &frame) override;
 
 private:
     enum State : uint8_t {

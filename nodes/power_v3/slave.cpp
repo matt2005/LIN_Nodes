@@ -14,7 +14,7 @@
 #include "param_power_v3.h"
 
 RelaySlave::RelaySlave(uint8_t BoardID) :
-    Slave(LIN::NodeAddress(LIN::kNodeAddressPowerBase + BoardID - 1))
+    Slave(uint8_t(LIN::kNodeAddressPowerBase + BoardID - 1))
 {
 }
 
@@ -22,7 +22,7 @@ void
 RelaySlave::st_header_received()
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDRelays:
+    case kFrameIDRelays:
         st_expect_response();
         break;
 
@@ -33,11 +33,11 @@ RelaySlave::st_header_received()
 }
 
 void
-RelaySlave::st_response_received(LIN::Frame &frame)
+RelaySlave::st_response_received(Response &frame)
 {
     switch (current_FrameID()) {
 
-    case LIN::kFrameIDRelays:
+    case kFrameIDRelays:
         relayFrame.copy(frame);
         break;
 

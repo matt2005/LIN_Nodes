@@ -161,7 +161,7 @@ static const PROGMEM char _encoding_name_input[] = "input";
 static const PROGMEM char _encoding_info_input_0[] = "Unassigned";
 static const PROGMEM char _encoding_info_input_1[] = "Ignition";
 static const PROGMEM char _encoding_info_input_2[] = "Start";
-static const PROGMEM char _encoding_info_input_3[] = "MarkerLight";
+static const PROGMEM char _encoding_info_input_3[] = "MarkerLights";
 static const PROGMEM char _encoding_info_input_4[] = "HeadLights";
 static const PROGMEM char _encoding_info_input_5[] = "HighBeam";
 static const PROGMEM char _encoding_info_input_6[] = "HighBeamToggle";
@@ -207,6 +207,7 @@ static const PROGMEM char _encoding_info_service_id_2[] = "TesterPresent";
 static const PROGMEM char _encoding_info_service_id_3[] = "ReadByID";
 static const PROGMEM char _encoding_info_service_id_4[] = "DataDump";
 static const PROGMEM char _encoding_info_service_id_5[] = "ErrorResponse";
+static const PROGMEM char _encoding_info_service_id_6[] = "ResponseOffset";
 static const PROGMEM char _encoding_name_service_error[] = "service_error";
 static const PROGMEM char _encoding_info_service_error_0[] = "FunctionNotSupported";
 static const PROGMEM char _encoding_info_service_error_1[] = "IncorrectLength";
@@ -227,7 +228,7 @@ static const PROGMEM char _encoding_info_v1_output_assignment_5[] = "HeadLights"
 static const PROGMEM char _encoding_info_v1_output_assignment_6[] = "LowBeam";
 static const PROGMEM char _encoding_info_v1_output_assignment_7[] = "HighBeam";
 static const PROGMEM char _encoding_info_v1_output_assignment_8[] = "FogLights";
-static const PROGMEM char _encoding_info_v1_output_assignment_9[] = "Markers";
+static const PROGMEM char _encoding_info_v1_output_assignment_9[] = "MarkerLights";
 static const PROGMEM char _encoding_info_v1_output_assignment_10[] = "LeftTurn";
 static const PROGMEM char _encoding_info_v1_output_assignment_11[] = "LeftTurnMarker";
 static const PROGMEM char _encoding_info_v1_output_assignment_12[] = "RightTurn";
@@ -267,7 +268,7 @@ static const PROGMEM char _encoding_info_output_assignment_5[] = "HeadLights";
 static const PROGMEM char _encoding_info_output_assignment_6[] = "LowBeam";
 static const PROGMEM char _encoding_info_output_assignment_7[] = "HighBeam";
 static const PROGMEM char _encoding_info_output_assignment_8[] = "FogLights";
-static const PROGMEM char _encoding_info_output_assignment_9[] = "Markers";
+static const PROGMEM char _encoding_info_output_assignment_9[] = "MarkerLights";
 static const PROGMEM char _encoding_info_output_assignment_10[] = "LeftTurn";
 static const PROGMEM char _encoding_info_output_assignment_11[] = "LeftTurnMarker";
 static const PROGMEM char _encoding_info_output_assignment_12[] = "RightTurn";
@@ -504,6 +505,9 @@ Encoding::info(uint8_t index, uint16_t value)
             break;
         case 0x7f:
             info = &_encoding_info_service_id_5[0];
+            break;
+        case 0x40:
+            info = &_encoding_info_service_id_6[0];
             break;
         }
         break;

@@ -29,22 +29,26 @@ public:
     {}
 
     uint8_t &operator[](uint8_t index) { return _bytes[index]; }
+    const uint8_t &operator[](uint8_t index) const { return _bytes[index]; }
 
 protected:
     uint8_t         _bytes[8];
 };
 
+#if 0
 template<typename T, unsigned OFFSET, unsigned LENGTH, unsigned ENCODING>
-class Signal
+class SignalBase
 {
 public:
-    Signal(Response &r) : _r(r) {}
+    SignalBase(Response &r) : _r(r) {}
 
     operator T () const { return get(); }
-    void operator = (T v) { set(v); }
-    bool            test() const { return get() != 0; }
+    SignalBase & operator = (T v) { set(v); return *this; }
 
-    void            set(T value) {
+    bool            test() const { return get() != 0; }
+    void            clear() { set(0); }
+
+    void            set(T value = 1) {
         if (LENGTH == 1) {
             // single bit set
             if (value) {
@@ -77,6 +81,7 @@ public:
         }
     }
 
+
     T               get() const {
         if (LENGTH == 1) {
             // single bit get
@@ -86,7 +91,7 @@ public:
             return _r[_byteoffset];
         } else if ((LENGTH == 16) && (_bitoffset == 0)) {
             // byte-aligned word get
-            return _r[_byteoffset] + (T)(_r[_byteoffset + 1]) << 8;
+            return _r[_byteoffset] + ((T)(_r[_byteoffset + 1]) << 8);
         } else {
             uint8_t size = LENGTH;
             uint8_t offset = OFFSET + LENGTH - 1;
@@ -113,6 +118,98 @@ private:
     static const uint8_t    _mask = ((1 << LENGTH) - 1) << _bitoffset;
     Response                &_r;
 };
+#endif
+
+class SignalBase
+{
+public:
+    constexpr SignalBase(Response &r, uint8_t offset, uint8_t length, uint8_t enc) : 
+        _r(r),
+        _offset(offset),
+        _length(length),
+        _encoding(enc)
+    {
+    }
+
+    operator uint16_t () const { return get(); }
+    const SignalBase & operator = (uint16_t value) const { set(value); return *this; }
+    const SignalBase & operator = (int   value) const { set(value); return *this; }
+
+    bool        test() const { return get() != 0; }
+    void        clear() const { set(0); }
+
+    void        set(uint16_t value = 1) const {
+        if (_length == 1) {
+            // single bit set
+            if (value) {
+                _r[byteoffset()] |= (1 << bitoffset());
+            } else {
+                _r[byteoffset()] &= ~(1 << bitoffset());
+            }
+        } else if ((_length == 8) && (bitoffset() == 0)) {
+            // aligned byte set
+            _r[byteoffset()] = value;
+        } else if ((_length == 16) && (bitoffset() == 0)) {
+            // byte-aligned word set
+            _r[byteoffset()] = value & 0xff;
+            _r[byteoffset() + 1] = value >> 8;
+        } else {
+            // arbitrary bit range set
+            uint8_t size = _length;
+            uint8_t offset = _offset;
+
+            while (size) {
+                if (value & 1) {
+                    _r[offset / 8] |= (1 << (offset % 8));
+                } else {
+                    _r[offset / 8] &= ~(1 << (offset % 8));
+                }
+                size -= 1;
+                offset += 1;
+                value >>= 1;
+            }
+        }
+    }
+
+    uint16_t    get() const {
+        if (_length == 1) {
+            // single bit get
+            return _r[byteoffset()] & (1 << bitoffset()); 
+        } else if ((_length == 8) && (bitoffset() == 0)) {
+            // aligned byte get
+            return _r[byteoffset()];
+        } else if ((_length == 16) && (bitoffset() == 0)) {
+            // byte-aligned word get
+            return _r[byteoffset()] + ((uint16_t)(_r[byteoffset() + 1]) << 8);
+        } else {
+            uint8_t size = _length;
+            uint8_t offset = _offset + _length - 1;
+            uint16_t value = 0;
+
+            while (size) {
+                value <<= 1;
+                if (_r[offset / 8] & (1 << (offset %8))) {
+                    value |= 1;
+                }
+
+                size -= 1;
+                offset -= 1;
+            }
+            return value;
+        }
+    }
+
+    uint8_t     encoding() const { return _encoding; }
+
+private:
+    Response        &_r;
+    const uint8_t   _offset;
+    const uint8_t   _length;
+    const uint8_t   _encoding;
+
+    uint8_t         byteoffset() const { return _offset / 8; }
+    uint8_t         bitoffset() const { return _offset % 8; }
+};
 
 class Parameter
 {
@@ -128,6 +225,9 @@ public:
         _defaulter(defaulter)
     {
     }
+
+    operator uint16_t () const { return get(); }
+    const Parameter & operator = (uint16_t value) const { set(value); return *this; }
 
     void            set(uint16_t value) const;  // must be implemented by the device
     uint16_t        get() const;                // must be implemented by the device

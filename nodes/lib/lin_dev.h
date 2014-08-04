@@ -13,8 +13,7 @@
 
 #include "util.h"
 #include "lin_drv.h"
-#include "lin_protocol.h"
-#include "protocol.h"
+#include "lin_defs.h"
 
 class LINDev
 {
@@ -45,24 +44,26 @@ public:
     ///
     void            isr_error();
 
-//    enum Error : uint8_t {
-//        kErrorLine,                       //< readback error when transmitting
-//        kErrorChecksum,                   //< received data checksum mismatch
-//        kErrorParity,                     //< header parity error
-//        kErrorFraming,                    //< framing error
-//        kErrorSynchronisation,            //< bitrate synchronisation error
-//        kErrorProtocol,                   //< slave protocol error
-//        kErrorMax
-//    };
+    enum Error : uint8_t {
+        kErrorLine,                       //< readback error when transmitting
+        kErrorChecksum,                   //< received data checksum mismatch
+        kErrorParity,                     //< header parity error
+        kErrorFraming,                    //< framing error
+        kErrorSynchronisation,            //< bitrate synchronisation error
+        kErrorProtocol,                   //< slave protocol error
+        kErrorMax
+    };
 
-    Util::Counter16  errors[kLINErrorMax];     //< error counters
+    Util::Counter16  errors[kErrorMax];     //< error counters
+
+static_assert((Generic::kParamProtocol - Generic::kParamLine) == (kErrorMax - 1), "LIN error definitions out of sync");
 
 protected:
     /// Send a LIN header from the master task.
     ///
     /// @param fid              The Frame ID to send in the header.
     ///
-    void            mt_send_header(LIN::FrameID fid);
+    void            mt_send_header(uint8_t fid);
 
     /// Called by the slave task from st_st_header_received when it wants the
     /// response associated with a header.
@@ -83,11 +84,11 @@ protected:
     /// @param frame            The response frame to send.
     /// @param length           The length of the response frame.
     ///
-    void            st_send_response(const LIN::Frame &frame, uint8_t length = 8);
+    void            st_send_response(const Response &frame, uint8_t length = 8);
 
-    void            st_send_response(const volatile LIN::Frame &frame, uint8_t length = 8)
+    void            st_send_response(const volatile Response &frame, uint8_t length = 8)
     {
-        st_send_response(const_cast<const LIN::Frame&>(frame), length);
+        st_send_response(const_cast<const Response&>(frame), length);
     }
 
     /// Called when a header has been received.
@@ -104,7 +105,7 @@ protected:
     ///                         response.
     /// @param frame            The received response frame.
     ///
-    virtual void    st_response_received(LIN::Frame &frame);
+    virtual void    st_response_received(Response &frame);
     
     /// Called when a response has been sent.
     ///
@@ -114,7 +115,7 @@ protected:
 
     /// Fetch the current FID from the hardware
     ///
-    static LIN::FrameID current_FrameID() { return (LIN::FrameID)Lin_get_id(); }
+    static uint8_t current_FrameID() { return (uint8_t)Lin_get_id(); }
 
 private:
     bool            _polled:1;

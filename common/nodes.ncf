@@ -36,7 +36,7 @@ node Generic {
     frames {
         publish SlaveResponse {
             length = 8;
-            frame_id = 0x3c;
+            frame_id = 0x3d;
             signals {
                 nad             { init_value = 0; size = 8; offset = 0; }
                 length          { init_value = 0; size = 4; offset = 8; }
@@ -47,6 +47,18 @@ node Generic {
                 d3              { init_value = 0; size = 8; offset = 40; }
                 d4              { init_value = 0; size = 8; offset = 48; }
                 d5              { init_value = 0; size = 8; offset = 56; }
+            }
+        }
+        publish ReadByID {
+            length = 0;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }                
+                vendor          { init_value = 0; size = 16; offset = 24; }
+                function        { init_value = 0; size = 16; offset = 40; }
+                variant         { init_value = 0; size = 8; offset = 56; }            
             }
         }
         publish DataByID {
@@ -112,11 +124,11 @@ node Master {
                 LowBeam         { init_value = 0; size = 1; offset = 5; }
                 HighBeam        { init_value = 0; size = 1; offset = 6; }
                 FogLights       { init_value = 0; size = 1; offset = 7; }
-                Markers         { init_value = 0; size = 1; offset = 8; }
+                MarkerLights    { init_value = 0; size = 1; offset = 8; }
                 LeftTurn        { init_value = 0; size = 1; offset = 9; }
-                LeftTurnMark    { init_value = 0; size = 1; offset = 10; }
+                LeftTurnMarker  { init_value = 0; size = 1; offset = 10; }
                 RightTurn       { init_value = 0; size = 1; offset = 11; }
-                RightTurnMark   { init_value = 0; size = 1; offset = 12; }
+                RightTurnMarker { init_value = 0; size = 1; offset = 12; }
                 Brake           { init_value = 0; size = 1; offset = 13; }
                 Reverse         { init_value = 0; size = 1; offset = 14; }
                 InteriorLight   { init_value = 0; size = 1; offset = 15; }
@@ -183,7 +195,7 @@ node Master {
             logical_value, 0, "Unassigned";
             logical_value, 1, "Ignition";
             logical_value, 2, "Start";
-            logical_value, 3, "MarkerLight";
+            logical_value, 3, "MarkerLights";
             logical_value, 4, "HeadLights";
             logical_value, 5, "HighBeam";
             logical_value, 6, "HighBeamToggle";
@@ -235,6 +247,7 @@ node Master {
             logical_value, 0xb2, "ReadByID";          
             logical_value, 0xb4, "DataDump";          
             logical_value, 0x7f, "ErrorResponse";     
+            logical_value, 0x40, "ResponseOffset";
         }
         // written to the D2 signal for error replies
         service_error {
@@ -291,7 +304,7 @@ node PowerV1 {
             logical_value, 6, "LowBeam";
             logical_value, 7, "HighBeam";
             logical_value, 8, "FogLights";
-            logical_value, 9, "Markers";
+            logical_value, 9, "MarkerLights";
             logical_value, 10, "LeftTurn";
             logical_value, 11, "LeftTurnMarker";
             logical_value, 12, "RightTurn";
@@ -413,7 +426,7 @@ node PowerV3 {
             logical_value, 6, "LowBeam";
             logical_value, 7, "HighBeam";
             logical_value, 8, "FogLights";
-            logical_value, 9, "Markers";
+            logical_value, 9, "MarkerLights";
             logical_value, 10, "LeftTurn";
             logical_value, 11, "LeftTurnMarker";
             logical_value, 12, "RightTurn";
@@ -512,7 +525,7 @@ node Tester {
     frames {
         publish ProxyRequest {
             length = 8;
-            frame_id = 0x3d;
+            frame_id = 0x3b;
         }
     }
     encoding {}

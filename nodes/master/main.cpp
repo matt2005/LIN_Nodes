@@ -10,6 +10,7 @@
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <avr/eeprom.h>
 
 #include "board.h"
 #include "timer.h"
@@ -18,14 +19,12 @@
 #include "switches.h"
 #include "relays.h"
 
-#include "protocol.h"
-#include "parameter.h"
-#include "param_Master.h"
+#include "lin_defs.h"
 
 bool __cxa_guard_acquire() { return true; }
 void __cxa_guard_release() {}
 
-Master          gMaster;
+MasterNode  gMaster;
 
 void
 main(void)
@@ -37,8 +36,10 @@ main(void)
         Board::panic(Board::kPanicCodeRecovery);
     }
 
-    // init / default parameters
-    masterParamAll(init);
+    // init parameters (set to defaults if not valid)
+    for (Parameter::Address addr = 0x0400; Master::parameter(addr).exists(); addr++) {
+        Master::parameter(addr).init();
+    }
 
     // initialisation
     gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS
@@ -69,3 +70,40 @@ main(void)
     }
 }
 
+void
+Parameter::set(uint16_t value) const
+{
+    switch (address()) {
+    case Generic::kParamBootloaderMode:
+        if (value == 0x4f42) {        // 'BO'
+            Board::enter_bootloader();
+        }
+    }
+
+    if ((address() >> 8) == 0x04) {
+        uint8_t index = address() & 0xff;
+        eeprom_update_word((uint16_t *)(index * 2), value);
+    }
+}
+
+uint16_t
+Parameter::get() const
+{
+    switch (address()) {
+    case Generic::kParamProtocolVersion:
+        return 1;
+    case Generic::kParamBootloaderMode:
+        return 0;
+    case Generic::kParamFirmwareVersion:
+        return RELEASE_VERSION;
+    case Generic::kParamFirmwarePageSize:
+        return SPM_PAGESIZE;
+    }
+
+    if ((address() >> 8) == 0x04) {
+        uint8_t index = address() & 0xff;
+        return eeprom_read_word((const uint16_t *)(index * 2));
+    }
+
+    return 0;
+}

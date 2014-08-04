@@ -16,7 +16,6 @@
 #pragma once
 
 #include "pin.h"
-#include "parameter.h"
 #include "softserial.h"
 
 #if defined(BOARD_POWER_V1)

@@ -51,12 +51,12 @@ ToolSlave::st_header_received()
     _history.sawFID(current_FrameID());
 
     switch (current_FrameID()) {
-    case LIN::kFrameIDProxyRequest:
+    case kFrameIDProxyRequest:
         switch (_state) {
         case kStateSetData:
-            st_send_response(LIN::Frame(_nodeAddress,
+            st_send_response(Response(_nodeAddress,
                                         5,
-                                        LIN::kServiceIDWriteDataByID,
+                                        service_id::kWriteDataByID,
                                         _dataIndex,
                                         _dataPage,
                                         _dataValue & 0xff,
@@ -65,9 +65,9 @@ ToolSlave::st_header_received()
             break;
 
         case kStateGetData:
-            st_send_response(LIN::Frame(_nodeAddress,
+            st_send_response(Response(_nodeAddress,
                                         3,
-                                        LIN::kServiceIDReadDataByID,
+                                        service_id::kReadDataByID,
                                         _dataIndex,
                                         _dataPage));
             _state = kStateWaitData;
@@ -95,17 +95,17 @@ ToolSlave::st_header_received()
 }
 
 void
-ToolSlave::st_response_received(LIN::Frame &frame)
+ToolSlave::st_response_received(Response &frame)
 {
     _history.sawResponse(frame);
 
     switch (current_FrameID()) {
-    case LIN::kFrameIDSlaveResponse:
+    case kFrameIDSlaveResponse:
 
         // is this a response to a current request?
         if ((_state == kStateWaitData) &&
             (frame.nad() == _nodeAddress) &&
-            (frame.sid() == (LIN::kServiceIDReadDataByID | LIN::kServiceIDResponseOffset))) {
+            (frame.sid() == (service_id::kReadDataByID | service_id::kResponseOffset))) {
 
             // sanity-check the response
             if ((frame.pci() != 5) ||
@@ -136,16 +136,16 @@ ToolSlave::st_sleep_requested(SleepType type)
 }
 
 bool
-ToolSlave::st_master_request(LIN::Frame &frame)
+ToolSlave::st_master_request(Response &frame)
 {
     bool reply = false;
 
     switch (frame.sid()) {
-    case LIN::kServiceIDTesterPresent:
+    case service_id::kTesterPresent:
 
         // send a positive response to a directly-addressed request
         if ((frame.nad() == LIN::kNodeAddressTester)) {
-            frame.sid() |= LIN::kServiceIDResponseOffset;
+            frame.sid() |= service_id::kResponseOffset;
             reply = true;
         }
 
@@ -175,7 +175,7 @@ SlaveHistory::sawFID(uint8_t fid)
 }
 
 void
-SlaveHistory::sawResponse(LIN::Frame &f)
+SlaveHistory::sawResponse(Response &f)
 {
     if (!full()) {
         _entries[_nextIn].bytes[0] = _savedFID | RQ_HISTORY_RESPONSE_VALID;

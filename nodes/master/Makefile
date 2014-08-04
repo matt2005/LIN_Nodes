@@ -6,11 +6,12 @@ SRCS		 = main.cpp \
 		   relays.cpp \
 		   switches.cpp
 
+SRCS		+= lin_defs.cpp
+
 SRCS		+= board.cpp \
 		   lin_dev.cpp \
 		   lin_slave.cpp \
 		   mc33972.cpp \
-		   param_master.cpp \
 		   print.cpp \
 		   softserial.cpp \
 		   timer.cpp \

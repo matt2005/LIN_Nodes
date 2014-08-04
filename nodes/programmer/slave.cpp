@@ -94,12 +94,12 @@ void
 ProgrammerSlave::st_header_received()
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDProxyRequest:
+    case kFrameIDProxyRequest:
         switch (_state) {
         case kStateSetData:
-            st_send_response(LIN::Frame(_nodeAddress,
+            st_send_response(Response(_nodeAddress,
                                         5,
-                                        LIN::kServiceIDWriteDataByID,
+                                        service_id::kWriteDataByID,
                                         _dataIndex,
                                         _dataPage,
                                         _dataValue & 0xff,
@@ -108,9 +108,9 @@ ProgrammerSlave::st_header_received()
             break;
 
         case kStateGetData:
-            st_send_response(LIN::Frame(_nodeAddress,
+            st_send_response(Response(_nodeAddress,
                                         3,
-                                        LIN::kServiceIDReadDataByID,
+                                        service_id::kReadDataByID,
                                         _dataIndex,
                                         _dataPage));
             _state = kStateWaitData;
@@ -128,7 +128,7 @@ ProgrammerSlave::st_header_received()
 
         break;
 
-    case LIN::kFrameIDSlaveResponse:
+    case kFrameIDSlaveResponse:
 
         // are we expecting someone else to be sending a response?
         if (_state == kStateWaitData) {
@@ -146,15 +146,15 @@ ProgrammerSlave::st_header_received()
 }
 
 void
-ProgrammerSlave::st_response_received(LIN::Frame &frame)
+ProgrammerSlave::st_response_received(Response &frame)
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDSlaveResponse:
+    case kFrameIDSlaveResponse:
 
         // is this a response to a current request?
         if ((_state == kStateWaitData) &&
             (frame.nad() == _nodeAddress) &&
-            (frame.sid() == (LIN::kServiceIDReadDataByID | LIN::kServiceIDResponseOffset))) {
+            (frame.sid() == (service_id::kReadDataByID | service_id::kResponseOffset))) {
 
             // sanity-check the response
             if ((frame.pci() != 5) ||
@@ -185,17 +185,17 @@ ProgrammerSlave::st_sleep_requested(SleepType type)
 }
 
 bool
-ProgrammerSlave::st_master_request(LIN::Frame &frame)
+ProgrammerSlave::st_master_request(Response &frame)
 {
     bool reply = false;
 
     switch (frame.sid()) {
-    case LIN::kServiceIDTesterPresent:
+    case service_id::kTesterPresent:
 
         // send a positive response to a directly-addressed request
         // unless suspended
         if (!_suspended && (frame.nad() == LIN::kNodeAddressTester)) {
-            frame.sid() |= LIN::kServiceIDResponseOffset;
+            frame.sid() |= service_id::kResponseOffset;
             reply = true;
         }
 

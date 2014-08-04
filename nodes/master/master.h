@@ -13,16 +13,16 @@
 
 #include <stdint.h>
 
-#include "lin_protocol.h"
+#include "lin_defs.h"
 #include "lin_slave.h"
 #include "timer.h"
 
-class Master : public Slave
+class MasterNode : public Slave
 {
 public:
-    Master();
+    MasterNode();
 
-    LIN::RelayFrame relayFrame;
+    Response relayFrame;
 
     /// Enable / disable sleep
     ///
@@ -42,13 +42,14 @@ public:
 
 protected:
     virtual void    st_header_received() override;
-    virtual void    st_response_received(LIN::Frame &frame) override;
+    virtual void    st_response_received(Response &frame) override;
     virtual void    st_sleep_requested(SleepType type) override;
-    virtual bool    st_read_data(uint8_t page, uint8_t index, uint16_t &value) override;
-    virtual bool    st_write_data(uint8_t page, uint8_t index, uint16_t value) override;
+    virtual bool    st_master_request(Response &frame) override;
+    virtual bool    st_read_data(Parameter::Address address, uint16_t &value) override;
+    virtual bool    st_write_data(Parameter::Address address, uint16_t value) override;
 
 private:
-    static const LIN::FrameID   _schedule[];
+    static const uint8_t   _schedule[];
     static const uint8_t        _scheduleLength;
     static const uint8_t        _frameTime = 10U;   //< milliseconds
 
@@ -65,16 +66,16 @@ private:
     void            _master_task();
 
     // slave task state
-    LIN::Frame      _stProxyFrame;
+    Response        _stProxyFrame;
 
     bool            _stProxyRequest;      //< true when _proxyFrame needs to be sent as a Master Request
     bool            _stProxyResponse;     //< true when _proxyFrame needs to be sent as a Slave Response
     bool            _stExpectResponse;
 
-    static LIN::FrameID schedule_entry(uint8_t idx)
+    static uint8_t schedule_entry(uint8_t idx)
     {
-        return (LIN::FrameID)pgm_read_byte(&_schedule[idx]);
+        return (uint8_t)pgm_read_byte(&_schedule[idx]);
     }
 };
 
-extern Master gMaster;
+extern MasterNode gMaster;

@@ -236,6 +236,7 @@ namespace eval encoding {
                     }
                 }
             }
+            puts $fh "static const uint16_t kNumEncodings = [llength $encinfo];"
             puts $fh "} // namespace ${name}"
         }
     }
@@ -404,26 +405,36 @@ namespace eval signal {
         variable by_name
 
         puts $fh ""
+        puts $fh "namespace Signal"
+        puts $fh "{"
         dict for {name siginfo} $by_name {
 
             set size [dict get $siginfo signal_size]
             set offset [dict get $siginfo signal_offset]
-            if {$size == 1} {
-                set type "bool"
-            } elseif {$size <= 8} {
-                set type "uint8_t"
-            } elseif {$size <= 16} {
-                set type "uint16_t"
-            } else {
-                util::throw "unsupported signal size '${size}'"
-            }
             if {[dict exists $siginfo signal_encoding]} {
                 set encoding [dict get $siginfo signal_encoding]
             } else {
                 set encoding "none"                
             }
-            puts $fh "typedef Signal<${type}, ${offset}, ${size}, kEncoding_${encoding}> signal_${name};"
+
+            puts $fh "class ${name} : public SignalBase"
+            puts $fh "{"
+            puts $fh "public:"
+            puts $fh "    constexpr ${name}(Response &r) : SignalBase(r, ${offset}, ${size}, kEncoding_${encoding}) {}"
+            puts $fh "};"
+
+#           if {$size == 1} {
+#               set type "bool"
+#           } elseif {$size <= 8} {
+#               set type "uint8_t"
+#           } elseif {$size <= 16} {
+#               set type "uint16_t"
+#           } else {
+#               util::throw "unsupported signal size '${size}'"
+#           }
+#           puts $fh "typedef SignalBase<${type}, ${offset}, ${size}, kEncoding_${encoding}> ${name};"
         }
+        puts $fh "} // namespace Signal"
     }
 
     proc emit_def {fh} {
@@ -643,11 +654,13 @@ namespace eval parameter {
                     set encoding "none"
                 }
 
+                puts $fh ""
                 puts $fh "class Param${pname} : public Parameter"
                 puts $fh "{"
                 puts $fh "public:"
                 puts $fh "    constexpr Param${pname}() : Parameter(kParam${pname}, kEncoding_${encoding}, param_default) {}"
                 puts $fh "};"
+                puts $fh "static const Param${pname} param${pname};"
             }
 
             puts $fh ""

@@ -15,7 +15,7 @@
 #include "board.h"
 
 
-Slave::Slave(LIN::NodeAddress nad, bool polled) :
+Slave::Slave(uint8_t nad, bool polled) :
     LINDev(polled),
     _nad(nad)
 {
@@ -37,12 +37,12 @@ void
 Slave::st_header_received()
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDMasterRequest:
+    case kFrameIDMasterRequest:
         _sendSlaveResponse = false;     // clear stale slave response
         st_expect_response();
         break;
 
-    case LIN::kFrameIDSlaveResponse:
+    case kFrameIDSlaveResponse:
         if (_sendSlaveResponse) {
             st_send_response(_response);
             _sendSlaveResponse = false;
@@ -58,18 +58,18 @@ Slave::st_header_received()
 }
 
 void
-Slave::st_response_received(LIN::Frame &frame)
+Slave::st_response_received(Response &frame)
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDMasterRequest:
+    case kFrameIDMasterRequest:
         // check for broadcast sleep request
-        if (frame.nad() == LIN::kNodeAddressSleep) {
+        if (Signal::nad(frame) == node_address::kSleep) {
             st_sleep_requested(kSleepTypeRequested);
             break;
         }
         // check for directly addressed or broadcast master request
-        if ((frame.nad() == _nad) ||
-            (frame.nad() == LIN::kNodeAddressBroadcast)) {
+        if ((Signal::nad(frame) == _nad) ||
+            (Signal::nad(frame) == node_address::kBroadcast)) {
             if (st_master_request(frame)) {
                 st_slave_response(frame);
             }
@@ -90,66 +90,54 @@ Slave::st_sleep_requested(SleepType type)
 }
 
 bool
-Slave::st_master_request(LIN::Frame &frame)
+Slave::st_master_request(Response &frame)
 {
     bool reply = false;
     // ReadByID
-    switch (frame.sid()) {
+    switch (Signal::sid(frame)) {
 
-    case LIN::kServiceIDReadDataByID: {
-        if (frame.pci() != 3) {
-            frame.set_error(LIN::kServiceErrorIncorrectLength);
+    case service_id::kReadDataByID: {
+        if (Signal::length(frame) != 3) {
+            st_error_response(frame, service_error::kIncorrectLength);
         } else {
             uint16_t value;
 
             // look to see if we handle this one...
-            if (st_read_data(frame.d2(), frame.d1(), value)) {
-                frame.pci() = 5;
-                frame.sid() |= LIN::kServiceIDResponseOffset;
+            if (st_read_data(Signal::index(frame), value)) {
+                Signal::length(frame).set(5);
+                Signal::value(frame).set(value);
+                Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
             } else {
                 // generic error...
-                frame.set_error(LIN::kServiceErrorOutOfRange);
+                st_error_response(frame, service_error::kOutOfRange);
             }
         }
         reply = true;
         break;
     }
 
-    case LIN::kServiceIDWriteDataByID: {
-        if (frame.pci() != 5) {
-            frame.set_error(LIN::kServiceErrorIncorrectLength);
+    case service_id::kWriteDataByID: {
+        if (Signal::length(frame) != 5) {
+            st_error_response(frame, service_error::kIncorrectLength);
         } else {
-            uint16_t value = ((uint16_t)frame.d4() << 8) | frame.d3();
-
             // see if we can handle this one
-            if (st_write_data(frame.d2(), frame.d1(), value)) {
-                frame.pci() = 3;
-                frame.sid() |= LIN::kServiceIDResponseOffset;
+            if (st_write_data(Signal::index(frame), Signal::value(frame))) {
+                Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
+                Signal::length(frame).set(3); // XXX assignment operator overload not working...
             } else {
                 // generic error...
-                frame.set_error(LIN::kServiceErrorOutOfRange);
+                st_error_response(frame, service_error::kOutOfRange);
             }
         }
         reply = true;
         break;
     }
 
-    case LIN::kServiceIDReadByID: {
-        switch (frame.d1()) {
-        case LIN::kReadByIDProductID:
-            frame.pci() = 6;
-            frame.sid() |= LIN::kServiceIDResponseOffset;
-            frame.d1() = LIN::kSupplierID & 0xff;
-            frame.d2() = LIN::kSupplierID >> 8;
-            frame.d3() = kBoardFunctionID;
-            frame.d4() = Board::get_mode();
-            frame.d5() = 0;
-            reply = true;
-            break;
-
+    case service_id::kReadByID: {
+        switch (Signal::d1(frame)) {
         default:
             // send an error
-            frame.set_error(LIN::kServiceErrorFunctionNotSupported);
+            st_error_response(frame, service_error::kFunctionNotSupported);
             reply = true;
             break;
         }
@@ -170,38 +158,46 @@ static const PROGMEM uint16_t page0[] =
 };
 
 bool
-Slave::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
+Slave::st_read_data(Parameter::Address address, uint16_t &value)
 {
-    bool result = false;
-
-    switch (page) {
-    case kDataPageInfo:
-        if (index < (sizeof(page0) / sizeof(page0[0]))) {
-            value = pgm_read_word(&page0[index]);
-            result = true;
-        }
-        break;
-    case kDataPageLINErrors:
-        if (index < kLINErrorMax) {
-            value = errors[index];
-            result = true;
-        }
-    default:
-        break;
+    // handle generic parameters that we explicitly know about here
+    switch (address) {
+    case Generic::kParamLine:
+    case Generic::kParamChecksum:
+    case Generic::kParamParity:
+    case Generic::kParamFraming:
+    case Generic::kParamSynch:
+    case Generic::kParamProtocol:
+        value = errors[address - Generic::kParamLine];
+        return true;   
     }
 
-    return result;
+    // handle generic parameters known elsewhere
+    if (Generic::parameter(address).exists()) {
+        value = Generic::parameter(address);
+        return true;
+    }
+    return false;
 }
 
 bool
-Slave::st_write_data(uint8_t page, uint8_t index, uint16_t value)
+Slave::st_write_data(Parameter::Address address, uint16_t value)
 {
-    // 
-    if ((page == kDataPageInfo) && 
-        (index == kNodeInfoBootloaderMode) &&
-        (value == 0x4f42)) {        // 'BO'
-        Board::enter_bootloader();
+    if (Generic::parameter(address).exists()) {
+        Generic::parameter(address).set(value);
+        return true;
     }
-
     return false;
+}
+
+void
+Slave::st_error_response(Response &frame, uint8_t err)
+{
+    Signal::length(frame).set(2);
+    Signal::d1(frame).set(Signal::sid(frame));
+    Signal::sid(frame).set(service_id::kErrorResponse);
+    Signal::d2(frame).set(err);
+    Signal::d3(frame).set(0xff);
+    Signal::d4(frame).set(0xff);
+    Signal::d5(frame).set(0xff);
 }

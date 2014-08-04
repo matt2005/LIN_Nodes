@@ -47,7 +47,6 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -funsigned-char		\
 		   -funsigned-bitfields		\
 		   -fshort-enums		\
-		   -fno-inline-small-functions	\
 		   -fno-stack-protector		\
 		   -ffreestanding		\
 		   -Wall			\
@@ -77,8 +76,8 @@ LDFLAGS		 = $(ARCHFLAGS)			\
 		   -fno-exceptions		\
 		   -fno-rtti
 
-vpath %.c	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
-vpath %.cpp	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
+vpath %.c	$(SRCROOT)/lib $(SRCROOT)/../common $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
+vpath %.cpp	$(SRCROOT)/lib $(SRCROOT)/../common $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
 vpath %.S	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
 vpath %.h	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
 

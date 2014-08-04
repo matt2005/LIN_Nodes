@@ -91,7 +91,7 @@ ExploreMode::action(Encoder::Event bp)
         // (i.e. are we re-entering from an edit state?)
         if (!_presentMask.test(LIN::kNodeAddressMaster)) {
             _presentMask.reset();
-            _presentMask.set((LIN::NodeAddress)0);   // used for the 'cancel' entry
+            _presentMask.set((uint8_t)0);   // used for the 'cancel' entry
             _node = LIN::kNodeAddressMaster;
 
             for (uint8_t i = LIN::kNodeAddressMaster; i < LIN::kNodeAddressMaxAssigned; i++) {

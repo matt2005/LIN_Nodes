@@ -90,7 +90,7 @@ LINDev::isr_TC()
         Lin_clear_index();
 
         // copy FIFO data into a frame
-        LIN::Frame f;
+        Response f;
         for (uint8_t i = 0; i < 8; i++) {
             f[i] = Lin_get_data();
         }
@@ -121,7 +121,7 @@ LINDev::isr_TC()
             Lin_clear_index();
 
             // copy FIFO data into a frame
-            LIN::Frame f;
+            Response f;
             for (uint8_t i = 0; i < 8; i++) {
                 f[i] = Lin_get_data();
             }
@@ -139,19 +139,19 @@ LINDev::isr_error()
 
     if (status != 0) {
         if (status & (1 << LBERR)) {
-            errors[kLINErrorLine]++;
+            errors[kErrorLine]++;
         }
         if (status & (1 << LCERR)) {
-            errors[kLINErrorChecksum]++;
+            errors[kErrorChecksum]++;
         }
         if (status & (1 << LPERR)) {
-            errors[kLINErrorParity]++;
+            errors[kErrorParity]++;
         }
         if (status & (1 << LFERR)) {
-            errors[kLINErrorFraming]++;
+            errors[kErrorFraming]++;
         }
         if (status & (1 << LSERR)) {
-            errors[kLINErrorSynch]++;
+            errors[kErrorSynchronisation]++;
         }
 
         // reset to default mode
@@ -180,7 +180,7 @@ LINDev::st_expect_response(uint8_t length)
 }
 
 void
-LINDev::mt_send_header(LIN::FrameID fid)
+LINDev::mt_send_header(uint8_t fid)
 {
     // turn on the LIN transmitter - must not do this while we
     // might possibly still be transmitting
@@ -203,7 +203,7 @@ LINDev::mt_send_header(LIN::FrameID fid)
 }
 
 void
-LINDev::st_send_response(const LIN::Frame &f, uint8_t length)
+LINDev::st_send_response(const Response &f, uint8_t length)
 {
     // may be called to send a response after we're already listening for one
     if (LINSIR & (1 << LBUSY)) {
@@ -237,7 +237,7 @@ LINDev::st_header_received()
 }
 
 void
-LINDev::st_response_received(LIN::Frame &frame)
+LINDev::st_response_received(Response &frame)
 {
 }
 

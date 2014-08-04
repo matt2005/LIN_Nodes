@@ -23,7 +23,7 @@ public:
 
 protected:
     virtual void    st_header_received() override;
-    virtual void    st_response_received(LIN::Frame &frame) override;
+    virtual void    st_response_received(Response &frame) override;
     virtual bool    st_read_data(uint8_t page, uint8_t index, uint16_t &value) override;
     virtual bool    st_write_data(uint8_t page, uint8_t index, uint16_t value) override;
 

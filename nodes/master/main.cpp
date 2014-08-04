@@ -37,9 +37,14 @@ main(void)
     }
 
     // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; Master::parameter(addr).exists(); addr++) {
-        Master::parameter(addr).init();
+    for (Parameter::Address addr = 0x0400; ; addr++) {
+        Parameter p = Master::parameter(addr);
+        if (!p.exists()) {
+            break;
+        }
+        p.init();
     }
+
 
     // initialisation
     gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS

@@ -53,10 +53,13 @@ main(void)
     pinSTATUS4.cfg_input_no_pull();
 # endif
 
-    // init/default parameters
     // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; PowerV1::parameter(addr).exists(); addr++) {
-        PowerV1::parameter(addr).init();
+    for (Parameter::Address addr = 0x0400; ; addr++) {
+        Parameter p = PowerV1::parameter(addr);
+        if (!p.exists()) {
+            break;
+        }
+        p.init();
     }
 
     // construct the slave

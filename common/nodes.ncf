@@ -1,3 +1,9 @@
+// ----------------------------------------------------------------------------
+// "THE BEER-WARE LICENSE" (Revision 42):
+// <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+// can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a beer in return.
+// ----------------------------------------------------------------------------
 //
 // Experimental node configuration file
 //
@@ -77,21 +83,21 @@ node Generic {
     }
     parameters {
         ProtocolVersion     { address = 0x0000; }
-        BoardFunction       { address = 0x0001; }
-        BootloaderMode      { address = 0x0002; }
-        FirmwareVersion     { address = 0x0003; }
-        FirmwarePageSize    { address = 0x0004; }
+        BoardFunction       {                   }
+        BootloaderMode      {                   }
+        FirmwareVersion     {                   }
+        FirmwarePageSize    {                   }
 
         WatchdogResets      { address = 0x0100; }
-        SupplyVoltage       { address = 0x0101; }
-        Temperature         { address = 0x0102; }
+        SupplyVoltage       {                   }
+        Temperature         {                   }
 
         Line                { address = 0x0200; }
-        Checksum            { address = 0x0201; }
-        Parity              { address = 0x0202; }
-        Framing             { address = 0x0203; }
-        Synch               { address = 0x0204; }
-        Protocol            { address = 0x0205; }
+        Checksum            {                   }
+        Parity              {                   }
+        Framing             {                   }
+        Synch               {                   }
+        Protocol            {                   }
     }
 }
 
@@ -161,34 +167,34 @@ node Master {
     }
     parameters {
         SP1Assign               { init_value = 0;   address = 0x0400; input; }
-        SP2Assign               { init_value = 0;   address = 0x0401; input; }
-        SP3Assign               { init_value = 0;   address = 0x0402; input; }
-        SP4Assign               { init_value = 0;   address = 0x0403; input; }
-        SP5Assign               { init_value = 0;   address = 0x0404; input; }
-        SP6Assign               { init_value = 0;   address = 0x0405; input; }
-        SP7Assign               { init_value = 0;   address = 0x0406; input; }
-        SG0Assign               { init_value = 0;   address = 0x0407; input; }
-        SG1Assign               { init_value = 0;   address = 0x0408; input; }
-        SG2Assign               { init_value = 0;   address = 0x0409; input; }
-        SG3Assign               { init_value = 0;   address = 0x040a; input; }
-        SG4Assign               { init_value = 0;   address = 0x040b; input; }
-        SG5Assign               { init_value = 0;   address = 0x040c; input; }
-        SG6Assign               { init_value = 0;   address = 0x040d; input; }
-        SG7Assign               { init_value = 0;   address = 0x040e; input; }
-        SG8Assign               { init_value = 0;   address = 0x040f; input; }
-        SG9Assign               { init_value = 0;   address = 0x0410; input; }
-        SG10Assign              { init_value = 0;   address = 0x0411; input; }
-        SG11Assign              { init_value = 0;   address = 0x0412; input; }
-        SG12Assign              { init_value = 0;   address = 0x0413; input; }
-        SG13Assign              { init_value = 0;   address = 0x0414; input; }
-        TurnBlinkPeriod         { init_value = 500; address = 0x0415; msec; }
-        PassingBlinkCount       { init_value = 0;   address = 0x0416; up_to_10; }
-        PathLightTime           { init_value = 30;  address = 0x0417; sec; }
-        InteriorLightTime       { init_value = 30;  address = 0x0418; sec; }
-        WelcomeLightTime        { init_value = 30;  address = 0x0419; sec; }
-        BrakeBlinkPeriod        { init_value = 0;   address = 0x0420; msec; }
-        BrakeBlinkCount         { init_value = 0;   address = 0x0421; up_to_10; }
-        WiperInterval           { init_value = 0;   address = 0x0422; msec; }
+        SP2Assign               { init_value = 0;                     input; }
+        SP3Assign               { init_value = 0;                     input; }
+        SP4Assign               { init_value = 0;                     input; }
+        SP5Assign               { init_value = 0;                     input; }
+        SP6Assign               { init_value = 0;                     input; }
+        SP7Assign               { init_value = 0;                     input; }
+        SG0Assign               { init_value = 0;                     input; }
+        SG1Assign               { init_value = 0;                     input; }
+        SG2Assign               { init_value = 0;                     input; }
+        SG3Assign               { init_value = 0;                     input; }
+        SG4Assign               { init_value = 0;                     input; }
+        SG5Assign               { init_value = 0;                     input; }
+        SG6Assign               { init_value = 0;                     input; }
+        SG7Assign               { init_value = 0;                     input; }
+        SG8Assign               { init_value = 0;                     input; }
+        SG9Assign               { init_value = 0;                     input; }
+        SG10Assign              { init_value = 0;                     input; }
+        SG11Assign              { init_value = 0;                     input; }
+        SG12Assign              { init_value = 0;                     input; }
+        SG13Assign              { init_value = 0;                     input; }
+        TurnBlinkPeriod         { init_value = 500;                   msec; }
+        PassingBlinkCount       { init_value = 0;                     up_to_10; }
+        PathLightTime           { init_value = 30;                    sec; }
+        InteriorLightTime       { init_value = 30;                    sec; }
+        WelcomeLightTime        { init_value = 30;                    sec; }
+        BrakeBlinkPeriod        { init_value = 0;                     msec; }
+        BrakeBlinkCount         { init_value = 0;                     up_to_10; }
+        WiperInterval           { init_value = 0;                     msec; }
     }
     encoding {
         input {
@@ -280,14 +286,14 @@ node PowerV1 {
     }
     parameters {
         Relay1Status    { init_value = 0; address = 0x0300; v1_output_status; }
-        Relay2Status    { init_value = 0; address = 0x0301; v1_output_status; }
-        Relay3Status    { init_value = 0; address = 0x0302; v1_output_status; }
-        Relay4Status    { init_value = 0; address = 0x0303; v1_output_status; }
+        Relay2Status    { init_value = 0;                   v1_output_status; }
+        Relay3Status    { init_value = 0;                   v1_output_status; }
+        Relay4Status    { init_value = 0;                   v1_output_status; }
 
         Relay1Assign    { init_value = 0; address = 0x0400; v1_output_assignment; }
-        Relay2Assign    { init_value = 0; address = 0x0401; v1_output_assignment; }
-        Relay3Assign    { init_value = 0; address = 0x0402; v1_output_assignment; }
-        Relay4Assign    { init_value = 0; address = 0x0403; v1_output_assignment; }
+        Relay2Assign    { init_value = 0;                   v1_output_assignment; }
+        Relay3Assign    { init_value = 0;                   v1_output_assignment; }
+        Relay4Assign    { init_value = 0;                   v1_output_assignment; }
     }
     encoding {
         v1_output_status {
@@ -342,61 +348,61 @@ node PowerV3 {
     }
     parameters {
         CH1Status   { init_value = 0;   address = 0x0300; v3_output_status; }
-        CH2Status   { init_value = 0;   address = 0x0301; v3_output_status; }
-        CH3Status   { init_value = 0;   address = 0x0302; v3_output_status; }
-        CH4Status   { init_value = 0;   address = 0x0303; v3_output_status; }
-        CH5Status   { init_value = 0;   address = 0x0304; v3_output_status; }
+        CH2Status   { init_value = 0;                     v3_output_status; }
+        CH3Status   { init_value = 0;                     v3_output_status; }
+        CH4Status   { init_value = 0;                     v3_output_status; }
+        CH5Status   { init_value = 0;                     v3_output_status; }
 
         CH1Type     { init_value = 0;   address = 0x0400; output_type; }
-        CH2Type     { init_value = 0;   address = 0x0401; output_type; }
-        CH3Type     { init_value = 0;   address = 0x0402; output_type; }
-        CH4Type     { init_value = 0;   address = 0x0403; output_type; }
-        CH5Type     { init_value = 0;   address = 0x0404; output_type; }
+        CH2Type     { init_value = 0;                     output_type; }
+        CH3Type     { init_value = 0;                     output_type; }
+        CH4Type     { init_value = 0;                     output_type; }
+        CH5Type     { init_value = 0;                     output_type; }
 
-        CH1Assign1  { init_value = 255; address = 0x0410; output_assignment; }
-        CH1PWM1     { init_value = 0;   address = 0x0411; pwm_duty_cycle; }
-        CH1Assign2  { init_value = 255; address = 0x0412; output_assignment; }
-        CH1PWM2     { init_value = 0;   address = 0x0413; pwm_duty_cycle; }
-        CH1Assign3  { init_value = 255; address = 0x0414; output_assignment; }
-        CH1PWM3     { init_value = 0;   address = 0x0415; pwm_duty_cycle; }
-        CH1Assign4  { init_value = 255; address = 0x0416; output_assignment; }
-        CH1PWM4     { init_value = 0;   address = 0x0417; pwm_duty_cycle; }
+        CH1Assign1  { init_value = 255;                   output_assignment; }
+        CH1Assign2  { init_value = 255;                   output_assignment; }
+        CH1Assign3  { init_value = 255;                   output_assignment; }
+        CH1Assign4  { init_value = 255;                   output_assignment; }
+        CH1PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH1PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH1PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH1PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH2Assign1  { init_value = 255; address = 0x0420; output_assignment; }
-        CH2PWM1     { init_value = 0;   address = 0x0421; pwm_duty_cycle; }
-        CH2Assign2  { init_value = 255; address = 0x0422; output_assignment; }
-        CH2PWM2     { init_value = 0;   address = 0x0423; pwm_duty_cycle; }
-        CH2Assign3  { init_value = 255; address = 0x0424; output_assignment; }
-        CH2PWM3     { init_value = 0;   address = 0x0425; pwm_duty_cycle; }
-        CH2Assign4  { init_value = 255; address = 0x0426; output_assignment; }
-        CH2PWM4     { init_value = 0;   address = 0x0427; pwm_duty_cycle; }
+        CH2Assign1  { init_value = 255;                   output_assignment; }
+        CH2Assign2  { init_value = 255;                   output_assignment; }
+        CH2Assign3  { init_value = 255;                   output_assignment; }
+        CH2Assign4  { init_value = 255;                   output_assignment; }
+        CH2PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH2PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH2PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH2PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH3Assign1  { init_value = 255; address = 0x0430; output_assignment; }
-        CH3PWM1     { init_value = 0;   address = 0x0431; pwm_duty_cycle; }
-        CH3Assign2  { init_value = 255; address = 0x0432; output_assignment; }
-        CH3PWM2     { init_value = 0;   address = 0x0433; pwm_duty_cycle; }
-        CH3Assign3  { init_value = 255; address = 0x0434; output_assignment; }
-        CH3PWM3     { init_value = 0;   address = 0x0435; pwm_duty_cycle; }
-        CH3Assign4  { init_value = 255; address = 0x0436; output_assignment; }
-        CH3PWM4     { init_value = 0;   address = 0x0437; pwm_duty_cycle; }
+        CH3Assign1  { init_value = 255;                   output_assignment; }
+        CH3Assign2  { init_value = 255;                   output_assignment; }
+        CH3Assign3  { init_value = 255;                   output_assignment; }
+        CH3Assign4  { init_value = 255;                   output_assignment; }
+        CH3PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH3PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH3PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH3PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH4Assign1  { init_value = 255; address = 0x0440; output_assignment; }
-        CH4PWM1     { init_value = 0;   address = 0x0441; pwm_duty_cycle; }
-        CH4Assign2  { init_value = 255; address = 0x0442; output_assignment; }
-        CH4PWM2     { init_value = 0;   address = 0x0443; pwm_duty_cycle; }
-        CH4Assign3  { init_value = 255; address = 0x0444; output_assignment; }
-        CH4PWM3     { init_value = 0;   address = 0x0445; pwm_duty_cycle; }
-        CH4Assign4  { init_value = 255; address = 0x0446; output_assignment; }
-        CH4PWM4     { init_value = 0;   address = 0x0447; pwm_duty_cycle; }
+        CH4Assign1  { init_value = 255;                   output_assignment; }
+        CH4Assign2  { init_value = 255;                   output_assignment; }
+        CH4Assign3  { init_value = 255;                   output_assignment; }
+        CH4Assign4  { init_value = 255;                   output_assignment; }
+        CH4PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH4PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH4PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH4PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH5Assign1  { init_value = 255; address = 0x0450; output_assignment; }
-        CH5PWM1     { init_value = 0;   address = 0x0451; pwm_duty_cycle; }
-        CH5Assign2  { init_value = 255; address = 0x0452; output_assignment; }
-        CH5PWM2     { init_value = 0;   address = 0x0453; pwm_duty_cycle; }
-        CH5Assign3  { init_value = 255; address = 0x0454; output_assignment; }
-        CH5PWM3     { init_value = 0;   address = 0x0455; pwm_duty_cycle; }
-        CH5Assign4  { init_value = 255; address = 0x0456; output_assignment; }
-        CH5PWM4     { init_value = 0;   address = 0x0457; pwm_duty_cycle; }
+        CH5Assign1  { init_value = 255;                   output_assignment; }
+        CH5Assign2  { init_value = 255;                   output_assignment; }
+        CH5Assign3  { init_value = 255;                   output_assignment; }
+        CH5Assign4  { init_value = 255;                   output_assignment; }
+        CH5PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH5PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH5PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH5PWM4     { init_value = 0;                     pwm_duty_cycle; }
     }
     encoding {
         v3_output_status {

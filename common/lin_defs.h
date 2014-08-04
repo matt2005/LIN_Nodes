@@ -628,9 +628,9 @@ static const uint16_t kParamPassingBlinkCount = 0x0416;
 static const uint16_t kParamPathLightTime = 0x0417;
 static const uint16_t kParamInteriorLightTime = 0x0418;
 static const uint16_t kParamWelcomeLightTime = 0x0419;
-static const uint16_t kParamBrakeBlinkPeriod = 0x0420;
-static const uint16_t kParamBrakeBlinkCount = 0x0421;
-static const uint16_t kParamWiperInterval = 0x0422;
+static const uint16_t kParamBrakeBlinkPeriod = 0x041a;
+static const uint16_t kParamBrakeBlinkCount = 0x041b;
+static const uint16_t kParamWiperInterval = 0x041c;
 
 // explicit parameter subclasses for Master
 
@@ -930,46 +930,46 @@ static const uint16_t kParamCH2Type = 0x0401;
 static const uint16_t kParamCH3Type = 0x0402;
 static const uint16_t kParamCH4Type = 0x0403;
 static const uint16_t kParamCH5Type = 0x0404;
-static const uint16_t kParamCH1Assign1 = 0x0410;
-static const uint16_t kParamCH1PWM1 = 0x0411;
-static const uint16_t kParamCH1Assign2 = 0x0412;
-static const uint16_t kParamCH1PWM2 = 0x0413;
-static const uint16_t kParamCH1Assign3 = 0x0414;
-static const uint16_t kParamCH1PWM3 = 0x0415;
-static const uint16_t kParamCH1Assign4 = 0x0416;
-static const uint16_t kParamCH1PWM4 = 0x0417;
-static const uint16_t kParamCH2Assign1 = 0x0420;
-static const uint16_t kParamCH2PWM1 = 0x0421;
-static const uint16_t kParamCH2Assign2 = 0x0422;
-static const uint16_t kParamCH2PWM2 = 0x0423;
-static const uint16_t kParamCH2Assign3 = 0x0424;
-static const uint16_t kParamCH2PWM3 = 0x0425;
-static const uint16_t kParamCH2Assign4 = 0x0426;
-static const uint16_t kParamCH2PWM4 = 0x0427;
-static const uint16_t kParamCH3Assign1 = 0x0430;
-static const uint16_t kParamCH3PWM1 = 0x0431;
-static const uint16_t kParamCH3Assign2 = 0x0432;
-static const uint16_t kParamCH3PWM2 = 0x0433;
-static const uint16_t kParamCH3Assign3 = 0x0434;
-static const uint16_t kParamCH3PWM3 = 0x0435;
-static const uint16_t kParamCH3Assign4 = 0x0436;
-static const uint16_t kParamCH3PWM4 = 0x0437;
-static const uint16_t kParamCH4Assign1 = 0x0440;
-static const uint16_t kParamCH4PWM1 = 0x0441;
-static const uint16_t kParamCH4Assign2 = 0x0442;
-static const uint16_t kParamCH4PWM2 = 0x0443;
-static const uint16_t kParamCH4Assign3 = 0x0444;
-static const uint16_t kParamCH4PWM3 = 0x0445;
-static const uint16_t kParamCH4Assign4 = 0x0446;
-static const uint16_t kParamCH4PWM4 = 0x0447;
-static const uint16_t kParamCH5Assign1 = 0x0450;
-static const uint16_t kParamCH5PWM1 = 0x0451;
-static const uint16_t kParamCH5Assign2 = 0x0452;
-static const uint16_t kParamCH5PWM2 = 0x0453;
-static const uint16_t kParamCH5Assign3 = 0x0454;
-static const uint16_t kParamCH5PWM3 = 0x0455;
-static const uint16_t kParamCH5Assign4 = 0x0456;
-static const uint16_t kParamCH5PWM4 = 0x0457;
+static const uint16_t kParamCH1Assign1 = 0x0405;
+static const uint16_t kParamCH1Assign2 = 0x0406;
+static const uint16_t kParamCH1Assign3 = 0x0407;
+static const uint16_t kParamCH1Assign4 = 0x0408;
+static const uint16_t kParamCH1PWM1 = 0x0409;
+static const uint16_t kParamCH1PWM2 = 0x040a;
+static const uint16_t kParamCH1PWM3 = 0x040b;
+static const uint16_t kParamCH1PWM4 = 0x040c;
+static const uint16_t kParamCH2Assign1 = 0x040d;
+static const uint16_t kParamCH2Assign2 = 0x040e;
+static const uint16_t kParamCH2Assign3 = 0x040f;
+static const uint16_t kParamCH2Assign4 = 0x0410;
+static const uint16_t kParamCH2PWM1 = 0x0411;
+static const uint16_t kParamCH2PWM2 = 0x0412;
+static const uint16_t kParamCH2PWM3 = 0x0413;
+static const uint16_t kParamCH2PWM4 = 0x0414;
+static const uint16_t kParamCH3Assign1 = 0x0415;
+static const uint16_t kParamCH3PWM1 = 0x0416;
+static const uint16_t kParamCH3Assign2 = 0x0417;
+static const uint16_t kParamCH3PWM2 = 0x0418;
+static const uint16_t kParamCH3Assign3 = 0x0419;
+static const uint16_t kParamCH3PWM3 = 0x041a;
+static const uint16_t kParamCH3Assign4 = 0x041b;
+static const uint16_t kParamCH3PWM4 = 0x041c;
+static const uint16_t kParamCH4Assign1 = 0x041d;
+static const uint16_t kParamCH4PWM1 = 0x041e;
+static const uint16_t kParamCH4Assign2 = 0x041f;
+static const uint16_t kParamCH4PWM2 = 0x0420;
+static const uint16_t kParamCH4Assign3 = 0x0421;
+static const uint16_t kParamCH4PWM3 = 0x0422;
+static const uint16_t kParamCH4Assign4 = 0x0423;
+static const uint16_t kParamCH4PWM4 = 0x0424;
+static const uint16_t kParamCH5Assign1 = 0x0425;
+static const uint16_t kParamCH5PWM1 = 0x0426;
+static const uint16_t kParamCH5Assign2 = 0x0427;
+static const uint16_t kParamCH5PWM2 = 0x0428;
+static const uint16_t kParamCH5Assign3 = 0x0429;
+static const uint16_t kParamCH5PWM3 = 0x042a;
+static const uint16_t kParamCH5Assign4 = 0x042b;
+static const uint16_t kParamCH5PWM4 = 0x042c;
 
 // explicit parameter subclasses for PowerV3
 
@@ -1050,26 +1050,12 @@ public:
 };
 static const ParamCH1Assign1 paramCH1Assign1;
 
-class ParamCH1PWM1 : public Parameter
-{
-public:
-    constexpr ParamCH1PWM1() : Parameter(kParamCH1PWM1, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH1PWM1 paramCH1PWM1;
-
 class ParamCH1Assign2 : public Parameter
 {
 public:
     constexpr ParamCH1Assign2() : Parameter(kParamCH1Assign2, kEncoding_output_assignment, param_default) {}
 };
 static const ParamCH1Assign2 paramCH1Assign2;
-
-class ParamCH1PWM2 : public Parameter
-{
-public:
-    constexpr ParamCH1PWM2() : Parameter(kParamCH1PWM2, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH1PWM2 paramCH1PWM2;
 
 class ParamCH1Assign3 : public Parameter
 {
@@ -1078,19 +1064,33 @@ public:
 };
 static const ParamCH1Assign3 paramCH1Assign3;
 
-class ParamCH1PWM3 : public Parameter
-{
-public:
-    constexpr ParamCH1PWM3() : Parameter(kParamCH1PWM3, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH1PWM3 paramCH1PWM3;
-
 class ParamCH1Assign4 : public Parameter
 {
 public:
     constexpr ParamCH1Assign4() : Parameter(kParamCH1Assign4, kEncoding_output_assignment, param_default) {}
 };
 static const ParamCH1Assign4 paramCH1Assign4;
+
+class ParamCH1PWM1 : public Parameter
+{
+public:
+    constexpr ParamCH1PWM1() : Parameter(kParamCH1PWM1, kEncoding_pwm_duty_cycle, param_default) {}
+};
+static const ParamCH1PWM1 paramCH1PWM1;
+
+class ParamCH1PWM2 : public Parameter
+{
+public:
+    constexpr ParamCH1PWM2() : Parameter(kParamCH1PWM2, kEncoding_pwm_duty_cycle, param_default) {}
+};
+static const ParamCH1PWM2 paramCH1PWM2;
+
+class ParamCH1PWM3 : public Parameter
+{
+public:
+    constexpr ParamCH1PWM3() : Parameter(kParamCH1PWM3, kEncoding_pwm_duty_cycle, param_default) {}
+};
+static const ParamCH1PWM3 paramCH1PWM3;
 
 class ParamCH1PWM4 : public Parameter
 {
@@ -1106,26 +1106,12 @@ public:
 };
 static const ParamCH2Assign1 paramCH2Assign1;
 
-class ParamCH2PWM1 : public Parameter
-{
-public:
-    constexpr ParamCH2PWM1() : Parameter(kParamCH2PWM1, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH2PWM1 paramCH2PWM1;
-
 class ParamCH2Assign2 : public Parameter
 {
 public:
     constexpr ParamCH2Assign2() : Parameter(kParamCH2Assign2, kEncoding_output_assignment, param_default) {}
 };
 static const ParamCH2Assign2 paramCH2Assign2;
-
-class ParamCH2PWM2 : public Parameter
-{
-public:
-    constexpr ParamCH2PWM2() : Parameter(kParamCH2PWM2, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH2PWM2 paramCH2PWM2;
 
 class ParamCH2Assign3 : public Parameter
 {
@@ -1134,19 +1120,33 @@ public:
 };
 static const ParamCH2Assign3 paramCH2Assign3;
 
-class ParamCH2PWM3 : public Parameter
-{
-public:
-    constexpr ParamCH2PWM3() : Parameter(kParamCH2PWM3, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH2PWM3 paramCH2PWM3;
-
 class ParamCH2Assign4 : public Parameter
 {
 public:
     constexpr ParamCH2Assign4() : Parameter(kParamCH2Assign4, kEncoding_output_assignment, param_default) {}
 };
 static const ParamCH2Assign4 paramCH2Assign4;
+
+class ParamCH2PWM1 : public Parameter
+{
+public:
+    constexpr ParamCH2PWM1() : Parameter(kParamCH2PWM1, kEncoding_pwm_duty_cycle, param_default) {}
+};
+static const ParamCH2PWM1 paramCH2PWM1;
+
+class ParamCH2PWM2 : public Parameter
+{
+public:
+    constexpr ParamCH2PWM2() : Parameter(kParamCH2PWM2, kEncoding_pwm_duty_cycle, param_default) {}
+};
+static const ParamCH2PWM2 paramCH2PWM2;
+
+class ParamCH2PWM3 : public Parameter
+{
+public:
+    constexpr ParamCH2PWM3() : Parameter(kParamCH2PWM3, kEncoding_pwm_duty_cycle, param_default) {}
+};
+static const ParamCH2PWM3 paramCH2PWM3;
 
 class ParamCH2PWM4 : public Parameter
 {

@@ -1,4 +1,10 @@
 #!/usr/bin/tclsh
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.
+# ----------------------------------------------------------------------------
 #
 # LIN 2.1 NCF parser with extensions.
 #
@@ -537,11 +543,13 @@ namespace eval parameter {
 
     variable nodes [list]
     variable by_name [dict create]
+    variable last_address 0
 
     proc from_ast {node name ast} {
 
         variable nodes
         variable by_name
+        variable last_address
 
         if {[node_index $node] < 0} {
             lappend nodes $node
@@ -559,12 +567,17 @@ namespace eval parameter {
             lassign $property pkind pname pvalue
             dict set by_name $name $pkind $pvalue
 
-            switch -- $pkind {
-
-                "parameter_encoding" {
-                    encoding::needs_validation $pvalue
-                }
+            if {$pkind == "parameter_encoding"} {
+                encoding::needs_validation $pvalue
             }
+        }
+
+        # Handle automatic address increment
+        if {[dict exists $by_name $name parameter_address]} {
+            set last_address [dict get $by_name $name parameter_address]
+        } else {
+            incr last_address
+            dict set by_name $name parameter_address [format "0x%04x" $last_address]
         }
     }
 

@@ -83,7 +83,6 @@ main(void)
     }
 }
 
-
 void
 Parameter::set(uint16_t value) const
 {

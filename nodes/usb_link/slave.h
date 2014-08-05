@@ -13,7 +13,6 @@
 
 #include "requests.h"
 #include "lin_slave.h"
-#include "lin_protocol.h"
 
 class SlaveHistory
 {

@@ -16,7 +16,7 @@
 #include "slave.h"
 
 ToolSlave::ToolSlave() :
-    Slave(LIN::kNodeAddressTester, true),
+    Slave(Tester::kNodeAddress, true),
     _state(kStateIdle),
     _nodeAddress(0),
     _dataPage(0),
@@ -104,17 +104,17 @@ ToolSlave::st_response_received(Response &frame)
 
         // is this a response to a current request?
         if ((_state == kStateWaitData) &&
-            (frame.nad() == _nodeAddress) &&
-            (frame.sid() == (service_id::kReadDataByID | service_id::kResponseOffset))) {
+            (Signal::nad(frame) == _nodeAddress) &&
+            (Signal::sid(frame) == (service_id::kReadDataByID | service_id::kResponseOffset))) {
 
             // sanity-check the response
-            if ((frame.pci() != 5) ||
-                (frame.d1() != _dataIndex) ||
-                (frame.d2() != _dataPage)) {
+            if ((Signal::pci(frame) != 5) ||
+                (Signal::d1(frame) != _dataIndex) ||
+                (Signal::d2(frame) != _dataPage)) {
                 _state = kStateError;
 
             } else {
-                _dataValue = frame.d3() | (frame.d4() << 8);
+                _dataValue = Signal::d3(frame) | (Signal::d4(frame) << 8);
                 _state = kStateIdle;
                 debugc('t');
             }
@@ -140,12 +140,12 @@ ToolSlave::st_master_request(Response &frame)
 {
     bool reply = false;
 
-    switch (frame.sid()) {
+    switch (Signal::sid(frame)) {
     case service_id::kTesterPresent:
 
         // send a positive response to a directly-addressed request
-        if ((frame.nad() == LIN::kNodeAddressTester)) {
-            frame.sid() |= service_id::kResponseOffset;
+        if ((Signal::nad(frame) == Tester::kNodeAddress)) {
+            Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
             reply = true;
         }
 

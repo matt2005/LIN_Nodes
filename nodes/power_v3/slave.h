@@ -16,17 +16,17 @@ class RelaySlave : public Slave
 public:
     RelaySlave(uint8_t BoardID);
 
-    bool            test_relay(RelayID id) const
+    bool            test_relay(uint8_t relay_id)
     {
-        return (id < kRelayIDMax) && (relayFrame.test(id));
+        return SignalBase(_relayFrame, relay_id, 1, kEncoding_none).test();
     }
 
 protected:
     virtual void    st_header_received() override;
     virtual void    st_response_received(Response &frame) override;
-    virtual bool    st_read_data(uint8_t page, uint8_t index, uint16_t &value) override;
-    virtual bool    st_write_data(uint8_t page, uint8_t index, uint16_t value) override;
+    virtual bool    st_read_data(Parameter::Address address, uint16_t &value) override;
+    virtual bool    st_write_data(Parameter::Address address, uint16_t value) override;
 
 private:
-    LIN::RelayFrame relayFrame;
+    Response    _relayFrame;
 };

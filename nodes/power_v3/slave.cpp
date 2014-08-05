@@ -11,10 +11,9 @@
 
 #include "slave.h"
 #include "board.h"
-#include "param_power_v3.h"
 
 RelaySlave::RelaySlave(uint8_t BoardID) :
-    Slave(uint8_t(LIN::kNodeAddressPowerBase + BoardID - 1))
+    Slave(PowerV3::kNodeAddress + BoardID - 1)
 {
 }
 
@@ -38,7 +37,7 @@ RelaySlave::st_response_received(Response &frame)
     switch (current_FrameID()) {
 
     case kFrameIDRelays:
-        relayFrame.copy(frame);
+        _relayFrame = frame;
         break;
 
     default:
@@ -49,57 +48,26 @@ RelaySlave::st_response_received(Response &frame)
 
 
 bool
-RelaySlave::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
+RelaySlave::st_read_data(Parameter::Address address, uint16_t &value)
 {
-    bool result = false;
-
-    switch (page) {
-    case kDataPageStatus:
-        // XXX should implement this in a somewhat-generic fashion?
-        break;
-
-    case kDataPageNodeStatus:
-        // XXX need to gather / report status
-        break;
-
-    case kDataPageNodeParameters:
-        if (index < kPower_v3ParamMax) {
-            value = power_v3Param(index);
-            result = true;
-        }
-
-        break;
-
+    // Handle node parameters
+    if (PowerV3::parameter(address).exists()) {
+        value = PowerV3::parameter(address);
+        return true;
     }
 
-    if (!result) {
-        result = Slave::st_read_data(page, index, value);
-    }
-
-    return result;
+    // pass to superclass
+    return Slave::st_read_data(address, value);
 }
 
 bool
-RelaySlave::st_write_data(uint8_t page, uint8_t index, uint16_t value)
+RelaySlave::st_write_data(Parameter::Address address, uint16_t value)
 {
-    bool result = false;
-
-    switch (page) {
-    case kDataPageNodeParameters:
-        if (index < kPower_v3ParamMax) {
-            power_v3Param(index).set(value & 0xff);
-            result = true;
-        }
-
-        break;
-
-    default:
-        break;
+    Parameter p = PowerV3::parameter(address);
+    if (p.exists()) {
+        p = value;
+        return true;
     }
 
-    if (!result) {
-        result = Slave::st_write_data(page, index, value);
-    }
-
-    return result;
+    return Slave::st_write_data(address, value);
 }

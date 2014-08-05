@@ -13,7 +13,7 @@
 #include "board.h"
 
 RelaySlave::RelaySlave(uint8_t BoardID) :
-    Slave(PowerV1::kNodeAddress)
+    Slave(PowerV1::kNodeAddress + BoardID - 1)
 {
 }
 

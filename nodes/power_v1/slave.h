@@ -17,7 +17,8 @@ class RelaySlave : public Slave
 public:
     RelaySlave(uint8_t BoardID);
 
-    bool            test_relay(uint8_t relay_id) {
+    bool            test_relay(uint8_t relay_id)
+    {
         return SignalBase(_relayFrame, relay_id, 1, kEncoding_none).test();
     }
 

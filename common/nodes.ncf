@@ -7,7 +7,6 @@
 //
 // Experimental node configuration file
 //
-// XXX not currently in use or guaranteed even close to correct.
 // XXX would benefit from some templates exposing frame members, etc.
 // XXX LIN API not very good, do not generate code to conform
 // XXX NCF lacks a mechanism for defining parameters; the parameters

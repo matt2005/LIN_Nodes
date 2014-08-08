@@ -97,6 +97,8 @@ node Generic {
         Framing             {                   }
         Synch               {                   }
         Protocol            {                   }
+
+        ConfigBase          { address = 0x0400; }
     }
 }
 

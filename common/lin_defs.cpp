@@ -832,6 +832,8 @@ parameter(Parameter::Address address)
         break;
     case kParamProtocol:
         break;
+    case kParamConfigBase:
+        break;
     default:
         address = Parameter::noAddress;
     }
@@ -862,6 +864,7 @@ static const PROGMEM char _param_name_Parity[] = "Parity";
 static const PROGMEM char _param_name_Framing[] = "Framing";
 static const PROGMEM char _param_name_Synch[] = "Synch";
 static const PROGMEM char _param_name_Protocol[] = "Protocol";
+static const PROGMEM char _param_name_ConfigBase[] = "ConfigBase";
 
 const PROGMEM char *
 param_name(const Parameter &param)
@@ -895,6 +898,8 @@ param_name(const Parameter &param)
         return &_param_name_Synch[0];
     case kParamProtocol:
         return &_param_name_Protocol[0];
+    case kParamConfigBase:
+        return &_param_name_ConfigBase[0];
     }
     return nullptr;
 }
@@ -1399,23 +1404,23 @@ parameter(Parameter::Address address)
     case kParamCH3Assign1:
         encoding = kEncoding_output_assignment;
         break;
-    case kParamCH3PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
     case kParamCH3Assign2:
         encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH3PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
         break;
     case kParamCH3Assign3:
         encoding = kEncoding_output_assignment;
         break;
-    case kParamCH3PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
     case kParamCH3Assign4:
         encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH3PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH3PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH3PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
         break;
     case kParamCH3PWM4:
         encoding = kEncoding_pwm_duty_cycle;
@@ -1423,23 +1428,23 @@ parameter(Parameter::Address address)
     case kParamCH4Assign1:
         encoding = kEncoding_output_assignment;
         break;
-    case kParamCH4PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
     case kParamCH4Assign2:
         encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH4PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
         break;
     case kParamCH4Assign3:
         encoding = kEncoding_output_assignment;
         break;
-    case kParamCH4PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
     case kParamCH4Assign4:
         encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH4PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH4PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH4PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
         break;
     case kParamCH4PWM4:
         encoding = kEncoding_pwm_duty_cycle;
@@ -1447,23 +1452,23 @@ parameter(Parameter::Address address)
     case kParamCH5Assign1:
         encoding = kEncoding_output_assignment;
         break;
-    case kParamCH5PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
     case kParamCH5Assign2:
         encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH5PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
         break;
     case kParamCH5Assign3:
         encoding = kEncoding_output_assignment;
         break;
-    case kParamCH5PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
     case kParamCH5Assign4:
         encoding = kEncoding_output_assignment;
+        break;
+    case kParamCH5PWM1:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH5PWM2:
+        encoding = kEncoding_pwm_duty_cycle;
+        break;
+    case kParamCH5PWM3:
+        encoding = kEncoding_pwm_duty_cycle;
         break;
     case kParamCH5PWM4:
         encoding = kEncoding_pwm_duty_cycle;
@@ -1559,23 +1564,23 @@ void param_default(const Parameter &param)
         case kParamCH3Assign1:
             value = 255;
             break;
-        case kParamCH3PWM1:
-            value = 0;
-            break;
         case kParamCH3Assign2:
             value = 255;
-            break;
-        case kParamCH3PWM2:
-            value = 0;
             break;
         case kParamCH3Assign3:
             value = 255;
             break;
-        case kParamCH3PWM3:
-            value = 0;
-            break;
         case kParamCH3Assign4:
             value = 255;
+            break;
+        case kParamCH3PWM1:
+            value = 0;
+            break;
+        case kParamCH3PWM2:
+            value = 0;
+            break;
+        case kParamCH3PWM3:
+            value = 0;
             break;
         case kParamCH3PWM4:
             value = 0;
@@ -1583,23 +1588,23 @@ void param_default(const Parameter &param)
         case kParamCH4Assign1:
             value = 255;
             break;
-        case kParamCH4PWM1:
-            value = 0;
-            break;
         case kParamCH4Assign2:
             value = 255;
-            break;
-        case kParamCH4PWM2:
-            value = 0;
             break;
         case kParamCH4Assign3:
             value = 255;
             break;
-        case kParamCH4PWM3:
-            value = 0;
-            break;
         case kParamCH4Assign4:
             value = 255;
+            break;
+        case kParamCH4PWM1:
+            value = 0;
+            break;
+        case kParamCH4PWM2:
+            value = 0;
+            break;
+        case kParamCH4PWM3:
+            value = 0;
             break;
         case kParamCH4PWM4:
             value = 0;
@@ -1607,23 +1612,23 @@ void param_default(const Parameter &param)
         case kParamCH5Assign1:
             value = 255;
             break;
-        case kParamCH5PWM1:
-            value = 0;
-            break;
         case kParamCH5Assign2:
             value = 255;
-            break;
-        case kParamCH5PWM2:
-            value = 0;
             break;
         case kParamCH5Assign3:
             value = 255;
             break;
-        case kParamCH5PWM3:
-            value = 0;
-            break;
         case kParamCH5Assign4:
             value = 255;
+            break;
+        case kParamCH5PWM1:
+            value = 0;
+            break;
+        case kParamCH5PWM2:
+            value = 0;
+            break;
+        case kParamCH5PWM3:
+            value = 0;
             break;
         case kParamCH5PWM4:
             value = 0;
@@ -1661,28 +1666,28 @@ static const PROGMEM char _param_name_CH2PWM2[] = "CH2PWM2";
 static const PROGMEM char _param_name_CH2PWM3[] = "CH2PWM3";
 static const PROGMEM char _param_name_CH2PWM4[] = "CH2PWM4";
 static const PROGMEM char _param_name_CH3Assign1[] = "CH3Assign1";
-static const PROGMEM char _param_name_CH3PWM1[] = "CH3PWM1";
 static const PROGMEM char _param_name_CH3Assign2[] = "CH3Assign2";
-static const PROGMEM char _param_name_CH3PWM2[] = "CH3PWM2";
 static const PROGMEM char _param_name_CH3Assign3[] = "CH3Assign3";
-static const PROGMEM char _param_name_CH3PWM3[] = "CH3PWM3";
 static const PROGMEM char _param_name_CH3Assign4[] = "CH3Assign4";
+static const PROGMEM char _param_name_CH3PWM1[] = "CH3PWM1";
+static const PROGMEM char _param_name_CH3PWM2[] = "CH3PWM2";
+static const PROGMEM char _param_name_CH3PWM3[] = "CH3PWM3";
 static const PROGMEM char _param_name_CH3PWM4[] = "CH3PWM4";
 static const PROGMEM char _param_name_CH4Assign1[] = "CH4Assign1";
-static const PROGMEM char _param_name_CH4PWM1[] = "CH4PWM1";
 static const PROGMEM char _param_name_CH4Assign2[] = "CH4Assign2";
-static const PROGMEM char _param_name_CH4PWM2[] = "CH4PWM2";
 static const PROGMEM char _param_name_CH4Assign3[] = "CH4Assign3";
-static const PROGMEM char _param_name_CH4PWM3[] = "CH4PWM3";
 static const PROGMEM char _param_name_CH4Assign4[] = "CH4Assign4";
+static const PROGMEM char _param_name_CH4PWM1[] = "CH4PWM1";
+static const PROGMEM char _param_name_CH4PWM2[] = "CH4PWM2";
+static const PROGMEM char _param_name_CH4PWM3[] = "CH4PWM3";
 static const PROGMEM char _param_name_CH4PWM4[] = "CH4PWM4";
 static const PROGMEM char _param_name_CH5Assign1[] = "CH5Assign1";
-static const PROGMEM char _param_name_CH5PWM1[] = "CH5PWM1";
 static const PROGMEM char _param_name_CH5Assign2[] = "CH5Assign2";
-static const PROGMEM char _param_name_CH5PWM2[] = "CH5PWM2";
 static const PROGMEM char _param_name_CH5Assign3[] = "CH5Assign3";
-static const PROGMEM char _param_name_CH5PWM3[] = "CH5PWM3";
 static const PROGMEM char _param_name_CH5Assign4[] = "CH5Assign4";
+static const PROGMEM char _param_name_CH5PWM1[] = "CH5PWM1";
+static const PROGMEM char _param_name_CH5PWM2[] = "CH5PWM2";
+static const PROGMEM char _param_name_CH5PWM3[] = "CH5PWM3";
 static const PROGMEM char _param_name_CH5PWM4[] = "CH5PWM4";
 
 const PROGMEM char *
@@ -1743,50 +1748,50 @@ param_name(const Parameter &param)
         return &_param_name_CH2PWM4[0];
     case kParamCH3Assign1:
         return &_param_name_CH3Assign1[0];
-    case kParamCH3PWM1:
-        return &_param_name_CH3PWM1[0];
     case kParamCH3Assign2:
         return &_param_name_CH3Assign2[0];
-    case kParamCH3PWM2:
-        return &_param_name_CH3PWM2[0];
     case kParamCH3Assign3:
         return &_param_name_CH3Assign3[0];
-    case kParamCH3PWM3:
-        return &_param_name_CH3PWM3[0];
     case kParamCH3Assign4:
         return &_param_name_CH3Assign4[0];
+    case kParamCH3PWM1:
+        return &_param_name_CH3PWM1[0];
+    case kParamCH3PWM2:
+        return &_param_name_CH3PWM2[0];
+    case kParamCH3PWM3:
+        return &_param_name_CH3PWM3[0];
     case kParamCH3PWM4:
         return &_param_name_CH3PWM4[0];
     case kParamCH4Assign1:
         return &_param_name_CH4Assign1[0];
-    case kParamCH4PWM1:
-        return &_param_name_CH4PWM1[0];
     case kParamCH4Assign2:
         return &_param_name_CH4Assign2[0];
-    case kParamCH4PWM2:
-        return &_param_name_CH4PWM2[0];
     case kParamCH4Assign3:
         return &_param_name_CH4Assign3[0];
-    case kParamCH4PWM3:
-        return &_param_name_CH4PWM3[0];
     case kParamCH4Assign4:
         return &_param_name_CH4Assign4[0];
+    case kParamCH4PWM1:
+        return &_param_name_CH4PWM1[0];
+    case kParamCH4PWM2:
+        return &_param_name_CH4PWM2[0];
+    case kParamCH4PWM3:
+        return &_param_name_CH4PWM3[0];
     case kParamCH4PWM4:
         return &_param_name_CH4PWM4[0];
     case kParamCH5Assign1:
         return &_param_name_CH5Assign1[0];
-    case kParamCH5PWM1:
-        return &_param_name_CH5PWM1[0];
     case kParamCH5Assign2:
         return &_param_name_CH5Assign2[0];
-    case kParamCH5PWM2:
-        return &_param_name_CH5PWM2[0];
     case kParamCH5Assign3:
         return &_param_name_CH5Assign3[0];
-    case kParamCH5PWM3:
-        return &_param_name_CH5PWM3[0];
     case kParamCH5Assign4:
         return &_param_name_CH5Assign4[0];
+    case kParamCH5PWM1:
+        return &_param_name_CH5PWM1[0];
+    case kParamCH5PWM2:
+        return &_param_name_CH5PWM2[0];
+    case kParamCH5PWM3:
+        return &_param_name_CH5PWM3[0];
     case kParamCH5PWM4:
         return &_param_name_CH5PWM4[0];
     }

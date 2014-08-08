@@ -16,8 +16,6 @@
 #include "m_top.h"
 #include "slave.h"
 
-#include "protocol.h"
-
 namespace Menu
 {
 

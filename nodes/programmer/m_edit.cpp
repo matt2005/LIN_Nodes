@@ -22,12 +22,9 @@ namespace Menu
 //
 
 Mode            *EditMode::_from;
-uint8_t         *EditMode::_value;
 Display::Region EditMode::_region;
-uint8_t         EditMode::_min;
-uint8_t         EditMode::_max;
-const char      *EditMode::_fmt;
-const char      *EditMode::_stringtab;
+Parameter       *EditMode::_param;
+uint16_t        *EditMode::_value;
 
 Mode *
 EditMode::action(Encoder::Event bp)
@@ -59,38 +56,13 @@ EditMode::action(Encoder::Event bp)
 void
 EditMode::increment()
 {
-    if (_stringtab == nullptr) {
-        if ((*_value) < _max) {
-            (*_value)++;
-
-        } else if ((*_value) == _max) {
-            (*_value) = _min;
-        }
-
-    } else {
-        if ((*_value) < (Util::strtablen(_stringtab) - 1)) {
-            (*_value)++;
-
-        } else {
-            (*_value) = 0;
-        }
-    }
+    _param->next(*_value, 1);
 }
 
 void
 EditMode::decrement()
 {
-    if ((*_value) > 0) {
-        (*_value)--;
-
-    } else {
-        if (_stringtab == nullptr) {
-            (*_value) = _max;
-
-        } else {
-            (*_value) = Util::strtablen(_stringtab) - 1;
-        }
-    }
+    _param->next(*_value, -1);
 }
 
 void
@@ -99,11 +71,11 @@ EditMode::draw()
     gDisplay.clear(_region);
     gDisplay.move(_region.p);
 
-    if (_stringtab == nullptr) {
-        gDisplay.printf(_fmt, (*_value));
-
+    const char *info = _param->info(*_value);
+    if (info != nullptr) {
+        gDisplay.printf(PSTR("%s"), info);
     } else {
-        gDisplay.printf(Util::strtab(_stringtab, (*_value)));
+        gDisplay.printf(PSTR("%u"), (*_value));
     }
 }
 

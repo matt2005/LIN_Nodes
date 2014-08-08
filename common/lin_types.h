@@ -139,13 +139,15 @@ class Parameter
 public:
     typedef uint16_t Address;
     typedef void    (* Defaulter)(const Parameter &param);
+    typedef const PROGMEM char *(* Namer)(const Parameter &param);
 
     static const Address    noAddress = 0xffff;
 
-    constexpr Parameter(Address address, uint8_t encoding, Defaulter defaulter) :
+    constexpr Parameter(Address address, uint8_t encoding, Defaulter defaulter, Namer namer) :
         _address(address),
         _encoding(encoding),
-        _defaulter(defaulter)
+        _defaulter(defaulter),
+        _namer(namer)
     {
     }
 
@@ -156,6 +158,7 @@ public:
     uint16_t        get() const;                // must be implemented by the device
 
     uint16_t        address() const { return _address; }
+    const char      *name() const { return _namer(*this); }
 
     void            init() const 
     {
@@ -171,12 +174,10 @@ public:
         return Encoding::invalid(_encoding, value);
     }
 
-    bool            prev(uint16_t &value, uint16_t decrement = 1) const
+    bool            next(uint16_t &value, int16_t increment) const
     {
-        uint16_t new_value = value;
-
-        while (new_value >= decrement) {
-            new_value -= decrement;
+        // don't advance out of the parameter group (high byte must remain the same)
+        for (uint16_t new_value = value; (new_value >> 8) == (value >> 8); value += increment) {
             if (!is_invalid(new_value)) {
                 value = new_value;
                 return true;
@@ -185,22 +186,14 @@ public:
         return false;
     }
 
-    bool            next(uint16_t &value, uint16_t increment = 1) const
+    const char      *info(uint16_t value)
     {
-        uint16_t new_value = value;
-
-        while ((new_value + increment) > new_value) {
-            new_value += increment;
-            if (!is_invalid(new_value)) {
-                value = new_value;
-                return true;
-            }
-        }
-        return false;
+        return Encoding::info(_encoding, value);
     }
 
 private:
     const Address   _address;
     const uint8_t   _encoding;
     const Defaulter _defaulter;
+    const Namer     _namer;
 };

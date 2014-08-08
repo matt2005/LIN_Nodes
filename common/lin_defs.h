@@ -493,106 +493,114 @@ static const uint16_t kParamParity = 0x0202;
 static const uint16_t kParamFraming = 0x0203;
 static const uint16_t kParamSynch = 0x0204;
 static const uint16_t kParamProtocol = 0x0205;
+static const uint16_t kParamConfigBase = 0x0400;
 
 // explicit parameter subclasses for Generic
 
 class ParamProtocolVersion : public Parameter
 {
 public:
-    constexpr ParamProtocolVersion() : Parameter(kParamProtocolVersion, kEncoding_none, param_default) {}
+    constexpr ParamProtocolVersion() : Parameter(kParamProtocolVersion, kEncoding_none, param_default, param_name) {}
 };
 static const ParamProtocolVersion paramProtocolVersion;
 
 class ParamBoardFunction : public Parameter
 {
 public:
-    constexpr ParamBoardFunction() : Parameter(kParamBoardFunction, kEncoding_none, param_default) {}
+    constexpr ParamBoardFunction() : Parameter(kParamBoardFunction, kEncoding_none, param_default, param_name) {}
 };
 static const ParamBoardFunction paramBoardFunction;
 
 class ParamBootloaderMode : public Parameter
 {
 public:
-    constexpr ParamBootloaderMode() : Parameter(kParamBootloaderMode, kEncoding_none, param_default) {}
+    constexpr ParamBootloaderMode() : Parameter(kParamBootloaderMode, kEncoding_none, param_default, param_name) {}
 };
 static const ParamBootloaderMode paramBootloaderMode;
 
 class ParamFirmwareVersion : public Parameter
 {
 public:
-    constexpr ParamFirmwareVersion() : Parameter(kParamFirmwareVersion, kEncoding_none, param_default) {}
+    constexpr ParamFirmwareVersion() : Parameter(kParamFirmwareVersion, kEncoding_none, param_default, param_name) {}
 };
 static const ParamFirmwareVersion paramFirmwareVersion;
 
 class ParamFirmwarePageSize : public Parameter
 {
 public:
-    constexpr ParamFirmwarePageSize() : Parameter(kParamFirmwarePageSize, kEncoding_none, param_default) {}
+    constexpr ParamFirmwarePageSize() : Parameter(kParamFirmwarePageSize, kEncoding_none, param_default, param_name) {}
 };
 static const ParamFirmwarePageSize paramFirmwarePageSize;
 
 class ParamWatchdogResets : public Parameter
 {
 public:
-    constexpr ParamWatchdogResets() : Parameter(kParamWatchdogResets, kEncoding_none, param_default) {}
+    constexpr ParamWatchdogResets() : Parameter(kParamWatchdogResets, kEncoding_none, param_default, param_name) {}
 };
 static const ParamWatchdogResets paramWatchdogResets;
 
 class ParamSupplyVoltage : public Parameter
 {
 public:
-    constexpr ParamSupplyVoltage() : Parameter(kParamSupplyVoltage, kEncoding_none, param_default) {}
+    constexpr ParamSupplyVoltage() : Parameter(kParamSupplyVoltage, kEncoding_none, param_default, param_name) {}
 };
 static const ParamSupplyVoltage paramSupplyVoltage;
 
 class ParamTemperature : public Parameter
 {
 public:
-    constexpr ParamTemperature() : Parameter(kParamTemperature, kEncoding_none, param_default) {}
+    constexpr ParamTemperature() : Parameter(kParamTemperature, kEncoding_none, param_default, param_name) {}
 };
 static const ParamTemperature paramTemperature;
 
 class ParamLine : public Parameter
 {
 public:
-    constexpr ParamLine() : Parameter(kParamLine, kEncoding_none, param_default) {}
+    constexpr ParamLine() : Parameter(kParamLine, kEncoding_none, param_default, param_name) {}
 };
 static const ParamLine paramLine;
 
 class ParamChecksum : public Parameter
 {
 public:
-    constexpr ParamChecksum() : Parameter(kParamChecksum, kEncoding_none, param_default) {}
+    constexpr ParamChecksum() : Parameter(kParamChecksum, kEncoding_none, param_default, param_name) {}
 };
 static const ParamChecksum paramChecksum;
 
 class ParamParity : public Parameter
 {
 public:
-    constexpr ParamParity() : Parameter(kParamParity, kEncoding_none, param_default) {}
+    constexpr ParamParity() : Parameter(kParamParity, kEncoding_none, param_default, param_name) {}
 };
 static const ParamParity paramParity;
 
 class ParamFraming : public Parameter
 {
 public:
-    constexpr ParamFraming() : Parameter(kParamFraming, kEncoding_none, param_default) {}
+    constexpr ParamFraming() : Parameter(kParamFraming, kEncoding_none, param_default, param_name) {}
 };
 static const ParamFraming paramFraming;
 
 class ParamSynch : public Parameter
 {
 public:
-    constexpr ParamSynch() : Parameter(kParamSynch, kEncoding_none, param_default) {}
+    constexpr ParamSynch() : Parameter(kParamSynch, kEncoding_none, param_default, param_name) {}
 };
 static const ParamSynch paramSynch;
 
 class ParamProtocol : public Parameter
 {
 public:
-    constexpr ParamProtocol() : Parameter(kParamProtocol, kEncoding_none, param_default) {}
+    constexpr ParamProtocol() : Parameter(kParamProtocol, kEncoding_none, param_default, param_name) {}
 };
 static const ParamProtocol paramProtocol;
+
+class ParamConfigBase : public Parameter
+{
+public:
+    constexpr ParamConfigBase() : Parameter(kParamConfigBase, kEncoding_none, param_default, param_name) {}
+};
+static const ParamConfigBase paramConfigBase;
 
 } // namespace Generic
 
@@ -637,203 +645,203 @@ static const uint16_t kParamWiperInterval = 0x041c;
 class ParamSP1Assign : public Parameter
 {
 public:
-    constexpr ParamSP1Assign() : Parameter(kParamSP1Assign, kEncoding_input, param_default) {}
+    constexpr ParamSP1Assign() : Parameter(kParamSP1Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSP1Assign paramSP1Assign;
 
 class ParamSP2Assign : public Parameter
 {
 public:
-    constexpr ParamSP2Assign() : Parameter(kParamSP2Assign, kEncoding_input, param_default) {}
+    constexpr ParamSP2Assign() : Parameter(kParamSP2Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSP2Assign paramSP2Assign;
 
 class ParamSP3Assign : public Parameter
 {
 public:
-    constexpr ParamSP3Assign() : Parameter(kParamSP3Assign, kEncoding_input, param_default) {}
+    constexpr ParamSP3Assign() : Parameter(kParamSP3Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSP3Assign paramSP3Assign;
 
 class ParamSP4Assign : public Parameter
 {
 public:
-    constexpr ParamSP4Assign() : Parameter(kParamSP4Assign, kEncoding_input, param_default) {}
+    constexpr ParamSP4Assign() : Parameter(kParamSP4Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSP4Assign paramSP4Assign;
 
 class ParamSP5Assign : public Parameter
 {
 public:
-    constexpr ParamSP5Assign() : Parameter(kParamSP5Assign, kEncoding_input, param_default) {}
+    constexpr ParamSP5Assign() : Parameter(kParamSP5Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSP5Assign paramSP5Assign;
 
 class ParamSP6Assign : public Parameter
 {
 public:
-    constexpr ParamSP6Assign() : Parameter(kParamSP6Assign, kEncoding_input, param_default) {}
+    constexpr ParamSP6Assign() : Parameter(kParamSP6Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSP6Assign paramSP6Assign;
 
 class ParamSP7Assign : public Parameter
 {
 public:
-    constexpr ParamSP7Assign() : Parameter(kParamSP7Assign, kEncoding_input, param_default) {}
+    constexpr ParamSP7Assign() : Parameter(kParamSP7Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSP7Assign paramSP7Assign;
 
 class ParamSG0Assign : public Parameter
 {
 public:
-    constexpr ParamSG0Assign() : Parameter(kParamSG0Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG0Assign() : Parameter(kParamSG0Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG0Assign paramSG0Assign;
 
 class ParamSG1Assign : public Parameter
 {
 public:
-    constexpr ParamSG1Assign() : Parameter(kParamSG1Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG1Assign() : Parameter(kParamSG1Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG1Assign paramSG1Assign;
 
 class ParamSG2Assign : public Parameter
 {
 public:
-    constexpr ParamSG2Assign() : Parameter(kParamSG2Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG2Assign() : Parameter(kParamSG2Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG2Assign paramSG2Assign;
 
 class ParamSG3Assign : public Parameter
 {
 public:
-    constexpr ParamSG3Assign() : Parameter(kParamSG3Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG3Assign() : Parameter(kParamSG3Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG3Assign paramSG3Assign;
 
 class ParamSG4Assign : public Parameter
 {
 public:
-    constexpr ParamSG4Assign() : Parameter(kParamSG4Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG4Assign() : Parameter(kParamSG4Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG4Assign paramSG4Assign;
 
 class ParamSG5Assign : public Parameter
 {
 public:
-    constexpr ParamSG5Assign() : Parameter(kParamSG5Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG5Assign() : Parameter(kParamSG5Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG5Assign paramSG5Assign;
 
 class ParamSG6Assign : public Parameter
 {
 public:
-    constexpr ParamSG6Assign() : Parameter(kParamSG6Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG6Assign() : Parameter(kParamSG6Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG6Assign paramSG6Assign;
 
 class ParamSG7Assign : public Parameter
 {
 public:
-    constexpr ParamSG7Assign() : Parameter(kParamSG7Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG7Assign() : Parameter(kParamSG7Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG7Assign paramSG7Assign;
 
 class ParamSG8Assign : public Parameter
 {
 public:
-    constexpr ParamSG8Assign() : Parameter(kParamSG8Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG8Assign() : Parameter(kParamSG8Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG8Assign paramSG8Assign;
 
 class ParamSG9Assign : public Parameter
 {
 public:
-    constexpr ParamSG9Assign() : Parameter(kParamSG9Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG9Assign() : Parameter(kParamSG9Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG9Assign paramSG9Assign;
 
 class ParamSG10Assign : public Parameter
 {
 public:
-    constexpr ParamSG10Assign() : Parameter(kParamSG10Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG10Assign() : Parameter(kParamSG10Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG10Assign paramSG10Assign;
 
 class ParamSG11Assign : public Parameter
 {
 public:
-    constexpr ParamSG11Assign() : Parameter(kParamSG11Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG11Assign() : Parameter(kParamSG11Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG11Assign paramSG11Assign;
 
 class ParamSG12Assign : public Parameter
 {
 public:
-    constexpr ParamSG12Assign() : Parameter(kParamSG12Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG12Assign() : Parameter(kParamSG12Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG12Assign paramSG12Assign;
 
 class ParamSG13Assign : public Parameter
 {
 public:
-    constexpr ParamSG13Assign() : Parameter(kParamSG13Assign, kEncoding_input, param_default) {}
+    constexpr ParamSG13Assign() : Parameter(kParamSG13Assign, kEncoding_input, param_default, param_name) {}
 };
 static const ParamSG13Assign paramSG13Assign;
 
 class ParamTurnBlinkPeriod : public Parameter
 {
 public:
-    constexpr ParamTurnBlinkPeriod() : Parameter(kParamTurnBlinkPeriod, kEncoding_msec, param_default) {}
+    constexpr ParamTurnBlinkPeriod() : Parameter(kParamTurnBlinkPeriod, kEncoding_msec, param_default, param_name) {}
 };
 static const ParamTurnBlinkPeriod paramTurnBlinkPeriod;
 
 class ParamPassingBlinkCount : public Parameter
 {
 public:
-    constexpr ParamPassingBlinkCount() : Parameter(kParamPassingBlinkCount, kEncoding_up_to_10, param_default) {}
+    constexpr ParamPassingBlinkCount() : Parameter(kParamPassingBlinkCount, kEncoding_up_to_10, param_default, param_name) {}
 };
 static const ParamPassingBlinkCount paramPassingBlinkCount;
 
 class ParamPathLightTime : public Parameter
 {
 public:
-    constexpr ParamPathLightTime() : Parameter(kParamPathLightTime, kEncoding_sec, param_default) {}
+    constexpr ParamPathLightTime() : Parameter(kParamPathLightTime, kEncoding_sec, param_default, param_name) {}
 };
 static const ParamPathLightTime paramPathLightTime;
 
 class ParamInteriorLightTime : public Parameter
 {
 public:
-    constexpr ParamInteriorLightTime() : Parameter(kParamInteriorLightTime, kEncoding_sec, param_default) {}
+    constexpr ParamInteriorLightTime() : Parameter(kParamInteriorLightTime, kEncoding_sec, param_default, param_name) {}
 };
 static const ParamInteriorLightTime paramInteriorLightTime;
 
 class ParamWelcomeLightTime : public Parameter
 {
 public:
-    constexpr ParamWelcomeLightTime() : Parameter(kParamWelcomeLightTime, kEncoding_sec, param_default) {}
+    constexpr ParamWelcomeLightTime() : Parameter(kParamWelcomeLightTime, kEncoding_sec, param_default, param_name) {}
 };
 static const ParamWelcomeLightTime paramWelcomeLightTime;
 
 class ParamBrakeBlinkPeriod : public Parameter
 {
 public:
-    constexpr ParamBrakeBlinkPeriod() : Parameter(kParamBrakeBlinkPeriod, kEncoding_msec, param_default) {}
+    constexpr ParamBrakeBlinkPeriod() : Parameter(kParamBrakeBlinkPeriod, kEncoding_msec, param_default, param_name) {}
 };
 static const ParamBrakeBlinkPeriod paramBrakeBlinkPeriod;
 
 class ParamBrakeBlinkCount : public Parameter
 {
 public:
-    constexpr ParamBrakeBlinkCount() : Parameter(kParamBrakeBlinkCount, kEncoding_up_to_10, param_default) {}
+    constexpr ParamBrakeBlinkCount() : Parameter(kParamBrakeBlinkCount, kEncoding_up_to_10, param_default, param_name) {}
 };
 static const ParamBrakeBlinkCount paramBrakeBlinkCount;
 
 class ParamWiperInterval : public Parameter
 {
 public:
-    constexpr ParamWiperInterval() : Parameter(kParamWiperInterval, kEncoding_msec, param_default) {}
+    constexpr ParamWiperInterval() : Parameter(kParamWiperInterval, kEncoding_msec, param_default, param_name) {}
 };
 static const ParamWiperInterval paramWiperInterval;
 
@@ -859,56 +867,56 @@ static const uint16_t kParamRelay4Assign = 0x0403;
 class ParamRelay1Status : public Parameter
 {
 public:
-    constexpr ParamRelay1Status() : Parameter(kParamRelay1Status, kEncoding_v1_output_status, param_default) {}
+    constexpr ParamRelay1Status() : Parameter(kParamRelay1Status, kEncoding_v1_output_status, param_default, param_name) {}
 };
 static const ParamRelay1Status paramRelay1Status;
 
 class ParamRelay2Status : public Parameter
 {
 public:
-    constexpr ParamRelay2Status() : Parameter(kParamRelay2Status, kEncoding_v1_output_status, param_default) {}
+    constexpr ParamRelay2Status() : Parameter(kParamRelay2Status, kEncoding_v1_output_status, param_default, param_name) {}
 };
 static const ParamRelay2Status paramRelay2Status;
 
 class ParamRelay3Status : public Parameter
 {
 public:
-    constexpr ParamRelay3Status() : Parameter(kParamRelay3Status, kEncoding_v1_output_status, param_default) {}
+    constexpr ParamRelay3Status() : Parameter(kParamRelay3Status, kEncoding_v1_output_status, param_default, param_name) {}
 };
 static const ParamRelay3Status paramRelay3Status;
 
 class ParamRelay4Status : public Parameter
 {
 public:
-    constexpr ParamRelay4Status() : Parameter(kParamRelay4Status, kEncoding_v1_output_status, param_default) {}
+    constexpr ParamRelay4Status() : Parameter(kParamRelay4Status, kEncoding_v1_output_status, param_default, param_name) {}
 };
 static const ParamRelay4Status paramRelay4Status;
 
 class ParamRelay1Assign : public Parameter
 {
 public:
-    constexpr ParamRelay1Assign() : Parameter(kParamRelay1Assign, kEncoding_v1_output_assignment, param_default) {}
+    constexpr ParamRelay1Assign() : Parameter(kParamRelay1Assign, kEncoding_v1_output_assignment, param_default, param_name) {}
 };
 static const ParamRelay1Assign paramRelay1Assign;
 
 class ParamRelay2Assign : public Parameter
 {
 public:
-    constexpr ParamRelay2Assign() : Parameter(kParamRelay2Assign, kEncoding_v1_output_assignment, param_default) {}
+    constexpr ParamRelay2Assign() : Parameter(kParamRelay2Assign, kEncoding_v1_output_assignment, param_default, param_name) {}
 };
 static const ParamRelay2Assign paramRelay2Assign;
 
 class ParamRelay3Assign : public Parameter
 {
 public:
-    constexpr ParamRelay3Assign() : Parameter(kParamRelay3Assign, kEncoding_v1_output_assignment, param_default) {}
+    constexpr ParamRelay3Assign() : Parameter(kParamRelay3Assign, kEncoding_v1_output_assignment, param_default, param_name) {}
 };
 static const ParamRelay3Assign paramRelay3Assign;
 
 class ParamRelay4Assign : public Parameter
 {
 public:
-    constexpr ParamRelay4Assign() : Parameter(kParamRelay4Assign, kEncoding_v1_output_assignment, param_default) {}
+    constexpr ParamRelay4Assign() : Parameter(kParamRelay4Assign, kEncoding_v1_output_assignment, param_default, param_name) {}
 };
 static const ParamRelay4Assign paramRelay4Assign;
 
@@ -947,28 +955,28 @@ static const uint16_t kParamCH2PWM2 = 0x0412;
 static const uint16_t kParamCH2PWM3 = 0x0413;
 static const uint16_t kParamCH2PWM4 = 0x0414;
 static const uint16_t kParamCH3Assign1 = 0x0415;
-static const uint16_t kParamCH3PWM1 = 0x0416;
-static const uint16_t kParamCH3Assign2 = 0x0417;
-static const uint16_t kParamCH3PWM2 = 0x0418;
-static const uint16_t kParamCH3Assign3 = 0x0419;
-static const uint16_t kParamCH3PWM3 = 0x041a;
-static const uint16_t kParamCH3Assign4 = 0x041b;
+static const uint16_t kParamCH3Assign2 = 0x0416;
+static const uint16_t kParamCH3Assign3 = 0x0417;
+static const uint16_t kParamCH3Assign4 = 0x0418;
+static const uint16_t kParamCH3PWM1 = 0x0419;
+static const uint16_t kParamCH3PWM2 = 0x041a;
+static const uint16_t kParamCH3PWM3 = 0x041b;
 static const uint16_t kParamCH3PWM4 = 0x041c;
 static const uint16_t kParamCH4Assign1 = 0x041d;
-static const uint16_t kParamCH4PWM1 = 0x041e;
-static const uint16_t kParamCH4Assign2 = 0x041f;
-static const uint16_t kParamCH4PWM2 = 0x0420;
-static const uint16_t kParamCH4Assign3 = 0x0421;
-static const uint16_t kParamCH4PWM3 = 0x0422;
-static const uint16_t kParamCH4Assign4 = 0x0423;
+static const uint16_t kParamCH4Assign2 = 0x041e;
+static const uint16_t kParamCH4Assign3 = 0x041f;
+static const uint16_t kParamCH4Assign4 = 0x0420;
+static const uint16_t kParamCH4PWM1 = 0x0421;
+static const uint16_t kParamCH4PWM2 = 0x0422;
+static const uint16_t kParamCH4PWM3 = 0x0423;
 static const uint16_t kParamCH4PWM4 = 0x0424;
 static const uint16_t kParamCH5Assign1 = 0x0425;
-static const uint16_t kParamCH5PWM1 = 0x0426;
-static const uint16_t kParamCH5Assign2 = 0x0427;
-static const uint16_t kParamCH5PWM2 = 0x0428;
-static const uint16_t kParamCH5Assign3 = 0x0429;
-static const uint16_t kParamCH5PWM3 = 0x042a;
-static const uint16_t kParamCH5Assign4 = 0x042b;
+static const uint16_t kParamCH5Assign2 = 0x0426;
+static const uint16_t kParamCH5Assign3 = 0x0427;
+static const uint16_t kParamCH5Assign4 = 0x0428;
+static const uint16_t kParamCH5PWM1 = 0x0429;
+static const uint16_t kParamCH5PWM2 = 0x042a;
+static const uint16_t kParamCH5PWM3 = 0x042b;
 static const uint16_t kParamCH5PWM4 = 0x042c;
 
 // explicit parameter subclasses for PowerV3
@@ -976,350 +984,350 @@ static const uint16_t kParamCH5PWM4 = 0x042c;
 class ParamCH1Status : public Parameter
 {
 public:
-    constexpr ParamCH1Status() : Parameter(kParamCH1Status, kEncoding_v3_output_status, param_default) {}
+    constexpr ParamCH1Status() : Parameter(kParamCH1Status, kEncoding_v3_output_status, param_default, param_name) {}
 };
 static const ParamCH1Status paramCH1Status;
 
 class ParamCH2Status : public Parameter
 {
 public:
-    constexpr ParamCH2Status() : Parameter(kParamCH2Status, kEncoding_v3_output_status, param_default) {}
+    constexpr ParamCH2Status() : Parameter(kParamCH2Status, kEncoding_v3_output_status, param_default, param_name) {}
 };
 static const ParamCH2Status paramCH2Status;
 
 class ParamCH3Status : public Parameter
 {
 public:
-    constexpr ParamCH3Status() : Parameter(kParamCH3Status, kEncoding_v3_output_status, param_default) {}
+    constexpr ParamCH3Status() : Parameter(kParamCH3Status, kEncoding_v3_output_status, param_default, param_name) {}
 };
 static const ParamCH3Status paramCH3Status;
 
 class ParamCH4Status : public Parameter
 {
 public:
-    constexpr ParamCH4Status() : Parameter(kParamCH4Status, kEncoding_v3_output_status, param_default) {}
+    constexpr ParamCH4Status() : Parameter(kParamCH4Status, kEncoding_v3_output_status, param_default, param_name) {}
 };
 static const ParamCH4Status paramCH4Status;
 
 class ParamCH5Status : public Parameter
 {
 public:
-    constexpr ParamCH5Status() : Parameter(kParamCH5Status, kEncoding_v3_output_status, param_default) {}
+    constexpr ParamCH5Status() : Parameter(kParamCH5Status, kEncoding_v3_output_status, param_default, param_name) {}
 };
 static const ParamCH5Status paramCH5Status;
 
 class ParamCH1Type : public Parameter
 {
 public:
-    constexpr ParamCH1Type() : Parameter(kParamCH1Type, kEncoding_output_type, param_default) {}
+    constexpr ParamCH1Type() : Parameter(kParamCH1Type, kEncoding_output_type, param_default, param_name) {}
 };
 static const ParamCH1Type paramCH1Type;
 
 class ParamCH2Type : public Parameter
 {
 public:
-    constexpr ParamCH2Type() : Parameter(kParamCH2Type, kEncoding_output_type, param_default) {}
+    constexpr ParamCH2Type() : Parameter(kParamCH2Type, kEncoding_output_type, param_default, param_name) {}
 };
 static const ParamCH2Type paramCH2Type;
 
 class ParamCH3Type : public Parameter
 {
 public:
-    constexpr ParamCH3Type() : Parameter(kParamCH3Type, kEncoding_output_type, param_default) {}
+    constexpr ParamCH3Type() : Parameter(kParamCH3Type, kEncoding_output_type, param_default, param_name) {}
 };
 static const ParamCH3Type paramCH3Type;
 
 class ParamCH4Type : public Parameter
 {
 public:
-    constexpr ParamCH4Type() : Parameter(kParamCH4Type, kEncoding_output_type, param_default) {}
+    constexpr ParamCH4Type() : Parameter(kParamCH4Type, kEncoding_output_type, param_default, param_name) {}
 };
 static const ParamCH4Type paramCH4Type;
 
 class ParamCH5Type : public Parameter
 {
 public:
-    constexpr ParamCH5Type() : Parameter(kParamCH5Type, kEncoding_output_type, param_default) {}
+    constexpr ParamCH5Type() : Parameter(kParamCH5Type, kEncoding_output_type, param_default, param_name) {}
 };
 static const ParamCH5Type paramCH5Type;
 
 class ParamCH1Assign1 : public Parameter
 {
 public:
-    constexpr ParamCH1Assign1() : Parameter(kParamCH1Assign1, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH1Assign1() : Parameter(kParamCH1Assign1, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH1Assign1 paramCH1Assign1;
 
 class ParamCH1Assign2 : public Parameter
 {
 public:
-    constexpr ParamCH1Assign2() : Parameter(kParamCH1Assign2, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH1Assign2() : Parameter(kParamCH1Assign2, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH1Assign2 paramCH1Assign2;
 
 class ParamCH1Assign3 : public Parameter
 {
 public:
-    constexpr ParamCH1Assign3() : Parameter(kParamCH1Assign3, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH1Assign3() : Parameter(kParamCH1Assign3, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH1Assign3 paramCH1Assign3;
 
 class ParamCH1Assign4 : public Parameter
 {
 public:
-    constexpr ParamCH1Assign4() : Parameter(kParamCH1Assign4, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH1Assign4() : Parameter(kParamCH1Assign4, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH1Assign4 paramCH1Assign4;
 
 class ParamCH1PWM1 : public Parameter
 {
 public:
-    constexpr ParamCH1PWM1() : Parameter(kParamCH1PWM1, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH1PWM1() : Parameter(kParamCH1PWM1, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH1PWM1 paramCH1PWM1;
 
 class ParamCH1PWM2 : public Parameter
 {
 public:
-    constexpr ParamCH1PWM2() : Parameter(kParamCH1PWM2, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH1PWM2() : Parameter(kParamCH1PWM2, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH1PWM2 paramCH1PWM2;
 
 class ParamCH1PWM3 : public Parameter
 {
 public:
-    constexpr ParamCH1PWM3() : Parameter(kParamCH1PWM3, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH1PWM3() : Parameter(kParamCH1PWM3, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH1PWM3 paramCH1PWM3;
 
 class ParamCH1PWM4 : public Parameter
 {
 public:
-    constexpr ParamCH1PWM4() : Parameter(kParamCH1PWM4, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH1PWM4() : Parameter(kParamCH1PWM4, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH1PWM4 paramCH1PWM4;
 
 class ParamCH2Assign1 : public Parameter
 {
 public:
-    constexpr ParamCH2Assign1() : Parameter(kParamCH2Assign1, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH2Assign1() : Parameter(kParamCH2Assign1, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH2Assign1 paramCH2Assign1;
 
 class ParamCH2Assign2 : public Parameter
 {
 public:
-    constexpr ParamCH2Assign2() : Parameter(kParamCH2Assign2, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH2Assign2() : Parameter(kParamCH2Assign2, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH2Assign2 paramCH2Assign2;
 
 class ParamCH2Assign3 : public Parameter
 {
 public:
-    constexpr ParamCH2Assign3() : Parameter(kParamCH2Assign3, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH2Assign3() : Parameter(kParamCH2Assign3, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH2Assign3 paramCH2Assign3;
 
 class ParamCH2Assign4 : public Parameter
 {
 public:
-    constexpr ParamCH2Assign4() : Parameter(kParamCH2Assign4, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH2Assign4() : Parameter(kParamCH2Assign4, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH2Assign4 paramCH2Assign4;
 
 class ParamCH2PWM1 : public Parameter
 {
 public:
-    constexpr ParamCH2PWM1() : Parameter(kParamCH2PWM1, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH2PWM1() : Parameter(kParamCH2PWM1, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH2PWM1 paramCH2PWM1;
 
 class ParamCH2PWM2 : public Parameter
 {
 public:
-    constexpr ParamCH2PWM2() : Parameter(kParamCH2PWM2, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH2PWM2() : Parameter(kParamCH2PWM2, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH2PWM2 paramCH2PWM2;
 
 class ParamCH2PWM3 : public Parameter
 {
 public:
-    constexpr ParamCH2PWM3() : Parameter(kParamCH2PWM3, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH2PWM3() : Parameter(kParamCH2PWM3, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH2PWM3 paramCH2PWM3;
 
 class ParamCH2PWM4 : public Parameter
 {
 public:
-    constexpr ParamCH2PWM4() : Parameter(kParamCH2PWM4, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH2PWM4() : Parameter(kParamCH2PWM4, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH2PWM4 paramCH2PWM4;
 
 class ParamCH3Assign1 : public Parameter
 {
 public:
-    constexpr ParamCH3Assign1() : Parameter(kParamCH3Assign1, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH3Assign1() : Parameter(kParamCH3Assign1, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH3Assign1 paramCH3Assign1;
-
-class ParamCH3PWM1 : public Parameter
-{
-public:
-    constexpr ParamCH3PWM1() : Parameter(kParamCH3PWM1, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH3PWM1 paramCH3PWM1;
 
 class ParamCH3Assign2 : public Parameter
 {
 public:
-    constexpr ParamCH3Assign2() : Parameter(kParamCH3Assign2, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH3Assign2() : Parameter(kParamCH3Assign2, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH3Assign2 paramCH3Assign2;
-
-class ParamCH3PWM2 : public Parameter
-{
-public:
-    constexpr ParamCH3PWM2() : Parameter(kParamCH3PWM2, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH3PWM2 paramCH3PWM2;
 
 class ParamCH3Assign3 : public Parameter
 {
 public:
-    constexpr ParamCH3Assign3() : Parameter(kParamCH3Assign3, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH3Assign3() : Parameter(kParamCH3Assign3, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH3Assign3 paramCH3Assign3;
-
-class ParamCH3PWM3 : public Parameter
-{
-public:
-    constexpr ParamCH3PWM3() : Parameter(kParamCH3PWM3, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH3PWM3 paramCH3PWM3;
 
 class ParamCH3Assign4 : public Parameter
 {
 public:
-    constexpr ParamCH3Assign4() : Parameter(kParamCH3Assign4, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH3Assign4() : Parameter(kParamCH3Assign4, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH3Assign4 paramCH3Assign4;
+
+class ParamCH3PWM1 : public Parameter
+{
+public:
+    constexpr ParamCH3PWM1() : Parameter(kParamCH3PWM1, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH3PWM1 paramCH3PWM1;
+
+class ParamCH3PWM2 : public Parameter
+{
+public:
+    constexpr ParamCH3PWM2() : Parameter(kParamCH3PWM2, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH3PWM2 paramCH3PWM2;
+
+class ParamCH3PWM3 : public Parameter
+{
+public:
+    constexpr ParamCH3PWM3() : Parameter(kParamCH3PWM3, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH3PWM3 paramCH3PWM3;
 
 class ParamCH3PWM4 : public Parameter
 {
 public:
-    constexpr ParamCH3PWM4() : Parameter(kParamCH3PWM4, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH3PWM4() : Parameter(kParamCH3PWM4, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH3PWM4 paramCH3PWM4;
 
 class ParamCH4Assign1 : public Parameter
 {
 public:
-    constexpr ParamCH4Assign1() : Parameter(kParamCH4Assign1, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH4Assign1() : Parameter(kParamCH4Assign1, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH4Assign1 paramCH4Assign1;
-
-class ParamCH4PWM1 : public Parameter
-{
-public:
-    constexpr ParamCH4PWM1() : Parameter(kParamCH4PWM1, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH4PWM1 paramCH4PWM1;
 
 class ParamCH4Assign2 : public Parameter
 {
 public:
-    constexpr ParamCH4Assign2() : Parameter(kParamCH4Assign2, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH4Assign2() : Parameter(kParamCH4Assign2, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH4Assign2 paramCH4Assign2;
-
-class ParamCH4PWM2 : public Parameter
-{
-public:
-    constexpr ParamCH4PWM2() : Parameter(kParamCH4PWM2, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH4PWM2 paramCH4PWM2;
 
 class ParamCH4Assign3 : public Parameter
 {
 public:
-    constexpr ParamCH4Assign3() : Parameter(kParamCH4Assign3, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH4Assign3() : Parameter(kParamCH4Assign3, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH4Assign3 paramCH4Assign3;
-
-class ParamCH4PWM3 : public Parameter
-{
-public:
-    constexpr ParamCH4PWM3() : Parameter(kParamCH4PWM3, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH4PWM3 paramCH4PWM3;
 
 class ParamCH4Assign4 : public Parameter
 {
 public:
-    constexpr ParamCH4Assign4() : Parameter(kParamCH4Assign4, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH4Assign4() : Parameter(kParamCH4Assign4, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH4Assign4 paramCH4Assign4;
+
+class ParamCH4PWM1 : public Parameter
+{
+public:
+    constexpr ParamCH4PWM1() : Parameter(kParamCH4PWM1, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH4PWM1 paramCH4PWM1;
+
+class ParamCH4PWM2 : public Parameter
+{
+public:
+    constexpr ParamCH4PWM2() : Parameter(kParamCH4PWM2, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH4PWM2 paramCH4PWM2;
+
+class ParamCH4PWM3 : public Parameter
+{
+public:
+    constexpr ParamCH4PWM3() : Parameter(kParamCH4PWM3, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH4PWM3 paramCH4PWM3;
 
 class ParamCH4PWM4 : public Parameter
 {
 public:
-    constexpr ParamCH4PWM4() : Parameter(kParamCH4PWM4, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH4PWM4() : Parameter(kParamCH4PWM4, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH4PWM4 paramCH4PWM4;
 
 class ParamCH5Assign1 : public Parameter
 {
 public:
-    constexpr ParamCH5Assign1() : Parameter(kParamCH5Assign1, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH5Assign1() : Parameter(kParamCH5Assign1, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH5Assign1 paramCH5Assign1;
-
-class ParamCH5PWM1 : public Parameter
-{
-public:
-    constexpr ParamCH5PWM1() : Parameter(kParamCH5PWM1, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH5PWM1 paramCH5PWM1;
 
 class ParamCH5Assign2 : public Parameter
 {
 public:
-    constexpr ParamCH5Assign2() : Parameter(kParamCH5Assign2, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH5Assign2() : Parameter(kParamCH5Assign2, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH5Assign2 paramCH5Assign2;
-
-class ParamCH5PWM2 : public Parameter
-{
-public:
-    constexpr ParamCH5PWM2() : Parameter(kParamCH5PWM2, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH5PWM2 paramCH5PWM2;
 
 class ParamCH5Assign3 : public Parameter
 {
 public:
-    constexpr ParamCH5Assign3() : Parameter(kParamCH5Assign3, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH5Assign3() : Parameter(kParamCH5Assign3, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH5Assign3 paramCH5Assign3;
-
-class ParamCH5PWM3 : public Parameter
-{
-public:
-    constexpr ParamCH5PWM3() : Parameter(kParamCH5PWM3, kEncoding_pwm_duty_cycle, param_default) {}
-};
-static const ParamCH5PWM3 paramCH5PWM3;
 
 class ParamCH5Assign4 : public Parameter
 {
 public:
-    constexpr ParamCH5Assign4() : Parameter(kParamCH5Assign4, kEncoding_output_assignment, param_default) {}
+    constexpr ParamCH5Assign4() : Parameter(kParamCH5Assign4, kEncoding_output_assignment, param_default, param_name) {}
 };
 static const ParamCH5Assign4 paramCH5Assign4;
+
+class ParamCH5PWM1 : public Parameter
+{
+public:
+    constexpr ParamCH5PWM1() : Parameter(kParamCH5PWM1, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH5PWM1 paramCH5PWM1;
+
+class ParamCH5PWM2 : public Parameter
+{
+public:
+    constexpr ParamCH5PWM2() : Parameter(kParamCH5PWM2, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH5PWM2 paramCH5PWM2;
+
+class ParamCH5PWM3 : public Parameter
+{
+public:
+    constexpr ParamCH5PWM3() : Parameter(kParamCH5PWM3, kEncoding_pwm_duty_cycle, param_default, param_name) {}
+};
+static const ParamCH5PWM3 paramCH5PWM3;
 
 class ParamCH5PWM4 : public Parameter
 {
 public:
-    constexpr ParamCH5PWM4() : Parameter(kParamCH5PWM4, kEncoding_pwm_duty_cycle, param_default) {}
+    constexpr ParamCH5PWM4() : Parameter(kParamCH5PWM4, kEncoding_pwm_duty_cycle, param_default, param_name) {}
 };
 static const ParamCH5PWM4 paramCH5PWM4;
 
@@ -1380,3 +1388,5 @@ namespace Tester
     static const uint16_t kNodeFunction = 0x0005;
     static const uint8_t kNodeVariant  = 0x01;
 } // namespace Tester
+
+static const uint8_t kNodeAddressMax = 32;

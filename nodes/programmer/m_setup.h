@@ -33,30 +33,17 @@ private:
     };
 
     static uint8_t  _nad;
-    static uint8_t  _param;
-    static uint8_t  _value;
+    static uint8_t  _index;
+    static uint16_t _value;
 
     static Flavour  _flavour;
-    static uint8_t  _max_param;
     static bool     _editing;
+    static bool     _readError;
 
     void            draw();
 
     static void     print_title();
-    static Parameter param();
-    static PGM_P    param_names();
-    static PGM_P    param_formats();
-
-    static PGM_P    param_name()
-    {
-        return Util::strtab(param_names(), _param);
-    }
-
-    static PGM_P    param_format()
-    {
-        return Util::strtab(param_formats(), _param);
-    }
-
+    static Parameter param(uint8_t index);
 };
 
 } // namespace Menu

@@ -428,17 +428,6 @@ namespace eval signal {
             puts $fh "public:"
             puts $fh "    constexpr ${name}(Response &r) : SignalBase(r, ${offset}, ${size}, kEncoding_${encoding}) {}"
             puts $fh "};"
-
-#           if {$size == 1} {
-#               set type "bool"
-#           } elseif {$size <= 8} {
-#               set type "uint8_t"
-#           } elseif {$size <= 16} {
-#               set type "uint16_t"
-#           } else {
-#               util::throw "unsupported signal size '${size}'"
-#           }
-#           puts $fh "typedef SignalBase<${type}, ${offset}, ${size}, kEncoding_${encoding}> ${name};"
         }
         puts $fh "} // namespace Signal"
     }
@@ -651,7 +640,7 @@ namespace eval parameter {
                 puts $fh "class Param${pname} : public Parameter"
                 puts $fh "{"
                 puts $fh "public:"
-                puts $fh "    constexpr Param${pname}() : Parameter(kParam${pname}, kEncoding_${encoding}, param_default) {}"
+                puts $fh "    constexpr Param${pname}() : Parameter(kParam${pname}, kEncoding_${encoding}, param_default, param_name) {}"
                 puts $fh "};"
                 puts $fh "static const Param${pname} param${pname};"
             }
@@ -746,10 +735,12 @@ namespace eval parameter {
 namespace eval node {
 
     variable by_name [dict create]
+    variable max_address 0
 
     proc properties_from_ast {name ast} {
 
         variable by_name
+        variable max_address
 
         util::wrap {
 
@@ -775,6 +766,11 @@ namespace eval node {
                         switch -- $nakind {
                             "node_address_list" {
                                 set pvalue $navalue
+                                foreach addr $navalue {
+                                    if {$addr > $max_address} {
+                                        set max_address $addr
+                                    }
+                                }
                             }
                             "node_address_range" {
                                 lassign $navalue min max
@@ -784,6 +780,9 @@ namespace eval node {
                                 set pvalue {}
                                 for {set na $min} {$na <= $max} {incr na} {
                                     lappend pvalue $na
+                                }
+                                if {$max > $max_address} {
+                                    set max_address $max
                                 }
                             }
                         }
@@ -890,6 +889,7 @@ namespace eval node {
     proc emit_decl {fh} {
 
         variable by_name
+        variable max_address
 
         foreach name [dict keys $by_name] {
 
@@ -912,6 +912,9 @@ namespace eval node {
             puts $fh "} // namespace ${name}"
 
         }
+
+        puts $fh ""
+        puts $fh "static const uint8_t kNodeAddressMax = ${max_address};"
     }
 
     proc emit_def {fh} {

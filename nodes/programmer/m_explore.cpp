@@ -9,7 +9,6 @@
 
 #include <avr/wdt.h>
 
-#include "lin_protocol.h"
 #include "board.h"
 #include "util.h"
 
@@ -19,7 +18,7 @@
 namespace Menu
 {
 
-StaticBitarray<LIN::kNodeAddressMaxAssigned> ExploreMode::_presentMask;
+StaticBitarray<kNodeAddressMax> ExploreMode::_presentMask;
 uint8_t                                ExploreMode::_node;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,12 +88,12 @@ ExploreMode::action(Encoder::Event bp)
 
         // do we have a valid scan result with a master node?
         // (i.e. are we re-entering from an edit state?)
-        if (!_presentMask.test(LIN::kNodeAddressMaster)) {
+        if (!_presentMask.test(Master::kNodeAddress)) {
             _presentMask.reset();
             _presentMask.set((uint8_t)0);   // used for the 'cancel' entry
-            _node = LIN::kNodeAddressMaster;
+            _node = Master::kNodeAddress;
 
-            for (uint8_t i = LIN::kNodeAddressMaster; i < LIN::kNodeAddressMaxAssigned; i++) {
+            for (uint8_t i = Master::kNodeAddress; i < kNodeAddressMax; i++) {
                 gDisplay.clear();
                 gDisplay.move(1, 1);
                 gDisplay.printf(PSTR("Searching... %2u"), i);
@@ -104,7 +103,7 @@ ExploreMode::action(Encoder::Event bp)
                 if (gSlave.get_parameter(i, 0, dummy)) {
                     _presentMask.set(i);
 
-                } else if (i == LIN::kNodeAddressMaster) {
+                } else if (i == Master::kNodeAddress) {
                     error(PSTR(" Master node not\n responding."));
                     Board::ms_delay(3000);
                     _node = 0;
@@ -170,8 +169,9 @@ ExploreMode::draw()
             gDisplay.printf(PSTR("Master"));
             break;
 
-        case LIN::kNodeAddressPowerBase ... LIN::kNodeAddressPowerBase+ 16:
-            gDisplay.printf(PSTR("Power %2u"), base - LIN::kNodeAddressPowerBase);
+            // also PowerV3
+        case PowerV1::kNodeAddress ... PowerV1::kNodeAddress + 15:
+            gDisplay.printf(PSTR("Power %2u"), base - PowerV1::kNodeAddress);
             break;
 
         default:
@@ -195,7 +195,7 @@ ExploreMode::draw()
 uint8_t
 ExploreMode::search_up(uint8_t from)
 {
-    for (uint8_t newNode = from + 1; newNode < LIN::kNodeAddressMaxAssigned; newNode++) {
+    for (uint8_t newNode = from + 1; newNode < kNodeAddressMax; newNode++) {
         if (_presentMask.test(newNode)) {
             return newNode;
         }

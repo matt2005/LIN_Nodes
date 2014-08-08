@@ -9,12 +9,6 @@
 
 #include "util.h"
 #include "board.h"
-#include "param_master.h"
-#include "param_power_v1.h"
-#include "param_power_v3.h"
-
-#include "lin_protocol.h"
-#include "protocol.h"
 
 #include "m_top.h"
 #include "slave.h"
@@ -27,8 +21,8 @@ ExploreSetupMode::select()
 {
     switch (_node) {
 
-    case LIN::kNodeAddressMaster:
-    case LIN::kNodeAddressPowerBase ...(LIN::kNodeAddressPowerBase + 15):
+    case Master::kNodeAddress:
+    case PowerV1::kNodeAddress ... PowerV1::kNodeAddress + 15:
         modeSetup.init(_node);
         return &modeSetup;
 
@@ -58,74 +52,105 @@ ExploreSetupMode::select()
 //
 
 uint8_t         SetupMode::_nad;
-uint8_t         SetupMode::_param;
-uint8_t         SetupMode::_value;
+uint8_t         SetupMode::_index;
+uint16_t        SetupMode::_value;
 SetupMode::Flavour SetupMode::_flavour;
-uint8_t         SetupMode::_max_param;
 bool            SetupMode::_editing;
+bool            SetupMode::_readError;
 
 Mode *
 SetupMode::action(Encoder::Event bp)
 {
-    bool indexChanged = false;
+    bool wantDraw = false;
 
-    switch (bp) {
-    case Encoder::kEventDown:
-        if (_param > 0) {
-            _param--;
-        }
+    if (!_editing) {
+        switch (bp) {
+        case Encoder::kEventDown:
+            wantDraw = param(_index).next(_value, -1);
+            break;
 
-        indexChanged = true;
-        break;
+        case Encoder::kEventUp:
+            wantDraw = param(_index).next(_value, 1);
+            break;
 
-    case Encoder::kEventUp:
-        if (_param < _max_param) {
-            _param++;
-        }
-
-        indexChanged = true;
-        break;
-
-    case Encoder::kEventPress:
-        switch (_param) {
-        case 0:
-            return &modeExploreSetup;
-
-        default:
-            _editing = true;
-            gDisplay.move(0, 1);
-            gDisplay.printf(PSTR("  "));
-            gDisplay.move(0, 2);
-            gDisplay.printf(PSTR(">>"));
-            // edit was already setup up at draw time
-            return &modeEdit;
-        }
-
-        break;
-
-    case Encoder::kEventActivate:
-        if (_editing) {
+        case Encoder::kEventPress:
             _editing = false;
 
-            if (!gSlave.set_parameter(_nad, _param, _value)) {
-                gDisplay.clear();
-                gDisplay.printf(PSTR("%2u write err"), _param);
+            if (!gSlave.set_parameter(_nad, param(_index).address(), _value)) {
+                gDisplay.clear(Display::region(0, 1, 20, 2));
+                gDisplay.move(2, 2);
+                gDisplay.printf(PSTR("%2u write err"), param(_index).address());
                 Board::ms_delay(5000);
-                gDisplay.clear();
+                gDisplay.clear(Display::region(0, 1, 20, 2));
+                wantDraw = true;
+            }
+            break;
+
+        case Encoder::kEventActivate:
+            wantDraw = true;
+            break;
+
+        default:
+            break;
+        }
+    } else {
+        bool indexChanged = false;
+
+        switch (bp) {
+        case Encoder::kEventDown:
+            if (_index > 0) {
+                uint8_t new_index = _index - 1;
+                do {
+                    if (param(new_index).exists()) {
+                        _index = new_index;
+                        indexChanged = true;
+                        break;
+                    }
+                } while (_index-- > 0);
+            }
+            break;
+
+        case Encoder::kEventUp:
+            for (uint8_t new_index = _index + 1; new_index < 0xfe; new_index++) {
+                if (param(new_index).exists()) {
+                    _index = new_index;
+                    indexChanged = true;
+                    break;
+                }
+            }
+            break;
+
+        case Encoder::kEventPress:
+            if (index == 0) {
+                return &modeExploreSetup;
+            }
+            _editing = true;
+            wantDraw = true;
+            break;
+
+        case Encoder::kEventActivate:
+            gDisplay.clear();
+            print_title();
+
+                modeEdit.init(this, Display::Region(2, 2, 18, 1), _value);
             }
 
-        } else {
-            _param = 1;
+            _index = 1;
+            indexChanged = true;
+            break;
+
+        default:
+            break;
         }
 
-        indexChanged = true;
-        break;
+        if (indexChanged) {
+            wantDraw = true;
 
-    default:
-        break;
+            _readError = !gSlave.get_parameter(_nad, param(_index).address(), _value));
+        }
     }
 
-    if (indexChanged) {
+    if (wantDraw) {
         draw();
     }
 
@@ -158,58 +183,32 @@ SetupMode::init(uint8_t nad)
     }
 
     _nad = nad;
-    _max_param = Util::strtablen(param_names()) - 1;
+    _index = 1;
 }
 
 void
 SetupMode::draw()
 {
-    gDisplay.clear();
-    print_title();
-    gDisplay.move(0, 1);
-    gDisplay.printf(PSTR(">>"));
-    gDisplay.printf((_param == 0) ?
-                    PSTR("Back") :
-                    param_name());
-    gDisplay.move(2, 2);
+    gDisplay.clear(Display::region(0, 1, 20, 2));
 
-    if (_param > 0) {
-        if (!gSlave.get_parameter(_nad, _param, _value)) {
-            gDisplay.printf(PSTR("read error"));
+    if (_index == 0) {}
+        gDisplay.move(0, 1);
+        gDisplay.printf(PSTR(">>Back"));
+    } else {
 
+        const char *info = param(_index).info(_value);
+
+        gDisplay.move(2, 1);
+        gDisplay.printf(PSTR("%2s%18s"), _editing ? PSTR("  ") : PSTR(">>"), param(index).name());
+
+        gDisplay.move(2, 2);
+        gDisplay.printf(PSTR("%2s"), _editing ? PSTR(">>") : PSTR("  "));
+        if (_readError) {
+            gDisplay.printf(PSTR("READ ERROR @ 0x%x"), p.address());
+        } else if (info == nullptr) {
+            gDisplay.printf(PSTR("%u"), _value);
         } else {
-            const char *fmt = param_format();
-            const char *tab = nullptr;
-
-            if (pgm_read_byte(fmt) == '%') {
-
-                switch (pgm_read_byte(fmt + 1)) {
-                case 'O':
-                    tab = namesForRelayID;
-                    break;
-
-                case 'S':
-                    tab = namesForSwitchID;
-                    break;
-
-                case 'T':
-                    tab = namesForRelayType;
-                    break;
-                }
-            }
-
-            if (tab != nullptr) {
-                modeEdit.init(this, &_value, Display::Region(2, 2, 18, 1), tab);
-
-            } else {
-                modeEdit.init(this,
-                              &_value,
-                              Display::Region(2, 2, 18, 1),
-                              param().min_value(),
-                              param().max_value(), fmt);
-            }
-
-            modeEdit.draw();
+            gDisplay.printf(PSTR("%18s"), info);
         }
     }
 }
@@ -225,8 +224,11 @@ SetupMode::print_title()
         break;
 
     case kFlavourPowerV1:
+        msg = PSTR("4ch Power");
+        break;
+
     case kFlavourPowerV3:
-        msg = PSTR("Power Node");
+        msg = PSTR("5ch Power");
         break;
 
     default:
@@ -237,58 +239,25 @@ SetupMode::print_title()
 }
 
 Parameter
-SetupMode::param()
+SetupMode::param(uint8_t index)
 {
+    // cons up a non-existent parameter
+    if (index == 0) {
+        return Generic::parameter(0xffff);
+    }
+
     switch (_flavour) {
     case kFlavourMaster:
-        return masterParam(_param);
+        return Master::parameter(Generic::ConfigBase + index - 1);
 
     case kFlavourPowerV1:
-        return power_v1Param(_param);
+        return PowerV1::parameter(Generic::ConfigBase + index - 1);
 
     case kFlavourPowerV3:
-        return power_v3Param(_param);
+        return PowerV3::parameter(Generic::ConfigBase + index - 1);
 
     default:
         Board::panic(Board::kPanicCodeAssert);
     }
 }
 
-PGM_P
-SetupMode::param_names()
-{
-    switch (_flavour) {
-    case kFlavourMaster:
-        return masterParamNames;
-
-    case kFlavourPowerV1:
-        return power_v1ParamNames;
-
-    case kFlavourPowerV3:
-        return power_v3ParamNames;
-
-    default:
-        Board::panic(Board::kPanicCodeAssert);
-    }
-}
-
-PGM_P
-SetupMode::param_formats()
-{
-    switch (_flavour) {
-    case kFlavourMaster:
-        return masterParamFormats;
-
-    case kFlavourPowerV1:
-        return power_v1ParamFormats;
-
-    case kFlavourPowerV3:
-        return power_v3ParamFormats;
-
-    default:
-        Board::panic(Board::kPanicCodeAssert);
-    }
-}
-
-
-} // namespace Menu

@@ -15,8 +15,6 @@
 #include "m_top.h"
 #include "slave.h"
 
-#include "protocol.h"
-
 namespace Menu
 {
 
@@ -47,7 +45,7 @@ InfoMode::action(Encoder::Event bp)
         gDisplay.clear();
         gDisplay.printf(PSTR("build %s"), GIT_STR);
         gDisplay.move(0, 1);
-        gDisplay.printf(PSTR("proto %3u"), protocolRevision);
+        gDisplay.printf(PSTR("proto %3u"), Generic::parameter(Generic::kParamProtocolVersion));
         gDisplay.move(0, 2);
         gDisplay.printf(PSTR("free  %3u"), Board::freemem());
         gSlave.set_suspend(true);

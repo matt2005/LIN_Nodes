@@ -10,7 +10,6 @@
 #include <avr/pgmspace.h>
 
 #include "board.h"
-#include "lin_protocol.h"
 #include "mc33972.h"
 
 #include "hd44780.h"

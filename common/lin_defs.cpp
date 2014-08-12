@@ -837,7 +837,7 @@ parameter(Parameter::Address address)
     default:
         address = Parameter::noAddress;
     }
-    return Parameter(address, encoding, param_default);
+    return Parameter(address, encoding, param_default, param_name);
 }
 
 void param_default(const Parameter &param)
@@ -1006,7 +1006,7 @@ parameter(Parameter::Address address)
     default:
         address = Parameter::noAddress;
     }
-    return Parameter(address, encoding, param_default);
+    return Parameter(address, encoding, param_default, param_name);
 }
 
 void param_default(const Parameter &param)
@@ -1241,7 +1241,7 @@ parameter(Parameter::Address address)
     default:
         address = Parameter::noAddress;
     }
-    return Parameter(address, encoding, param_default);
+    return Parameter(address, encoding, param_default, param_name);
 }
 
 void param_default(const Parameter &param)
@@ -1476,7 +1476,7 @@ parameter(Parameter::Address address)
     default:
         address = Parameter::noAddress;
     }
-    return Parameter(address, encoding, param_default);
+    return Parameter(address, encoding, param_default, param_name);
 }
 
 void param_default(const Parameter &param)

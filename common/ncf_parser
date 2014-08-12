@@ -679,7 +679,7 @@ namespace eval parameter {
             puts $fh "    default:"
             puts $fh "        address = Parameter::noAddress;"
             puts $fh "    }"
-            puts $fh "    return Parameter(address, encoding, param_default);"
+            puts $fh "    return Parameter(address, encoding, param_default, param_name);"
             puts $fh "}"
 
             puts $fh ""

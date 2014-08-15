@@ -14,9 +14,7 @@
 #include "menu.h"
 #include "m_explore.h"
 #include "m_info.h"
-#include "m_test.h"
 #include "m_setup.h"
-#include "m_edit.h"
 
 namespace Menu
 {
@@ -36,8 +34,6 @@ extern TopMode              modeTop;
 extern ExploreSetupMode     modeExploreSetup;
 extern SetupMode            modeSetup;
 extern ExploreTestMode      modeExploreTest;
-extern TestMode             modeTest;
-extern EditMode             modeEdit;
 extern InfoMode             modeInfo;
 } // namespace Menu
 

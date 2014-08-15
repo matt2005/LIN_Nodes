@@ -173,8 +173,9 @@ Slave::st_read_data(Parameter::Address address, uint16_t &value)
     }
 
     // handle generic parameters known elsewhere
-    if (Generic::parameter(address).exists()) {
-        value = Generic::parameter(address);
+    uint8_t encoding = Generic::param_encoding(address);
+    if (encoding != kEncoding_none) {
+        value = Parameter(address).get();
         return true;
     }
     return false;
@@ -183,8 +184,9 @@ Slave::st_read_data(Parameter::Address address, uint16_t &value)
 bool
 Slave::st_write_data(Parameter::Address address, uint16_t value)
 {
-    if (Generic::parameter(address).exists()) {
-        Generic::parameter(address).set(value);
+    uint8_t encoding = Generic::param_encoding(address);
+    if ((encoding != kEncoding_none) && !Encoding::invalid(encoding, value)) {
+        Parameter(address).set(value);
         return true;
     }
     return false;

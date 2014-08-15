@@ -17,6 +17,8 @@
 
 #include "lin_defs.h"
 
+using namespace PowerV3;
+
 void
 main(void)
 {
@@ -29,12 +31,13 @@ main(void)
     }
 
     // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; ; addr++) {
-        Parameter p = PowerV3::parameter(addr);
-        if (!p.exists()) {
-            break;
+    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
+        Parameter p(addr);
+        uint8_t encoding = param_encoding(addr);
+
+        if ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get())) {
+            p.set(param_default(addr));
         }
-        p.init();
     }
 
     // construct the slave
@@ -67,13 +70,13 @@ main(void)
 
             for (uint8_t assign = 0; assign < assigns; assign++) {
                 uint8_t offset = (output * channelStride) + (assign * assignStride);
-                Parameter pAssign = PowerV3::parameter(assignBase + offset);
+                uint16_t assigned = Parameter(assignBase + offset).get();
 
-                if (slave.test_relay(pAssign)) {
-                    Parameter pPWM = PowerV3::parameter(pwmBase + offset);
+                if (slave.test_relay(assigned)) {
+                    uint16_t pwm = Parameter(pwmBase + offset).get();
 
-                    if (pPWM > duty_cycle) {
-                        duty_cycle = pPWM;
+                    if (pwm > duty_cycle) {
+                        duty_cycle = pwm;
                     }
                 }
             }

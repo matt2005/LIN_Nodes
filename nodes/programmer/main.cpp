@@ -46,3 +46,30 @@ main(void)
 
 }
 
+void
+Parameter::set(uint16_t value) const
+{
+    switch (address()) {
+    case Generic::kParamBootloaderMode:
+        if (value == 0x4f42) {        // 'BO'
+            Board::enter_bootloader();
+        }
+    }
+}
+
+uint16_t
+Parameter::get() const
+{
+    switch (address()) {
+    case Generic::kParamProtocolVersion:
+        return 1;
+    case Generic::kParamBootloaderMode:
+        return 0;
+    case Generic::kParamFirmwareVersion:
+        return RELEASE_VERSION;
+    case Generic::kParamFirmwarePageSize:
+        return SPM_PAGESIZE;
+    }
+
+    return 0;
+}

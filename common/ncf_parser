@@ -262,34 +262,33 @@ namespace eval encoding {
         puts $fh "bool"
         puts $fh "Encoding::invalid(uint8_t index, uint16_t value)"
         puts $fh "{"
-        puts $fh "    switch(index) {"
+
         foreach name $validate {
             set encinfo [dict get $by_name $name]
 
-            puts $fh "    case kEncoding_${name}:"
-            puts $fh "        switch (value) {"
+            puts $fh "    if (index == kEncoding_${name}) {"
             foreach subencoding $encinfo {
                 dict with subencoding {
                     switch -- $kind {
                         "range" {
-                            puts $fh "        case ${min} ... ${max}:"
+                            puts -nonewline $fh "        if ((value >= ${min}) && (value <= ${max}))"
                         }
                         "value" {
-                            puts $fh "        case ${value}:"
+                            # XXX optimisation - compress groups of adjacent values into range comparisons
+                            puts -nonewline $fh "        if (value == ${value})"
                         }
                         default {
                             util::throw "unexpected encoding flavour '${kind}'"
                         }
                     }
+                    puts $fh " {"
+                    puts $fh "            return false;"
+                    puts $fh "        }"
                 }
             }
-            puts $fh "            return false;"
-            puts $fh "        }"
-            puts $fh "        break;"
+            puts $fh "    }"
         }
-        puts $fh "    default:"
-        puts $fh "        return false;"
-        puts $fh "    }"
+
         puts $fh "    return true;"
         puts $fh "}"
 
@@ -315,12 +314,11 @@ namespace eval encoding {
         puts $fh "const PROGMEM char *"
         puts $fh "Encoding::name(uint8_t index)"
         puts $fh "{"
-        puts $fh "    switch (index) {"
         foreach name [dict keys $by_name] {
-            puts $fh "    case kEncoding_${name}:"
+            puts $fh "    if (index == kEncoding_${name}) {"
             puts $fh "        return &_encoding_name_${name}\[0\];"
+            puts $fh "    }"
         }
-        puts $fh "    }"
         puts $fh "    return nullptr;"
         puts $fh "}"
 
@@ -331,32 +329,30 @@ namespace eval encoding {
         puts $fh "const PROGMEM char *"
         puts $fh "Encoding::info(uint8_t index, uint16_t value)"
         puts $fh "{"
-        puts $fh "    const char *info = nullptr;"
-        puts $fh "    switch (index) {"
+
         dict for {name encinfo} $by_name {
-            puts $fh "    case kEncoding_${name}:"
-            puts $fh "        switch (value) {"
+            puts $fh "    if (index == kEncoding_${name}) {"
             set index 0
             foreach subencoding $encinfo {
                 dict with subencoding {
                     switch -- $kind {
                         "range" {
-                            puts $fh "        case ${min} ... ${max}:"
+                            puts -nonewline $fh "        if ((value >= ${min}) && (value <= ${max}))"
                         }
                         "value" {
-                            puts $fh "        case ${value}:"
+                            puts -nonewline $fh "        if (value == ${value})"
                         }
                     }
-                    puts $fh "            info = &_encoding_info_${name}_${index}\[0\];"
-                    puts $fh "            break;"
+                    puts $fh " {"
+                    puts $fh "            return &_encoding_info_${name}_${index}\[0\];"
+                    puts $fh "        }"
                 }
                 incr index
             }
-            puts $fh "        }"
-            puts $fh "        break;"
+            puts $fh "    }"
         }
-        puts $fh "    }"
-        puts $fh "    return info;"
+
+        puts $fh "    return nullptr;"
         puts $fh "}"
 
     }
@@ -615,34 +611,15 @@ namespace eval parameter {
             puts $fh ""
             puts $fh "namespace ${node}"
             puts $fh "{"
-            puts $fh "extern void param_default(const Parameter &param);"
-            puts $fh "extern const PROGMEM char *param_name(const Parameter &param);"
-            puts $fh "extern Parameter parameter(Parameter::Address address);"
+            puts $fh "extern uint16_t param_default(Parameter::Address address);"
+            puts $fh "extern uint8_t param_encoding(Parameter::Address address);"
+            puts $fh "extern const PROGMEM char *param_name(Parameter::Address address);"
 
             puts $fh ""
             dict for {pkey pattr} [for_node $node] {
                 lassign [split $pkey "~"] pnode pname
                 set address [dict get $pattr parameter_address]
                 puts $fh "static const uint16_t kParam${pname} = ${address};"
-            }
-
-            puts $fh ""
-            puts $fh "// explicit parameter subclasses for ${node}"
-            dict for {pkey pattr} [for_node $node] {
-                lassign [split $pkey "~"] pnode pname
-                if {[dict exists $pattr parameter_encoding]} {
-                    set encoding [dict get $pattr parameter_encoding]
-                } else {
-                    set encoding "none"
-                }
-
-                puts $fh ""
-                puts $fh "class Param${pname} : public Parameter"
-                puts $fh "{"
-                puts $fh "public:"
-                puts $fh "    constexpr Param${pname}() : Parameter(kParam${pname}, kEncoding_${encoding}, param_default, param_name) {}"
-                puts $fh "};"
-                puts $fh "static const Param${pname} param${pname};"
             }
 
             puts $fh ""
@@ -661,46 +638,36 @@ namespace eval parameter {
             puts $fh "{"
 
             puts $fh ""
-            puts $fh "// parameter factory for ${node}"
-            puts $fh "Parameter"
-            puts $fh "parameter(Parameter::Address address)"
+            puts $fh "uint16_t"
+            puts $fh "param_default(Parameter::Address address)"
             puts $fh "{"
-            puts $fh "    uint8_t encoding = kEncoding_none;"
-            puts $fh "    switch (address) {"
-            dict for {pkey pattr} [for_node $node] {
-                lassign [split $pkey "~"] pnode pname
-                puts $fh "    case kParam${pname}:"
-                if {[dict exists $pattr parameter_encoding]} {
-                    set encoding [dict get $pattr parameter_encoding]
-                    puts $fh "        encoding = kEncoding_${encoding};"
-                }
-                puts $fh "        break;"
-            }
-            puts $fh "    default:"
-            puts $fh "        address = Parameter::noAddress;"
-            puts $fh "    }"
-            puts $fh "    return Parameter(address, encoding, param_default, param_name);"
-            puts $fh "}"
-
-            puts $fh ""
-            puts $fh "void param_default(const Parameter &param)"
-            puts $fh "{"
-            puts $fh "    uint16_t value;"
-            puts $fh "    switch (param.address()) {"
             dict for {pkey pattr} [for_node $node] {
                 lassign [split $pkey "~"] pnode pname
 
                 if {[dict exists $pattr parameter_init_value]} {
                     set value [dict get $pattr parameter_init_value]
-                    puts $fh "        case kParam${pname}:"
-                    puts $fh "            value = ${value};"
-                    puts $fh "            break;"
+                    puts $fh "    if (address == kParam${pname}) {"
+                    puts $fh "        return ${value};"
+                    puts $fh "    }"
                 }
             }
-            puts $fh "    default:"
-            puts $fh "        return;"
-            puts $fh "    }"
-            puts $fh "    param.set(value);"
+            puts $fh "    return 0;"
+            puts $fh "}"
+
+            puts $fh ""
+            puts $fh "uint8_t"
+            puts $fh "param_encoding(Parameter::Address address)"
+            puts $fh "{"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                if {[dict exists $pattr parameter_encoding]} {
+                    set encoding [dict get $pattr parameter_encoding]
+                    puts $fh "    if (address == kParam${pname}) {"
+                    puts $fh "        return kEncoding_${encoding};"
+                    puts $fh "    }"
+                }
+            }
+            puts $fh "    return kEncoding_none;"
             puts $fh "}"
 
             # String table for parameter names
@@ -713,15 +680,14 @@ namespace eval parameter {
 
             puts $fh ""
             puts $fh "const PROGMEM char *"
-            puts $fh "param_name(const Parameter &param)"
+            puts $fh "param_name(Parameter::Address address)"
             puts $fh "{"
-            puts $fh "    switch (param.address()) {"
             dict for {pkey pattr} [for_node $node] {
                 lassign [split $pkey "~"] pnode pname
-                puts $fh "    case kParam${pname}:"
+                puts $fh "    if (address == kParam${pname}) {"
                 puts $fh "        return &_param_name_${pname}\[0\];"
+                puts $fh "    }"
             }
-            puts $fh "    }"
             puts $fh "    return nullptr;"
             puts $fh "}"
             puts $fh ""

@@ -15,6 +15,8 @@
 
 #include "lin_defs.h"
 
+using namespace Master;
+
 namespace Switches
 {
 
@@ -105,14 +107,14 @@ scan()
     // SP1-SP7
     for (uint8_t sw = 0; sw <= 6; sw++) {
         if (MC33972::test(MC33972::kInputSP1 + sw)) {
-            SET(Master::parameter(Master::kParamSP1Assign + sw).get());
+            SET(Parameter(kParamSP1Assign + sw).get());
         }
     }
 
     // SG0-SG13
     for (uint8_t sw = 0; sw <= 13; sw++) {
         if (MC33972::test(MC33972::kInputSG0 + sw)) {
-            SET(Master::parameter(Master::kParamSG0Assign + sw).get());
+            SET(Parameter(kParamSG0Assign + sw).get());
         }
     }
 

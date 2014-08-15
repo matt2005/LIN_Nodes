@@ -51,37 +51,31 @@ ExploreSetupMode::select()
 // +--------------------+
 //
 
-uint8_t         SetupMode::_nad;
-uint8_t         SetupMode::_index;
-uint16_t        SetupMode::_value;
-SetupMode::Flavour SetupMode::_flavour;
-bool            SetupMode::_editing;
-bool            SetupMode::_readError;
-
 Mode *
 SetupMode::action(Encoder::Event bp)
 {
     bool wantDraw = false;
 
-    if (!_editing) {
+    if (_editing) {
         switch (bp) {
         case Encoder::kEventDown:
-            wantDraw = param(_index).next(_value, -1);
+
+            wantDraw = adjust_value(-1);
             break;
 
         case Encoder::kEventUp:
-            wantDraw = param(_index).next(_value, 1);
+            wantDraw = adjust_value(1);
             break;
 
         case Encoder::kEventPress:
             _editing = false;
 
-            if (!gSlave.set_parameter(_nad, param(_index).address(), _value)) {
-                gDisplay.clear(Display::region(0, 1, 20, 2));
+            if (!gSlave.set_parameter(_nad, _param.address(), _value)) {
+                gDisplay.clear(Display::Region(0, 1, 20, 2));
                 gDisplay.move(2, 2);
-                gDisplay.printf(PSTR("%2u write err"), param(_index).address());
+                gDisplay.printf(PSTR("%2u write err"), _param.address());
                 Board::ms_delay(5000);
-                gDisplay.clear(Display::region(0, 1, 20, 2));
+                gDisplay.clear(Display::Region(0, 1, 20, 2));
                 wantDraw = true;
             }
             break;
@@ -99,29 +93,20 @@ SetupMode::action(Encoder::Event bp)
         switch (bp) {
         case Encoder::kEventDown:
             if (_index > 0) {
-                uint8_t new_index = _index - 1;
-                do {
-                    if (param(new_index).exists()) {
-                        _index = new_index;
-                        indexChanged = true;
-                        break;
-                    }
-                } while (_index-- > 0);
+                _index--;
+                indexChanged = true;
             }
             break;
 
         case Encoder::kEventUp:
-            for (uint8_t new_index = _index + 1; new_index < 0xfe; new_index++) {
-                if (param(new_index).exists()) {
-                    _index = new_index;
-                    indexChanged = true;
-                    break;
-                }
+            if (param(_index + 1).exists()) {
+                _index++;
+                indexChanged = true;
             }
             break;
 
         case Encoder::kEventPress:
-            if (index == 0) {
+            if (_index == 0) {
                 return &modeExploreSetup;
             }
             _editing = true;
@@ -131,10 +116,6 @@ SetupMode::action(Encoder::Event bp)
         case Encoder::kEventActivate:
             gDisplay.clear();
             print_title();
-
-                modeEdit.init(this, Display::Region(2, 2, 18, 1), _value);
-            }
-
             _index = 1;
             indexChanged = true;
             break;
@@ -145,8 +126,8 @@ SetupMode::action(Encoder::Event bp)
 
         if (indexChanged) {
             wantDraw = true;
-
-            _readError = !gSlave.get_parameter(_nad, param(_index).address(), _value));
+            _param = param(_index);
+            _readError = !gSlave.get_parameter(_nad, _param.address(), _value);
         }
     }
 
@@ -160,10 +141,11 @@ SetupMode::action(Encoder::Event bp)
 void
 SetupMode::init(uint8_t nad)
 {
-    uint8_t flavour = 0;
+    uint16_t flavour = 0;
 
     if (gSlave.get_parameter(nad, 0, flavour)) {
         switch (flavour) {          // XXX kBoardFunctionID value
+                                    // XXX should be using Read By ID
         case 0:
             _flavour = kFlavourMaster;
             break;
@@ -189,22 +171,23 @@ SetupMode::init(uint8_t nad)
 void
 SetupMode::draw()
 {
-    gDisplay.clear(Display::region(0, 1, 20, 2));
+    gDisplay.clear(Display::Region(0, 1, 20, 2));
 
-    if (_index == 0) {}
-        gDisplay.move(0, 1);
-        gDisplay.printf(PSTR(">>Back"));
-    } else {
+    const char *name = PSTR("Back");
+    if (_index > 0) {
+        name = param_name(_param.address());
+    }
+    gDisplay.move(0, 1);
+    gDisplay.printf(PSTR("%2s%18s"), _editing ? PSTR("  ") : PSTR(">>"), name);
 
-        const char *info = param(_index).info(_value);
+    if (_index > 0) {
 
-        gDisplay.move(2, 1);
-        gDisplay.printf(PSTR("%2s%18s"), _editing ? PSTR("  ") : PSTR(">>"), param(index).name());
+        const char *info = Encoding::info(param_encoding(_param.address()), _value);
 
-        gDisplay.move(2, 2);
+        gDisplay.move(0, 2);
         gDisplay.printf(PSTR("%2s"), _editing ? PSTR(">>") : PSTR("  "));
         if (_readError) {
-            gDisplay.printf(PSTR("READ ERROR @ 0x%x"), p.address());
+            gDisplay.printf(PSTR("READ ERROR @ 0x%x"), _param.address());
         } else if (info == nullptr) {
             gDisplay.printf(PSTR("%u"), _value);
         } else {
@@ -238,26 +221,83 @@ SetupMode::print_title()
     gDisplay.printf(PSTR("%s Setup:"), msg);
 }
 
+uint8_t
+SetupMode::param_encoding(Parameter::Address addr)
+{
+    switch (_flavour) {
+    case kFlavourMaster:
+        return Master::param_encoding(addr);
+
+    case kFlavourPowerV1:
+        return PowerV1::param_encoding(addr);
+        break;
+
+    case kFlavourPowerV3:
+        return PowerV3::param_encoding(addr);
+        break;
+    }
+
+    return kEncoding_none;
+}
+
+const char *
+SetupMode::param_name(Parameter::Address addr)
+{
+    switch (_flavour) {
+    case kFlavourMaster:
+        return Master::param_name(addr);
+
+    case kFlavourPowerV1:
+        return PowerV1::param_name(addr);
+        break;
+
+    case kFlavourPowerV3:
+        return PowerV3::param_name(addr);
+        break;
+    }
+
+    return nullptr;
+}
+
 Parameter
 SetupMode::param(uint8_t index)
 {
+    if (index > 0) {
+
+        // scan for the index'th parameter
+        for (Parameter::Address addr = 0x0400; addr < 0x4ff; addr++) {
+
+            if (param_encoding(addr) != kEncoding_none) {
+                if (--index == 0) {
+                    return Parameter(addr);
+                }
+            }
+        }
+    }
+
     // cons up a non-existent parameter
-    if (index == 0) {
-        return Generic::parameter(0xffff);
-    }
-
-    switch (_flavour) {
-    case kFlavourMaster:
-        return Master::parameter(Generic::ConfigBase + index - 1);
-
-    case kFlavourPowerV1:
-        return PowerV1::parameter(Generic::ConfigBase + index - 1);
-
-    case kFlavourPowerV3:
-        return PowerV3::parameter(Generic::ConfigBase + index - 1);
-
-    default:
-        Board::panic(Board::kPanicCodeAssert);
-    }
+    return Parameter(Parameter::noAddress);
 }
 
+bool
+SetupMode::adjust_value(int16_t offset)
+{
+    // check offset doesn't cause wrap
+    if ((offset < 0) && ((offset + _value) > _value)) {
+        return false;
+    }
+    if ((offset + _value) < _value) {
+        return false;
+    }
+
+    uint16_t new_value = _value + offset;
+    uint8_t encoding = param_encoding(_param.address());
+
+    if (Encoding::invalid(encoding, new_value)) {
+        return false;
+    }
+    _value = new_value;
+    return true;
+}
+
+} // namespace Menu

@@ -51,8 +51,9 @@ bool
 RelaySlave::st_read_data(Parameter::Address address, uint16_t &value)
 {
     // Handle node parameters
-    if (PowerV3::parameter(address).exists()) {
-        value = PowerV3::parameter(address);
+    uint8_t encoding = PowerV3::param_encoding(address);
+    if (encoding != kEncoding_none) {
+        value = Parameter(address).get();
         return true;
     }
 
@@ -63,9 +64,9 @@ RelaySlave::st_read_data(Parameter::Address address, uint16_t &value)
 bool
 RelaySlave::st_write_data(Parameter::Address address, uint16_t value)
 {
-    Parameter p = PowerV3::parameter(address);
-    if (p.exists()) {
-        p = value;
+    uint8_t encoding = PowerV3::param_encoding(address);
+    if ((encoding != kEncoding_none) && !Encoding::invalid(encoding, value)) {
+        Parameter(address).set(value);
         return true;
     }
 

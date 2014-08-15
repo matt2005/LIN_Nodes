@@ -6,153 +6,307 @@
 bool
 Encoding::invalid(uint8_t index, uint16_t value)
 {
-    switch(index) {
-    case kEncoding_input:
-        switch (value) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
+    if (index == kEncoding_input) {
+        if (value == 0) {
             return false;
         }
-        break;
-    case kEncoding_msec:
-        switch (value) {
-        case 0:
-        case 100 ... 65000:
+        if (value == 1) {
             return false;
         }
-        break;
-    case kEncoding_up_to_10:
-        switch (value) {
-        case 0:
-        case 1 ... 10:
+        if (value == 2) {
             return false;
         }
-        break;
-    case kEncoding_sec:
-        switch (value) {
-        case 0:
-        case 1 ... 600:
+        if (value == 3) {
             return false;
         }
-        break;
-    case kEncoding_v1_output_status:
-        switch (value) {
-        case 0:
-        case 1:
+        if (value == 4) {
             return false;
         }
-        break;
-    case kEncoding_v1_output_assignment:
-        switch (value) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
+        if (value == 5) {
             return false;
         }
-        break;
-    case kEncoding_v3_output_status:
-        switch (value) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
+        if (value == 6) {
             return false;
         }
-        break;
-    case kEncoding_output_type:
-        switch (value) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
+        if (value == 7) {
             return false;
         }
-        break;
-    case kEncoding_output_assignment:
-        switch (value) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
+        if (value == 8) {
             return false;
         }
-        break;
-    case kEncoding_pwm_duty_cycle:
-        switch (value) {
-        case 0 ... 100:
+        if (value == 9) {
             return false;
         }
-        break;
-    default:
-        return false;
+        if (value == 10) {
+            return false;
+        }
+        if (value == 11) {
+            return false;
+        }
+        if (value == 12) {
+            return false;
+        }
+        if (value == 13) {
+            return false;
+        }
+        if (value == 14) {
+            return false;
+        }
+        if (value == 15) {
+            return false;
+        }
+        if (value == 16) {
+            return false;
+        }
+        if (value == 17) {
+            return false;
+        }
+        if (value == 18) {
+            return false;
+        }
+        if (value == 19) {
+            return false;
+        }
+        if (value == 20) {
+            return false;
+        }
+        if (value == 21) {
+            return false;
+        }
+        if (value == 22) {
+            return false;
+        }
+        if (value == 23) {
+            return false;
+        }
+    }
+    if (index == kEncoding_msec) {
+        if (value == 0) {
+            return false;
+        }
+        if ((value >= 100) && (value <= 65000)) {
+            return false;
+        }
+    }
+    if (index == kEncoding_up_to_10) {
+        if (value == 0) {
+            return false;
+        }
+        if ((value >= 1) && (value <= 10)) {
+            return false;
+        }
+    }
+    if (index == kEncoding_sec) {
+        if (value == 0) {
+            return false;
+        }
+        if ((value >= 1) && (value <= 600)) {
+            return false;
+        }
+    }
+    if (index == kEncoding_v1_output_status) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+    }
+    if (index == kEncoding_v1_output_assignment) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+        if (value == 5) {
+            return false;
+        }
+        if (value == 6) {
+            return false;
+        }
+        if (value == 7) {
+            return false;
+        }
+        if (value == 8) {
+            return false;
+        }
+        if (value == 9) {
+            return false;
+        }
+        if (value == 10) {
+            return false;
+        }
+        if (value == 11) {
+            return false;
+        }
+        if (value == 12) {
+            return false;
+        }
+        if (value == 13) {
+            return false;
+        }
+        if (value == 14) {
+            return false;
+        }
+        if (value == 15) {
+            return false;
+        }
+        if (value == 16) {
+            return false;
+        }
+        if (value == 17) {
+            return false;
+        }
+        if (value == 18) {
+            return false;
+        }
+        if (value == 19) {
+            return false;
+        }
+        if (value == 20) {
+            return false;
+        }
+        if (value == 21) {
+            return false;
+        }
+        if (value == 22) {
+            return false;
+        }
+        if (value == 23) {
+            return false;
+        }
+    }
+    if (index == kEncoding_v3_output_status) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+        if (value == 5) {
+            return false;
+        }
+    }
+    if (index == kEncoding_output_type) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+        if (value == 5) {
+            return false;
+        }
+        if (value == 6) {
+            return false;
+        }
+    }
+    if (index == kEncoding_output_assignment) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+        if (value == 5) {
+            return false;
+        }
+        if (value == 6) {
+            return false;
+        }
+        if (value == 7) {
+            return false;
+        }
+        if (value == 8) {
+            return false;
+        }
+        if (value == 9) {
+            return false;
+        }
+        if (value == 10) {
+            return false;
+        }
+        if (value == 11) {
+            return false;
+        }
+        if (value == 12) {
+            return false;
+        }
+        if (value == 13) {
+            return false;
+        }
+        if (value == 14) {
+            return false;
+        }
+        if (value == 15) {
+            return false;
+        }
+        if (value == 16) {
+            return false;
+        }
+        if (value == 17) {
+            return false;
+        }
+        if (value == 18) {
+            return false;
+        }
+        if (value == 19) {
+            return false;
+        }
+        if (value == 20) {
+            return false;
+        }
+        if (value == 21) {
+            return false;
+        }
+        if (value == 22) {
+            return false;
+        }
+        if (value == 23) {
+            return false;
+        }
+    }
+    if (index == kEncoding_pwm_duty_cycle) {
+        if ((value >= 0) && (value <= 100)) {
+            return false;
+        }
     }
     return true;
 }
@@ -301,46 +455,64 @@ static const PROGMEM char _encoding_info_MPH_0[] = "";
 const PROGMEM char *
 Encoding::name(uint8_t index)
 {
-    switch (index) {
-    case kEncoding_input:
+    if (index == kEncoding_input) {
         return &_encoding_name_input[0];
-    case kEncoding_msec:
+    }
+    if (index == kEncoding_msec) {
         return &_encoding_name_msec[0];
-    case kEncoding_sec:
+    }
+    if (index == kEncoding_sec) {
         return &_encoding_name_sec[0];
-    case kEncoding_up_to_10:
+    }
+    if (index == kEncoding_up_to_10) {
         return &_encoding_name_up_to_10[0];
-    case kEncoding_node_address:
+    }
+    if (index == kEncoding_node_address) {
         return &_encoding_name_node_address[0];
-    case kEncoding_pci:
+    }
+    if (index == kEncoding_pci) {
         return &_encoding_name_pci[0];
-    case kEncoding_service_id:
+    }
+    if (index == kEncoding_service_id) {
         return &_encoding_name_service_id[0];
-    case kEncoding_service_error:
+    }
+    if (index == kEncoding_service_error) {
         return &_encoding_name_service_error[0];
-    case kEncoding_v1_output_status:
+    }
+    if (index == kEncoding_v1_output_status) {
         return &_encoding_name_v1_output_status[0];
-    case kEncoding_v1_output_assignment:
+    }
+    if (index == kEncoding_v1_output_assignment) {
         return &_encoding_name_v1_output_assignment[0];
-    case kEncoding_v3_output_status:
+    }
+    if (index == kEncoding_v3_output_status) {
         return &_encoding_name_v3_output_status[0];
-    case kEncoding_output_type:
+    }
+    if (index == kEncoding_output_type) {
         return &_encoding_name_output_type[0];
-    case kEncoding_output_assignment:
+    }
+    if (index == kEncoding_output_assignment) {
         return &_encoding_name_output_assignment[0];
-    case kEncoding_pwm_duty_cycle:
+    }
+    if (index == kEncoding_pwm_duty_cycle) {
         return &_encoding_name_pwm_duty_cycle[0];
-    case kEncoding_RPM:
+    }
+    if (index == kEncoding_RPM) {
         return &_encoding_name_RPM[0];
-    case kEncoding_PSI:
+    }
+    if (index == kEncoding_PSI) {
         return &_encoding_name_PSI[0];
-    case kEncoding_F:
+    }
+    if (index == kEncoding_F) {
         return &_encoding_name_F[0];
-    case kEncoding_V:
+    }
+    if (index == kEncoding_V) {
         return &_encoding_name_V[0];
-    case kEncoding_lambda:
+    }
+    if (index == kEncoding_lambda) {
         return &_encoding_name_lambda[0];
-    case kEncoding_MPH:
+    }
+    if (index == kEncoding_MPH) {
         return &_encoding_name_MPH[0];
     }
     return nullptr;
@@ -349,505 +521,542 @@ Encoding::name(uint8_t index)
 const PROGMEM char *
 Encoding::info(uint8_t index, uint16_t value)
 {
-    const char *info = nullptr;
-    switch (index) {
-    case kEncoding_input:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_input_0[0];
-            break;
-        case 1:
-            info = &_encoding_info_input_1[0];
-            break;
-        case 2:
-            info = &_encoding_info_input_2[0];
-            break;
-        case 3:
-            info = &_encoding_info_input_3[0];
-            break;
-        case 4:
-            info = &_encoding_info_input_4[0];
-            break;
-        case 5:
-            info = &_encoding_info_input_5[0];
-            break;
-        case 6:
-            info = &_encoding_info_input_6[0];
-            break;
-        case 7:
-            info = &_encoding_info_input_7[0];
-            break;
-        case 8:
-            info = &_encoding_info_input_8[0];
-            break;
-        case 9:
-            info = &_encoding_info_input_9[0];
-            break;
-        case 10:
-            info = &_encoding_info_input_10[0];
-            break;
-        case 11:
-            info = &_encoding_info_input_11[0];
-            break;
-        case 12:
-            info = &_encoding_info_input_12[0];
-            break;
-        case 13:
-            info = &_encoding_info_input_13[0];
-            break;
-        case 14:
-            info = &_encoding_info_input_14[0];
-            break;
-        case 15:
-            info = &_encoding_info_input_15[0];
-            break;
-        case 16:
-            info = &_encoding_info_input_16[0];
-            break;
-        case 17:
-            info = &_encoding_info_input_17[0];
-            break;
-        case 18:
-            info = &_encoding_info_input_18[0];
-            break;
-        case 19:
-            info = &_encoding_info_input_19[0];
-            break;
-        case 20:
-            info = &_encoding_info_input_20[0];
-            break;
-        case 21:
-            info = &_encoding_info_input_21[0];
-            break;
-        case 22:
-            info = &_encoding_info_input_22[0];
-            break;
-        case 23:
-            info = &_encoding_info_input_23[0];
-            break;
+    if (index == kEncoding_input) {
+        if (value == 0)
+ {
+            return &_encoding_info_input_0[0];
         }
-        break;
-    case kEncoding_msec:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_msec_0[0];
-            break;
-        case 100 ... 65000:
-            info = &_encoding_info_msec_1[0];
-            break;
+        if (value == 1)
+ {
+            return &_encoding_info_input_1[0];
         }
-        break;
-    case kEncoding_sec:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_sec_0[0];
-            break;
-        case 1 ... 600:
-            info = &_encoding_info_sec_1[0];
-            break;
+        if (value == 2)
+ {
+            return &_encoding_info_input_2[0];
         }
-        break;
-    case kEncoding_up_to_10:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_up_to_10_0[0];
-            break;
-        case 1 ... 10:
-            info = &_encoding_info_up_to_10_1[0];
-            break;
+        if (value == 3)
+ {
+            return &_encoding_info_input_3[0];
         }
-        break;
-    case kEncoding_node_address:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_node_address_0[0];
-            break;
-        case 1 ... 125:
-            info = &_encoding_info_node_address_1[0];
-            break;
-        case 126:
-            info = &_encoding_info_node_address_2[0];
-            break;
-        case 127:
-            info = &_encoding_info_node_address_3[0];
-            break;
+        if (value == 4)
+ {
+            return &_encoding_info_input_4[0];
         }
-        break;
-    case kEncoding_pci:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_pci_0[0];
-            break;
-        case 1:
-            info = &_encoding_info_pci_1[0];
-            break;
-        case 2:
-            info = &_encoding_info_pci_2[0];
-            break;
+        if (value == 5)
+ {
+            return &_encoding_info_input_5[0];
         }
-        break;
-    case kEncoding_service_id:
-        switch (value) {
-        case 0x22:
-            info = &_encoding_info_service_id_0[0];
-            break;
-        case 0x2e:
-            info = &_encoding_info_service_id_1[0];
-            break;
-        case 0x3e:
-            info = &_encoding_info_service_id_2[0];
-            break;
-        case 0xb2:
-            info = &_encoding_info_service_id_3[0];
-            break;
-        case 0xb4:
-            info = &_encoding_info_service_id_4[0];
-            break;
-        case 0x7f:
-            info = &_encoding_info_service_id_5[0];
-            break;
-        case 0x40:
-            info = &_encoding_info_service_id_6[0];
-            break;
+        if (value == 6)
+ {
+            return &_encoding_info_input_6[0];
         }
-        break;
-    case kEncoding_service_error:
-        switch (value) {
-        case 0x12:
-            info = &_encoding_info_service_error_0[0];
-            break;
-        case 0x13:
-            info = &_encoding_info_service_error_1[0];
-            break;
-        case 0x22:
-            info = &_encoding_info_service_error_2[0];
-            break;
-        case 0x31:
-            info = &_encoding_info_service_error_3[0];
-            break;
-        case 0x33:
-            info = &_encoding_info_service_error_4[0];
-            break;
-        case 0x72:
-            info = &_encoding_info_service_error_5[0];
-            break;
+        if (value == 7)
+ {
+            return &_encoding_info_input_7[0];
         }
-        break;
-    case kEncoding_v1_output_status:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_v1_output_status_0[0];
-            break;
-        case 1:
-            info = &_encoding_info_v1_output_status_1[0];
-            break;
+        if (value == 8)
+ {
+            return &_encoding_info_input_8[0];
         }
-        break;
-    case kEncoding_v1_output_assignment:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_v1_output_assignment_0[0];
-            break;
-        case 1:
-            info = &_encoding_info_v1_output_assignment_1[0];
-            break;
-        case 2:
-            info = &_encoding_info_v1_output_assignment_2[0];
-            break;
-        case 3:
-            info = &_encoding_info_v1_output_assignment_3[0];
-            break;
-        case 4:
-            info = &_encoding_info_v1_output_assignment_4[0];
-            break;
-        case 5:
-            info = &_encoding_info_v1_output_assignment_5[0];
-            break;
-        case 6:
-            info = &_encoding_info_v1_output_assignment_6[0];
-            break;
-        case 7:
-            info = &_encoding_info_v1_output_assignment_7[0];
-            break;
-        case 8:
-            info = &_encoding_info_v1_output_assignment_8[0];
-            break;
-        case 9:
-            info = &_encoding_info_v1_output_assignment_9[0];
-            break;
-        case 10:
-            info = &_encoding_info_v1_output_assignment_10[0];
-            break;
-        case 11:
-            info = &_encoding_info_v1_output_assignment_11[0];
-            break;
-        case 12:
-            info = &_encoding_info_v1_output_assignment_12[0];
-            break;
-        case 13:
-            info = &_encoding_info_v1_output_assignment_13[0];
-            break;
-        case 14:
-            info = &_encoding_info_v1_output_assignment_14[0];
-            break;
-        case 15:
-            info = &_encoding_info_v1_output_assignment_15[0];
-            break;
-        case 16:
-            info = &_encoding_info_v1_output_assignment_16[0];
-            break;
-        case 17:
-            info = &_encoding_info_v1_output_assignment_17[0];
-            break;
-        case 18:
-            info = &_encoding_info_v1_output_assignment_18[0];
-            break;
-        case 19:
-            info = &_encoding_info_v1_output_assignment_19[0];
-            break;
-        case 20:
-            info = &_encoding_info_v1_output_assignment_20[0];
-            break;
-        case 21:
-            info = &_encoding_info_v1_output_assignment_21[0];
-            break;
-        case 22:
-            info = &_encoding_info_v1_output_assignment_22[0];
-            break;
-        case 23:
-            info = &_encoding_info_v1_output_assignment_23[0];
-            break;
+        if (value == 9)
+ {
+            return &_encoding_info_input_9[0];
         }
-        break;
-    case kEncoding_v3_output_status:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_v3_output_status_0[0];
-            break;
-        case 1:
-            info = &_encoding_info_v3_output_status_1[0];
-            break;
-        case 2:
-            info = &_encoding_info_v3_output_status_2[0];
-            break;
-        case 3:
-            info = &_encoding_info_v3_output_status_3[0];
-            break;
-        case 4:
-            info = &_encoding_info_v3_output_status_4[0];
-            break;
-        case 5:
-            info = &_encoding_info_v3_output_status_5[0];
-            break;
+        if (value == 10)
+ {
+            return &_encoding_info_input_10[0];
         }
-        break;
-    case kEncoding_output_type:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_output_type_0[0];
-            break;
-        case 1:
-            info = &_encoding_info_output_type_1[0];
-            break;
-        case 2:
-            info = &_encoding_info_output_type_2[0];
-            break;
-        case 3:
-            info = &_encoding_info_output_type_3[0];
-            break;
-        case 4:
-            info = &_encoding_info_output_type_4[0];
-            break;
-        case 5:
-            info = &_encoding_info_output_type_5[0];
-            break;
-        case 6:
-            info = &_encoding_info_output_type_6[0];
-            break;
+        if (value == 11)
+ {
+            return &_encoding_info_input_11[0];
         }
-        break;
-    case kEncoding_output_assignment:
-        switch (value) {
-        case 0:
-            info = &_encoding_info_output_assignment_0[0];
-            break;
-        case 1:
-            info = &_encoding_info_output_assignment_1[0];
-            break;
-        case 2:
-            info = &_encoding_info_output_assignment_2[0];
-            break;
-        case 3:
-            info = &_encoding_info_output_assignment_3[0];
-            break;
-        case 4:
-            info = &_encoding_info_output_assignment_4[0];
-            break;
-        case 5:
-            info = &_encoding_info_output_assignment_5[0];
-            break;
-        case 6:
-            info = &_encoding_info_output_assignment_6[0];
-            break;
-        case 7:
-            info = &_encoding_info_output_assignment_7[0];
-            break;
-        case 8:
-            info = &_encoding_info_output_assignment_8[0];
-            break;
-        case 9:
-            info = &_encoding_info_output_assignment_9[0];
-            break;
-        case 10:
-            info = &_encoding_info_output_assignment_10[0];
-            break;
-        case 11:
-            info = &_encoding_info_output_assignment_11[0];
-            break;
-        case 12:
-            info = &_encoding_info_output_assignment_12[0];
-            break;
-        case 13:
-            info = &_encoding_info_output_assignment_13[0];
-            break;
-        case 14:
-            info = &_encoding_info_output_assignment_14[0];
-            break;
-        case 15:
-            info = &_encoding_info_output_assignment_15[0];
-            break;
-        case 16:
-            info = &_encoding_info_output_assignment_16[0];
-            break;
-        case 17:
-            info = &_encoding_info_output_assignment_17[0];
-            break;
-        case 18:
-            info = &_encoding_info_output_assignment_18[0];
-            break;
-        case 19:
-            info = &_encoding_info_output_assignment_19[0];
-            break;
-        case 20:
-            info = &_encoding_info_output_assignment_20[0];
-            break;
-        case 21:
-            info = &_encoding_info_output_assignment_21[0];
-            break;
-        case 22:
-            info = &_encoding_info_output_assignment_22[0];
-            break;
-        case 23:
-            info = &_encoding_info_output_assignment_23[0];
-            break;
+        if (value == 12)
+ {
+            return &_encoding_info_input_12[0];
         }
-        break;
-    case kEncoding_pwm_duty_cycle:
-        switch (value) {
-        case 0 ... 100:
-            info = &_encoding_info_pwm_duty_cycle_0[0];
-            break;
+        if (value == 13)
+ {
+            return &_encoding_info_input_13[0];
         }
-        break;
-    case kEncoding_RPM:
-        switch (value) {
-        case 0 ... 255:
-            info = &_encoding_info_RPM_0[0];
-            break;
+        if (value == 14)
+ {
+            return &_encoding_info_input_14[0];
         }
-        break;
-    case kEncoding_PSI:
-        switch (value) {
-        case 0 ... 255:
-            info = &_encoding_info_PSI_0[0];
-            break;
+        if (value == 15)
+ {
+            return &_encoding_info_input_15[0];
         }
-        break;
-    case kEncoding_F:
-        switch (value) {
-        case 0 ... 255:
-            info = &_encoding_info_F_0[0];
-            break;
+        if (value == 16)
+ {
+            return &_encoding_info_input_16[0];
         }
-        break;
-    case kEncoding_V:
-        switch (value) {
-        case 0 ... 255:
-            info = &_encoding_info_V_0[0];
-            break;
+        if (value == 17)
+ {
+            return &_encoding_info_input_17[0];
         }
-        break;
-    case kEncoding_lambda:
-        switch (value) {
-        case 0 ... 255:
-            info = &_encoding_info_lambda_0[0];
-            break;
+        if (value == 18)
+ {
+            return &_encoding_info_input_18[0];
         }
-        break;
-    case kEncoding_MPH:
-        switch (value) {
-        case 0 ... 255:
-            info = &_encoding_info_MPH_0[0];
-            break;
+        if (value == 19)
+ {
+            return &_encoding_info_input_19[0];
         }
-        break;
+        if (value == 20)
+ {
+            return &_encoding_info_input_20[0];
+        }
+        if (value == 21)
+ {
+            return &_encoding_info_input_21[0];
+        }
+        if (value == 22)
+ {
+            return &_encoding_info_input_22[0];
+        }
+        if (value == 23)
+ {
+            return &_encoding_info_input_23[0];
+        }
     }
-    return info;
+    if (index == kEncoding_msec) {
+        if (value == 0)
+ {
+            return &_encoding_info_msec_0[0];
+        }
+        if ((value >= 100) && (value <= 65000))
+ {
+            return &_encoding_info_msec_1[0];
+        }
+    }
+    if (index == kEncoding_sec) {
+        if (value == 0)
+ {
+            return &_encoding_info_sec_0[0];
+        }
+        if ((value >= 1) && (value <= 600))
+ {
+            return &_encoding_info_sec_1[0];
+        }
+    }
+    if (index == kEncoding_up_to_10) {
+        if (value == 0)
+ {
+            return &_encoding_info_up_to_10_0[0];
+        }
+        if ((value >= 1) && (value <= 10))
+ {
+            return &_encoding_info_up_to_10_1[0];
+        }
+    }
+    if (index == kEncoding_node_address) {
+        if (value == 0)
+ {
+            return &_encoding_info_node_address_0[0];
+        }
+        if ((value >= 1) && (value <= 125))
+ {
+            return &_encoding_info_node_address_1[0];
+        }
+        if (value == 126)
+ {
+            return &_encoding_info_node_address_2[0];
+        }
+        if (value == 127)
+ {
+            return &_encoding_info_node_address_3[0];
+        }
+    }
+    if (index == kEncoding_pci) {
+        if (value == 0)
+ {
+            return &_encoding_info_pci_0[0];
+        }
+        if (value == 1)
+ {
+            return &_encoding_info_pci_1[0];
+        }
+        if (value == 2)
+ {
+            return &_encoding_info_pci_2[0];
+        }
+    }
+    if (index == kEncoding_service_id) {
+        if (value == 0x22)
+ {
+            return &_encoding_info_service_id_0[0];
+        }
+        if (value == 0x2e)
+ {
+            return &_encoding_info_service_id_1[0];
+        }
+        if (value == 0x3e)
+ {
+            return &_encoding_info_service_id_2[0];
+        }
+        if (value == 0xb2)
+ {
+            return &_encoding_info_service_id_3[0];
+        }
+        if (value == 0xb4)
+ {
+            return &_encoding_info_service_id_4[0];
+        }
+        if (value == 0x7f)
+ {
+            return &_encoding_info_service_id_5[0];
+        }
+        if (value == 0x40)
+ {
+            return &_encoding_info_service_id_6[0];
+        }
+    }
+    if (index == kEncoding_service_error) {
+        if (value == 0x12)
+ {
+            return &_encoding_info_service_error_0[0];
+        }
+        if (value == 0x13)
+ {
+            return &_encoding_info_service_error_1[0];
+        }
+        if (value == 0x22)
+ {
+            return &_encoding_info_service_error_2[0];
+        }
+        if (value == 0x31)
+ {
+            return &_encoding_info_service_error_3[0];
+        }
+        if (value == 0x33)
+ {
+            return &_encoding_info_service_error_4[0];
+        }
+        if (value == 0x72)
+ {
+            return &_encoding_info_service_error_5[0];
+        }
+    }
+    if (index == kEncoding_v1_output_status) {
+        if (value == 0)
+ {
+            return &_encoding_info_v1_output_status_0[0];
+        }
+        if (value == 1)
+ {
+            return &_encoding_info_v1_output_status_1[0];
+        }
+    }
+    if (index == kEncoding_v1_output_assignment) {
+        if (value == 0)
+ {
+            return &_encoding_info_v1_output_assignment_0[0];
+        }
+        if (value == 1)
+ {
+            return &_encoding_info_v1_output_assignment_1[0];
+        }
+        if (value == 2)
+ {
+            return &_encoding_info_v1_output_assignment_2[0];
+        }
+        if (value == 3)
+ {
+            return &_encoding_info_v1_output_assignment_3[0];
+        }
+        if (value == 4)
+ {
+            return &_encoding_info_v1_output_assignment_4[0];
+        }
+        if (value == 5)
+ {
+            return &_encoding_info_v1_output_assignment_5[0];
+        }
+        if (value == 6)
+ {
+            return &_encoding_info_v1_output_assignment_6[0];
+        }
+        if (value == 7)
+ {
+            return &_encoding_info_v1_output_assignment_7[0];
+        }
+        if (value == 8)
+ {
+            return &_encoding_info_v1_output_assignment_8[0];
+        }
+        if (value == 9)
+ {
+            return &_encoding_info_v1_output_assignment_9[0];
+        }
+        if (value == 10)
+ {
+            return &_encoding_info_v1_output_assignment_10[0];
+        }
+        if (value == 11)
+ {
+            return &_encoding_info_v1_output_assignment_11[0];
+        }
+        if (value == 12)
+ {
+            return &_encoding_info_v1_output_assignment_12[0];
+        }
+        if (value == 13)
+ {
+            return &_encoding_info_v1_output_assignment_13[0];
+        }
+        if (value == 14)
+ {
+            return &_encoding_info_v1_output_assignment_14[0];
+        }
+        if (value == 15)
+ {
+            return &_encoding_info_v1_output_assignment_15[0];
+        }
+        if (value == 16)
+ {
+            return &_encoding_info_v1_output_assignment_16[0];
+        }
+        if (value == 17)
+ {
+            return &_encoding_info_v1_output_assignment_17[0];
+        }
+        if (value == 18)
+ {
+            return &_encoding_info_v1_output_assignment_18[0];
+        }
+        if (value == 19)
+ {
+            return &_encoding_info_v1_output_assignment_19[0];
+        }
+        if (value == 20)
+ {
+            return &_encoding_info_v1_output_assignment_20[0];
+        }
+        if (value == 21)
+ {
+            return &_encoding_info_v1_output_assignment_21[0];
+        }
+        if (value == 22)
+ {
+            return &_encoding_info_v1_output_assignment_22[0];
+        }
+        if (value == 23)
+ {
+            return &_encoding_info_v1_output_assignment_23[0];
+        }
+    }
+    if (index == kEncoding_v3_output_status) {
+        if (value == 0)
+ {
+            return &_encoding_info_v3_output_status_0[0];
+        }
+        if (value == 1)
+ {
+            return &_encoding_info_v3_output_status_1[0];
+        }
+        if (value == 2)
+ {
+            return &_encoding_info_v3_output_status_2[0];
+        }
+        if (value == 3)
+ {
+            return &_encoding_info_v3_output_status_3[0];
+        }
+        if (value == 4)
+ {
+            return &_encoding_info_v3_output_status_4[0];
+        }
+        if (value == 5)
+ {
+            return &_encoding_info_v3_output_status_5[0];
+        }
+    }
+    if (index == kEncoding_output_type) {
+        if (value == 0)
+ {
+            return &_encoding_info_output_type_0[0];
+        }
+        if (value == 1)
+ {
+            return &_encoding_info_output_type_1[0];
+        }
+        if (value == 2)
+ {
+            return &_encoding_info_output_type_2[0];
+        }
+        if (value == 3)
+ {
+            return &_encoding_info_output_type_3[0];
+        }
+        if (value == 4)
+ {
+            return &_encoding_info_output_type_4[0];
+        }
+        if (value == 5)
+ {
+            return &_encoding_info_output_type_5[0];
+        }
+        if (value == 6)
+ {
+            return &_encoding_info_output_type_6[0];
+        }
+    }
+    if (index == kEncoding_output_assignment) {
+        if (value == 0)
+ {
+            return &_encoding_info_output_assignment_0[0];
+        }
+        if (value == 1)
+ {
+            return &_encoding_info_output_assignment_1[0];
+        }
+        if (value == 2)
+ {
+            return &_encoding_info_output_assignment_2[0];
+        }
+        if (value == 3)
+ {
+            return &_encoding_info_output_assignment_3[0];
+        }
+        if (value == 4)
+ {
+            return &_encoding_info_output_assignment_4[0];
+        }
+        if (value == 5)
+ {
+            return &_encoding_info_output_assignment_5[0];
+        }
+        if (value == 6)
+ {
+            return &_encoding_info_output_assignment_6[0];
+        }
+        if (value == 7)
+ {
+            return &_encoding_info_output_assignment_7[0];
+        }
+        if (value == 8)
+ {
+            return &_encoding_info_output_assignment_8[0];
+        }
+        if (value == 9)
+ {
+            return &_encoding_info_output_assignment_9[0];
+        }
+        if (value == 10)
+ {
+            return &_encoding_info_output_assignment_10[0];
+        }
+        if (value == 11)
+ {
+            return &_encoding_info_output_assignment_11[0];
+        }
+        if (value == 12)
+ {
+            return &_encoding_info_output_assignment_12[0];
+        }
+        if (value == 13)
+ {
+            return &_encoding_info_output_assignment_13[0];
+        }
+        if (value == 14)
+ {
+            return &_encoding_info_output_assignment_14[0];
+        }
+        if (value == 15)
+ {
+            return &_encoding_info_output_assignment_15[0];
+        }
+        if (value == 16)
+ {
+            return &_encoding_info_output_assignment_16[0];
+        }
+        if (value == 17)
+ {
+            return &_encoding_info_output_assignment_17[0];
+        }
+        if (value == 18)
+ {
+            return &_encoding_info_output_assignment_18[0];
+        }
+        if (value == 19)
+ {
+            return &_encoding_info_output_assignment_19[0];
+        }
+        if (value == 20)
+ {
+            return &_encoding_info_output_assignment_20[0];
+        }
+        if (value == 21)
+ {
+            return &_encoding_info_output_assignment_21[0];
+        }
+        if (value == 22)
+ {
+            return &_encoding_info_output_assignment_22[0];
+        }
+        if (value == 23)
+ {
+            return &_encoding_info_output_assignment_23[0];
+        }
+    }
+    if (index == kEncoding_pwm_duty_cycle) {
+        if ((value >= 0) && (value <= 100))
+ {
+            return &_encoding_info_pwm_duty_cycle_0[0];
+        }
+    }
+    if (index == kEncoding_RPM) {
+        if ((value >= 0) && (value <= 255))
+ {
+            return &_encoding_info_RPM_0[0];
+        }
+    }
+    if (index == kEncoding_PSI) {
+        if ((value >= 0) && (value <= 255))
+ {
+            return &_encoding_info_PSI_0[0];
+        }
+    }
+    if (index == kEncoding_F) {
+        if ((value >= 0) && (value <= 255))
+ {
+            return &_encoding_info_F_0[0];
+        }
+    }
+    if (index == kEncoding_V) {
+        if ((value >= 0) && (value <= 255))
+ {
+            return &_encoding_info_V_0[0];
+        }
+    }
+    if (index == kEncoding_lambda) {
+        if ((value >= 0) && (value <= 255))
+ {
+            return &_encoding_info_lambda_0[0];
+        }
+    }
+    if (index == kEncoding_MPH) {
+        if ((value >= 0) && (value <= 255))
+ {
+            return &_encoding_info_MPH_0[0];
+        }
+    }
+    return nullptr;
 }
 
 namespace Generic
 {
 
-// parameter factory for Generic
-Parameter
-parameter(Parameter::Address address)
+uint16_t
+param_default(Parameter::Address address)
 {
-    uint8_t encoding = kEncoding_none;
-    switch (address) {
-    case kParamProtocolVersion:
-        break;
-    case kParamBoardFunction:
-        break;
-    case kParamBootloaderMode:
-        break;
-    case kParamFirmwareVersion:
-        break;
-    case kParamFirmwarePageSize:
-        break;
-    case kParamWatchdogResets:
-        break;
-    case kParamSupplyVoltage:
-        break;
-    case kParamTemperature:
-        break;
-    case kParamLine:
-        break;
-    case kParamChecksum:
-        break;
-    case kParamParity:
-        break;
-    case kParamFraming:
-        break;
-    case kParamSynch:
-        break;
-    case kParamProtocol:
-        break;
-    case kParamConfigBase:
-        break;
-    default:
-        address = Parameter::noAddress;
-    }
-    return Parameter(address, encoding, param_default, param_name);
+    return 0;
 }
 
-void param_default(const Parameter &param)
+uint8_t
+param_encoding(Parameter::Address address)
 {
-    uint16_t value;
-    switch (param.address()) {
-    default:
-        return;
-    }
-    param.set(value);
+    return kEncoding_none;
 }
 
 static const PROGMEM char _param_name_ProtocolVersion[] = "ProtocolVersion";
@@ -867,38 +1076,51 @@ static const PROGMEM char _param_name_Protocol[] = "Protocol";
 static const PROGMEM char _param_name_ConfigBase[] = "ConfigBase";
 
 const PROGMEM char *
-param_name(const Parameter &param)
+param_name(Parameter::Address address)
 {
-    switch (param.address()) {
-    case kParamProtocolVersion:
+    if (address == kParamProtocolVersion) {
         return &_param_name_ProtocolVersion[0];
-    case kParamBoardFunction:
+    }
+    if (address == kParamBoardFunction) {
         return &_param_name_BoardFunction[0];
-    case kParamBootloaderMode:
+    }
+    if (address == kParamBootloaderMode) {
         return &_param_name_BootloaderMode[0];
-    case kParamFirmwareVersion:
+    }
+    if (address == kParamFirmwareVersion) {
         return &_param_name_FirmwareVersion[0];
-    case kParamFirmwarePageSize:
+    }
+    if (address == kParamFirmwarePageSize) {
         return &_param_name_FirmwarePageSize[0];
-    case kParamWatchdogResets:
+    }
+    if (address == kParamWatchdogResets) {
         return &_param_name_WatchdogResets[0];
-    case kParamSupplyVoltage:
+    }
+    if (address == kParamSupplyVoltage) {
         return &_param_name_SupplyVoltage[0];
-    case kParamTemperature:
+    }
+    if (address == kParamTemperature) {
         return &_param_name_Temperature[0];
-    case kParamLine:
+    }
+    if (address == kParamLine) {
         return &_param_name_Line[0];
-    case kParamChecksum:
+    }
+    if (address == kParamChecksum) {
         return &_param_name_Checksum[0];
-    case kParamParity:
+    }
+    if (address == kParamParity) {
         return &_param_name_Parity[0];
-    case kParamFraming:
+    }
+    if (address == kParamFraming) {
         return &_param_name_Framing[0];
-    case kParamSynch:
+    }
+    if (address == kParamSynch) {
         return &_param_name_Synch[0];
-    case kParamProtocol:
+    }
+    if (address == kParamProtocol) {
         return &_param_name_Protocol[0];
-    case kParamConfigBase:
+    }
+    if (address == kParamConfigBase) {
         return &_param_name_ConfigBase[0];
     }
     return nullptr;
@@ -910,200 +1132,190 @@ param_name(const Parameter &param)
 namespace Master
 {
 
-// parameter factory for Master
-Parameter
-parameter(Parameter::Address address)
+uint16_t
+param_default(Parameter::Address address)
 {
-    uint8_t encoding = kEncoding_none;
-    switch (address) {
-    case kParamSP1Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSP2Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSP3Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSP4Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSP5Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSP6Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSP7Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG0Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG1Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG2Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG3Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG4Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG5Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG6Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG7Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG8Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG9Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG10Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG11Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG12Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamSG13Assign:
-        encoding = kEncoding_input;
-        break;
-    case kParamTurnBlinkPeriod:
-        encoding = kEncoding_msec;
-        break;
-    case kParamPassingBlinkCount:
-        encoding = kEncoding_up_to_10;
-        break;
-    case kParamPathLightTime:
-        encoding = kEncoding_sec;
-        break;
-    case kParamInteriorLightTime:
-        encoding = kEncoding_sec;
-        break;
-    case kParamWelcomeLightTime:
-        encoding = kEncoding_sec;
-        break;
-    case kParamBrakeBlinkPeriod:
-        encoding = kEncoding_msec;
-        break;
-    case kParamBrakeBlinkCount:
-        encoding = kEncoding_up_to_10;
-        break;
-    case kParamWiperInterval:
-        encoding = kEncoding_msec;
-        break;
-    default:
-        address = Parameter::noAddress;
+    if (address == kParamSP1Assign) {
+        return 0;
     }
-    return Parameter(address, encoding, param_default, param_name);
+    if (address == kParamSP2Assign) {
+        return 0;
+    }
+    if (address == kParamSP3Assign) {
+        return 0;
+    }
+    if (address == kParamSP4Assign) {
+        return 0;
+    }
+    if (address == kParamSP5Assign) {
+        return 0;
+    }
+    if (address == kParamSP6Assign) {
+        return 0;
+    }
+    if (address == kParamSP7Assign) {
+        return 0;
+    }
+    if (address == kParamSG0Assign) {
+        return 0;
+    }
+    if (address == kParamSG1Assign) {
+        return 0;
+    }
+    if (address == kParamSG2Assign) {
+        return 0;
+    }
+    if (address == kParamSG3Assign) {
+        return 0;
+    }
+    if (address == kParamSG4Assign) {
+        return 0;
+    }
+    if (address == kParamSG5Assign) {
+        return 0;
+    }
+    if (address == kParamSG6Assign) {
+        return 0;
+    }
+    if (address == kParamSG7Assign) {
+        return 0;
+    }
+    if (address == kParamSG8Assign) {
+        return 0;
+    }
+    if (address == kParamSG9Assign) {
+        return 0;
+    }
+    if (address == kParamSG10Assign) {
+        return 0;
+    }
+    if (address == kParamSG11Assign) {
+        return 0;
+    }
+    if (address == kParamSG12Assign) {
+        return 0;
+    }
+    if (address == kParamSG13Assign) {
+        return 0;
+    }
+    if (address == kParamTurnBlinkPeriod) {
+        return 500;
+    }
+    if (address == kParamPassingBlinkCount) {
+        return 0;
+    }
+    if (address == kParamPathLightTime) {
+        return 30;
+    }
+    if (address == kParamInteriorLightTime) {
+        return 30;
+    }
+    if (address == kParamWelcomeLightTime) {
+        return 30;
+    }
+    if (address == kParamBrakeBlinkPeriod) {
+        return 0;
+    }
+    if (address == kParamBrakeBlinkCount) {
+        return 0;
+    }
+    if (address == kParamWiperInterval) {
+        return 0;
+    }
+    return 0;
 }
 
-void param_default(const Parameter &param)
+uint8_t
+param_encoding(Parameter::Address address)
 {
-    uint16_t value;
-    switch (param.address()) {
-        case kParamSP1Assign:
-            value = 0;
-            break;
-        case kParamSP2Assign:
-            value = 0;
-            break;
-        case kParamSP3Assign:
-            value = 0;
-            break;
-        case kParamSP4Assign:
-            value = 0;
-            break;
-        case kParamSP5Assign:
-            value = 0;
-            break;
-        case kParamSP6Assign:
-            value = 0;
-            break;
-        case kParamSP7Assign:
-            value = 0;
-            break;
-        case kParamSG0Assign:
-            value = 0;
-            break;
-        case kParamSG1Assign:
-            value = 0;
-            break;
-        case kParamSG2Assign:
-            value = 0;
-            break;
-        case kParamSG3Assign:
-            value = 0;
-            break;
-        case kParamSG4Assign:
-            value = 0;
-            break;
-        case kParamSG5Assign:
-            value = 0;
-            break;
-        case kParamSG6Assign:
-            value = 0;
-            break;
-        case kParamSG7Assign:
-            value = 0;
-            break;
-        case kParamSG8Assign:
-            value = 0;
-            break;
-        case kParamSG9Assign:
-            value = 0;
-            break;
-        case kParamSG10Assign:
-            value = 0;
-            break;
-        case kParamSG11Assign:
-            value = 0;
-            break;
-        case kParamSG12Assign:
-            value = 0;
-            break;
-        case kParamSG13Assign:
-            value = 0;
-            break;
-        case kParamTurnBlinkPeriod:
-            value = 500;
-            break;
-        case kParamPassingBlinkCount:
-            value = 0;
-            break;
-        case kParamPathLightTime:
-            value = 30;
-            break;
-        case kParamInteriorLightTime:
-            value = 30;
-            break;
-        case kParamWelcomeLightTime:
-            value = 30;
-            break;
-        case kParamBrakeBlinkPeriod:
-            value = 0;
-            break;
-        case kParamBrakeBlinkCount:
-            value = 0;
-            break;
-        case kParamWiperInterval:
-            value = 0;
-            break;
-    default:
-        return;
+    if (address == kParamSP1Assign) {
+        return kEncoding_input;
     }
-    param.set(value);
+    if (address == kParamSP2Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSP3Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSP4Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSP5Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSP6Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSP7Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG0Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG1Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG2Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG3Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG4Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG5Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG6Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG7Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG8Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG9Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG10Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG11Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG12Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamSG13Assign) {
+        return kEncoding_input;
+    }
+    if (address == kParamTurnBlinkPeriod) {
+        return kEncoding_msec;
+    }
+    if (address == kParamPassingBlinkCount) {
+        return kEncoding_up_to_10;
+    }
+    if (address == kParamPathLightTime) {
+        return kEncoding_sec;
+    }
+    if (address == kParamInteriorLightTime) {
+        return kEncoding_sec;
+    }
+    if (address == kParamWelcomeLightTime) {
+        return kEncoding_sec;
+    }
+    if (address == kParamBrakeBlinkPeriod) {
+        return kEncoding_msec;
+    }
+    if (address == kParamBrakeBlinkCount) {
+        return kEncoding_up_to_10;
+    }
+    if (address == kParamWiperInterval) {
+        return kEncoding_msec;
+    }
+    return kEncoding_none;
 }
 
 static const PROGMEM char _param_name_SP1Assign[] = "SP1Assign";
@@ -1137,66 +1349,93 @@ static const PROGMEM char _param_name_BrakeBlinkCount[] = "BrakeBlinkCount";
 static const PROGMEM char _param_name_WiperInterval[] = "WiperInterval";
 
 const PROGMEM char *
-param_name(const Parameter &param)
+param_name(Parameter::Address address)
 {
-    switch (param.address()) {
-    case kParamSP1Assign:
+    if (address == kParamSP1Assign) {
         return &_param_name_SP1Assign[0];
-    case kParamSP2Assign:
+    }
+    if (address == kParamSP2Assign) {
         return &_param_name_SP2Assign[0];
-    case kParamSP3Assign:
+    }
+    if (address == kParamSP3Assign) {
         return &_param_name_SP3Assign[0];
-    case kParamSP4Assign:
+    }
+    if (address == kParamSP4Assign) {
         return &_param_name_SP4Assign[0];
-    case kParamSP5Assign:
+    }
+    if (address == kParamSP5Assign) {
         return &_param_name_SP5Assign[0];
-    case kParamSP6Assign:
+    }
+    if (address == kParamSP6Assign) {
         return &_param_name_SP6Assign[0];
-    case kParamSP7Assign:
+    }
+    if (address == kParamSP7Assign) {
         return &_param_name_SP7Assign[0];
-    case kParamSG0Assign:
+    }
+    if (address == kParamSG0Assign) {
         return &_param_name_SG0Assign[0];
-    case kParamSG1Assign:
+    }
+    if (address == kParamSG1Assign) {
         return &_param_name_SG1Assign[0];
-    case kParamSG2Assign:
+    }
+    if (address == kParamSG2Assign) {
         return &_param_name_SG2Assign[0];
-    case kParamSG3Assign:
+    }
+    if (address == kParamSG3Assign) {
         return &_param_name_SG3Assign[0];
-    case kParamSG4Assign:
+    }
+    if (address == kParamSG4Assign) {
         return &_param_name_SG4Assign[0];
-    case kParamSG5Assign:
+    }
+    if (address == kParamSG5Assign) {
         return &_param_name_SG5Assign[0];
-    case kParamSG6Assign:
+    }
+    if (address == kParamSG6Assign) {
         return &_param_name_SG6Assign[0];
-    case kParamSG7Assign:
+    }
+    if (address == kParamSG7Assign) {
         return &_param_name_SG7Assign[0];
-    case kParamSG8Assign:
+    }
+    if (address == kParamSG8Assign) {
         return &_param_name_SG8Assign[0];
-    case kParamSG9Assign:
+    }
+    if (address == kParamSG9Assign) {
         return &_param_name_SG9Assign[0];
-    case kParamSG10Assign:
+    }
+    if (address == kParamSG10Assign) {
         return &_param_name_SG10Assign[0];
-    case kParamSG11Assign:
+    }
+    if (address == kParamSG11Assign) {
         return &_param_name_SG11Assign[0];
-    case kParamSG12Assign:
+    }
+    if (address == kParamSG12Assign) {
         return &_param_name_SG12Assign[0];
-    case kParamSG13Assign:
+    }
+    if (address == kParamSG13Assign) {
         return &_param_name_SG13Assign[0];
-    case kParamTurnBlinkPeriod:
+    }
+    if (address == kParamTurnBlinkPeriod) {
         return &_param_name_TurnBlinkPeriod[0];
-    case kParamPassingBlinkCount:
+    }
+    if (address == kParamPassingBlinkCount) {
         return &_param_name_PassingBlinkCount[0];
-    case kParamPathLightTime:
+    }
+    if (address == kParamPathLightTime) {
         return &_param_name_PathLightTime[0];
-    case kParamInteriorLightTime:
+    }
+    if (address == kParamInteriorLightTime) {
         return &_param_name_InteriorLightTime[0];
-    case kParamWelcomeLightTime:
+    }
+    if (address == kParamWelcomeLightTime) {
         return &_param_name_WelcomeLightTime[0];
-    case kParamBrakeBlinkPeriod:
+    }
+    if (address == kParamBrakeBlinkPeriod) {
         return &_param_name_BrakeBlinkPeriod[0];
-    case kParamBrakeBlinkCount:
+    }
+    if (address == kParamBrakeBlinkCount) {
         return &_param_name_BrakeBlinkCount[0];
-    case kParamWiperInterval:
+    }
+    if (address == kParamWiperInterval) {
         return &_param_name_WiperInterval[0];
     }
     return nullptr;
@@ -1208,74 +1447,64 @@ param_name(const Parameter &param)
 namespace PowerV1
 {
 
-// parameter factory for PowerV1
-Parameter
-parameter(Parameter::Address address)
+uint16_t
+param_default(Parameter::Address address)
 {
-    uint8_t encoding = kEncoding_none;
-    switch (address) {
-    case kParamRelay1Status:
-        encoding = kEncoding_v1_output_status;
-        break;
-    case kParamRelay2Status:
-        encoding = kEncoding_v1_output_status;
-        break;
-    case kParamRelay3Status:
-        encoding = kEncoding_v1_output_status;
-        break;
-    case kParamRelay4Status:
-        encoding = kEncoding_v1_output_status;
-        break;
-    case kParamRelay1Assign:
-        encoding = kEncoding_v1_output_assignment;
-        break;
-    case kParamRelay2Assign:
-        encoding = kEncoding_v1_output_assignment;
-        break;
-    case kParamRelay3Assign:
-        encoding = kEncoding_v1_output_assignment;
-        break;
-    case kParamRelay4Assign:
-        encoding = kEncoding_v1_output_assignment;
-        break;
-    default:
-        address = Parameter::noAddress;
+    if (address == kParamRelay1Status) {
+        return 0;
     }
-    return Parameter(address, encoding, param_default, param_name);
+    if (address == kParamRelay2Status) {
+        return 0;
+    }
+    if (address == kParamRelay3Status) {
+        return 0;
+    }
+    if (address == kParamRelay4Status) {
+        return 0;
+    }
+    if (address == kParamRelay1Assign) {
+        return 0;
+    }
+    if (address == kParamRelay2Assign) {
+        return 0;
+    }
+    if (address == kParamRelay3Assign) {
+        return 0;
+    }
+    if (address == kParamRelay4Assign) {
+        return 0;
+    }
+    return 0;
 }
 
-void param_default(const Parameter &param)
+uint8_t
+param_encoding(Parameter::Address address)
 {
-    uint16_t value;
-    switch (param.address()) {
-        case kParamRelay1Status:
-            value = 0;
-            break;
-        case kParamRelay2Status:
-            value = 0;
-            break;
-        case kParamRelay3Status:
-            value = 0;
-            break;
-        case kParamRelay4Status:
-            value = 0;
-            break;
-        case kParamRelay1Assign:
-            value = 0;
-            break;
-        case kParamRelay2Assign:
-            value = 0;
-            break;
-        case kParamRelay3Assign:
-            value = 0;
-            break;
-        case kParamRelay4Assign:
-            value = 0;
-            break;
-    default:
-        return;
+    if (address == kParamRelay1Status) {
+        return kEncoding_v1_output_status;
     }
-    param.set(value);
+    if (address == kParamRelay2Status) {
+        return kEncoding_v1_output_status;
+    }
+    if (address == kParamRelay3Status) {
+        return kEncoding_v1_output_status;
+    }
+    if (address == kParamRelay4Status) {
+        return kEncoding_v1_output_status;
+    }
+    if (address == kParamRelay1Assign) {
+        return kEncoding_v1_output_assignment;
+    }
+    if (address == kParamRelay2Assign) {
+        return kEncoding_v1_output_assignment;
+    }
+    if (address == kParamRelay3Assign) {
+        return kEncoding_v1_output_assignment;
+    }
+    if (address == kParamRelay4Assign) {
+        return kEncoding_v1_output_assignment;
+    }
+    return kEncoding_none;
 }
 
 static const PROGMEM char _param_name_Relay1Status[] = "Relay1Status";
@@ -1288,24 +1517,30 @@ static const PROGMEM char _param_name_Relay3Assign[] = "Relay3Assign";
 static const PROGMEM char _param_name_Relay4Assign[] = "Relay4Assign";
 
 const PROGMEM char *
-param_name(const Parameter &param)
+param_name(Parameter::Address address)
 {
-    switch (param.address()) {
-    case kParamRelay1Status:
+    if (address == kParamRelay1Status) {
         return &_param_name_Relay1Status[0];
-    case kParamRelay2Status:
+    }
+    if (address == kParamRelay2Status) {
         return &_param_name_Relay2Status[0];
-    case kParamRelay3Status:
+    }
+    if (address == kParamRelay3Status) {
         return &_param_name_Relay3Status[0];
-    case kParamRelay4Status:
+    }
+    if (address == kParamRelay4Status) {
         return &_param_name_Relay4Status[0];
-    case kParamRelay1Assign:
+    }
+    if (address == kParamRelay1Assign) {
         return &_param_name_Relay1Assign[0];
-    case kParamRelay2Assign:
+    }
+    if (address == kParamRelay2Assign) {
         return &_param_name_Relay2Assign[0];
-    case kParamRelay3Assign:
+    }
+    if (address == kParamRelay3Assign) {
         return &_param_name_Relay3Assign[0];
-    case kParamRelay4Assign:
+    }
+    if (address == kParamRelay4Assign) {
         return &_param_name_Relay4Assign[0];
     }
     return nullptr;
@@ -1317,326 +1552,316 @@ param_name(const Parameter &param)
 namespace PowerV3
 {
 
-// parameter factory for PowerV3
-Parameter
-parameter(Parameter::Address address)
+uint16_t
+param_default(Parameter::Address address)
 {
-    uint8_t encoding = kEncoding_none;
-    switch (address) {
-    case kParamCH1Status:
-        encoding = kEncoding_v3_output_status;
-        break;
-    case kParamCH2Status:
-        encoding = kEncoding_v3_output_status;
-        break;
-    case kParamCH3Status:
-        encoding = kEncoding_v3_output_status;
-        break;
-    case kParamCH4Status:
-        encoding = kEncoding_v3_output_status;
-        break;
-    case kParamCH5Status:
-        encoding = kEncoding_v3_output_status;
-        break;
-    case kParamCH1Type:
-        encoding = kEncoding_output_type;
-        break;
-    case kParamCH2Type:
-        encoding = kEncoding_output_type;
-        break;
-    case kParamCH3Type:
-        encoding = kEncoding_output_type;
-        break;
-    case kParamCH4Type:
-        encoding = kEncoding_output_type;
-        break;
-    case kParamCH5Type:
-        encoding = kEncoding_output_type;
-        break;
-    case kParamCH1Assign1:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH1Assign2:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH1Assign3:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH1Assign4:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH1PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH1PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH1PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH1PWM4:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH2Assign1:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH2Assign2:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH2Assign3:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH2Assign4:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH2PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH2PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH2PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH2PWM4:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH3Assign1:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH3Assign2:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH3Assign3:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH3Assign4:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH3PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH3PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH3PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH3PWM4:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH4Assign1:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH4Assign2:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH4Assign3:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH4Assign4:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH4PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH4PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH4PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH4PWM4:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH5Assign1:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH5Assign2:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH5Assign3:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH5Assign4:
-        encoding = kEncoding_output_assignment;
-        break;
-    case kParamCH5PWM1:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH5PWM2:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH5PWM3:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    case kParamCH5PWM4:
-        encoding = kEncoding_pwm_duty_cycle;
-        break;
-    default:
-        address = Parameter::noAddress;
+    if (address == kParamCH1Status) {
+        return 0;
     }
-    return Parameter(address, encoding, param_default, param_name);
+    if (address == kParamCH2Status) {
+        return 0;
+    }
+    if (address == kParamCH3Status) {
+        return 0;
+    }
+    if (address == kParamCH4Status) {
+        return 0;
+    }
+    if (address == kParamCH5Status) {
+        return 0;
+    }
+    if (address == kParamCH1Type) {
+        return 0;
+    }
+    if (address == kParamCH2Type) {
+        return 0;
+    }
+    if (address == kParamCH3Type) {
+        return 0;
+    }
+    if (address == kParamCH4Type) {
+        return 0;
+    }
+    if (address == kParamCH5Type) {
+        return 0;
+    }
+    if (address == kParamCH1Assign1) {
+        return 255;
+    }
+    if (address == kParamCH1Assign2) {
+        return 255;
+    }
+    if (address == kParamCH1Assign3) {
+        return 255;
+    }
+    if (address == kParamCH1Assign4) {
+        return 255;
+    }
+    if (address == kParamCH1PWM1) {
+        return 0;
+    }
+    if (address == kParamCH1PWM2) {
+        return 0;
+    }
+    if (address == kParamCH1PWM3) {
+        return 0;
+    }
+    if (address == kParamCH1PWM4) {
+        return 0;
+    }
+    if (address == kParamCH2Assign1) {
+        return 255;
+    }
+    if (address == kParamCH2Assign2) {
+        return 255;
+    }
+    if (address == kParamCH2Assign3) {
+        return 255;
+    }
+    if (address == kParamCH2Assign4) {
+        return 255;
+    }
+    if (address == kParamCH2PWM1) {
+        return 0;
+    }
+    if (address == kParamCH2PWM2) {
+        return 0;
+    }
+    if (address == kParamCH2PWM3) {
+        return 0;
+    }
+    if (address == kParamCH2PWM4) {
+        return 0;
+    }
+    if (address == kParamCH3Assign1) {
+        return 255;
+    }
+    if (address == kParamCH3Assign2) {
+        return 255;
+    }
+    if (address == kParamCH3Assign3) {
+        return 255;
+    }
+    if (address == kParamCH3Assign4) {
+        return 255;
+    }
+    if (address == kParamCH3PWM1) {
+        return 0;
+    }
+    if (address == kParamCH3PWM2) {
+        return 0;
+    }
+    if (address == kParamCH3PWM3) {
+        return 0;
+    }
+    if (address == kParamCH3PWM4) {
+        return 0;
+    }
+    if (address == kParamCH4Assign1) {
+        return 255;
+    }
+    if (address == kParamCH4Assign2) {
+        return 255;
+    }
+    if (address == kParamCH4Assign3) {
+        return 255;
+    }
+    if (address == kParamCH4Assign4) {
+        return 255;
+    }
+    if (address == kParamCH4PWM1) {
+        return 0;
+    }
+    if (address == kParamCH4PWM2) {
+        return 0;
+    }
+    if (address == kParamCH4PWM3) {
+        return 0;
+    }
+    if (address == kParamCH4PWM4) {
+        return 0;
+    }
+    if (address == kParamCH5Assign1) {
+        return 255;
+    }
+    if (address == kParamCH5Assign2) {
+        return 255;
+    }
+    if (address == kParamCH5Assign3) {
+        return 255;
+    }
+    if (address == kParamCH5Assign4) {
+        return 255;
+    }
+    if (address == kParamCH5PWM1) {
+        return 0;
+    }
+    if (address == kParamCH5PWM2) {
+        return 0;
+    }
+    if (address == kParamCH5PWM3) {
+        return 0;
+    }
+    if (address == kParamCH5PWM4) {
+        return 0;
+    }
+    return 0;
 }
 
-void param_default(const Parameter &param)
+uint8_t
+param_encoding(Parameter::Address address)
 {
-    uint16_t value;
-    switch (param.address()) {
-        case kParamCH1Status:
-            value = 0;
-            break;
-        case kParamCH2Status:
-            value = 0;
-            break;
-        case kParamCH3Status:
-            value = 0;
-            break;
-        case kParamCH4Status:
-            value = 0;
-            break;
-        case kParamCH5Status:
-            value = 0;
-            break;
-        case kParamCH1Type:
-            value = 0;
-            break;
-        case kParamCH2Type:
-            value = 0;
-            break;
-        case kParamCH3Type:
-            value = 0;
-            break;
-        case kParamCH4Type:
-            value = 0;
-            break;
-        case kParamCH5Type:
-            value = 0;
-            break;
-        case kParamCH1Assign1:
-            value = 255;
-            break;
-        case kParamCH1Assign2:
-            value = 255;
-            break;
-        case kParamCH1Assign3:
-            value = 255;
-            break;
-        case kParamCH1Assign4:
-            value = 255;
-            break;
-        case kParamCH1PWM1:
-            value = 0;
-            break;
-        case kParamCH1PWM2:
-            value = 0;
-            break;
-        case kParamCH1PWM3:
-            value = 0;
-            break;
-        case kParamCH1PWM4:
-            value = 0;
-            break;
-        case kParamCH2Assign1:
-            value = 255;
-            break;
-        case kParamCH2Assign2:
-            value = 255;
-            break;
-        case kParamCH2Assign3:
-            value = 255;
-            break;
-        case kParamCH2Assign4:
-            value = 255;
-            break;
-        case kParamCH2PWM1:
-            value = 0;
-            break;
-        case kParamCH2PWM2:
-            value = 0;
-            break;
-        case kParamCH2PWM3:
-            value = 0;
-            break;
-        case kParamCH2PWM4:
-            value = 0;
-            break;
-        case kParamCH3Assign1:
-            value = 255;
-            break;
-        case kParamCH3Assign2:
-            value = 255;
-            break;
-        case kParamCH3Assign3:
-            value = 255;
-            break;
-        case kParamCH3Assign4:
-            value = 255;
-            break;
-        case kParamCH3PWM1:
-            value = 0;
-            break;
-        case kParamCH3PWM2:
-            value = 0;
-            break;
-        case kParamCH3PWM3:
-            value = 0;
-            break;
-        case kParamCH3PWM4:
-            value = 0;
-            break;
-        case kParamCH4Assign1:
-            value = 255;
-            break;
-        case kParamCH4Assign2:
-            value = 255;
-            break;
-        case kParamCH4Assign3:
-            value = 255;
-            break;
-        case kParamCH4Assign4:
-            value = 255;
-            break;
-        case kParamCH4PWM1:
-            value = 0;
-            break;
-        case kParamCH4PWM2:
-            value = 0;
-            break;
-        case kParamCH4PWM3:
-            value = 0;
-            break;
-        case kParamCH4PWM4:
-            value = 0;
-            break;
-        case kParamCH5Assign1:
-            value = 255;
-            break;
-        case kParamCH5Assign2:
-            value = 255;
-            break;
-        case kParamCH5Assign3:
-            value = 255;
-            break;
-        case kParamCH5Assign4:
-            value = 255;
-            break;
-        case kParamCH5PWM1:
-            value = 0;
-            break;
-        case kParamCH5PWM2:
-            value = 0;
-            break;
-        case kParamCH5PWM3:
-            value = 0;
-            break;
-        case kParamCH5PWM4:
-            value = 0;
-            break;
-    default:
-        return;
+    if (address == kParamCH1Status) {
+        return kEncoding_v3_output_status;
     }
-    param.set(value);
+    if (address == kParamCH2Status) {
+        return kEncoding_v3_output_status;
+    }
+    if (address == kParamCH3Status) {
+        return kEncoding_v3_output_status;
+    }
+    if (address == kParamCH4Status) {
+        return kEncoding_v3_output_status;
+    }
+    if (address == kParamCH5Status) {
+        return kEncoding_v3_output_status;
+    }
+    if (address == kParamCH1Type) {
+        return kEncoding_output_type;
+    }
+    if (address == kParamCH2Type) {
+        return kEncoding_output_type;
+    }
+    if (address == kParamCH3Type) {
+        return kEncoding_output_type;
+    }
+    if (address == kParamCH4Type) {
+        return kEncoding_output_type;
+    }
+    if (address == kParamCH5Type) {
+        return kEncoding_output_type;
+    }
+    if (address == kParamCH1Assign1) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH1Assign2) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH1Assign3) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH1Assign4) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH1PWM1) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH1PWM2) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH1PWM3) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH1PWM4) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH2Assign1) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH2Assign2) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH2Assign3) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH2Assign4) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH2PWM1) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH2PWM2) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH2PWM3) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH2PWM4) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH3Assign1) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH3Assign2) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH3Assign3) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH3Assign4) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH3PWM1) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH3PWM2) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH3PWM3) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH3PWM4) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH4Assign1) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH4Assign2) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH4Assign3) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH4Assign4) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH4PWM1) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH4PWM2) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH4PWM3) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH4PWM4) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH5Assign1) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH5Assign2) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH5Assign3) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH5Assign4) {
+        return kEncoding_output_assignment;
+    }
+    if (address == kParamCH5PWM1) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH5PWM2) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH5PWM3) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    if (address == kParamCH5PWM4) {
+        return kEncoding_pwm_duty_cycle;
+    }
+    return kEncoding_none;
 }
 
 static const PROGMEM char _param_name_CH1Status[] = "CH1Status";
@@ -1691,108 +1916,156 @@ static const PROGMEM char _param_name_CH5PWM3[] = "CH5PWM3";
 static const PROGMEM char _param_name_CH5PWM4[] = "CH5PWM4";
 
 const PROGMEM char *
-param_name(const Parameter &param)
+param_name(Parameter::Address address)
 {
-    switch (param.address()) {
-    case kParamCH1Status:
+    if (address == kParamCH1Status) {
         return &_param_name_CH1Status[0];
-    case kParamCH2Status:
+    }
+    if (address == kParamCH2Status) {
         return &_param_name_CH2Status[0];
-    case kParamCH3Status:
+    }
+    if (address == kParamCH3Status) {
         return &_param_name_CH3Status[0];
-    case kParamCH4Status:
+    }
+    if (address == kParamCH4Status) {
         return &_param_name_CH4Status[0];
-    case kParamCH5Status:
+    }
+    if (address == kParamCH5Status) {
         return &_param_name_CH5Status[0];
-    case kParamCH1Type:
+    }
+    if (address == kParamCH1Type) {
         return &_param_name_CH1Type[0];
-    case kParamCH2Type:
+    }
+    if (address == kParamCH2Type) {
         return &_param_name_CH2Type[0];
-    case kParamCH3Type:
+    }
+    if (address == kParamCH3Type) {
         return &_param_name_CH3Type[0];
-    case kParamCH4Type:
+    }
+    if (address == kParamCH4Type) {
         return &_param_name_CH4Type[0];
-    case kParamCH5Type:
+    }
+    if (address == kParamCH5Type) {
         return &_param_name_CH5Type[0];
-    case kParamCH1Assign1:
+    }
+    if (address == kParamCH1Assign1) {
         return &_param_name_CH1Assign1[0];
-    case kParamCH1Assign2:
+    }
+    if (address == kParamCH1Assign2) {
         return &_param_name_CH1Assign2[0];
-    case kParamCH1Assign3:
+    }
+    if (address == kParamCH1Assign3) {
         return &_param_name_CH1Assign3[0];
-    case kParamCH1Assign4:
+    }
+    if (address == kParamCH1Assign4) {
         return &_param_name_CH1Assign4[0];
-    case kParamCH1PWM1:
+    }
+    if (address == kParamCH1PWM1) {
         return &_param_name_CH1PWM1[0];
-    case kParamCH1PWM2:
+    }
+    if (address == kParamCH1PWM2) {
         return &_param_name_CH1PWM2[0];
-    case kParamCH1PWM3:
+    }
+    if (address == kParamCH1PWM3) {
         return &_param_name_CH1PWM3[0];
-    case kParamCH1PWM4:
+    }
+    if (address == kParamCH1PWM4) {
         return &_param_name_CH1PWM4[0];
-    case kParamCH2Assign1:
+    }
+    if (address == kParamCH2Assign1) {
         return &_param_name_CH2Assign1[0];
-    case kParamCH2Assign2:
+    }
+    if (address == kParamCH2Assign2) {
         return &_param_name_CH2Assign2[0];
-    case kParamCH2Assign3:
+    }
+    if (address == kParamCH2Assign3) {
         return &_param_name_CH2Assign3[0];
-    case kParamCH2Assign4:
+    }
+    if (address == kParamCH2Assign4) {
         return &_param_name_CH2Assign4[0];
-    case kParamCH2PWM1:
+    }
+    if (address == kParamCH2PWM1) {
         return &_param_name_CH2PWM1[0];
-    case kParamCH2PWM2:
+    }
+    if (address == kParamCH2PWM2) {
         return &_param_name_CH2PWM2[0];
-    case kParamCH2PWM3:
+    }
+    if (address == kParamCH2PWM3) {
         return &_param_name_CH2PWM3[0];
-    case kParamCH2PWM4:
+    }
+    if (address == kParamCH2PWM4) {
         return &_param_name_CH2PWM4[0];
-    case kParamCH3Assign1:
+    }
+    if (address == kParamCH3Assign1) {
         return &_param_name_CH3Assign1[0];
-    case kParamCH3Assign2:
+    }
+    if (address == kParamCH3Assign2) {
         return &_param_name_CH3Assign2[0];
-    case kParamCH3Assign3:
+    }
+    if (address == kParamCH3Assign3) {
         return &_param_name_CH3Assign3[0];
-    case kParamCH3Assign4:
+    }
+    if (address == kParamCH3Assign4) {
         return &_param_name_CH3Assign4[0];
-    case kParamCH3PWM1:
+    }
+    if (address == kParamCH3PWM1) {
         return &_param_name_CH3PWM1[0];
-    case kParamCH3PWM2:
+    }
+    if (address == kParamCH3PWM2) {
         return &_param_name_CH3PWM2[0];
-    case kParamCH3PWM3:
+    }
+    if (address == kParamCH3PWM3) {
         return &_param_name_CH3PWM3[0];
-    case kParamCH3PWM4:
+    }
+    if (address == kParamCH3PWM4) {
         return &_param_name_CH3PWM4[0];
-    case kParamCH4Assign1:
+    }
+    if (address == kParamCH4Assign1) {
         return &_param_name_CH4Assign1[0];
-    case kParamCH4Assign2:
+    }
+    if (address == kParamCH4Assign2) {
         return &_param_name_CH4Assign2[0];
-    case kParamCH4Assign3:
+    }
+    if (address == kParamCH4Assign3) {
         return &_param_name_CH4Assign3[0];
-    case kParamCH4Assign4:
+    }
+    if (address == kParamCH4Assign4) {
         return &_param_name_CH4Assign4[0];
-    case kParamCH4PWM1:
+    }
+    if (address == kParamCH4PWM1) {
         return &_param_name_CH4PWM1[0];
-    case kParamCH4PWM2:
+    }
+    if (address == kParamCH4PWM2) {
         return &_param_name_CH4PWM2[0];
-    case kParamCH4PWM3:
+    }
+    if (address == kParamCH4PWM3) {
         return &_param_name_CH4PWM3[0];
-    case kParamCH4PWM4:
+    }
+    if (address == kParamCH4PWM4) {
         return &_param_name_CH4PWM4[0];
-    case kParamCH5Assign1:
+    }
+    if (address == kParamCH5Assign1) {
         return &_param_name_CH5Assign1[0];
-    case kParamCH5Assign2:
+    }
+    if (address == kParamCH5Assign2) {
         return &_param_name_CH5Assign2[0];
-    case kParamCH5Assign3:
+    }
+    if (address == kParamCH5Assign3) {
         return &_param_name_CH5Assign3[0];
-    case kParamCH5Assign4:
+    }
+    if (address == kParamCH5Assign4) {
         return &_param_name_CH5Assign4[0];
-    case kParamCH5PWM1:
+    }
+    if (address == kParamCH5PWM1) {
         return &_param_name_CH5PWM1[0];
-    case kParamCH5PWM2:
+    }
+    if (address == kParamCH5PWM2) {
         return &_param_name_CH5PWM2[0];
-    case kParamCH5PWM3:
+    }
+    if (address == kParamCH5PWM3) {
         return &_param_name_CH5PWM3[0];
-    case kParamCH5PWM4:
+    }
+    if (address == kParamCH5PWM4) {
         return &_param_name_CH5PWM4[0];
     }
     return nullptr;

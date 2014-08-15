@@ -16,6 +16,8 @@
 
 #include "lin_defs.h"
 
+using namespace PowerV1;
+
 void
 main(void)
 {
@@ -29,10 +31,10 @@ main(void)
 
 #ifdef DEBUG
     OSCCAL += 7;    // XXX test board's osc is slow
-    debug("1: %u", PowerV1::paramRelay1Assign);
-    debug("2: %u", PowerV1::paramRelay2Assign);
-    debug("3: %u", PowerV1::paramRelay3Assign);
-    debug("4: %u", PowerV1::paramRelay4Assign);
+    debug("1: %u", Parameter(kParamRelay1Assign).get());
+    debug("2: %u", Parameter(kParamRelay2Assign).get());
+    debug("3: %u", Parameter(kParamRelay3Assign).get());
+    debug("4: %u", Parameter(kParamRelay4Assign).get());
 #endif
 
     // power switch control pins
@@ -54,12 +56,13 @@ main(void)
 # endif
 
     // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; ; addr++) {
-        Parameter p = PowerV1::parameter(addr);
-        if (!p.exists()) {
-            break;
+    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
+        Parameter p(addr);
+        uint8_t encoding = param_encoding(addr);
+
+        if ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get())) {
+            p.set(param_default(addr));
         }
-        p.init();
     }
 
     // construct the slave
@@ -75,28 +78,28 @@ main(void)
         slave.tick();
 
         // adjust outputs to match our commanded value
-        if (slave.test_relay(PowerV1::paramRelay1Assign)) {
+        if (slave.test_relay(Parameter(kParamRelay1Assign).get())) {
             pinOUT1.set();
 
         } else {
             pinOUT1.clear();
         }
 
-        if (slave.test_relay(PowerV1::paramRelay2Assign)) {
+        if (slave.test_relay(Parameter(kParamRelay2Assign).get())) {
             pinOUT2.set();
 
         } else {
             pinOUT2.clear();
         }
 
-        if (slave.test_relay(PowerV1::paramRelay3Assign)) {
+        if (slave.test_relay(Parameter(kParamRelay3Assign).get())) {
             pinOUT3.set();
 
         } else {
             pinOUT3.clear();
         }
 
-        if (slave.test_relay(PowerV1::paramRelay4Assign)) {
+        if (slave.test_relay(Parameter(kParamRelay4Assign).get())) {
             pinOUT4.set();
 
         } else {

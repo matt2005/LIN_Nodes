@@ -55,8 +55,9 @@ public:
     }
 
     operator uint16_t () const { return get(); }
-    const SignalBase & operator = (uint16_t value) const { set(value); return *this; }
-    const SignalBase & operator = (int   value) const { set(value); return *this; }
+    //const SignalBase & operator = (uint8_t value) const { set(value); return *this; }
+    //const SignalBase & operator = (uint16_t value) const { set(value); return *this; }
+    //const SignalBase & operator = (int   value) const { set(value); return *this; }
 
     bool        test() const { return get() != 0; }
     void        clear() const { set(0); }
@@ -138,62 +139,25 @@ class Parameter
 {
 public:
     typedef uint16_t Address;
-    typedef void    (* Defaulter)(const Parameter &param);
-    typedef const PROGMEM char *(* Namer)(const Parameter &param);
 
     static const Address    noAddress = 0xffff;
 
-    constexpr Parameter(Address address, uint8_t encoding, Defaulter defaulter, Namer namer) :
-        _address(address),
-        _encoding(encoding),
-        _defaulter(defaulter),
-        _namer(namer)
+    constexpr Parameter(Address address = noAddress) :
+        _address(address)
     {
     }
 
-    operator uint16_t () const { return get(); }
-    const Parameter & operator = (uint16_t value) const { set(value); return *this; }
+    void operator = (const Parameter &p) { _address = p.address(); }
+
+    //operator uint16_t () const { return get(); }
+    //const Parameter & operator = (uint16_t value) const { set(value); return *this; }
 
     void            set(uint16_t value) const;  // must be implemented by the device
     uint16_t        get() const;                // must be implemented by the device
 
-    uint16_t        address() const { return _address; }
-    const char      *name() const { return _namer(*this); }
-
-    void            init() const 
-    {
-        if (is_invalid(get())) {
-            _defaulter(*this);
-        }
-    }
-
-    bool            exists() const { return (address() != noAddress); }
-
-    bool            is_invalid(uint16_t value) const
-    {
-        return Encoding::invalid(_encoding, value);
-    }
-
-    bool            next(uint16_t &value, int16_t increment) const
-    {
-        // don't advance out of the parameter group (high byte must remain the same)
-        for (uint16_t new_value = value; (new_value >> 8) == (value >> 8); value += increment) {
-            if (!is_invalid(new_value)) {
-                value = new_value;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    const char      *info(uint16_t value)
-    {
-        return Encoding::info(_encoding, value);
-    }
-
+    constexpr uint16_t address() const { return _address; }
+    constexpr bool  exists() const { return _address != noAddress; }
+    
 private:
-    const Address   _address;
-    const uint8_t   _encoding;
-    const Defaulter _defaulter;
-    const Namer     _namer;
+    Address         _address;
 };

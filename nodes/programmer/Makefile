@@ -3,12 +3,10 @@ DEBUG		 = YES
 PROG		 = programmer
 SRCS		 = main.cpp \
 		   menu.cpp \
-		   m_edit.cpp \
 		   m_top.cpp \
 		   m_explore.cpp \
 		   m_info.cpp \
 		   m_setup.cpp \
-		   m_test.cpp \
 		   slave.cpp
 
 SRCS		+= lin_defs.cpp

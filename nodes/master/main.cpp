@@ -24,6 +24,8 @@
 bool __cxa_guard_acquire() { return true; }
 void __cxa_guard_release() {}
 
+using namespace Master;
+
 MasterNode  gMaster;
 
 void
@@ -37,14 +39,14 @@ main(void)
     }
 
     // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; ; addr++) {
-        Parameter p = Master::parameter(addr);
-        if (!p.exists()) {
-            break;
-        }
-        p.init();
-    }
+    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
+        Parameter p(addr);
+        uint8_t encoding = param_encoding(addr);
 
+        if ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get())) {
+            p.set(param_default(addr));
+        }
+    }
 
     // initialisation
     gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS
@@ -60,6 +62,7 @@ main(void)
 #ifdef DEBUG
 
         if (Board::freemem() < 64) {
+            debug("freemem %u", Board::freemem());
             Board::panic(Board::kPanicCodeLowMemory);
         }
 

@@ -9,14 +9,14 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <err.h>
 #include <libusb-1.0/libusb.h>
 
 #include "../usbconfig.h"
 #include "../requests.h"
-#include "../../../common/lin_protocol.h"
-#include "../../../common/protocol.h"
+#include "../../../common/lin_defs.h"
 
 libusb_context *usb_ctx;
 struct libusb_device_handle *handle;
@@ -227,32 +227,8 @@ log_history(bool forever = true)
 }
 
 void
-clear_history()
+dump_param_zero()
 {
-    for (;;) {
-        uint8_t frame[9];
-
-        int result = trace(frame);
-
-        if (result == 0) {
-            return;
-        }
-    }
-}
-
-
-
-int
-main(int argc, const char *argv[])
-{
-    init();
-
-    if (!(get_status() & RQ_STATUS_AWAKE)) {
-        errx(1, "network not awake");
-    }
-
-    clear_history();
-
     for (unsigned i = 1; i < 20; i++) {
 
         set_node(i);
@@ -266,7 +242,50 @@ main(int argc, const char *argv[])
         }
         log_history(false);
     }
+}
 
-    warnx("free memory: %u", get_status(RQ_STATUS_FREEMEM));
+void
+clear_history()
+{
+    for (;;) {
+        uint8_t frame[9];
+
+        int result = trace(frame);
+
+        if (result == 0) {
+            return;
+        }
+    }
+}
+
+void
+Parameter::set(uint16_t value) const
+{
+    // don't do anything here
+}
+
+int
+main(int argc, const char *argv[])
+{
+    init();
+
+    if (!(get_status() & RQ_STATUS_AWAKE)) {
+        errx(1, "network not awake");
+    }
+    warnx("probe free memory: %u", get_status(RQ_STATUS_FREEMEM));
+
+    clear_history();
+
+    if (argc == 2) {
+        if (!strcmp(argv[1], "-trace")) {
+            log_history();
+        }
+        if (!strcmp(argv[1], "-dump")) {
+            dump_param_zero();
+            exit(0);
+        }
+    }
+
+    errx(1, "must supply one of -trace, -dump ...");
 }
 

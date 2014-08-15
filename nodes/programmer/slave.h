@@ -27,8 +27,8 @@ public:
 
     void            reset()         { _state = kStateIdle; }
 
-    bool            set_parameter(uint8_t nad, Parameter::Address Address, uint8_t value);
-    bool            get_parameter(uint8_t nad, Parameter::Address Address, uint8_t &value);
+    bool            set_parameter(uint8_t nad, Parameter::Address Address, uint16_t value);
+    bool            get_parameter(uint8_t nad, Parameter::Address Address, uint16_t &value);
     bool            get_error_count(uint8_t nad, uint8_t err, uint16_t &count);
 
     void            set_suspend(bool suspended) { _suspended = suspended; }

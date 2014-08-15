@@ -98,7 +98,7 @@ ExploreMode::action(Encoder::Event bp)
                 gDisplay.move(1, 1);
                 gDisplay.printf(PSTR("Searching... %2u"), i);
 
-                uint8_t dummy;
+                uint16_t dummy;
 
                 if (gSlave.get_parameter(i, 0, dummy)) {
                     _presentMask.set(i);

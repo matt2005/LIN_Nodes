@@ -12,6 +12,8 @@
 
 #include "lin_defs.h"
 
+using namespace PowerV3;
+
 namespace MC17XSF500
 {
 
@@ -92,7 +94,7 @@ public:
         if (duty_cycle > 0) {
             chX_control.on = 1;
 
-            switch (PowerV3::parameter(PowerV3::kParamCH1Type + channel)) {
+            switch (Parameter(kParamCH1Type + channel).get()) {
             case output_type::kHID:
                 chX_control.pwm = 255;              // HID cannot be PWM controlled
                 break;
@@ -120,7 +122,7 @@ public:
         over_current_control_1.acm = 0; // XXX might want to enable for low-current loads?
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (PowerV3::parameter(PowerV3::kParamCH1Type + channel)) {
+            switch (Parameter(kParamCH1Type + channel).get()) {
             case output_type::k5AGeneric:
             case output_type::kLED:
             case output_type::kHID:
@@ -144,7 +146,7 @@ public:
         address.data = 0;
 
         // low-frequency PWM for motors and bulbs
-        switch (PowerV3::paramCH1Type) {
+        switch (Parameter(kParamCH1Type).get()) {
         case output_type::kLowPowerBulb:
         case output_type::kHighPowerBulb:
         case output_type::kMotor:
@@ -155,7 +157,7 @@ public:
             break;
         }
 
-        switch (PowerV3::paramCH2Type) {
+        switch (Parameter(kParamCH2Type).get()) {
         case output_type::kLowPowerBulb:
         case output_type::kHighPowerBulb:
         case output_type::kMotor:
@@ -166,7 +168,7 @@ public:
             break;
         }
 
-        switch (PowerV3::paramCH3Type) {
+        switch (Parameter(kParamCH3Type).get()) {
         case output_type::kLowPowerBulb:
         case output_type::kHighPowerBulb:
         case output_type::kMotor:
@@ -177,7 +179,7 @@ public:
             break;
         }
 
-        switch (PowerV3::paramCH4Type) {
+        switch (Parameter(kParamCH4Type).get()) {
         case output_type::kLowPowerBulb:
         case output_type::kHighPowerBulb:
         case output_type::kMotor:
@@ -188,7 +190,7 @@ public:
             break;
         }
 
-        switch (PowerV3::paramCH5Type) {
+        switch (Parameter(kParamCH5Type).get()) {
         case output_type::kLowPowerBulb:
         case output_type::kHighPowerBulb:
         case output_type::kMotor:
@@ -210,7 +212,7 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (PowerV3::parameter(PowerV3::kParamCH1Type + channel)) {
+            switch (Parameter(kParamCH1Type + channel).get()) {
             case output_type::kLowPowerBulb:
             case output_type::kHighPowerBulb:
                 break;
@@ -235,7 +237,7 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (PowerV3::parameter(PowerV3::kParamCH1Type + channel)) {
+            switch (Parameter(kParamCH1Type + channel).get()) {
             case output_type::kLED:
                 olled_control.olled_en |= (1 << channel);
                 break;

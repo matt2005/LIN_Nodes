@@ -37,8 +37,8 @@ public:
     {
         _state = true;
         _active = true;
-        _count = paramPassingBlinkCount.get();
-        _remaining = _interval = paramTurnBlinkPeriod.get() * 10U;
+        _count = Parameter(kParamPassingBlinkCount).get();
+        _remaining = _interval = Parameter(kParamTurnBlinkPeriod).get() * 10U;
     }
     void        stop()
     {
@@ -97,8 +97,8 @@ public:
     void        start()
     {
         _state = true;
-        _remaining = _interval = paramBrakeBlinkPeriod.get() * 10U;
-        _count = paramBrakeBlinkCount.get();
+        _remaining = _interval = Parameter(kParamBrakeBlinkPeriod).get() * 10U;
+        _count = Parameter(kParamBrakeBlinkCount).get();
     }
 
 private:
@@ -150,7 +150,7 @@ private:
         if (_state) {
             // wiper control signal off for the specified interval
             // XXX as feature, this should be based on an analog input...
-            _remaining = paramWiperInterval.get() * 100U;
+            _remaining = Parameter(kParamWiperInterval).get() * 100U;
             _state = false;
 
         } else {
@@ -218,8 +218,8 @@ turnSignals(Response &f)
     // the switches will come and go under its control.
 
     // external blinker mode?
-    if ((paramTurnBlinkPeriod.get() == 0) ||
-        (paramTurnBlinkPeriod.get() > 100U)) {
+    if ((Parameter(kParamTurnBlinkPeriod).get() == 0) ||
+        (Parameter(kParamTurnBlinkPeriod).get() > 100U)) {
 
         if (Switches::test(input::kLeftTurn)) {
             Signal::LeftTurn(f).set();
@@ -405,7 +405,7 @@ interiorLights(Response &f)
 {
     // door just closed - start interior lighting timer
     if (Switches::changed_to_off(input::kDoor)) {
-        interiorLightsDelay.set_seconds(paramInteriorLightTime.get());
+        interiorLightsDelay.set_seconds(Parameter(kParamInteriorLightTime).get());
     }
 
     // if ignition is on, cancel interior light timer
@@ -438,7 +438,7 @@ pathLights(Response &f)
         // door already open?
         if (Switches::test(input::kDoor)) {
             // path lighting
-            pathwayLightingDelay.set_seconds(paramPathLightTime.get());
+            pathwayLightingDelay.set_seconds(Parameter(kParamPathLightTime).get());
 
         } else {
             ignitionWasOn = true;
@@ -450,7 +450,7 @@ pathLights(Response &f)
         ignitionWasOn) {
 
         // path lighting
-        pathwayLightingDelay.set_seconds(paramPathLightTime.get());
+        pathwayLightingDelay.set_seconds(Parameter(kParamPathLightTime).get());
 
         // XXX no path lighting after a 'false alarm' door opening
         //     might want to keep this set until sleep?
@@ -462,7 +462,7 @@ pathLights(Response &f)
         Switches::changed(input::kDoorUnlock)) {
 
         // welcome lighting
-        pathwayLightingDelay.set_seconds(paramWelcomeLightTime.get());
+        pathwayLightingDelay.set_seconds(Parameter(kParamWelcomeLightTime).get());
     }
 
     // path lights on?

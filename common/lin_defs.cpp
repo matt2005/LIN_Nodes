@@ -6,6 +6,23 @@
 bool
 Encoding::invalid(uint8_t index, uint16_t value)
 {
+    if (index == kEncoding_bl_status) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+    }
     if (index == kEncoding_input) {
         if (value == 0) {
             return false;
@@ -311,6 +328,12 @@ Encoding::invalid(uint8_t index, uint16_t value)
     return true;
 }
 
+static const PROGMEM char _encoding_name_bl_status[] = "bl_status";
+static const PROGMEM char _encoding_info_bl_status_0[] = "WaitingForProgrammer";
+static const PROGMEM char _encoding_info_bl_status_1[] = "ReadyForPage";
+static const PROGMEM char _encoding_info_bl_status_2[] = "PageInProgress";
+static const PROGMEM char _encoding_info_bl_status_3[] = "PageCRCError";
+static const PROGMEM char _encoding_info_bl_status_4[] = "PageAddressError";
 static const PROGMEM char _encoding_name_input[] = "input";
 static const PROGMEM char _encoding_info_input_0[] = "Unassigned";
 static const PROGMEM char _encoding_info_input_1[] = "Ignition";
@@ -455,6 +478,9 @@ static const PROGMEM char _encoding_info_MPH_0[] = "";
 const PROGMEM char *
 Encoding::name(uint8_t index)
 {
+    if (index == kEncoding_bl_status) {
+        return &_encoding_name_bl_status[0];
+    }
     if (index == kEncoding_input) {
         return &_encoding_name_input[0];
     }
@@ -521,523 +547,420 @@ Encoding::name(uint8_t index)
 const PROGMEM char *
 Encoding::info(uint8_t index, uint16_t value)
 {
+    if (index == kEncoding_bl_status) {
+        if (value == 0) {
+            return &_encoding_info_bl_status_0[0];
+        }
+        if (value == 1) {
+            return &_encoding_info_bl_status_1[0];
+        }
+        if (value == 2) {
+            return &_encoding_info_bl_status_2[0];
+        }
+        if (value == 3) {
+            return &_encoding_info_bl_status_3[0];
+        }
+        if (value == 4) {
+            return &_encoding_info_bl_status_4[0];
+        }
+    }
     if (index == kEncoding_input) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_input_0[0];
         }
-        if (value == 1)
- {
+        if (value == 1) {
             return &_encoding_info_input_1[0];
         }
-        if (value == 2)
- {
+        if (value == 2) {
             return &_encoding_info_input_2[0];
         }
-        if (value == 3)
- {
+        if (value == 3) {
             return &_encoding_info_input_3[0];
         }
-        if (value == 4)
- {
+        if (value == 4) {
             return &_encoding_info_input_4[0];
         }
-        if (value == 5)
- {
+        if (value == 5) {
             return &_encoding_info_input_5[0];
         }
-        if (value == 6)
- {
+        if (value == 6) {
             return &_encoding_info_input_6[0];
         }
-        if (value == 7)
- {
+        if (value == 7) {
             return &_encoding_info_input_7[0];
         }
-        if (value == 8)
- {
+        if (value == 8) {
             return &_encoding_info_input_8[0];
         }
-        if (value == 9)
- {
+        if (value == 9) {
             return &_encoding_info_input_9[0];
         }
-        if (value == 10)
- {
+        if (value == 10) {
             return &_encoding_info_input_10[0];
         }
-        if (value == 11)
- {
+        if (value == 11) {
             return &_encoding_info_input_11[0];
         }
-        if (value == 12)
- {
+        if (value == 12) {
             return &_encoding_info_input_12[0];
         }
-        if (value == 13)
- {
+        if (value == 13) {
             return &_encoding_info_input_13[0];
         }
-        if (value == 14)
- {
+        if (value == 14) {
             return &_encoding_info_input_14[0];
         }
-        if (value == 15)
- {
+        if (value == 15) {
             return &_encoding_info_input_15[0];
         }
-        if (value == 16)
- {
+        if (value == 16) {
             return &_encoding_info_input_16[0];
         }
-        if (value == 17)
- {
+        if (value == 17) {
             return &_encoding_info_input_17[0];
         }
-        if (value == 18)
- {
+        if (value == 18) {
             return &_encoding_info_input_18[0];
         }
-        if (value == 19)
- {
+        if (value == 19) {
             return &_encoding_info_input_19[0];
         }
-        if (value == 20)
- {
+        if (value == 20) {
             return &_encoding_info_input_20[0];
         }
-        if (value == 21)
- {
+        if (value == 21) {
             return &_encoding_info_input_21[0];
         }
-        if (value == 22)
- {
+        if (value == 22) {
             return &_encoding_info_input_22[0];
         }
-        if (value == 23)
- {
+        if (value == 23) {
             return &_encoding_info_input_23[0];
         }
     }
     if (index == kEncoding_msec) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_msec_0[0];
         }
-        if ((value >= 100) && (value <= 65000))
- {
+        if ((value >= 100) && (value <= 65000)) {
             return &_encoding_info_msec_1[0];
         }
     }
     if (index == kEncoding_sec) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_sec_0[0];
         }
-        if ((value >= 1) && (value <= 600))
- {
+        if ((value >= 1) && (value <= 600)) {
             return &_encoding_info_sec_1[0];
         }
     }
     if (index == kEncoding_up_to_10) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_up_to_10_0[0];
         }
-        if ((value >= 1) && (value <= 10))
- {
+        if ((value >= 1) && (value <= 10)) {
             return &_encoding_info_up_to_10_1[0];
         }
     }
     if (index == kEncoding_node_address) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_node_address_0[0];
         }
-        if ((value >= 1) && (value <= 125))
- {
+        if ((value >= 1) && (value <= 125)) {
             return &_encoding_info_node_address_1[0];
         }
-        if (value == 126)
- {
+        if (value == 126) {
             return &_encoding_info_node_address_2[0];
         }
-        if (value == 127)
- {
+        if (value == 127) {
             return &_encoding_info_node_address_3[0];
         }
     }
     if (index == kEncoding_pci) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_pci_0[0];
         }
-        if (value == 1)
- {
+        if (value == 1) {
             return &_encoding_info_pci_1[0];
         }
-        if (value == 2)
- {
+        if (value == 2) {
             return &_encoding_info_pci_2[0];
         }
     }
     if (index == kEncoding_service_id) {
-        if (value == 0x22)
- {
+        if (value == 0x22) {
             return &_encoding_info_service_id_0[0];
         }
-        if (value == 0x2e)
- {
+        if (value == 0x2e) {
             return &_encoding_info_service_id_1[0];
         }
-        if (value == 0x3e)
- {
+        if (value == 0x3e) {
             return &_encoding_info_service_id_2[0];
         }
-        if (value == 0xb2)
- {
+        if (value == 0xb2) {
             return &_encoding_info_service_id_3[0];
         }
-        if (value == 0xb4)
- {
+        if (value == 0xb4) {
             return &_encoding_info_service_id_4[0];
         }
-        if (value == 0x7f)
- {
+        if (value == 0x7f) {
             return &_encoding_info_service_id_5[0];
         }
-        if (value == 0x40)
- {
+        if (value == 0x40) {
             return &_encoding_info_service_id_6[0];
         }
     }
     if (index == kEncoding_service_error) {
-        if (value == 0x12)
- {
+        if (value == 0x12) {
             return &_encoding_info_service_error_0[0];
         }
-        if (value == 0x13)
- {
+        if (value == 0x13) {
             return &_encoding_info_service_error_1[0];
         }
-        if (value == 0x22)
- {
+        if (value == 0x22) {
             return &_encoding_info_service_error_2[0];
         }
-        if (value == 0x31)
- {
+        if (value == 0x31) {
             return &_encoding_info_service_error_3[0];
         }
-        if (value == 0x33)
- {
+        if (value == 0x33) {
             return &_encoding_info_service_error_4[0];
         }
-        if (value == 0x72)
- {
+        if (value == 0x72) {
             return &_encoding_info_service_error_5[0];
         }
     }
     if (index == kEncoding_v1_output_status) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_v1_output_status_0[0];
         }
-        if (value == 1)
- {
+        if (value == 1) {
             return &_encoding_info_v1_output_status_1[0];
         }
     }
     if (index == kEncoding_v1_output_assignment) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_v1_output_assignment_0[0];
         }
-        if (value == 1)
- {
+        if (value == 1) {
             return &_encoding_info_v1_output_assignment_1[0];
         }
-        if (value == 2)
- {
+        if (value == 2) {
             return &_encoding_info_v1_output_assignment_2[0];
         }
-        if (value == 3)
- {
+        if (value == 3) {
             return &_encoding_info_v1_output_assignment_3[0];
         }
-        if (value == 4)
- {
+        if (value == 4) {
             return &_encoding_info_v1_output_assignment_4[0];
         }
-        if (value == 5)
- {
+        if (value == 5) {
             return &_encoding_info_v1_output_assignment_5[0];
         }
-        if (value == 6)
- {
+        if (value == 6) {
             return &_encoding_info_v1_output_assignment_6[0];
         }
-        if (value == 7)
- {
+        if (value == 7) {
             return &_encoding_info_v1_output_assignment_7[0];
         }
-        if (value == 8)
- {
+        if (value == 8) {
             return &_encoding_info_v1_output_assignment_8[0];
         }
-        if (value == 9)
- {
+        if (value == 9) {
             return &_encoding_info_v1_output_assignment_9[0];
         }
-        if (value == 10)
- {
+        if (value == 10) {
             return &_encoding_info_v1_output_assignment_10[0];
         }
-        if (value == 11)
- {
+        if (value == 11) {
             return &_encoding_info_v1_output_assignment_11[0];
         }
-        if (value == 12)
- {
+        if (value == 12) {
             return &_encoding_info_v1_output_assignment_12[0];
         }
-        if (value == 13)
- {
+        if (value == 13) {
             return &_encoding_info_v1_output_assignment_13[0];
         }
-        if (value == 14)
- {
+        if (value == 14) {
             return &_encoding_info_v1_output_assignment_14[0];
         }
-        if (value == 15)
- {
+        if (value == 15) {
             return &_encoding_info_v1_output_assignment_15[0];
         }
-        if (value == 16)
- {
+        if (value == 16) {
             return &_encoding_info_v1_output_assignment_16[0];
         }
-        if (value == 17)
- {
+        if (value == 17) {
             return &_encoding_info_v1_output_assignment_17[0];
         }
-        if (value == 18)
- {
+        if (value == 18) {
             return &_encoding_info_v1_output_assignment_18[0];
         }
-        if (value == 19)
- {
+        if (value == 19) {
             return &_encoding_info_v1_output_assignment_19[0];
         }
-        if (value == 20)
- {
+        if (value == 20) {
             return &_encoding_info_v1_output_assignment_20[0];
         }
-        if (value == 21)
- {
+        if (value == 21) {
             return &_encoding_info_v1_output_assignment_21[0];
         }
-        if (value == 22)
- {
+        if (value == 22) {
             return &_encoding_info_v1_output_assignment_22[0];
         }
-        if (value == 23)
- {
+        if (value == 23) {
             return &_encoding_info_v1_output_assignment_23[0];
         }
     }
     if (index == kEncoding_v3_output_status) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_v3_output_status_0[0];
         }
-        if (value == 1)
- {
+        if (value == 1) {
             return &_encoding_info_v3_output_status_1[0];
         }
-        if (value == 2)
- {
+        if (value == 2) {
             return &_encoding_info_v3_output_status_2[0];
         }
-        if (value == 3)
- {
+        if (value == 3) {
             return &_encoding_info_v3_output_status_3[0];
         }
-        if (value == 4)
- {
+        if (value == 4) {
             return &_encoding_info_v3_output_status_4[0];
         }
-        if (value == 5)
- {
+        if (value == 5) {
             return &_encoding_info_v3_output_status_5[0];
         }
     }
     if (index == kEncoding_output_type) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_output_type_0[0];
         }
-        if (value == 1)
- {
+        if (value == 1) {
             return &_encoding_info_output_type_1[0];
         }
-        if (value == 2)
- {
+        if (value == 2) {
             return &_encoding_info_output_type_2[0];
         }
-        if (value == 3)
- {
+        if (value == 3) {
             return &_encoding_info_output_type_3[0];
         }
-        if (value == 4)
- {
+        if (value == 4) {
             return &_encoding_info_output_type_4[0];
         }
-        if (value == 5)
- {
+        if (value == 5) {
             return &_encoding_info_output_type_5[0];
         }
-        if (value == 6)
- {
+        if (value == 6) {
             return &_encoding_info_output_type_6[0];
         }
     }
     if (index == kEncoding_output_assignment) {
-        if (value == 0)
- {
+        if (value == 0) {
             return &_encoding_info_output_assignment_0[0];
         }
-        if (value == 1)
- {
+        if (value == 1) {
             return &_encoding_info_output_assignment_1[0];
         }
-        if (value == 2)
- {
+        if (value == 2) {
             return &_encoding_info_output_assignment_2[0];
         }
-        if (value == 3)
- {
+        if (value == 3) {
             return &_encoding_info_output_assignment_3[0];
         }
-        if (value == 4)
- {
+        if (value == 4) {
             return &_encoding_info_output_assignment_4[0];
         }
-        if (value == 5)
- {
+        if (value == 5) {
             return &_encoding_info_output_assignment_5[0];
         }
-        if (value == 6)
- {
+        if (value == 6) {
             return &_encoding_info_output_assignment_6[0];
         }
-        if (value == 7)
- {
+        if (value == 7) {
             return &_encoding_info_output_assignment_7[0];
         }
-        if (value == 8)
- {
+        if (value == 8) {
             return &_encoding_info_output_assignment_8[0];
         }
-        if (value == 9)
- {
+        if (value == 9) {
             return &_encoding_info_output_assignment_9[0];
         }
-        if (value == 10)
- {
+        if (value == 10) {
             return &_encoding_info_output_assignment_10[0];
         }
-        if (value == 11)
- {
+        if (value == 11) {
             return &_encoding_info_output_assignment_11[0];
         }
-        if (value == 12)
- {
+        if (value == 12) {
             return &_encoding_info_output_assignment_12[0];
         }
-        if (value == 13)
- {
+        if (value == 13) {
             return &_encoding_info_output_assignment_13[0];
         }
-        if (value == 14)
- {
+        if (value == 14) {
             return &_encoding_info_output_assignment_14[0];
         }
-        if (value == 15)
- {
+        if (value == 15) {
             return &_encoding_info_output_assignment_15[0];
         }
-        if (value == 16)
- {
+        if (value == 16) {
             return &_encoding_info_output_assignment_16[0];
         }
-        if (value == 17)
- {
+        if (value == 17) {
             return &_encoding_info_output_assignment_17[0];
         }
-        if (value == 18)
- {
+        if (value == 18) {
             return &_encoding_info_output_assignment_18[0];
         }
-        if (value == 19)
- {
+        if (value == 19) {
             return &_encoding_info_output_assignment_19[0];
         }
-        if (value == 20)
- {
+        if (value == 20) {
             return &_encoding_info_output_assignment_20[0];
         }
-        if (value == 21)
- {
+        if (value == 21) {
             return &_encoding_info_output_assignment_21[0];
         }
-        if (value == 22)
- {
+        if (value == 22) {
             return &_encoding_info_output_assignment_22[0];
         }
-        if (value == 23)
- {
+        if (value == 23) {
             return &_encoding_info_output_assignment_23[0];
         }
     }
     if (index == kEncoding_pwm_duty_cycle) {
-        if ((value >= 0) && (value <= 100))
- {
+        if ((value >= 0) && (value <= 100)) {
             return &_encoding_info_pwm_duty_cycle_0[0];
         }
     }
     if (index == kEncoding_RPM) {
-        if ((value >= 0) && (value <= 255))
- {
+        if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_RPM_0[0];
         }
     }
     if (index == kEncoding_PSI) {
-        if ((value >= 0) && (value <= 255))
- {
+        if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_PSI_0[0];
         }
     }
     if (index == kEncoding_F) {
-        if ((value >= 0) && (value <= 255))
- {
+        if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_F_0[0];
         }
     }
     if (index == kEncoding_V) {
-        if ((value >= 0) && (value <= 255))
- {
+        if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_V_0[0];
         }
     }
     if (index == kEncoding_lambda) {
-        if ((value >= 0) && (value <= 255))
- {
+        if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_lambda_0[0];
         }
     }
     if (index == kEncoding_MPH) {
-        if ((value >= 0) && (value <= 255))
- {
+        if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_MPH_0[0];
         }
     }
@@ -1128,6 +1051,46 @@ param_name(Parameter::Address address)
 
 
 } // namespace Generic
+
+namespace Bootloader
+{
+
+uint16_t
+param_default(Parameter::Address address)
+{
+    return 0;
+}
+
+uint8_t
+param_encoding(Parameter::Address address)
+{
+    if (address == kParamStatus) {
+        return kEncoding_bl_status;
+    }
+    return kEncoding_none;
+}
+
+static const PROGMEM char _param_name_Status[] = "Status";
+static const PROGMEM char _param_name_PageAddress[] = "PageAddress";
+static const PROGMEM char _param_name_PageCRC[] = "PageCRC";
+
+const PROGMEM char *
+param_name(Parameter::Address address)
+{
+    if (address == kParamStatus) {
+        return &_param_name_Status[0];
+    }
+    if (address == kParamPageAddress) {
+        return &_param_name_PageAddress[0];
+    }
+    if (address == kParamPageCRC) {
+        return &_param_name_PageCRC[0];
+    }
+    return nullptr;
+}
+
+
+} // namespace Bootloader
 
 namespace Master
 {

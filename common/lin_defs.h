@@ -8,27 +8,38 @@
 #include "lin_types.h"
 
 
-static const uint8_t kEncoding_input = 0;
-static const uint8_t kEncoding_msec = 1;
-static const uint8_t kEncoding_sec = 2;
-static const uint8_t kEncoding_up_to_10 = 3;
-static const uint8_t kEncoding_node_address = 4;
-static const uint8_t kEncoding_pci = 5;
-static const uint8_t kEncoding_service_id = 6;
-static const uint8_t kEncoding_service_error = 7;
-static const uint8_t kEncoding_v1_output_status = 8;
-static const uint8_t kEncoding_v1_output_assignment = 9;
-static const uint8_t kEncoding_v3_output_status = 10;
-static const uint8_t kEncoding_output_type = 11;
-static const uint8_t kEncoding_output_assignment = 12;
-static const uint8_t kEncoding_pwm_duty_cycle = 13;
-static const uint8_t kEncoding_RPM = 14;
-static const uint8_t kEncoding_PSI = 15;
-static const uint8_t kEncoding_F = 16;
-static const uint8_t kEncoding_V = 17;
-static const uint8_t kEncoding_lambda = 18;
-static const uint8_t kEncoding_MPH = 19;
+static const uint8_t kEncoding_bl_status = 0;
+static const uint8_t kEncoding_input = 1;
+static const uint8_t kEncoding_msec = 2;
+static const uint8_t kEncoding_sec = 3;
+static const uint8_t kEncoding_up_to_10 = 4;
+static const uint8_t kEncoding_node_address = 5;
+static const uint8_t kEncoding_pci = 6;
+static const uint8_t kEncoding_service_id = 7;
+static const uint8_t kEncoding_service_error = 8;
+static const uint8_t kEncoding_v1_output_status = 9;
+static const uint8_t kEncoding_v1_output_assignment = 10;
+static const uint8_t kEncoding_v3_output_status = 11;
+static const uint8_t kEncoding_output_type = 12;
+static const uint8_t kEncoding_output_assignment = 13;
+static const uint8_t kEncoding_pwm_duty_cycle = 14;
+static const uint8_t kEncoding_RPM = 15;
+static const uint8_t kEncoding_PSI = 16;
+static const uint8_t kEncoding_F = 17;
+static const uint8_t kEncoding_V = 18;
+static const uint8_t kEncoding_lambda = 19;
+static const uint8_t kEncoding_MPH = 20;
 static const uint8_t kEncoding_none = 0xff;
+
+namespace bl_status
+{
+static const uint16_t kWaitingForProgrammer = 0;
+static const uint16_t kReadyForPage = 1;
+static const uint16_t kPageInProgress = 2;
+static const uint16_t kPageCRCError = 3;
+static const uint16_t kPageAddressError = 4;
+static const uint16_t kNumEncodings = 5;
+} // namespace bl_status
 
 namespace input
 {
@@ -497,6 +508,18 @@ static const uint16_t kParamConfigBase = 0x0400;
 
 } // namespace Generic
 
+namespace Bootloader
+{
+extern uint16_t param_default(Parameter::Address address);
+extern uint8_t param_encoding(Parameter::Address address);
+extern const PROGMEM char *param_name(Parameter::Address address);
+
+static const uint16_t kParamStatus = 0x0300;
+static const uint16_t kParamPageAddress = 0x0400;
+static const uint16_t kParamPageCRC = 0x0401;
+
+} // namespace Bootloader
+
 namespace Master
 {
 extern uint16_t param_default(Parameter::Address address);
@@ -618,6 +641,14 @@ namespace Generic
     static const uint16_t kNodeFunction = 0x0000;
     static const uint8_t kNodeVariant  = 0x00;
 } // namespace Generic
+
+namespace Bootloader
+{
+    static const uint8_t kNodeAddress  = 32;
+    static const uint16_t kNodeSupplier = 0xb007;
+    static const uint16_t kNodeFunction = 0x0000;
+    static const uint8_t kNodeVariant  = 0x00;
+} // namespace Bootloader
 
 namespace Master
 {

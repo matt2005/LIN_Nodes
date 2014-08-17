@@ -21,7 +21,7 @@ uint16_t        BLSlave::_running_crc = 0;
 uint16_t        BLSlave::_page_status = bl_status::kWaitingForProgrammer;
 uint16_t        BLSlave::_program_end = 0;
 uint16_t        BLSlave::_reset_vector = 0;
-uint8_t         BLSlave::_page_buffer[SPM_PAGESIZE];
+uint16_t        BLSlave::_page_buffer[SPM_PAGESIZE / 2];
 
 void
 BLSlave::st_header_received()
@@ -183,7 +183,8 @@ BLSlave::add_page_byte(uint8_t byte)
 {
     if (_page_offset < SPM_PAGESIZE) {
         _running_crc = _crc16_update(_running_crc, byte);
-        _page_buffer[_page_offset++] = byte;
+        uint8_t *p = (uint8_t *)&_page_buffer[0];
+        p[_page_offset++] = byte;
         return true;
     }
     return false;
@@ -194,18 +195,24 @@ BLSlave::program_page()
 {
     // patch our reset vector into the buffer
     if (_page_address == 0) {
-        uint16_t rvector = _page_buffer[0] + ((uint16_t)_page_buffer[1] << 8);
-        _reset_vector = ((rvector & ~0xc000) + 1) * 2;
-        rvector = 0xc00 | ((BL_ADDR / 2) - 1);
-        _page_buffer[0] = rvector & 0xff;
-        _page_buffer[1] = rvector >> 8;
+        if (_page_buffer[0] == 0x940c) {
+            // copy jmp argument
+            _reset_vector = _page_buffer[1];
+        } else {
+            // extract rjmp destination
+            _reset_vector = ((_page_buffer[0] & ~0xc000) + 1) * 2;
+            // convert to jmp
+            _page_buffer[0] = 0x940c;
+        }
+        // patch in bootloader reset vector
+        _page_buffer[1] = BL_ADDR;
     }
 
     boot_page_erase(_page_address);
     boot_spm_busy_wait();
 
-    for (uint8_t i = 0; i < SPM_PAGESIZE; i += 2) {
-        boot_page_fill(_page_address + i, _page_buffer[i] + ((uint16_t)_page_buffer[i + 1] << 8));
+    for (uint8_t i = 0; i < (SPM_PAGESIZE / 2); i++) {
+        boot_page_fill(_page_address + (i * 2), _page_buffer[i]);
     }
 
     boot_page_write(_page_address);

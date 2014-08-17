@@ -260,19 +260,19 @@ node Master {
         }
         msec {
             logical_value, 0, "Disabled";
-            physical_value, 100, 65000, 1, 0;
+            physical_value, 100, 65000, 1, 0, "Milliseconds";
         }
         sec {
             logical_value, 0, "Disabled";
-            physical_value, 1, 600, 1, 0;
+            physical_value, 1, 600, 1, 0, "Seconds";
         }
         up_to_10 {
             logical_value, 0, "Disabled";
-            physical_value, 1, 10, 1, 0; 
+            physical_value, 1, 10, 1, 0, "Count"; 
         }
         node_address {
             logical_value, 0, "Sleep";
-            physical_value, 1, 125, 0, 0;
+            physical_value, 1, 125, 0, 0, "NodeAddress";
             logical_value, 126, "Functional";
             logical_value, 127, "Broadcast";
         }
@@ -483,7 +483,7 @@ node PowerV3 {
             logical_value, 22, "WiperHigh";
             logical_value, 23, "RearDefrost";
         }
-        pwm_duty_cycle { physical_value, 0, 100, 1, 0; }
+        pwm_duty_cycle { physical_value, 0, 100, 1, 0, "Percent"; }
     }
 }
 
@@ -520,12 +520,12 @@ node ECUBridge {
         }
     }
     encoding {
-        RPM     { physical_value, 0, 255, 30, 0; }
-        PSI     { physical_value, 0, 255, 1, 0; }
-        F       { physical_value, 0, 255, 1, 0; }
-        V       { physical_value, 0, 255, 0.1, 0; }
-        lambda  { physical_value, 0, 255, 0.1, 0; }
-        MPH     { physical_value, 0, 255, 1, 0; }
+        RPM     { physical_value, 0, 255, 30, 0, "RPM"; }
+        PSI     { physical_value, 0, 255, 1, 0, "PSI"; }
+        F       { physical_value, 0, 255, 1, 0, "Temperature"; }
+        V       { physical_value, 0, 255, 0.1, 0, "Volts"; }
+        lambda  { physical_value, 0, 255, 0.1, 0, "Lambda"; }
+        MPH     { physical_value, 0, 255, 1, 0, "MPH"; }
     }   
 }
 

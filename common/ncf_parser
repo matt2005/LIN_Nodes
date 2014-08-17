@@ -249,6 +249,12 @@ namespace eval encoding {
                                 puts $fh "static const uint16_t k${description} = ${value};"
                             }
                         }
+                        "range" {
+                            if {$description != {}} {
+                                puts $fh "static const uint16_t k${description}Min = ${min};"
+                                puts $fh "static const uint16_t k${description}Max = ${max};"
+                            }
+                        }
                     }
                 }
             }
@@ -339,12 +345,17 @@ namespace eval encoding {
         dict for {name encinfo} $by_name {
             # encoding name
             puts $fh "static const PROGMEM char _encoding_name_${name}\[\] = \"${name}\";"
-            # subencoding info strings
+            # subencoding info strings for value encodings
             set index 0
             foreach subencoding $encinfo {
-                set description [dict get $subencoding description]
-                puts $fh "static const PROGMEM char _encoding_info_${name}_${index}\[\] = \"${description}\";"
-                incr index;
+                dict with subencoding {
+                    switch -- $kind {
+                        "value" {
+                            puts $fh "static const PROGMEM char _encoding_info_${name}_${index}\[\] = \"${description}\";"
+                        }
+                    }
+                    incr index;
+                }
             }
         }
 
@@ -377,16 +388,12 @@ namespace eval encoding {
             foreach subencoding $encinfo {
                 dict with subencoding {
                     switch -- $kind {
-                        "range" {
-                            puts -nonewline $fh "        if ((value >= ${min}) && (value <= ${max}))"
-                        }
                         "value" {
-                            puts -nonewline $fh "        if (value == ${value})"
+                            puts $fh "        if (value == ${value}) {"
+                            puts $fh "            return &_encoding_info_${name}_${index}\[0\];"
+                            puts $fh "        }"
                         }
                     }
-                    puts $fh " {"
-                    puts $fh "            return &_encoding_info_${name}_${index}\[0\];"
-                    puts $fh "        }"
                 }
                 incr index
             }

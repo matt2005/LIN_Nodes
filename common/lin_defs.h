@@ -80,24 +80,32 @@ static const uint16_t kNumEncodings = 24;
 namespace msec
 {
 static const uint16_t kDisabled = 0;
+static const uint16_t kMillisecondsMin = 100;
+static const uint16_t kMillisecondsMax = 65000;
 static const uint16_t kNumEncodings = 2;
 } // namespace msec
 
 namespace sec
 {
 static const uint16_t kDisabled = 0;
+static const uint16_t kSecondsMin = 1;
+static const uint16_t kSecondsMax = 600;
 static const uint16_t kNumEncodings = 2;
 } // namespace sec
 
 namespace up_to_10
 {
 static const uint16_t kDisabled = 0;
+static const uint16_t kCountMin = 1;
+static const uint16_t kCountMax = 10;
 static const uint16_t kNumEncodings = 2;
 } // namespace up_to_10
 
 namespace node_address
 {
 static const uint16_t kSleep = 0;
+static const uint16_t kNodeAddressMin = 1;
+static const uint16_t kNodeAddressMax = 125;
 static const uint16_t kFunctional = 126;
 static const uint16_t kBroadcast = 127;
 static const uint16_t kNumEncodings = 4;
@@ -224,36 +232,50 @@ static const uint16_t kNumEncodings = 24;
 
 namespace pwm_duty_cycle
 {
+static const uint16_t kPercentMin = 0;
+static const uint16_t kPercentMax = 100;
 static const uint16_t kNumEncodings = 1;
 } // namespace pwm_duty_cycle
 
 namespace RPM
 {
+static const uint16_t kRPMMin = 0;
+static const uint16_t kRPMMax = 255;
 static const uint16_t kNumEncodings = 1;
 } // namespace RPM
 
 namespace PSI
 {
+static const uint16_t kPSIMin = 0;
+static const uint16_t kPSIMax = 255;
 static const uint16_t kNumEncodings = 1;
 } // namespace PSI
 
 namespace F
 {
+static const uint16_t kTemperatureMin = 0;
+static const uint16_t kTemperatureMax = 255;
 static const uint16_t kNumEncodings = 1;
 } // namespace F
 
 namespace V
 {
+static const uint16_t kVoltsMin = 0;
+static const uint16_t kVoltsMax = 255;
 static const uint16_t kNumEncodings = 1;
 } // namespace V
 
 namespace lambda
 {
+static const uint16_t kLambdaMin = 0;
+static const uint16_t kLambdaMax = 255;
 static const uint16_t kNumEncodings = 1;
 } // namespace lambda
 
 namespace MPH
 {
+static const uint16_t kMPHMin = 0;
+static const uint16_t kMPHMax = 255;
 static const uint16_t kNumEncodings = 1;
 } // namespace MPH
 

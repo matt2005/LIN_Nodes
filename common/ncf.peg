@@ -163,7 +163,8 @@ encoding_definition     <- 'encoding' OBRACE
                                     COMMA Integer 
                                     COMMA Real
                                     COMMA Real
-                                    (COMMA String)? SEMICOLON ;
+                                    (COMMA String)?
+                                    SEMICOLON ;
 
 ###################################################################################################
 

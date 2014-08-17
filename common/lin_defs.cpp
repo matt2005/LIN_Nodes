@@ -110,16 +110,12 @@ static const PROGMEM char _encoding_info_input_22[] = "WiperHigh";
 static const PROGMEM char _encoding_info_input_23[] = "RearDefrost";
 static const PROGMEM char _encoding_name_msec[] = "msec";
 static const PROGMEM char _encoding_info_msec_0[] = "Disabled";
-static const PROGMEM char _encoding_info_msec_1[] = "";
 static const PROGMEM char _encoding_name_sec[] = "sec";
 static const PROGMEM char _encoding_info_sec_0[] = "Disabled";
-static const PROGMEM char _encoding_info_sec_1[] = "";
 static const PROGMEM char _encoding_name_up_to_10[] = "up_to_10";
 static const PROGMEM char _encoding_info_up_to_10_0[] = "Disabled";
-static const PROGMEM char _encoding_info_up_to_10_1[] = "";
 static const PROGMEM char _encoding_name_node_address[] = "node_address";
 static const PROGMEM char _encoding_info_node_address_0[] = "Sleep";
-static const PROGMEM char _encoding_info_node_address_1[] = "";
 static const PROGMEM char _encoding_info_node_address_2[] = "Functional";
 static const PROGMEM char _encoding_info_node_address_3[] = "Broadcast";
 static const PROGMEM char _encoding_name_pci[] = "pci";
@@ -210,19 +206,12 @@ static const PROGMEM char _encoding_info_output_assignment_21[] = "WiperLow";
 static const PROGMEM char _encoding_info_output_assignment_22[] = "WiperHigh";
 static const PROGMEM char _encoding_info_output_assignment_23[] = "RearDefrost";
 static const PROGMEM char _encoding_name_pwm_duty_cycle[] = "pwm_duty_cycle";
-static const PROGMEM char _encoding_info_pwm_duty_cycle_0[] = "";
 static const PROGMEM char _encoding_name_RPM[] = "RPM";
-static const PROGMEM char _encoding_info_RPM_0[] = "";
 static const PROGMEM char _encoding_name_PSI[] = "PSI";
-static const PROGMEM char _encoding_info_PSI_0[] = "";
 static const PROGMEM char _encoding_name_F[] = "F";
-static const PROGMEM char _encoding_info_F_0[] = "";
 static const PROGMEM char _encoding_name_V[] = "V";
-static const PROGMEM char _encoding_info_V_0[] = "";
 static const PROGMEM char _encoding_name_lambda[] = "lambda";
-static const PROGMEM char _encoding_info_lambda_0[] = "";
 static const PROGMEM char _encoding_name_MPH[] = "MPH";
-static const PROGMEM char _encoding_info_MPH_0[] = "";
 
 const PROGMEM char *
 name(uint8_t encoding)
@@ -391,32 +380,20 @@ info(uint8_t encoding, uint16_t value)
         if (value == 0) {
             return &_encoding_info_msec_0[0];
         }
-        if ((value >= 100) && (value <= 65000)) {
-            return &_encoding_info_msec_1[0];
-        }
     }
     if (encoding == kEncoding_sec) {
         if (value == 0) {
             return &_encoding_info_sec_0[0];
-        }
-        if ((value >= 1) && (value <= 600)) {
-            return &_encoding_info_sec_1[0];
         }
     }
     if (encoding == kEncoding_up_to_10) {
         if (value == 0) {
             return &_encoding_info_up_to_10_0[0];
         }
-        if ((value >= 1) && (value <= 10)) {
-            return &_encoding_info_up_to_10_1[0];
-        }
     }
     if (encoding == kEncoding_node_address) {
         if (value == 0) {
             return &_encoding_info_node_address_0[0];
-        }
-        if ((value >= 1) && (value <= 125)) {
-            return &_encoding_info_node_address_1[0];
         }
         if (value == 126) {
             return &_encoding_info_node_address_2[0];
@@ -679,39 +656,18 @@ info(uint8_t encoding, uint16_t value)
         }
     }
     if (encoding == kEncoding_pwm_duty_cycle) {
-        if ((value >= 0) && (value <= 100)) {
-            return &_encoding_info_pwm_duty_cycle_0[0];
-        }
     }
     if (encoding == kEncoding_RPM) {
-        if ((value >= 0) && (value <= 255)) {
-            return &_encoding_info_RPM_0[0];
-        }
     }
     if (encoding == kEncoding_PSI) {
-        if ((value >= 0) && (value <= 255)) {
-            return &_encoding_info_PSI_0[0];
-        }
     }
     if (encoding == kEncoding_F) {
-        if ((value >= 0) && (value <= 255)) {
-            return &_encoding_info_F_0[0];
-        }
     }
     if (encoding == kEncoding_V) {
-        if ((value >= 0) && (value <= 255)) {
-            return &_encoding_info_V_0[0];
-        }
     }
     if (encoding == kEncoding_lambda) {
-        if ((value >= 0) && (value <= 255)) {
-            return &_encoding_info_lambda_0[0];
-        }
     }
     if (encoding == kEncoding_MPH) {
-        if ((value >= 0) && (value <= 255)) {
-            return &_encoding_info_MPH_0[0];
-        }
     }
     return nullptr;
 }

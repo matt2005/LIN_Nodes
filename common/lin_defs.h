@@ -10,9 +10,9 @@
 
 namespace Encoding
 {
-extern  bool                 invalid(uint8_t encoding, uint16_t value);
-extern  const PROGMEM char   *name(uint8_t encoding);
-extern  const PROGMEM char   *info(uint8_t encoding, uint16_t value);
+extern bool                 invalid(uint8_t encoding, uint16_t value);
+extern const PROGMEM char   *name(uint8_t encoding);
+extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);
 } // namespace Encoding
 
 static const uint8_t kEncoding_bl_status = 0;
@@ -279,6 +279,11 @@ static const uint16_t kMPHMax = 255;
 static const uint16_t kNumEncodings = 1;
 } // namespace MPH
 
+namespace Frame
+{
+extern const PROGMEM char *name(uint8_t fid);
+}
+
 static const uint8_t kFrameIDSlaveResponse = 0x3d;
 static const uint8_t kFrameIDRelays = 0x01;
 static const uint8_t kFrameIDMasterRequest = 0x3c;
@@ -287,6 +292,7 @@ static const uint8_t kFrameIDProxyRequest = 0x3b;
 
 struct Response
 {
+    Response() : _bytes({0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {}
     union
     {
         uint8_t   _bytes[8];

@@ -673,6 +673,36 @@ info(uint8_t encoding, uint16_t value)
 }
 } // namespace Encoding
 
+namespace Frame
+{
+static const PROGMEM char _frame_name_SlaveResponse[] = "SlaveResponse";
+static const PROGMEM char _frame_name_Relays[] = "Relays";
+static const PROGMEM char _frame_name_MasterRequest[] = "MasterRequest";
+static const PROGMEM char _frame_name_ECUData[] = "ECUData";
+static const PROGMEM char _frame_name_ProxyRequest[] = "ProxyRequest";
+
+const PROGMEM char *
+name(uint8_t fid)
+{
+    if (fid == kFrameIDSlaveResponse) {
+        return &_frame_name_SlaveResponse[0];
+    }
+    if (fid == kFrameIDRelays) {
+        return &_frame_name_Relays[0];
+    }
+    if (fid == kFrameIDMasterRequest) {
+        return &_frame_name_MasterRequest[0];
+    }
+    if (fid == kFrameIDECUData) {
+        return &_frame_name_ECUData[0];
+    }
+    if (fid == kFrameIDProxyRequest) {
+        return &_frame_name_ProxyRequest[0];
+    }
+    return nullptr;
+}
+} // namespace Frame
+
 namespace Generic
 {
 

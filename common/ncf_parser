@@ -220,9 +220,9 @@ namespace eval encoding {
         puts $fh ""
         puts $fh "namespace Encoding"
         puts $fh "{"
-        puts $fh "extern  bool                 invalid(uint8_t encoding, uint16_t value);"
-        puts $fh "extern  const PROGMEM char   *name(uint8_t encoding);"
-        puts $fh "extern  const PROGMEM char   *info(uint8_t encoding, uint16_t value);"
+        puts $fh "extern bool                 invalid(uint8_t encoding, uint16_t value);"
+        puts $fh "extern const PROGMEM char   *name(uint8_t encoding);"
+        puts $fh "extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);"
         puts $fh "} // namespace Encoding"
 
         # Constants for all encoding types
@@ -565,6 +565,12 @@ namespace eval frame {
         variable by_name
         
         puts $fh ""
+        puts $fh "namespace Frame"
+        puts $fh "{"
+        puts $fh "extern const PROGMEM char *name(uint8_t fid);"
+        puts $fh "}"
+
+        puts $fh ""
         foreach name [dict keys $by_name] {
             if {[dict exists $by_name $name properties frame_id]} {
                 set fid [dict get $by_name $name properties frame_id]
@@ -575,6 +581,7 @@ namespace eval frame {
         puts $fh ""
         puts $fh "struct Response"
         puts $fh "{"
+        puts $fh "    Response() : _bytes {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff} {}"
         puts $fh "    union"
         puts $fh "    {"
         puts $fh "        uint8_t   _bytes\[8\];"
@@ -609,6 +616,30 @@ namespace eval frame {
     proc emit_def {fh} {
 
         variable by_name
+
+        puts $fh ""
+        puts $fh "namespace Frame"
+        puts $fh "{"
+        foreach name [dict keys $by_name] {
+            if {[dict exists $by_name $name properties frame_id]} {
+                puts $fh "static const PROGMEM char _frame_name_${name}\[\] = \"${name}\";"
+            }
+        }
+        puts $fh ""
+        puts $fh "const PROGMEM char *"
+        puts $fh "name(uint8_t fid)"
+        puts $fh "{"
+        foreach name [dict keys $by_name] {
+            if {[dict exists $by_name $name properties frame_id]} {
+                puts $fh "    if (fid == kFrameID${name}) {"
+                puts $fh "        return &_frame_name_${name}\[0\];"
+                puts $fh "    }"
+            }
+        }
+        puts $fh "    return nullptr;"
+        puts $fh "}"
+        puts $fh "} // namespace Frame"
+
 
         # currently nothing required
     }

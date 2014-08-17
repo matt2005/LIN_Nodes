@@ -157,6 +157,7 @@ MasterNode::st_header_received()
             Response resp;
 
             resp.SlaveResponse.nad = Tester::kNodeAddress;
+            resp.SlaveResponse.pci = pci::kSingleFrame;
             resp.SlaveResponse.length = 2;
             resp.SlaveResponse.sid = service_id::kTesterPresent;
             resp.SlaveResponse.d1 = 0;

@@ -132,6 +132,7 @@ BLSlave::send_response()
 
     Response resp;
     resp.DataByID.nad = 32;
+    resp.DataByID.pci = pci::kSingleFrame;
     resp.DataByID.length = 5;
     resp.DataByID.sid = (service_id::kReadDataByID | service_id::kResponseOffset);
     resp.DataByID.index = _send_index;

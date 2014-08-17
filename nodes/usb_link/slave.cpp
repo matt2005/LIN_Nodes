@@ -116,6 +116,7 @@ ToolSlave::st_header_received()
         switch (_state) {
         case kStateSetData:
             resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.pci = pci::kSingleFrame;
             resp.DataByID.length = 5;
             resp.DataByID.sid = service_id::kWriteDataByID;
             resp.DataByID.index = _dataAddress;
@@ -126,6 +127,7 @@ ToolSlave::st_header_received()
 
         case kStateBulkData:
             resp.MasterRequest.nad = _nodeAddress;
+            resp.MasterRequest.pci = pci::kSingleFrame;
             resp.MasterRequest.length = 5;
             resp.MasterRequest.sid = service_id::kDataDump;
             resp.MasterRequest.d1 = _dataBytes[0];
@@ -138,6 +140,7 @@ ToolSlave::st_header_received()
 
         case kStateGetData:
             resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.pci = pci::kSingleFrame;
             resp.DataByID.length = 3;
             resp.DataByID.sid = service_id::kReadDataByID;
             resp.DataByID.index = _dataAddress;

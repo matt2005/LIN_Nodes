@@ -203,6 +203,7 @@ MasterNode::st_master_request(Response &resp)
     case service_id::kReadByID:
         switch (resp.MasterRequest.d1) {
         case 0: // LIN product identification
+            resp.ReadByID.pci = pci::kSingleFrame;
             resp.ReadByID.length = 6;
             resp.ReadByID.sid |= service_id::kResponseOffset;
             resp.ReadByID.vendor = Master::kNodeSupplier;

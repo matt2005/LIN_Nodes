@@ -104,6 +104,7 @@ Slave::st_master_request(Response &resp)
 
             // look to see if we handle this one...
             if (st_read_data(resp.DataByID.index, value)) {
+                resp.DataByID.pci = pci::kSingleFrame;
                 resp.DataByID.length = 5;
                 resp.DataByID.value = value;
                 resp.DataByID.sid |= service_id::kResponseOffset;
@@ -123,7 +124,8 @@ Slave::st_master_request(Response &resp)
             // see if we can handle this one
             if (st_write_data(resp.DataByID.index, resp.DataByID.value)) {
                 resp.DataByID.sid |= service_id::kResponseOffset;
-                resp.DataByID.length = 3; // XXX assignment operator overload not working...
+                resp.DataByID.pci = pci::kSingleFrame;
+                resp.DataByID.length = 3;
             } else {
                 // generic error...
                 st_error_response(resp, service_error::kOutOfRange);
@@ -195,6 +197,7 @@ Slave::st_write_data(Parameter::Address address, uint16_t value)
 void
 Slave::st_error_response(Response &resp, uint8_t err)
 {
+    resp.MasterRequest.pci = pci::kSingleFrame;
     resp.MasterRequest.length = 2;
     resp.MasterRequest.d1 = resp.MasterRequest.sid;
     resp.MasterRequest.sid = service_id::kErrorResponse;

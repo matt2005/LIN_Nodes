@@ -27,3 +27,5 @@ $(INSTALLER):	hex $(CORE)
 	@echo Generate $@
 	@cat prefix.hex $(HEX) > $@
 
+verify:
+	avrdude -p attiny167 -c jtag2isp -C ../../etc/attiny167.conf -U flash:r:download.bin:r

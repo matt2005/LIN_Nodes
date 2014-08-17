@@ -70,15 +70,20 @@ class ToolSlave : public Slave
 public:
     ToolSlave();
 
+    virtual void    tick() override;
+
     uint8_t         *get_history() { return _history.get(); }
 
-    void            get_data_by_id(uint8_t nad, uint8_t page, uint8_t index);
-    void            set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value);
+    void            get_data_by_id(uint8_t nad, Parameter::Address address);
+    void            set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value);
+    void            send_bulk(uint8_t nad, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3);
 
     uint16_t        *get_data() { return &_dataValue; }
 
     bool            is_data_ready() const { return _state == kStateIdle; }
     bool            is_data_error() const { return _state == kStateError; }
+
+    void            enable_master(bool state);
 
 protected:
     virtual void    st_header_received() override;
@@ -93,14 +98,25 @@ private:
 
         kStateSetData,
         kStateGetData,
+        kStateBulkData,
         kStateWaitData
     };
 
     SlaveHistory        _history;
-    State               _state;
+    State               _state = kStateIdle;
 
-    uint8_t             _nodeAddress;
-    uint8_t             _dataPage;
-    uint8_t             _dataIndex;
-    uint16_t            _dataValue;
+    uint8_t             _nodeAddress = 0;
+    Parameter::Address  _dataAddress = 0;
+    uint16_t            _dataValue = 0;
+    uint8_t             _dataBytes[4];
+
+    enum MasterState : uint8_t {
+        kMSDisabled,            // master mode disabled
+        kMSWaiting,             // waiting for other master to idle
+        kMSRequest,             // send master request next
+        kMSResponse             // send slave response next
+    };
+
+    MasterState         _masterState = kMSDisabled;
+    Timestamp           _lastFrameStart;
 };

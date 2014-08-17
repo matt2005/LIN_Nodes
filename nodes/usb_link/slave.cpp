@@ -16,33 +16,89 @@
 #include "slave.h"
 
 ToolSlave::ToolSlave() :
-    Slave(Tester::kNodeAddress, true),
-    _state(kStateIdle),
-    _nodeAddress(0),
-    _dataPage(0),
-    _dataIndex(0),
-    _dataValue(0)
+    Slave(Tester::kNodeAddress, true)
 {
 }
 
 void
-ToolSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value)
+ToolSlave::tick()
 {
-    _nodeAddress = nad;
-    _dataPage = page;
-    _dataIndex = index;
-    _dataValue = value;
-    _state = kStateSetData;
+
+    // master schedule
+    switch (_masterState) {
+    case kMSDisabled:
+        break;
+    case kMSWaiting:
+        if (is_awake()) {
+            // still waiting for the bus to go idle
+            break;
+        }
+        _masterState = kMSRequest;
+        _lastFrameStart.update();
+        break;
+    case kMSRequest:
+        _masterState = kMSResponse;
+        _lastFrameStart.update();
+        mt_send_header(kFrameIDMasterRequest);
+        break;
+    case kMSResponse:
+        _masterState = kMSRequest;
+        _lastFrameStart.update();
+        mt_send_header(kFrameIDMasterRequest);
+        break;
+    }
+
+    Slave::tick();
 }
 
 void
-ToolSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index)
+ToolSlave::set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value)
 {
-    _nodeAddress = nad;
-    _dataPage = page;
-    _dataIndex = index;
-    _dataValue = 0;
-    _state = kStateGetData;
+    if (_masterState > kMSWaiting) {
+        _nodeAddress = nad;
+        _dataAddress = address;
+        _dataValue = value;
+        _state = kStateSetData;
+    }
+}
+
+void
+ToolSlave::get_data_by_id(uint8_t nad, Parameter::Address address)
+{
+    if (_masterState >= kMSWaiting) {
+        _nodeAddress = nad;
+        _dataAddress = address;
+        _dataValue = 0;
+        _state = kStateGetData;
+    }
+}
+
+void
+ToolSlave::send_bulk(uint8_t nad, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3)
+{
+    if (_masterState >= kMSWaiting) {
+        _nodeAddress = nad;
+        _dataBytes[0] = d0;
+        _dataBytes[1] = d1;
+        _dataBytes[2] = d2;
+        _dataBytes[3] = d3;
+        _state = kStateBulkData;
+    }
+}
+
+void
+ToolSlave::enable_master(bool enable)
+{
+    if (enable) {
+        if (is_awake()) {
+            _masterState = kMSWaiting;
+        } else {
+            _masterState = kMSRequest;
+            _lastFrameStart.update();
+        }
+    } else {
+        _masterState = kMSDisabled;
+    }
 }
 
 void
@@ -50,17 +106,31 @@ ToolSlave::st_header_received()
 {
     _history.sawFID(current_FrameID());
 
+    // we always want to see the response, for logging purposes
+    st_expect_response();
+
     switch (current_FrameID()) {
-    case kFrameIDProxyRequest:
+    case kFrameIDMasterRequest:
         switch (_state) {
         case kStateSetData:
             st_send_response(Response(_nodeAddress,
                                         5,
                                         service_id::kWriteDataByID,
-                                        _dataIndex,
-                                        _dataPage,
+                                        _dataAddress & 0xff,
+                                        _dataAddress >> 8,
                                         _dataValue & 0xff,
                                         _dataValue << 8));
+            _state = kStateIdle;
+            break;
+
+        case kStateBulkData:
+            st_send_response(Response(_nodeAddress,
+                                      5,
+                                      service_id::kDataDump,
+                                      _dataBytes[0],
+                                      _dataBytes[1],
+                                      _dataBytes[2],
+                                      _dataBytes[3]));
             _state = kStateIdle;
             break;
 
@@ -68,8 +138,8 @@ ToolSlave::st_header_received()
             st_send_response(Response(_nodeAddress,
                                         3,
                                         service_id::kReadDataByID,
-                                        _dataIndex,
-                                        _dataPage));
+                                        _dataAddress & 0xff,
+                                        _dataAddress >> 8));
             _state = kStateWaitData;
             break;
 
@@ -82,16 +152,14 @@ ToolSlave::st_header_received()
         default:
             break;
         }
-
+        // don't pass the master request header to the slave code,
+        // as it will cancel the responses we just set up.
         break;
 
     default:
         Slave::st_header_received();
         break;
     }
-
-    // we always want to see the response, for logging purposes
-    st_expect_response();
 }
 
 void
@@ -109,14 +177,12 @@ ToolSlave::st_response_received(Response &frame)
 
             // sanity-check the response
             if ((Signal::pci(frame) != 5) ||
-                (Signal::d1(frame) != _dataIndex) ||
-                (Signal::d2(frame) != _dataPage)) {
+                (Signal::index(frame) != _dataAddress)) {
                 _state = kStateError;
 
             } else {
-                _dataValue = Signal::d3(frame) | (Signal::d4(frame) << 8);
+                _dataValue = Signal::value(frame);
                 _state = kStateIdle;
-                debugc('t');
             }
         }
 
@@ -142,13 +208,12 @@ ToolSlave::st_master_request(Response &frame)
 
     switch (Signal::sid(frame)) {
     case service_id::kTesterPresent:
-
-        // send a positive response to a directly-addressed request
-        if ((Signal::nad(frame) == Tester::kNodeAddress)) {
+        // If we want the master go offline, tell it we're present
+        if ((_masterState == kMSWaiting) &&
+            (Signal::nad(frame) == Tester::kNodeAddress)) {
             Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
             reply = true;
         }
-
         break;
 
     default:

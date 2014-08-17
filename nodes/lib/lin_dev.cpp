@@ -207,7 +207,7 @@ LINDev::st_send_response(const Response &f, uint8_t length)
 {
     // may be called to send a response after we're already listening for one
     if (LINSIR & (1 << LBUSY)) {
-        if ((LINCR & LIN_CMD_MASK) == LIN_TX_RESPONSE) {    
+        if ((LINCR & LIN_CMD_MASK) == LIN_RX_RESPONSE) {    
             Lin_abort();
             Lin_clear_err_it();
             _responseCopyBack = true;

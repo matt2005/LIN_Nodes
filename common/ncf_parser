@@ -278,24 +278,54 @@ namespace eval encoding {
             set encinfo [dict get $by_name $name]
 
             puts $fh "    if (encoding == kEncoding_${name}) {"
+            set ranges [list]
+            set values [list]
             foreach subencoding $encinfo {
                 dict with subencoding {
                     switch -- $kind {
                         "range" {
-                            puts -nonewline $fh "        if ((value >= ${min}) && (value <= ${max}))"
+                            lappend ranges [list $min $max]
                         }
                         "value" {
-                            # XXX optimisation - compress groups of adjacent values into range comparisons
-                            puts -nonewline $fh "        if (value == ${value})"
-                        }
-                        default {
-                            util::throw "unexpected encoding flavour '${kind}'"
+                            lappend values $value
                         }
                     }
-                    puts $fh " {"
-                    puts $fh "            return false;"
-                    puts $fh "        }"
                 }
+            }
+
+            # convert adjacent values into ranges
+            set values [lsort -integer $values]
+            set index 0
+            while {$index < [llength $values]} {
+                # possible minimum range value
+                set min [lindex $values $index]
+
+                # scan looking for a value not in sequence
+                set offset 0
+                while {[lindex $values [expr $index + $offset]] == [expr $min + $offset]} {
+                    incr offset
+                }
+                # if we found at least three values in sequence
+                if {$offset > 2} {
+                    incr offset -1
+                    set max [lindex $values [expr $index + $offset]]
+                    set values [lreplace $values $index [expr $index + $offset]]
+                    lappend ranges [list $min $max]
+                } else {
+                    incr index
+                }
+
+            }
+            foreach range $ranges {
+                lassign $range min max
+                puts $fh "        if ((value >= ${min}) && (value <= ${max})) {"
+                puts $fh "            return false;"
+                puts $fh "        }"
+            }
+            foreach value $values {
+                puts $fh "        if (value == ${value}) {"
+                puts $fh "            return false;"
+                puts $fh "        }"
             }
             puts $fh "    }"
         }

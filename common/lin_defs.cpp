@@ -8,117 +8,36 @@ bool
 invalid(uint8_t encoding, uint16_t value)
 {
     if (encoding == kEncoding_bl_status) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
+        if ((value >= 0) && (value <= 4)) {
             return false;
         }
     }
     if (encoding == kEncoding_input) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
-            return false;
-        }
-        if (value == 6) {
-            return false;
-        }
-        if (value == 7) {
-            return false;
-        }
-        if (value == 8) {
-            return false;
-        }
-        if (value == 9) {
-            return false;
-        }
-        if (value == 10) {
-            return false;
-        }
-        if (value == 11) {
-            return false;
-        }
-        if (value == 12) {
-            return false;
-        }
-        if (value == 13) {
-            return false;
-        }
-        if (value == 14) {
-            return false;
-        }
-        if (value == 15) {
-            return false;
-        }
-        if (value == 16) {
-            return false;
-        }
-        if (value == 17) {
-            return false;
-        }
-        if (value == 18) {
-            return false;
-        }
-        if (value == 19) {
-            return false;
-        }
-        if (value == 20) {
-            return false;
-        }
-        if (value == 21) {
-            return false;
-        }
-        if (value == 22) {
-            return false;
-        }
-        if (value == 23) {
+        if ((value >= 0) && (value <= 23)) {
             return false;
         }
     }
     if (encoding == kEncoding_msec) {
-        if (value == 0) {
+        if ((value >= 100) && (value <= 65000)) {
             return false;
         }
-        if ((value >= 100) && (value <= 65000)) {
+        if (value == 0) {
             return false;
         }
     }
     if (encoding == kEncoding_up_to_10) {
-        if (value == 0) {
+        if ((value >= 1) && (value <= 10)) {
             return false;
         }
-        if ((value >= 1) && (value <= 10)) {
+        if (value == 0) {
             return false;
         }
     }
     if (encoding == kEncoding_sec) {
-        if (value == 0) {
+        if ((value >= 1) && (value <= 600)) {
             return false;
         }
-        if ((value >= 1) && (value <= 600)) {
+        if (value == 0) {
             return false;
         }
     }
@@ -131,193 +50,22 @@ invalid(uint8_t encoding, uint16_t value)
         }
     }
     if (encoding == kEncoding_v1_output_assignment) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
-            return false;
-        }
-        if (value == 6) {
-            return false;
-        }
-        if (value == 7) {
-            return false;
-        }
-        if (value == 8) {
-            return false;
-        }
-        if (value == 9) {
-            return false;
-        }
-        if (value == 10) {
-            return false;
-        }
-        if (value == 11) {
-            return false;
-        }
-        if (value == 12) {
-            return false;
-        }
-        if (value == 13) {
-            return false;
-        }
-        if (value == 14) {
-            return false;
-        }
-        if (value == 15) {
-            return false;
-        }
-        if (value == 16) {
-            return false;
-        }
-        if (value == 17) {
-            return false;
-        }
-        if (value == 18) {
-            return false;
-        }
-        if (value == 19) {
-            return false;
-        }
-        if (value == 20) {
-            return false;
-        }
-        if (value == 21) {
-            return false;
-        }
-        if (value == 22) {
-            return false;
-        }
-        if (value == 23) {
+        if ((value >= 0) && (value <= 23)) {
             return false;
         }
     }
     if (encoding == kEncoding_v3_output_status) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
+        if ((value >= 0) && (value <= 5)) {
             return false;
         }
     }
     if (encoding == kEncoding_output_type) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
-            return false;
-        }
-        if (value == 6) {
+        if ((value >= 0) && (value <= 6)) {
             return false;
         }
     }
     if (encoding == kEncoding_output_assignment) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
-            return false;
-        }
-        if (value == 6) {
-            return false;
-        }
-        if (value == 7) {
-            return false;
-        }
-        if (value == 8) {
-            return false;
-        }
-        if (value == 9) {
-            return false;
-        }
-        if (value == 10) {
-            return false;
-        }
-        if (value == 11) {
-            return false;
-        }
-        if (value == 12) {
-            return false;
-        }
-        if (value == 13) {
-            return false;
-        }
-        if (value == 14) {
-            return false;
-        }
-        if (value == 15) {
-            return false;
-        }
-        if (value == 16) {
-            return false;
-        }
-        if (value == 17) {
-            return false;
-        }
-        if (value == 18) {
-            return false;
-        }
-        if (value == 19) {
-            return false;
-        }
-        if (value == 20) {
-            return false;
-        }
-        if (value == 21) {
-            return false;
-        }
-        if (value == 22) {
-            return false;
-        }
-        if (value == 23) {
+        if ((value >= 0) && (value <= 23)) {
             return false;
         }
     }

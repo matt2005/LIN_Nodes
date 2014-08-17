@@ -87,27 +87,27 @@ ProgrammerSlave::get_data_by_id(uint8_t nad, Parameter::Address address, uint16_
 void
 ProgrammerSlave::st_header_received()
 {
-    Response r;
+    Response resp;
 
     switch (current_FrameID()) {
     case kFrameIDProxyRequest:
         switch (_state) {
         case kStateSetData:
-            Signal::nad(r).set(_nodeAddress);
-            Signal::length(r).set(5);
-            Signal::sid(r).set(service_id::kWriteDataByID);
-            Signal::index(r).set(_dataAddress);
-            Signal::value(r).set(_dataValue);
-            st_send_response(r);
+            resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.length = 5;
+            resp.DataByID.sid = service_id::kWriteDataByID;
+            resp.DataByID.index = _dataAddress;
+            resp.DataByID.value = _dataValue;
+            st_send_response(resp);
             _state = kStateIdle;
             break;
 
         case kStateGetData:
-            Signal::nad(r).set(_nodeAddress);
-            Signal::length(r).set(3);
-            Signal::sid(r).set(service_id::kReadDataByID);
-            Signal::index(r).set(_dataAddress);
-            st_send_response(r);
+            resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.length = 3;
+            resp.DataByID.sid = service_id::kReadDataByID;
+            resp.DataByID.index = _dataAddress;
+            st_send_response(resp);
             _state = kStateWaitData;
             break;
 
@@ -141,24 +141,24 @@ ProgrammerSlave::st_header_received()
 }
 
 void
-ProgrammerSlave::st_response_received(Response &frame)
+ProgrammerSlave::st_response_received(Response &resp)
 {
     switch (current_FrameID()) {
     case kFrameIDSlaveResponse:
 
         // is this a response to a current request?
         if ((_state == kStateWaitData) &&
-            (Signal::nad(frame).get() == _nodeAddress) &&
-            (Signal::sid(frame).get() == (service_id::kReadDataByID | service_id::kResponseOffset))) {
+            (resp.SlaveResponse.nad == _nodeAddress) &&
+            (resp.SlaveResponse.sid == (service_id::kReadDataByID | service_id::kResponseOffset))) {
 
             // sanity-check the response
-            if ((Signal::pci(frame).get() != 5) ||
-                (Signal::index(frame).get() != _dataAddress)) {
+            if ((resp.DataByID.length != 5) ||
+                (resp.DataByID.index != _dataAddress)) {
                 _state = kStateError;
-                debug("get: frame err");
+                debug("get: resp err");
 
             } else {
-                _dataValue = Signal::d3(frame).get() | (Signal::d4(frame).get() << 8);
+                _dataValue = resp.DataByID.value;
                 _state = kStateIdle;
             }
         }
@@ -169,7 +169,7 @@ ProgrammerSlave::st_response_received(Response &frame)
         break;
     }
 
-    Slave::st_response_received(frame);
+    Slave::st_response_received(resp);
 }
 
 void
@@ -179,17 +179,17 @@ ProgrammerSlave::st_sleep_requested(SleepType type)
 }
 
 bool
-ProgrammerSlave::st_master_request(Response &frame)
+ProgrammerSlave::st_master_request(Response &resp)
 {
     bool reply = false;
 
-    switch (Signal::sid(frame).get()) {
+    switch (resp.MasterRequest.sid) {
     case service_id::kTesterPresent:
 
         // send a positive response to a directly-addressed request
         // unless suspended
-        if (!_suspended && (Signal::nad(frame).get() == Tester::kNodeAddress)) {
-            Signal::sid(frame).set(Signal::sid(frame).get() | service_id::kResponseOffset);
+        if (!_suspended && (resp.MasterRequest.nad == Tester::kNodeAddress)) {
+            resp.MasterRequest.sid |= service_id::kResponseOffset;
             reply = true;
         }
 

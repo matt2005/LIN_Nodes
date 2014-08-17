@@ -145,7 +145,7 @@ MasterNode::st_header_received()
 
             // if the proxy request was for us, we
             // need to prepare a reply
-            if ((Signal::nad(_stProxyFrame) == _nad) &&
+            if ((_stProxyFrame.MasterRequest.nad == _nad) &&
                 (st_master_request(_stProxyFrame))) {
                 _stProxyResponse = true;
             }
@@ -154,11 +154,14 @@ MasterNode::st_header_received()
 
         } else {
             // XXX should be more flexible about what we send here...
-            st_send_response(Response(Tester::kNodeAddress,
-                                        2,
-                                        service_id::kTesterPresent,
-                                        0,
-                                        _testerPresent));
+            Response resp;
+
+            resp.SlaveResponse.nad = Tester::kNodeAddress;
+            resp.SlaveResponse.length = 2;
+            resp.SlaveResponse.sid = service_id::kTesterPresent;
+            resp.SlaveResponse.d1 = 0;
+            resp.SlaveResponse.d2 = _testerPresent;
+            st_send_response(resp);
 
             if (_testerPresent > 0) {
                 _testerPresent--;
@@ -189,48 +192,48 @@ MasterNode::st_header_received()
 }
 
 bool
-MasterNode::st_master_request(Response &frame)
+MasterNode::st_master_request(Response &resp)
 {
     bool reply = false;
 
     // ReadByID
-    switch (Signal::sid(frame)) {
+    switch (resp.MasterRequest.sid) {
 
     case service_id::kReadByID:
-        switch (Signal::d1(frame)) {
+        switch (resp.MasterRequest.d1) {
         case 0: // LIN product identification
-            Signal::length(frame).set(6);
-            Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
-            Signal::vendor(frame).set(Master::kNodeSupplier);
-            Signal::function(frame).set(Master::kNodeFunction);
-            Signal::variant(frame).set(Master::kNodeVariant);
+            resp.ReadByID.length = 6;
+            resp.ReadByID.sid |= service_id::kResponseOffset;
+            resp.ReadByID.vendor = Master::kNodeSupplier;
+            resp.ReadByID.function = Master::kNodeFunction;
+            resp.ReadByID.variant = Master::kNodeVariant;
             reply = true;
             break;    
         }
     }
 
     if (reply == false) {
-        reply = Slave::st_master_request(frame);
+        reply = Slave::st_master_request(resp);
     }
     return reply;
 }
 
 void
-MasterNode::st_response_received(Response &frame)
+MasterNode::st_response_received(Response &resp)
 {
     switch (current_FrameID()) {
 
     case kFrameIDProxyRequest:
         // save for re-transmission
-        _stProxyFrame = frame;
+        _stProxyFrame = resp;
         _stProxyRequest = true;
         break;
 
     case kFrameIDSlaveResponse:
 
         // is this a response from a tester?
-        if ((Signal::nad(frame) == Tester::kNodeAddress) &&
-            (Signal::sid(frame) == (service_id::kTesterPresent | service_id::kResponseOffset))) {
+        if ((resp.SlaveResponse.nad == Tester::kNodeAddress) &&
+            (resp.SlaveResponse.sid == (service_id::kTesterPresent | service_id::kResponseOffset))) {
             _testerPresent = 0xff;
         }
 
@@ -238,7 +241,7 @@ MasterNode::st_response_received(Response &frame)
 
     default:
         // intentional bypass of Slave::st_response_received
-        LINDev::st_response_received(frame);
+        LINDev::st_response_received(resp);
         break;
     }
 }

@@ -81,14 +81,14 @@ protected:
     /// Responses are always sent in LIN 2.x format, unless the FID from the
     /// header implies 1.x (i.e. SlaveResponse).
     ///
-    /// @param frame            The response frame to send.
-    /// @param length           The length of the response frame.
+    /// @param resp             The response to send.
+    /// @param length           The length of the response.
     ///
-    void            st_send_response(const Response &frame, uint8_t length = 8);
+    void            st_send_response(const Response &resp, uint8_t length = 8);
 
-    void            st_send_response(const volatile Response &frame, uint8_t length = 8)
+    void            st_send_response(const volatile Response &resp, uint8_t length = 8)
     {
-        st_send_response(const_cast<const Response&>(frame), length);
+        st_send_response(const_cast<const Response&>(resp), length);
     }
 
     /// Called when a header has been received.
@@ -103,9 +103,9 @@ protected:
     ///
     /// @param fid              The FID from the header associated with this
     ///                         response.
-    /// @param frame            The received response frame.
+    /// @param resp             The received response.
     ///
-    virtual void    st_response_received(Response &frame);
+    virtual void    st_response_received(Response &resp);
     
     /// Called when a response has been sent.
     ///

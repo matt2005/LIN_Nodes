@@ -18,7 +18,8 @@ public:
 
     bool            test_relay(uint8_t relay_id)
     {
-        return SignalBase(_relayFrame, relay_id, 1, kEncoding_none).test();
+        // we know the relay frame is just an array of bits with relay 0 as the first bit
+        return (_relayFrame._raw >> relay_id) & 1;
     }
 
 protected:

@@ -38,7 +38,7 @@ protected:
     uint8_t _nad;               //< node address 
 
     virtual void    st_header_received() override;
-    virtual void    st_response_received(Response &frame) override;
+    virtual void    st_response_received(Response &resp) override;
 
     /// Called when the network is told to sleep.
     ///
@@ -53,19 +53,19 @@ protected:
     /// The default handler deals with kServiceIDReadDataByID, 
     /// kServiceIDWriteDataByID, kServiceIDReadByID/kReadByIDProductID.
     ///
-    /// @param frame            The response frame
-    /// @return                 If true, the (modified) frame should be sent
+    /// @param resp             The response.
+    /// @return                 If true, the (modified) response should be sent
     ///                         as a slave response.
     ///
-    virtual bool    st_master_request(Response &frame);
+    virtual bool    st_master_request(Response &resp);
 
     /// Prepare a response to the LIN::kSlaveResponse message.
     ///
-    /// @param frame            The frame to send in response.
+    /// @param resp            The frame to send in response.
     ///
-    void            st_slave_response(const Response &frame) 
+    void            st_slave_response(const Response &resp) 
     {
-        _response = frame;
+        _response = resp;
         _sendSlaveResponse = true;
     }
 
@@ -91,7 +91,7 @@ protected:
 
     /// Reformat a service request as an error response
     ///
-    static void     st_error_response(Response &frame, uint8_t err);
+    static void     st_error_response(Response &resp, uint8_t err);
 
 private:
     Timestamp       _lastActivity;      //< Bus idle timer

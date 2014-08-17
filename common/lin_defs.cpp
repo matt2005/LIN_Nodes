@@ -2,11 +2,12 @@
 #include "lin_defs.h"
 
 
-
-bool
-Encoding::invalid(uint8_t index, uint16_t value)
+namespace Encoding
 {
-    if (index == kEncoding_bl_status) {
+bool
+invalid(uint8_t encoding, uint16_t value)
+{
+    if (encoding == kEncoding_bl_status) {
         if (value == 0) {
             return false;
         }
@@ -23,7 +24,7 @@ Encoding::invalid(uint8_t index, uint16_t value)
             return false;
         }
     }
-    if (index == kEncoding_input) {
+    if (encoding == kEncoding_input) {
         if (value == 0) {
             return false;
         }
@@ -97,7 +98,7 @@ Encoding::invalid(uint8_t index, uint16_t value)
             return false;
         }
     }
-    if (index == kEncoding_msec) {
+    if (encoding == kEncoding_msec) {
         if (value == 0) {
             return false;
         }
@@ -105,7 +106,7 @@ Encoding::invalid(uint8_t index, uint16_t value)
             return false;
         }
     }
-    if (index == kEncoding_up_to_10) {
+    if (encoding == kEncoding_up_to_10) {
         if (value == 0) {
             return false;
         }
@@ -113,7 +114,7 @@ Encoding::invalid(uint8_t index, uint16_t value)
             return false;
         }
     }
-    if (index == kEncoding_sec) {
+    if (encoding == kEncoding_sec) {
         if (value == 0) {
             return false;
         }
@@ -121,7 +122,7 @@ Encoding::invalid(uint8_t index, uint16_t value)
             return false;
         }
     }
-    if (index == kEncoding_v1_output_status) {
+    if (encoding == kEncoding_v1_output_status) {
         if (value == 0) {
             return false;
         }
@@ -129,124 +130,7 @@ Encoding::invalid(uint8_t index, uint16_t value)
             return false;
         }
     }
-    if (index == kEncoding_v1_output_assignment) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
-            return false;
-        }
-        if (value == 6) {
-            return false;
-        }
-        if (value == 7) {
-            return false;
-        }
-        if (value == 8) {
-            return false;
-        }
-        if (value == 9) {
-            return false;
-        }
-        if (value == 10) {
-            return false;
-        }
-        if (value == 11) {
-            return false;
-        }
-        if (value == 12) {
-            return false;
-        }
-        if (value == 13) {
-            return false;
-        }
-        if (value == 14) {
-            return false;
-        }
-        if (value == 15) {
-            return false;
-        }
-        if (value == 16) {
-            return false;
-        }
-        if (value == 17) {
-            return false;
-        }
-        if (value == 18) {
-            return false;
-        }
-        if (value == 19) {
-            return false;
-        }
-        if (value == 20) {
-            return false;
-        }
-        if (value == 21) {
-            return false;
-        }
-        if (value == 22) {
-            return false;
-        }
-        if (value == 23) {
-            return false;
-        }
-    }
-    if (index == kEncoding_v3_output_status) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
-            return false;
-        }
-    }
-    if (index == kEncoding_output_type) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-        if (value == 2) {
-            return false;
-        }
-        if (value == 3) {
-            return false;
-        }
-        if (value == 4) {
-            return false;
-        }
-        if (value == 5) {
-            return false;
-        }
-        if (value == 6) {
-            return false;
-        }
-    }
-    if (index == kEncoding_output_assignment) {
+    if (encoding == kEncoding_v1_output_assignment) {
         if (value == 0) {
             return false;
         }
@@ -320,7 +204,124 @@ Encoding::invalid(uint8_t index, uint16_t value)
             return false;
         }
     }
-    if (index == kEncoding_pwm_duty_cycle) {
+    if (encoding == kEncoding_v3_output_status) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+        if (value == 5) {
+            return false;
+        }
+    }
+    if (encoding == kEncoding_output_type) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+        if (value == 5) {
+            return false;
+        }
+        if (value == 6) {
+            return false;
+        }
+    }
+    if (encoding == kEncoding_output_assignment) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+        if (value == 4) {
+            return false;
+        }
+        if (value == 5) {
+            return false;
+        }
+        if (value == 6) {
+            return false;
+        }
+        if (value == 7) {
+            return false;
+        }
+        if (value == 8) {
+            return false;
+        }
+        if (value == 9) {
+            return false;
+        }
+        if (value == 10) {
+            return false;
+        }
+        if (value == 11) {
+            return false;
+        }
+        if (value == 12) {
+            return false;
+        }
+        if (value == 13) {
+            return false;
+        }
+        if (value == 14) {
+            return false;
+        }
+        if (value == 15) {
+            return false;
+        }
+        if (value == 16) {
+            return false;
+        }
+        if (value == 17) {
+            return false;
+        }
+        if (value == 18) {
+            return false;
+        }
+        if (value == 19) {
+            return false;
+        }
+        if (value == 20) {
+            return false;
+        }
+        if (value == 21) {
+            return false;
+        }
+        if (value == 22) {
+            return false;
+        }
+        if (value == 23) {
+            return false;
+        }
+    }
+    if (encoding == kEncoding_pwm_duty_cycle) {
         if ((value >= 0) && (value <= 100)) {
             return false;
         }
@@ -476,78 +477,78 @@ static const PROGMEM char _encoding_name_MPH[] = "MPH";
 static const PROGMEM char _encoding_info_MPH_0[] = "";
 
 const PROGMEM char *
-Encoding::name(uint8_t index)
+name(uint8_t encoding)
 {
-    if (index == kEncoding_bl_status) {
+    if (encoding == kEncoding_bl_status) {
         return &_encoding_name_bl_status[0];
     }
-    if (index == kEncoding_input) {
+    if (encoding == kEncoding_input) {
         return &_encoding_name_input[0];
     }
-    if (index == kEncoding_msec) {
+    if (encoding == kEncoding_msec) {
         return &_encoding_name_msec[0];
     }
-    if (index == kEncoding_sec) {
+    if (encoding == kEncoding_sec) {
         return &_encoding_name_sec[0];
     }
-    if (index == kEncoding_up_to_10) {
+    if (encoding == kEncoding_up_to_10) {
         return &_encoding_name_up_to_10[0];
     }
-    if (index == kEncoding_node_address) {
+    if (encoding == kEncoding_node_address) {
         return &_encoding_name_node_address[0];
     }
-    if (index == kEncoding_pci) {
+    if (encoding == kEncoding_pci) {
         return &_encoding_name_pci[0];
     }
-    if (index == kEncoding_service_id) {
+    if (encoding == kEncoding_service_id) {
         return &_encoding_name_service_id[0];
     }
-    if (index == kEncoding_service_error) {
+    if (encoding == kEncoding_service_error) {
         return &_encoding_name_service_error[0];
     }
-    if (index == kEncoding_v1_output_status) {
+    if (encoding == kEncoding_v1_output_status) {
         return &_encoding_name_v1_output_status[0];
     }
-    if (index == kEncoding_v1_output_assignment) {
+    if (encoding == kEncoding_v1_output_assignment) {
         return &_encoding_name_v1_output_assignment[0];
     }
-    if (index == kEncoding_v3_output_status) {
+    if (encoding == kEncoding_v3_output_status) {
         return &_encoding_name_v3_output_status[0];
     }
-    if (index == kEncoding_output_type) {
+    if (encoding == kEncoding_output_type) {
         return &_encoding_name_output_type[0];
     }
-    if (index == kEncoding_output_assignment) {
+    if (encoding == kEncoding_output_assignment) {
         return &_encoding_name_output_assignment[0];
     }
-    if (index == kEncoding_pwm_duty_cycle) {
+    if (encoding == kEncoding_pwm_duty_cycle) {
         return &_encoding_name_pwm_duty_cycle[0];
     }
-    if (index == kEncoding_RPM) {
+    if (encoding == kEncoding_RPM) {
         return &_encoding_name_RPM[0];
     }
-    if (index == kEncoding_PSI) {
+    if (encoding == kEncoding_PSI) {
         return &_encoding_name_PSI[0];
     }
-    if (index == kEncoding_F) {
+    if (encoding == kEncoding_F) {
         return &_encoding_name_F[0];
     }
-    if (index == kEncoding_V) {
+    if (encoding == kEncoding_V) {
         return &_encoding_name_V[0];
     }
-    if (index == kEncoding_lambda) {
+    if (encoding == kEncoding_lambda) {
         return &_encoding_name_lambda[0];
     }
-    if (index == kEncoding_MPH) {
+    if (encoding == kEncoding_MPH) {
         return &_encoding_name_MPH[0];
     }
     return nullptr;
 }
 
 const PROGMEM char *
-Encoding::info(uint8_t index, uint16_t value)
+info(uint8_t encoding, uint16_t value)
 {
-    if (index == kEncoding_bl_status) {
+    if (encoding == kEncoding_bl_status) {
         if (value == 0) {
             return &_encoding_info_bl_status_0[0];
         }
@@ -564,7 +565,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_bl_status_4[0];
         }
     }
-    if (index == kEncoding_input) {
+    if (encoding == kEncoding_input) {
         if (value == 0) {
             return &_encoding_info_input_0[0];
         }
@@ -638,7 +639,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_input_23[0];
         }
     }
-    if (index == kEncoding_msec) {
+    if (encoding == kEncoding_msec) {
         if (value == 0) {
             return &_encoding_info_msec_0[0];
         }
@@ -646,7 +647,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_msec_1[0];
         }
     }
-    if (index == kEncoding_sec) {
+    if (encoding == kEncoding_sec) {
         if (value == 0) {
             return &_encoding_info_sec_0[0];
         }
@@ -654,7 +655,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_sec_1[0];
         }
     }
-    if (index == kEncoding_up_to_10) {
+    if (encoding == kEncoding_up_to_10) {
         if (value == 0) {
             return &_encoding_info_up_to_10_0[0];
         }
@@ -662,7 +663,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_up_to_10_1[0];
         }
     }
-    if (index == kEncoding_node_address) {
+    if (encoding == kEncoding_node_address) {
         if (value == 0) {
             return &_encoding_info_node_address_0[0];
         }
@@ -676,7 +677,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_node_address_3[0];
         }
     }
-    if (index == kEncoding_pci) {
+    if (encoding == kEncoding_pci) {
         if (value == 0) {
             return &_encoding_info_pci_0[0];
         }
@@ -687,7 +688,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_pci_2[0];
         }
     }
-    if (index == kEncoding_service_id) {
+    if (encoding == kEncoding_service_id) {
         if (value == 0x22) {
             return &_encoding_info_service_id_0[0];
         }
@@ -710,7 +711,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_service_id_6[0];
         }
     }
-    if (index == kEncoding_service_error) {
+    if (encoding == kEncoding_service_error) {
         if (value == 0x12) {
             return &_encoding_info_service_error_0[0];
         }
@@ -730,7 +731,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_service_error_5[0];
         }
     }
-    if (index == kEncoding_v1_output_status) {
+    if (encoding == kEncoding_v1_output_status) {
         if (value == 0) {
             return &_encoding_info_v1_output_status_0[0];
         }
@@ -738,7 +739,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_v1_output_status_1[0];
         }
     }
-    if (index == kEncoding_v1_output_assignment) {
+    if (encoding == kEncoding_v1_output_assignment) {
         if (value == 0) {
             return &_encoding_info_v1_output_assignment_0[0];
         }
@@ -812,7 +813,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_v1_output_assignment_23[0];
         }
     }
-    if (index == kEncoding_v3_output_status) {
+    if (encoding == kEncoding_v3_output_status) {
         if (value == 0) {
             return &_encoding_info_v3_output_status_0[0];
         }
@@ -832,7 +833,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_v3_output_status_5[0];
         }
     }
-    if (index == kEncoding_output_type) {
+    if (encoding == kEncoding_output_type) {
         if (value == 0) {
             return &_encoding_info_output_type_0[0];
         }
@@ -855,7 +856,7 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_output_type_6[0];
         }
     }
-    if (index == kEncoding_output_assignment) {
+    if (encoding == kEncoding_output_assignment) {
         if (value == 0) {
             return &_encoding_info_output_assignment_0[0];
         }
@@ -929,43 +930,44 @@ Encoding::info(uint8_t index, uint16_t value)
             return &_encoding_info_output_assignment_23[0];
         }
     }
-    if (index == kEncoding_pwm_duty_cycle) {
+    if (encoding == kEncoding_pwm_duty_cycle) {
         if ((value >= 0) && (value <= 100)) {
             return &_encoding_info_pwm_duty_cycle_0[0];
         }
     }
-    if (index == kEncoding_RPM) {
+    if (encoding == kEncoding_RPM) {
         if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_RPM_0[0];
         }
     }
-    if (index == kEncoding_PSI) {
+    if (encoding == kEncoding_PSI) {
         if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_PSI_0[0];
         }
     }
-    if (index == kEncoding_F) {
+    if (encoding == kEncoding_F) {
         if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_F_0[0];
         }
     }
-    if (index == kEncoding_V) {
+    if (encoding == kEncoding_V) {
         if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_V_0[0];
         }
     }
-    if (index == kEncoding_lambda) {
+    if (encoding == kEncoding_lambda) {
         if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_lambda_0[0];
         }
     }
-    if (index == kEncoding_MPH) {
+    if (encoding == kEncoding_MPH) {
         if ((value >= 0) && (value <= 255)) {
             return &_encoding_info_MPH_0[0];
         }
     }
     return nullptr;
 }
+} // namespace Encoding
 
 namespace Generic
 {

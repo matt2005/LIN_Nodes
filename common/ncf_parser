@@ -215,6 +215,16 @@ namespace eval encoding {
 
         variable by_name
 
+        # Prototypes for the utility functions
+        #
+        puts $fh ""
+        puts $fh "namespace Encoding"
+        puts $fh "{"
+        puts $fh "extern  bool                 invalid(uint8_t encoding, uint16_t value);"
+        puts $fh "extern  const PROGMEM char   *name(uint8_t encoding);"
+        puts $fh "extern  const PROGMEM char   *info(uint8_t encoding, uint16_t value);"
+        puts $fh "} // namespace Encoding"
+
         # Constants for all encoding types
         #
         puts $fh ""
@@ -253,20 +263,21 @@ namespace eval encoding {
         variable validate
 
         puts $fh ""
+        puts $fh "namespace Encoding"
+        puts $fh "{"
 
         # Validation function that knows the legal values for each encoding.
         #
         # XXX optimisation opportunity: generate customised versions on a node-by-node basis.
         #
-        puts $fh ""
         puts $fh "bool"
-        puts $fh "Encoding::invalid(uint8_t index, uint16_t value)"
+        puts $fh "invalid(uint8_t encoding, uint16_t value)"
         puts $fh "{"
 
         foreach name $validate {
             set encinfo [dict get $by_name $name]
 
-            puts $fh "    if (index == kEncoding_${name}) {"
+            puts $fh "    if (encoding == kEncoding_${name}) {"
             foreach subencoding $encinfo {
                 dict with subencoding {
                     switch -- $kind {
@@ -312,10 +323,10 @@ namespace eval encoding {
         #
         puts $fh ""
         puts $fh "const PROGMEM char *"
-        puts $fh "Encoding::name(uint8_t index)"
+        puts $fh "name(uint8_t encoding)"
         puts $fh "{"
         foreach name [dict keys $by_name] {
-            puts $fh "    if (index == kEncoding_${name}) {"
+            puts $fh "    if (encoding == kEncoding_${name}) {"
             puts $fh "        return &_encoding_name_${name}\[0\];"
             puts $fh "    }"
         }
@@ -327,11 +338,11 @@ namespace eval encoding {
         #
         puts $fh ""
         puts $fh "const PROGMEM char *"
-        puts $fh "Encoding::info(uint8_t index, uint16_t value)"
+        puts $fh "info(uint8_t encoding, uint16_t value)"
         puts $fh "{"
 
         dict for {name encinfo} $by_name {
-            puts $fh "    if (index == kEncoding_${name}) {"
+            puts $fh "    if (encoding == kEncoding_${name}) {"
             set index 0
             foreach subencoding $encinfo {
                 dict with subencoding {
@@ -354,6 +365,7 @@ namespace eval encoding {
 
         puts $fh "    return nullptr;"
         puts $fh "}"
+        puts $fh "} // namespace Encoding"
 
     }
 }
@@ -404,28 +416,28 @@ namespace eval signal {
 
     proc emit_decl {fh} {
 
-        variable by_name
-
-        puts $fh ""
-        puts $fh "namespace Signal"
-        puts $fh "{"
-        dict for {name siginfo} $by_name {
-
-            set size [dict get $siginfo signal_size]
-            set offset [dict get $siginfo signal_offset]
-            if {[dict exists $siginfo signal_encoding]} {
-                set encoding [dict get $siginfo signal_encoding]
-            } else {
-                set encoding "none"                
-            }
-
-            puts $fh "class ${name} : public SignalBase"
-            puts $fh "{"
-            puts $fh "public:"
-            puts $fh "    constexpr ${name}(Response &r) : SignalBase(r, ${offset}, ${size}, kEncoding_${encoding}) {}"
-            puts $fh "};"
-        }
-        puts $fh "} // namespace Signal"
+#        variable by_name
+#
+#        puts $fh ""
+#        puts $fh "namespace Signal"
+#        puts $fh "{"
+#        dict for {name siginfo} $by_name {
+#
+#            set size [dict get $siginfo signal_size]
+#            set offset [dict get $siginfo signal_offset]
+#            if {[dict exists $siginfo signal_encoding]} {
+#                set encoding [dict get $siginfo signal_encoding]
+#            } else {
+#                set encoding "none"                
+#            }
+#
+#            puts $fh "class ${name} : public SignalBase"
+#            puts $fh "{"
+#            puts $fh "public:"
+#            puts $fh "    constexpr ${name}(Response &r) : SignalBase(r, ${offset}, ${size}, kEncoding_${encoding}) {}"
+#            puts $fh "};"
+#        }
+#        puts $fh "} // namespace Signal"
     }
 
     proc emit_def {fh} {
@@ -433,6 +445,13 @@ namespace eval signal {
          variable by_name
 
        # currently nothing required
+    }
+
+    proc property {name property} {
+
+        variable by_name
+
+        return [dict get $by_name $name signal_${property}]
     }
 }
 
@@ -508,12 +527,46 @@ namespace eval frame {
 
         variable by_name
         
+        puts $fh ""
         foreach name [dict keys $by_name] {
             if {[dict exists $by_name $name properties frame_id]} {
                 set fid [dict get $by_name $name properties frame_id]
                 puts $fh "static const uint8_t kFrameID${name} = ${fid};"
             }
         }
+
+        puts $fh ""
+        puts $fh "struct Response"
+        puts $fh "{"
+        puts $fh "    union"
+        puts $fh "    {"
+        puts $fh "        uint8_t   _bytes\[8\];"
+        puts $fh "        uint64_t  _raw;"
+        foreach name [dict keys $by_name] {
+            set signals [dict get $by_name $name signals]
+            if {$signals != {}} {
+                puts $fh "        struct {"
+                set used 0
+                foreach signal $signals {
+                    set size [signal::property $signal size]
+                    set offset [signal::property $signal offset]
+                    if {$offset < $used} {
+                        util::throw "signal ${signal} in ${name} overlaps or out of order"
+                    }
+                    if {$offset > $used} {
+                        set pad [expr $offset - $used]
+                        puts $fh "            uint64_t  pad${used}:${pad};"
+                        incr used $pad
+                    }
+                    puts $fh "            uint64_t  ${signal}:${size};"
+                    incr used $size
+                }
+                puts $fh "        } ${name};"
+            }
+        }
+        puts $fh "    };"
+        puts $fh "};"
+
     }
 
     proc emit_def {fh} {

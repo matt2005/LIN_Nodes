@@ -181,37 +181,37 @@ static Decrementer      interiorLightsDelay;
 static Decrementer      pathwayLightingDelay;
 
 static void
-powerSignals(Response &f)
+powerSignals(Response &resp)
 {
     // ignition on?
     if (Switches::test(input::kIgnition)) {
-        Signal::Ignition(f).set();
+        resp.Relays.Ignition = 1;
 
         // start switch on?
         if (Switches::test(input::kStart)) {
-            Signal::Start(f).set();
+            resp.Relays.Start = 1;
         }
     }
 }
 
 static void
-markerLights(Response &f)
+markerLights(Response &resp)
 {
     // markers and city lights?
     if (Switches::test(input::kMarkerLights)) {
 
         awakeDelay.reset();                     // markers are on, stay awake
 
-        Signal::MarkerLights(f).set();
+        resp.Relays.MarkerLights = 1;
 
         // Note: overridden by turnSignals below
-        Signal::LeftTurnMarker(f).set();
-        Signal::RightTurnMarker(f).set();
+        resp.Relays.LeftTurnMarker = 1;
+        resp.Relays.RightTurnMarker = 1;
     }
 }
 
 static void
-turnSignals(Response &f)
+turnSignals(Response &resp)
 {
     // Note: if turnBlinker is disabled (period is zero) then
     // we assume that there is an external flasher in use, and
@@ -222,13 +222,13 @@ turnSignals(Response &f)
         (Parameter(kParamTurnBlinkPeriod).get() > 100U)) {
 
         if (Switches::test(input::kLeftTurn)) {
-            Signal::LeftTurn(f).set();
-            Signal::LeftTurnMarker(f).clear();
+            resp.Relays.LeftTurn = 1;
+            resp.Relays.LeftTurnMarker = 0;
         }
 
         if (Switches::test(input::kRightTurn)) {
-            Signal::RightTurn(f).set();
-            Signal::RightTurnMarker(f).clear();
+            resp.Relays.RightTurn = 1;
+            resp.Relays.RightTurnMarker = 0;
         }
 
         return;
@@ -246,8 +246,8 @@ turnSignals(Response &f)
 
         // both signals track the blinker
         if (turnBlinker.state()) {
-            Signal::LeftTurn(f).set();
-            Signal::RightTurn(f).set();
+            resp.Relays.LeftTurn = 1;
+            resp.Relays.RightTurn = 1;
         }
 
         return;
@@ -269,12 +269,12 @@ turnSignals(Response &f)
         // parking lights - no blink
         if (Switches::test(input::kLeftTurn)) {
             awakeDelay.reset();                     // parking markers are on, stay awake
-            Signal::LeftTurn(f).set();
+            resp.Relays.LeftTurn = 1;
         }
 
         if (Switches::test(input::kRightTurn)) {
             awakeDelay.reset();                     // parking markers are on, stay awake
-            Signal::RightTurn(f).set();
+            resp.Relays.RightTurn = 1;
         }
 
         return;
@@ -304,31 +304,31 @@ turnSignals(Response &f)
         // signals on to suit
         if (turnBlinker.state()) {
             if (blinkLeft) {
-                Signal::LeftTurn(f).set();
-                Signal::RightTurn(f).clear();
+                resp.Relays.LeftTurn = 1;
+                resp.Relays.RightTurn = 0;
             } else {
-                Signal::RightTurn(f).set();
-                Signal::LeftTurn(f).clear();                
+                resp.Relays.RightTurn = 1;
+                resp.Relays.LeftTurn = 0;                
             }
         }
     }
 }
 
 static void
-headLights(Response &f)
+headLights(Response &resp)
 {
     static bool highBeamToggle;
 
     // lights up if forced
     if (Switches::test(input::kLightsUp)) {
-        Signal::LightsUp(f).set();
+        resp.Relays.LightsUp = 1;
 
         // otherwise lights down if nothing is on
 
     } else if (!Switches::test(input::kMarkerLights) &&
                !Switches::test(input::kHeadLights) &&
                !Switches::test(input::kHighBeam)) {
-        Signal::LightsDown(f).set();
+        resp.Relays.LightsDown = 1;
     }
 
     // force lights up for test/maintenance
@@ -353,19 +353,19 @@ headLights(Response &f)
         Switches::test(input::kHighBeam)) {
 
         // headlights and markers on and popups up
-        Signal::HeadLights(f).set();
-        Signal::MarkerLights(f).set();
-        Signal::LightsUp(f).set();
-        Signal::LightsDown(f).clear();         // for safety
+        resp.Relays.HeadLights = 1;
+        resp.Relays.MarkerLights = 1;
+        resp.Relays.LightsUp = 1;
+        resp.Relays.LightsDown = 0;         // for safety
 
         // test for high beam; headlights off while starting
         if (!Switches::test(input::kStart)) {
             if (Switches::test(input::kHighBeam) ||
                 highBeamToggle) {
-                Signal::HighBeam(f).set();
+                resp.Relays.HighBeam = 1;
 
             } else {
-                Signal::LowBeam(f).set();
+                resp.Relays.LowBeam = 1;
             }
         }
     }
@@ -373,12 +373,12 @@ headLights(Response &f)
     // foglights
     // XXX require other lights?
     if (Switches::test(input::kFogLight)) {
-        Signal::FogLights(f).set();
+        resp.Relays.FogLights = 1;
     }
 }
 
 static void
-tailLights(Response &f)
+tailLights(Response &resp)
 {
     // brake lights
     if (Switches::test(input::kBrake)) {
@@ -390,18 +390,18 @@ tailLights(Response &f)
 
         // brake light on if the blinker & pedal both agree
         if (brakeBlinker.state()) {
-            Signal::Brake(f).set();
+            resp.Relays.Brake = 1;
         }
     }
 
     // reverse lights
     if (Switches::test(input::kReverse)) {
-        Signal::Reverse(f).set();
+        resp.Relays.Reverse = 1;
     }
 }
 
 static void
-interiorLights(Response &f)
+interiorLights(Response &resp)
 {
     // door just closed - start interior lighting timer
     if (Switches::changed_to_off(input::kDoor)) {
@@ -420,7 +420,7 @@ interiorLights(Response &f)
 
         awakeDelay.reset();                     // lights are on, stay awake
 
-        Signal::InteriorLight(f).set();
+        resp.Relays.InteriorLight = 1;
 
         // XXX nice to have a time limit on the interior light when
         //     ignition is off to prevent battery drain
@@ -428,7 +428,7 @@ interiorLights(Response &f)
 }
 
 static void
-pathLights(Response &f)
+pathLights(Response &resp)
 {
     static bool ignitionWasOn;
 
@@ -470,36 +470,36 @@ pathLights(Response &f)
 
         awakeDelay.reset();                     // path lights are on, stay awake
 
-        Signal::MarkerLights(f).set();
+        resp.Relays.MarkerLights = 1;
         // XXX other pathway lights? town lights?
     }
 }
 
 static void
-climateControl(Response &f)
+climateControl(Response &resp)
 {
     if (Switches::test(input::kIgnition) &&
         !Switches::test(input::kStart)) {
         if (Switches::test(input::kCabinFan1)) {
-            Signal::CabinFan1(f).set();
+            resp.Relays.CabinFan1 = 1;
         }
 
         if (Switches::test(input::kCabinFan2)) {
-            Signal::CabinFan2(f).set();
+            resp.Relays.CabinFan2 = 1;
         }
 
         if (Switches::test(input::kCabinFan3)) {
-            Signal::CabinFan3(f).set();
+            resp.Relays.CabinFan3 = 1;
         }
 
         if (Switches::test(input::kRearDefrost)) {
-            Signal::RearDefrost(f).set();
+            resp.Relays.RearDefrost = 1;
         }
     }
 }
 
 static void
-windowWipers(Response &f)
+windowWipers(Response &resp)
 {
     if (Switches::test(input::kIgnition) &&
         !Switches::test(input::kStart)) {
@@ -510,14 +510,14 @@ windowWipers(Response &f)
         }
 
         if (Switches::test(input::kWiperHigh)) {
-            Signal::WiperHigh(f).set();
+            resp.Relays.WiperHigh = 1;
 
         } else if (Switches::test(input::kWiperLow)) {
-            Signal::WiperLow(f).set();
+            resp.Relays.WiperLow = 1;
 
         } else if (Switches::test(input::kWiperInt)) {
             if (wiperDelay.state()) {
-                Signal::WiperLow(f).set();
+                resp.Relays.WiperLow = 1;
             }
         }
     }

@@ -58,26 +58,26 @@ Slave::st_header_received()
 }
 
 void
-Slave::st_response_received(Response &frame)
+Slave::st_response_received(Response &resp)
 {
     switch (current_FrameID()) {
     case kFrameIDMasterRequest:
         // check for broadcast sleep request
-        if (Signal::nad(frame) == node_address::kSleep) {
+        if (resp.MasterRequest.nad == node_address::kSleep) {
             st_sleep_requested(kSleepTypeRequested);
             break;
         }
         // check for directly addressed or broadcast master request
-        if ((Signal::nad(frame) == _nad) ||
-            (Signal::nad(frame) == node_address::kBroadcast)) {
-            if (st_master_request(frame)) {
-                st_slave_response(frame);
+        if ((resp.MasterRequest.nad == _nad) ||
+            (resp.MasterRequest.nad == node_address::kBroadcast)) {
+            if (st_master_request(resp)) {
+                st_slave_response(resp);
             }
         }
         break;
 
     default:
-        LINDev::st_response_received(frame);
+        LINDev::st_response_received(resp);
         break;
     }
 }
@@ -90,26 +90,26 @@ Slave::st_sleep_requested(SleepType type)
 }
 
 bool
-Slave::st_master_request(Response &frame)
+Slave::st_master_request(Response &resp)
 {
     bool reply = false;
     // ReadByID
-    switch (Signal::sid(frame)) {
+    switch (resp.MasterRequest.sid) {
 
     case service_id::kReadDataByID: {
-        if (Signal::length(frame) != 3) {
-            st_error_response(frame, service_error::kIncorrectLength);
+        if (resp.DataByID.length != 3) {
+            st_error_response(resp, service_error::kIncorrectLength);
         } else {
             uint16_t value;
 
             // look to see if we handle this one...
-            if (st_read_data(Signal::index(frame), value)) {
-                Signal::length(frame).set(5);
-                Signal::value(frame).set(value);
-                Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
+            if (st_read_data(resp.DataByID.index, value)) {
+                resp.DataByID.length = 5;
+                resp.DataByID.value = value;
+                resp.DataByID.sid |= service_id::kResponseOffset;
             } else {
                 // generic error...
-                st_error_response(frame, service_error::kOutOfRange);
+                st_error_response(resp, service_error::kOutOfRange);
             }
         }
         reply = true;
@@ -117,16 +117,16 @@ Slave::st_master_request(Response &frame)
     }
 
     case service_id::kWriteDataByID: {
-        if (Signal::length(frame) != 5) {
-            st_error_response(frame, service_error::kIncorrectLength);
+        if (resp.DataByID.length != 5) {
+            st_error_response(resp, service_error::kIncorrectLength);
         } else {
             // see if we can handle this one
-            if (st_write_data(Signal::index(frame), Signal::value(frame))) {
-                Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
-                Signal::length(frame).set(3); // XXX assignment operator overload not working...
+            if (st_write_data(resp.DataByID.index, resp.DataByID.value)) {
+                resp.DataByID.sid |= service_id::kResponseOffset;
+                resp.DataByID.length = 3; // XXX assignment operator overload not working...
             } else {
                 // generic error...
-                st_error_response(frame, service_error::kOutOfRange);
+                st_error_response(resp, service_error::kOutOfRange);
             }
         }
         reply = true;
@@ -134,10 +134,10 @@ Slave::st_master_request(Response &frame)
     }
 
     case service_id::kReadByID: {
-        switch (Signal::d1(frame)) {
+        switch (resp.MasterRequest.d1) {
         default:
             // send an error
-            st_error_response(frame, service_error::kFunctionNotSupported);
+            st_error_response(resp, service_error::kFunctionNotSupported);
             reply = true;
             break;
         }
@@ -193,13 +193,13 @@ Slave::st_write_data(Parameter::Address address, uint16_t value)
 }
 
 void
-Slave::st_error_response(Response &frame, uint8_t err)
+Slave::st_error_response(Response &resp, uint8_t err)
 {
-    Signal::length(frame).set(2);
-    Signal::d1(frame).set(Signal::sid(frame));
-    Signal::sid(frame).set(service_id::kErrorResponse);
-    Signal::d2(frame).set(err);
-    Signal::d3(frame).set(0xff);
-    Signal::d4(frame).set(0xff);
-    Signal::d5(frame).set(0xff);
+    resp.MasterRequest.length = 2;
+    resp.MasterRequest.d1 = resp.MasterRequest.sid;
+    resp.MasterRequest.sid = service_id::kErrorResponse;
+    resp.MasterRequest.d2 = err;
+    resp.MasterRequest.d3 = 0xff;
+    resp.MasterRequest.d4 = 0xff;
+    resp.MasterRequest.d5 = 0xff;
 }

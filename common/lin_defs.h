@@ -8,6 +8,13 @@
 #include "lin_types.h"
 
 
+namespace Encoding
+{
+extern  bool                 invalid(uint8_t encoding, uint16_t value);
+extern  const PROGMEM char   *name(uint8_t encoding);
+extern  const PROGMEM char   *info(uint8_t encoding, uint16_t value);
+} // namespace Encoding
+
 static const uint8_t kEncoding_bl_status = 0;
 static const uint8_t kEncoding_input = 1;
 static const uint8_t kEncoding_msec = 2;
@@ -250,239 +257,95 @@ namespace MPH
 static const uint16_t kNumEncodings = 1;
 } // namespace MPH
 
-namespace Signal
-{
-class nad : public SignalBase
-{
-public:
-    constexpr nad(Response &r) : SignalBase(r, 0, 8, kEncoding_node_address) {}
-};
-class length : public SignalBase
-{
-public:
-    constexpr length(Response &r) : SignalBase(r, 8, 4, kEncoding_none) {}
-};
-class pci : public SignalBase
-{
-public:
-    constexpr pci(Response &r) : SignalBase(r, 12, 4, kEncoding_pci) {}
-};
-class sid : public SignalBase
-{
-public:
-    constexpr sid(Response &r) : SignalBase(r, 16, 8, kEncoding_service_id) {}
-};
-class d1 : public SignalBase
-{
-public:
-    constexpr d1(Response &r) : SignalBase(r, 24, 8, kEncoding_none) {}
-};
-class d2 : public SignalBase
-{
-public:
-    constexpr d2(Response &r) : SignalBase(r, 32, 8, kEncoding_none) {}
-};
-class d3 : public SignalBase
-{
-public:
-    constexpr d3(Response &r) : SignalBase(r, 40, 8, kEncoding_none) {}
-};
-class d4 : public SignalBase
-{
-public:
-    constexpr d4(Response &r) : SignalBase(r, 48, 8, kEncoding_none) {}
-};
-class d5 : public SignalBase
-{
-public:
-    constexpr d5(Response &r) : SignalBase(r, 56, 8, kEncoding_none) {}
-};
-class vendor : public SignalBase
-{
-public:
-    constexpr vendor(Response &r) : SignalBase(r, 24, 16, kEncoding_none) {}
-};
-class function : public SignalBase
-{
-public:
-    constexpr function(Response &r) : SignalBase(r, 40, 16, kEncoding_none) {}
-};
-class variant : public SignalBase
-{
-public:
-    constexpr variant(Response &r) : SignalBase(r, 56, 8, kEncoding_none) {}
-};
-class index : public SignalBase
-{
-public:
-    constexpr index(Response &r) : SignalBase(r, 24, 16, kEncoding_none) {}
-};
-class value : public SignalBase
-{
-public:
-    constexpr value(Response &r) : SignalBase(r, 40, 16, kEncoding_none) {}
-};
-class Ignition : public SignalBase
-{
-public:
-    constexpr Ignition(Response &r) : SignalBase(r, 0, 1, kEncoding_none) {}
-};
-class Start : public SignalBase
-{
-public:
-    constexpr Start(Response &r) : SignalBase(r, 1, 1, kEncoding_none) {}
-};
-class LightsUp : public SignalBase
-{
-public:
-    constexpr LightsUp(Response &r) : SignalBase(r, 2, 1, kEncoding_none) {}
-};
-class LightsDown : public SignalBase
-{
-public:
-    constexpr LightsDown(Response &r) : SignalBase(r, 3, 1, kEncoding_none) {}
-};
-class HeadLights : public SignalBase
-{
-public:
-    constexpr HeadLights(Response &r) : SignalBase(r, 4, 1, kEncoding_none) {}
-};
-class LowBeam : public SignalBase
-{
-public:
-    constexpr LowBeam(Response &r) : SignalBase(r, 5, 1, kEncoding_none) {}
-};
-class HighBeam : public SignalBase
-{
-public:
-    constexpr HighBeam(Response &r) : SignalBase(r, 6, 1, kEncoding_none) {}
-};
-class FogLights : public SignalBase
-{
-public:
-    constexpr FogLights(Response &r) : SignalBase(r, 7, 1, kEncoding_none) {}
-};
-class MarkerLights : public SignalBase
-{
-public:
-    constexpr MarkerLights(Response &r) : SignalBase(r, 8, 1, kEncoding_none) {}
-};
-class LeftTurn : public SignalBase
-{
-public:
-    constexpr LeftTurn(Response &r) : SignalBase(r, 9, 1, kEncoding_none) {}
-};
-class LeftTurnMarker : public SignalBase
-{
-public:
-    constexpr LeftTurnMarker(Response &r) : SignalBase(r, 10, 1, kEncoding_none) {}
-};
-class RightTurn : public SignalBase
-{
-public:
-    constexpr RightTurn(Response &r) : SignalBase(r, 11, 1, kEncoding_none) {}
-};
-class RightTurnMarker : public SignalBase
-{
-public:
-    constexpr RightTurnMarker(Response &r) : SignalBase(r, 12, 1, kEncoding_none) {}
-};
-class Brake : public SignalBase
-{
-public:
-    constexpr Brake(Response &r) : SignalBase(r, 13, 1, kEncoding_none) {}
-};
-class Reverse : public SignalBase
-{
-public:
-    constexpr Reverse(Response &r) : SignalBase(r, 14, 1, kEncoding_none) {}
-};
-class InteriorLight : public SignalBase
-{
-public:
-    constexpr InteriorLight(Response &r) : SignalBase(r, 15, 1, kEncoding_none) {}
-};
-class CabinFan1 : public SignalBase
-{
-public:
-    constexpr CabinFan1(Response &r) : SignalBase(r, 16, 1, kEncoding_none) {}
-};
-class CabinFan2 : public SignalBase
-{
-public:
-    constexpr CabinFan2(Response &r) : SignalBase(r, 17, 1, kEncoding_none) {}
-};
-class CabinFan3 : public SignalBase
-{
-public:
-    constexpr CabinFan3(Response &r) : SignalBase(r, 18, 1, kEncoding_none) {}
-};
-class CabinFan4 : public SignalBase
-{
-public:
-    constexpr CabinFan4(Response &r) : SignalBase(r, 19, 1, kEncoding_none) {}
-};
-class WiperLow : public SignalBase
-{
-public:
-    constexpr WiperLow(Response &r) : SignalBase(r, 20, 1, kEncoding_none) {}
-};
-class WiperHigh : public SignalBase
-{
-public:
-    constexpr WiperHigh(Response &r) : SignalBase(r, 21, 1, kEncoding_none) {}
-};
-class RearDefrost : public SignalBase
-{
-public:
-    constexpr RearDefrost(Response &r) : SignalBase(r, 22, 1, kEncoding_none) {}
-};
-class RPM : public SignalBase
-{
-public:
-    constexpr RPM(Response &r) : SignalBase(r, 0, 8, kEncoding_RPM) {}
-};
-class oilPressure : public SignalBase
-{
-public:
-    constexpr oilPressure(Response &r) : SignalBase(r, 8, 8, kEncoding_PSI) {}
-};
-class oilTemperature : public SignalBase
-{
-public:
-    constexpr oilTemperature(Response &r) : SignalBase(r, 16, 8, kEncoding_F) {}
-};
-class coolantTemperature : public SignalBase
-{
-public:
-    constexpr coolantTemperature(Response &r) : SignalBase(r, 24, 8, kEncoding_F) {}
-};
-class fuelPressure : public SignalBase
-{
-public:
-    constexpr fuelPressure(Response &r) : SignalBase(r, 32, 8, kEncoding_PSI) {}
-};
-class voltage : public SignalBase
-{
-public:
-    constexpr voltage(Response &r) : SignalBase(r, 40, 8, kEncoding_V) {}
-};
-class AFR : public SignalBase
-{
-public:
-    constexpr AFR(Response &r) : SignalBase(r, 48, 8, kEncoding_lambda) {}
-};
-class roadSpeed : public SignalBase
-{
-public:
-    constexpr roadSpeed(Response &r) : SignalBase(r, 56, 8, kEncoding_MPH) {}
-};
-} // namespace Signal
 static const uint8_t kFrameIDSlaveResponse = 0x3d;
 static const uint8_t kFrameIDRelays = 0x01;
 static const uint8_t kFrameIDMasterRequest = 0x3c;
 static const uint8_t kFrameIDECUData = 0x02;
 static const uint8_t kFrameIDProxyRequest = 0x3b;
+
+struct Response
+{
+    union
+    {
+        uint8_t   _bytes[8];
+        uint64_t  _raw;
+        struct {
+            uint64_t  nad:8;
+            uint64_t  length:4;
+            uint64_t  pci:4;
+            uint64_t  sid:8;
+            uint64_t  d1:8;
+            uint64_t  d2:8;
+            uint64_t  d3:8;
+            uint64_t  d4:8;
+            uint64_t  d5:8;
+        } SlaveResponse;
+        struct {
+            uint64_t  nad:8;
+            uint64_t  length:4;
+            uint64_t  pci:4;
+            uint64_t  sid:8;
+            uint64_t  vendor:16;
+            uint64_t  function:16;
+            uint64_t  variant:8;
+        } ReadByID;
+        struct {
+            uint64_t  nad:8;
+            uint64_t  length:4;
+            uint64_t  pci:4;
+            uint64_t  sid:8;
+            uint64_t  index:16;
+            uint64_t  value:16;
+            uint64_t  d5:8;
+        } DataByID;
+        struct {
+            uint64_t  Ignition:1;
+            uint64_t  Start:1;
+            uint64_t  LightsUp:1;
+            uint64_t  LightsDown:1;
+            uint64_t  HeadLights:1;
+            uint64_t  LowBeam:1;
+            uint64_t  HighBeam:1;
+            uint64_t  FogLights:1;
+            uint64_t  MarkerLights:1;
+            uint64_t  LeftTurn:1;
+            uint64_t  LeftTurnMarker:1;
+            uint64_t  RightTurn:1;
+            uint64_t  RightTurnMarker:1;
+            uint64_t  Brake:1;
+            uint64_t  Reverse:1;
+            uint64_t  InteriorLight:1;
+            uint64_t  CabinFan1:1;
+            uint64_t  CabinFan2:1;
+            uint64_t  CabinFan3:1;
+            uint64_t  CabinFan4:1;
+            uint64_t  WiperLow:1;
+            uint64_t  WiperHigh:1;
+            uint64_t  RearDefrost:1;
+        } Relays;
+        struct {
+            uint64_t  nad:8;
+            uint64_t  length:4;
+            uint64_t  pci:4;
+            uint64_t  sid:8;
+            uint64_t  d1:8;
+            uint64_t  d2:8;
+            uint64_t  d3:8;
+            uint64_t  d4:8;
+            uint64_t  d5:8;
+        } MasterRequest;
+        struct {
+            uint64_t  RPM:8;
+            uint64_t  oilPressure:8;
+            uint64_t  oilTemperature:8;
+            uint64_t  coolantTemperature:8;
+            uint64_t  fuelPressure:8;
+            uint64_t  voltage:8;
+            uint64_t  AFR:8;
+            uint64_t  roadSpeed:8;
+        } ECUData;
+    };
+};
 
 namespace Generic
 {

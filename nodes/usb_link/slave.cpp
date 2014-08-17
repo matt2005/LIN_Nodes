@@ -109,37 +109,39 @@ ToolSlave::st_header_received()
     // we always want to see the response, for logging purposes
     st_expect_response();
 
+    Response resp;
+
     switch (current_FrameID()) {
     case kFrameIDMasterRequest:
         switch (_state) {
         case kStateSetData:
-            st_send_response(Response(_nodeAddress,
-                                        5,
-                                        service_id::kWriteDataByID,
-                                        _dataAddress & 0xff,
-                                        _dataAddress >> 8,
-                                        _dataValue & 0xff,
-                                        _dataValue << 8));
+            resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.length = 5;
+            resp.DataByID.sid = service_id::kWriteDataByID;
+            resp.DataByID.index = _dataAddress;
+            resp.DataByID.value = _dataValue;
+            st_send_response(resp);
             _state = kStateIdle;
             break;
 
         case kStateBulkData:
-            st_send_response(Response(_nodeAddress,
-                                      5,
-                                      service_id::kDataDump,
-                                      _dataBytes[0],
-                                      _dataBytes[1],
-                                      _dataBytes[2],
-                                      _dataBytes[3]));
+            resp.MasterRequest.nad = _nodeAddress;
+            resp.MasterRequest.length = 5;
+            resp.MasterRequest.sid = service_id::kDataDump;
+            resp.MasterRequest.d1 = _dataBytes[0];
+            resp.MasterRequest.d2 = _dataBytes[1];
+            resp.MasterRequest.d3 = _dataBytes[2];
+            resp.MasterRequest.d4 = _dataBytes[3];
+            st_send_response(resp);
             _state = kStateIdle;
             break;
 
         case kStateGetData:
-            st_send_response(Response(_nodeAddress,
-                                        3,
-                                        service_id::kReadDataByID,
-                                        _dataAddress & 0xff,
-                                        _dataAddress >> 8));
+            resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.length = 3;
+            resp.DataByID.sid = service_id::kReadDataByID;
+            resp.DataByID.index = _dataAddress;
+            st_send_response(resp);
             _state = kStateWaitData;
             break;
 
@@ -163,25 +165,25 @@ ToolSlave::st_header_received()
 }
 
 void
-ToolSlave::st_response_received(Response &frame)
+ToolSlave::st_response_received(Response &resp)
 {
-    _history.sawResponse(frame);
+    _history.sawResponse(resp);
 
     switch (current_FrameID()) {
     case kFrameIDSlaveResponse:
 
         // is this a response to a current request?
         if ((_state == kStateWaitData) &&
-            (Signal::nad(frame) == _nodeAddress) &&
-            (Signal::sid(frame) == (service_id::kReadDataByID | service_id::kResponseOffset))) {
+            (resp.SlaveResponse.nad == _nodeAddress) &&
+            (resp.SlaveResponse.sid == (service_id::kReadDataByID | service_id::kResponseOffset))) {
 
             // sanity-check the response
-            if ((Signal::pci(frame) != 5) ||
-                (Signal::index(frame) != _dataAddress)) {
+            if ((resp.DataByID.length != 5) ||
+                (resp.DataByID.index != _dataAddress)) {
                 _state = kStateError;
 
             } else {
-                _dataValue = Signal::value(frame);
+                _dataValue = resp.DataByID.value;
                 _state = kStateIdle;
             }
         }
@@ -192,7 +194,7 @@ ToolSlave::st_response_received(Response &frame)
         break;
     }
 
-    Slave::st_response_received(frame);
+    Slave::st_response_received(resp);
 }
 
 void
@@ -202,16 +204,16 @@ ToolSlave::st_sleep_requested(SleepType type)
 }
 
 bool
-ToolSlave::st_master_request(Response &frame)
+ToolSlave::st_master_request(Response &resp)
 {
     bool reply = false;
 
-    switch (Signal::sid(frame)) {
+    switch (resp.MasterRequest.sid) {
     case service_id::kTesterPresent:
         // If we want the master go offline, tell it we're present
         if ((_masterState == kMSWaiting) &&
-            (Signal::nad(frame) == Tester::kNodeAddress)) {
-            Signal::sid(frame).set(Signal::sid(frame) | service_id::kResponseOffset);
+            (resp.MasterRequest.nad == Tester::kNodeAddress)) {
+            resp.MasterRequest.sid |= service_id::kResponseOffset;
             reply = true;
         }
         break;
@@ -240,14 +242,14 @@ SlaveHistory::sawFID(uint8_t fid)
 }
 
 void
-SlaveHistory::sawResponse(Response &f)
+SlaveHistory::sawResponse(Response &resp)
 {
     if (!full()) {
         _entries[_nextIn].bytes[0] = _savedFID | RQ_HISTORY_RESPONSE_VALID;
         _FIDValid = false;
 
         for (uint8_t i = 0; i < 8; i++) {
-            _entries[_nextIn].bytes[i + 1] = f[i];
+            _entries[_nextIn].bytes[i + 1] = resp._bytes[i];
         }
 
         _nextIn = next(_nextIn);

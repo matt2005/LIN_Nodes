@@ -44,7 +44,7 @@ BLSlave::st_header_received()
 }
 
 void
-BLSlave::st_response_received(Response &frame)
+BLSlave::st_response_received(Response &resp)
 {
     // reset some state
     _send_index = kNoSendResponse;
@@ -52,18 +52,18 @@ BLSlave::st_response_received(Response &frame)
     switch (current_FrameID()) {
     case kFrameIDMasterRequest:
         // device being programmed is always node 32
-        if (Signal::nad(frame).get() != Bootloader::kNodeAddress) {
+        if (resp.MasterRequest.nad != Bootloader::kNodeAddress) {
             break;
         }
-        switch (Signal::sid(frame).get()) {
+        switch (resp.MasterRequest.sid) {
         case service_id::kReadDataByID:
-            _send_index = Signal::index(frame).get();
+            _send_index = resp.DataByID.index;
             break;
 
         case service_id::kWriteDataByID:
-            switch (Signal::index(frame).get()) {
+            switch (resp.DataByID.index) {
             case Bootloader::kParamPageAddress:
-                set_page_address(Signal::value(frame).get());
+                set_page_address(resp.DataByID.value);
                 break;
 
             case Bootloader::kParamPageCRC:
@@ -72,7 +72,7 @@ BLSlave::st_response_received(Response &frame)
                 }
 
                 // if the CRC matches, program the page
-                if (Signal::value(frame).get() == _running_crc) {
+                if (resp.DataByID.value == _running_crc) {
                     program_page();
                     _page_status = bl_status::kReadyForPage;
                 } else {
@@ -84,11 +84,11 @@ BLSlave::st_response_received(Response &frame)
         case service_id::kDataDump:
             // add bytes to the page buffer
             if (_page_status == bl_status::kPageInProgress) {
-                uint8_t count = Signal::length(frame).get();
+                uint8_t count = resp.MasterRequest.length;
                 uint8_t field = 3;
 
                 while (count--) {
-                    add_page_byte(frame[field++]);
+                    add_page_byte(resp._bytes[field++]);
                 }
             }
             break;
@@ -130,13 +130,12 @@ BLSlave::send_response()
     }
     _send_index = kNoSendResponse;
 
-    Response resp(32, 
-                  5,
-                  (service_id::kReadDataByID | service_id::kResponseOffset),
-                  _send_index & 0xff,
-                  _send_index >> 8,
-                  value & 0xff,
-                  value >> 8);
+    Response resp;
+    resp.DataByID.nad = 32;
+    resp.DataByID.length = 5;
+    resp.DataByID.sid = (service_id::kReadDataByID | service_id::kResponseOffset);
+    resp.DataByID.index = _send_index;
+    resp.DataByID.value = value;
 
     st_send_response(resp);
 }

@@ -23,28 +23,39 @@ ToolSlave::ToolSlave() :
 void
 ToolSlave::tick()
 {
-
-    // master schedule
     switch (_masterState) {
     case kMSDisabled:
+        // master is disabled, do nothing
         break;
     case kMSWaiting:
-        if (is_awake()) {
-            // still waiting for the bus to go idle
-            break;
+        // if the bus is idle, become the master
+        if (!is_awake()) {
+            _masterState = kMSRequest;
+            _lastFrameStart.update();
         }
-        _masterState = kMSRequest;
-        _lastFrameStart.update();
         break;
     case kMSRequest:
-        _masterState = kMSResponse;
-        _lastFrameStart.update();
-        mt_send_header(kFrameIDMasterRequest);
-        break;
     case kMSResponse:
-        _masterState = kMSRequest;
+        // if we haven't been re-armed for a while, drop out of master mode
+        if (_masterTimeout.is_older_than(2000U)) {
+            _masterState = kMSDisabled;
+            break;
+        }
+        // if we haven't reached the start of the next frame time, do nothing
+        if (!_lastFrameStart.is_older_than(10)) {
+            break;
+        }
+        // remember when we sent the next header
         _lastFrameStart.update();
-        mt_send_header(kFrameIDMasterRequest);
+        if (_masterState == kMSRequest) {
+            // XXX optimisation - defer this until we send a response that
+            // needs a SlaveResponse
+            _masterState = kMSResponse;
+            mt_send_header(kFrameIDMasterRequest);
+        } else {
+            _masterState = kMSRequest;
+            mt_send_header(kFrameIDMasterRequest);
+        }
         break;
     }
 
@@ -54,48 +65,40 @@ ToolSlave::tick()
 void
 ToolSlave::set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value)
 {
-    if (_masterState > kMSWaiting) {
-        _nodeAddress = nad;
-        _dataAddress = address;
-        _dataValue = value;
-        _state = kStateSetData;
-    }
+    _nodeAddress = nad;
+    _dataAddress = address;
+    _dataValue = value;
+    _state = kStateSetData;
 }
 
 void
 ToolSlave::get_data_by_id(uint8_t nad, Parameter::Address address)
 {
-    if (_masterState >= kMSWaiting) {
-        _nodeAddress = nad;
-        _dataAddress = address;
-        _dataValue = 0;
-        _state = kStateGetData;
-    }
+    _nodeAddress = nad;
+    _dataAddress = address;
+    _dataValue = 0;
+    _state = kStateGetData;
 }
 
 void
 ToolSlave::send_bulk(uint8_t nad, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3)
 {
-    if (_masterState >= kMSWaiting) {
-        _nodeAddress = nad;
-        _dataBytes[0] = d0;
-        _dataBytes[1] = d1;
-        _dataBytes[2] = d2;
-        _dataBytes[3] = d3;
-        _state = kStateBulkData;
-    }
+    _nodeAddress = nad;
+    _dataBytes[0] = d0;
+    _dataBytes[1] = d1;
+    _dataBytes[2] = d2;
+    _dataBytes[3] = d3;
+    _state = kStateBulkData;
 }
 
 void
 ToolSlave::enable_master(bool enable)
 {
     if (enable) {
-        if (is_awake()) {
+        if (_masterState == kMSDisabled) {
             _masterState = kMSWaiting;
-        } else {
-            _masterState = kMSRequest;
-            _lastFrameStart.update();
         }
+        _masterTimeout.update();
     } else {
         _masterState = kMSDisabled;
     }
@@ -109,67 +112,74 @@ ToolSlave::st_header_received()
     // we always want to see the response, for logging purposes
     st_expect_response();
 
-    Response resp;
+    // do slave processing if we aren't the master
+    if (_masterState <= kMSWaiting) {
+        Slave::st_header_received();        
+    }
 
-    switch (current_FrameID()) {
-    case kFrameIDMasterRequest:
-        switch (_state) {
-        case kStateSetData:
-            resp.DataByID.nad = _nodeAddress;
-            resp.DataByID.pci = pci::kSingleFrame;
-            resp.DataByID.length = 5;
-            resp.DataByID.sid = service_id::kWriteDataByID;
-            resp.DataByID.index = _dataAddress;
-            resp.DataByID.value = _dataValue;
-            st_send_response(resp);
-            _state = kStateIdle;
-            break;
+    // if we are the active master, we can respond to our own
+    // requests
+    if (_masterState > kMSWaiting) {
+        Response resp;
 
-        case kStateBulkData:
-            resp.MasterRequest.nad = _nodeAddress;
-            resp.MasterRequest.pci = pci::kSingleFrame;
-            resp.MasterRequest.length = 5;
-            resp.MasterRequest.sid = service_id::kDataDump;
-            resp.MasterRequest.d1 = _dataBytes[0];
-            resp.MasterRequest.d2 = _dataBytes[1];
-            resp.MasterRequest.d3 = _dataBytes[2];
-            resp.MasterRequest.d4 = _dataBytes[3];
-            st_send_response(resp);
-            _state = kStateIdle;
-            break;
+        switch (current_FrameID()) {
+        case kFrameIDMasterRequest:
+            switch (_state) {
+            case kStateSetData:
+                resp.DataByID.nad = _nodeAddress;
+                resp.DataByID.pci = pci::kSingleFrame;
+                resp.DataByID.length = 5;
+                resp.DataByID.sid = service_id::kWriteDataByID;
+                resp.DataByID.index = _dataAddress;
+                resp.DataByID.value = _dataValue;
+                st_send_response(resp);
+                _state = kStateIdle;
+                break;
 
-        case kStateGetData:
-            resp.DataByID.nad = _nodeAddress;
-            resp.DataByID.pci = pci::kSingleFrame;
-            resp.DataByID.length = 3;
-            resp.DataByID.sid = service_id::kReadDataByID;
-            resp.DataByID.index = _dataAddress;
-            st_send_response(resp);
-            _state = kStateWaitData;
-            break;
+            case kStateBulkData:
+                resp.MasterRequest.nad = _nodeAddress;
+                resp.MasterRequest.pci = pci::kSingleFrame;
+                resp.MasterRequest.length = 5;
+                resp.MasterRequest.sid = service_id::kDataDump;
+                resp.MasterRequest.d1 = _dataBytes[0];
+                resp.MasterRequest.d2 = _dataBytes[1];
+                resp.MasterRequest.d3 = _dataBytes[2];
+                resp.MasterRequest.d4 = _dataBytes[3];
+                st_send_response(resp);
+                _state = kStateIdle;
+                break;
 
-        case kStateWaitData:
-            // we have missed (or it never arrived) the reply to
-            // the ReadDataByID operation
-            _state = kStateError;
+            case kStateGetData:
+                resp.DataByID.nad = _nodeAddress;
+                resp.DataByID.pci = pci::kSingleFrame;
+                resp.DataByID.length = 3;
+                resp.DataByID.sid = service_id::kReadDataByID;
+                resp.DataByID.index = _dataAddress;
+                st_send_response(resp);
+                _state = kStateWaitData;
+                break;
+
+            case kStateWaitData:
+                // we have missed (or it never arrived) the reply to
+                // the ReadDataByID operation
+                _state = kStateError;
+                break;
+
+            default:
+                break;
+            }
             break;
 
         default:
             break;
         }
-        // don't pass the master request header to the slave code,
-        // as it will cancel the responses we just set up.
-        break;
-
-    default:
-        Slave::st_header_received();
-        break;
     }
 }
 
 void
 ToolSlave::st_response_received(Response &resp)
 {
+    // save response for logging purposes
     _history.sawResponse(resp);
 
     switch (current_FrameID()) {
@@ -190,14 +200,16 @@ ToolSlave::st_response_received(Response &resp)
                 _state = kStateIdle;
             }
         }
-
         break;
 
     default:
+        // do slave processing if we aren't the master
+        if (_masterState <= kMSWaiting) {
+            Slave::st_response_received(resp);
+        }
+
         break;
     }
-
-    Slave::st_response_received(resp);
 }
 
 void
@@ -213,7 +225,7 @@ ToolSlave::st_master_request(Response &resp)
 
     switch (resp.MasterRequest.sid) {
     case service_id::kTesterPresent:
-        // If we want the master go offline, tell it we're present
+        // tell the master that we're here, so that it will go away
         if ((_masterState == kMSWaiting) &&
             (resp.MasterRequest.nad == Tester::kNodeAddress)) {
             resp.MasterRequest.sid |= service_id::kResponseOffset;

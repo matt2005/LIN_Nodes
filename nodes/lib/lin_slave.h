@@ -35,7 +35,8 @@ protected:
     };
     static const uint16_t kIdleTimeout = 4000;  //< 4 seconds
 
-    uint8_t _nad;               //< node address 
+    uint8_t         _nad;               //< node address 
+    Timestamp       _lastActivity;      //< Bus idle timer
 
     virtual void    st_header_received() override;
     virtual void    st_response_received(Response &resp) override;
@@ -94,7 +95,6 @@ protected:
     static void     st_error_response(Response &resp, uint8_t err);
 
 private:
-    Timestamp       _lastActivity;      //< Bus idle timer
     Response        _response;          //< canned response frame
 
     bool            _sendSlaveResponse:1;

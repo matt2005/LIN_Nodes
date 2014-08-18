@@ -20,17 +20,18 @@ enum USBRequest {
     kUSBRequestReadResult,          // wValue = ignored, wIndex = parameter address, IN = uint16_t
     kUSBRequestWriteData,           // wValue = value, wIndex = parameter address
     kUSBRequestSendBulk,            // wValue = data0,1, wIndex = data2,3
-    kUSBRequestEnableMaster,        // wValue = enable/disable, wIndex = ignored
+    kUSBRequestEnableMaster,        // wValue = 1 to enable, 0 to disable
 };
 
 #define RQ_STATUS_FLAGS         0
 #define RQ_STATUS_DATA_READY        (1<<0)
 #define RQ_STATUS_DATA_ERROR        (1<<1)
 #define RQ_STATUS_AWAKE             (1<<2)
+#define RQ_STATUS_WAITING           (1<<3)
+#define RQ_STATUS_MASTER            (1<<4)
 
 #define RQ_STATUS_FREEMEM       1
-#define RQ_STATUS_LINERR        2   // wValue is error counter index
-
+#define RQ_STATUS_LINERR        2   // wValue = error counter index
 
 // kUSBRequestGetHistory -> IN
 struct RQHistory {

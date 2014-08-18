@@ -20,7 +20,7 @@
 //
 PROGMEM const uint8_t MasterNode::_schedule[] = {
     kFrameIDRelays,
-    kFrameIDProxyRequest,
+    //kFrameIDProxyRequest,
     kFrameIDMasterRequest,
     kFrameIDSlaveResponse,
 };
@@ -53,12 +53,22 @@ MasterNode::master_task(void *arg)
 void
 MasterNode::_master_task()
 {
-    // If the network is not awake, make sure the transceiver is turned off
-    // and don't transmit anything.
+    // If the master task is not awake, don't do anything here.
     if (!_mtAwake) {
         return;
     }
 
+    // If there was a tester attached, and it is still active, don't
+    // do anything here.
+    if (_testerPresent) {
+        if (_lastActivity.is_older_than(2000U)) {
+            // assume the tester has been disconnected or idled
+            _testerPresent = false;
+        }
+        return;
+    }
+
+    // walk along the schedule looking for something to do
     do {
 
         if (_mtIndex >= _scheduleLength) {
@@ -66,7 +76,7 @@ MasterNode::_master_task()
             _mtIndex = 0;
 
             // safe point in the schedule to enable sleep, if requested and allowed
-            if (_mtSleepRequest && !_testerPresent) {
+            if (_mtSleepRequest) {
                 _mtAwake = false;
                 // turn off the transceiver
                 Board::lin_CS(false);
@@ -87,10 +97,6 @@ MasterNode::_master_task()
         switch (fid) {
 
         case kFrameIDProxyRequest:
-
-            if (_testerPresent == 0) {
-                continue;
-            }
 
             break;
 
@@ -152,7 +158,7 @@ MasterNode::st_header_received()
 
             _stProxyRequest = false;
 
-        } else {
+        } else if (!_testerPresent) {
             // XXX should be more flexible about what we send here...
             Response resp;
 
@@ -161,12 +167,7 @@ MasterNode::st_header_received()
             resp.SlaveResponse.length = 2;
             resp.SlaveResponse.sid = service_id::kTesterPresent;
             resp.SlaveResponse.d1 = 0;
-            resp.SlaveResponse.d2 = _testerPresent;
             st_send_response(resp);
-
-            if (_testerPresent > 0) {
-                _testerPresent--;
-            }
         }
 
         _stExpectResponse = true;
@@ -190,6 +191,9 @@ MasterNode::st_header_received()
         LINDev::st_header_received();
         break;
     }
+
+    // reset the idle timeout
+    _lastActivity.update();
 }
 
 bool
@@ -236,7 +240,7 @@ MasterNode::st_response_received(Response &resp)
         // is this a response from a tester?
         if ((resp.SlaveResponse.nad == Tester::kNodeAddress) &&
             (resp.SlaveResponse.sid == (service_id::kTesterPresent | service_id::kResponseOffset))) {
-            _testerPresent = 0xff;
+            _testerPresent = true;
         }
 
         break;

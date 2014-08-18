@@ -49,6 +49,14 @@ usbFunctionSetup(uchar data[8])
                 status |= RQ_STATUS_AWAKE;
             }
 
+            if (slave.is_waiting()) {
+                status |= RQ_STATUS_WAITING;
+            }
+
+            if (slave.is_master()) {
+                status |= RQ_STATUS_MASTER;
+            }
+
             break;
 
         case RQ_STATUS_FREEMEM:
@@ -102,7 +110,6 @@ usbFunctionSetup(uchar data[8])
             usbMsgPtr = (uint8_t *)slave.get_data();
             return sizeof(uint16_t);
         }
-
         break;
 
     case kUSBRequestWriteData:
@@ -116,6 +123,7 @@ usbFunctionSetup(uchar data[8])
     case kUSBRequestEnableMaster:
         slave.enable_master(rq->wValue.bytes[0] != 0);
         break;
+
     default:
         break;
     }

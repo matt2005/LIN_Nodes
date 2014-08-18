@@ -50,10 +50,10 @@ protected:
 
 private:
     static const uint8_t   _schedule[];
-    static const uint8_t        _scheduleLength;
-    static const uint8_t        _frameTime = 10U;   //< milliseconds
+    static const uint8_t   _scheduleLength;
+    static const uint8_t   _frameTime = 10U;   //< milliseconds
 
-    uint8_t         _testerPresent;         //< nonzero when a tester is present
+    bool            _testerPresent;         //< true when there is a tester owning the bus
 
     // master task state
     Timer           _mtTimer;
@@ -68,8 +68,8 @@ private:
     // slave task state
     Response        _stProxyFrame;
 
-    bool            _stProxyRequest;      //< true when _proxyFrame needs to be sent as a Master Request
-    bool            _stProxyResponse;     //< true when _proxyFrame needs to be sent as a Slave Response
+    bool            _stProxyRequest;        //< true when _proxyFrame needs to be sent as a Master Request
+    bool            _stProxyResponse;       //< true when _proxyFrame needs to be sent as a Slave Response
     bool            _stExpectResponse;
 
     static uint8_t schedule_entry(uint8_t idx)

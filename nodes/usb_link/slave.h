@@ -11,8 +11,10 @@
 
 #pragma once
 
+#include <timer.h>
+#include <lin_slave.h>
+
 #include "requests.h"
-#include "lin_slave.h"
 
 class SlaveHistory
 {
@@ -45,17 +47,14 @@ public:
     ///
     /// @return                 true if a frame was pulled
     ///
-    uint8_t         *get();
+    RQHistory       *get();
 
 private:
-    struct Entry {
-        uint8_t     bytes[9];
-    };
-
     static const uint8_t    _size = 8;
-    Entry                   _entries[_size + 1];
+    RQHistory               _entries[_size + 1];
 
     uint8_t                 _savedFID;
+    uint16_t                _fidTime;
     bool                    _FIDValid;
     uint8_t                 _nextIn;
     volatile uint8_t        _nextOut;
@@ -72,7 +71,7 @@ public:
 
     virtual void    tick() override;
 
-    uint8_t         *get_history() { return _history.get(); }
+    RQHistory       *get_history() { return _history.get(); }
 
     void            get_data_by_id(uint8_t nad, Parameter::Address address);
     void            set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value);

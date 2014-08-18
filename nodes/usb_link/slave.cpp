@@ -37,7 +37,7 @@ ToolSlave::tick()
     case kMSRequest:
     case kMSResponse:
         // if we haven't been re-armed for a while, drop out of master mode
-        if (_masterTimeout.is_older_than(2000U)) {
+        if (_masterTimeout.is_older_than(1000U)) {
             _masterState = kMSDisabled;
             break;
         }
@@ -54,7 +54,7 @@ ToolSlave::tick()
             mt_send_header(kFrameIDMasterRequest);
         } else {
             _masterState = kMSRequest;
-            mt_send_header(kFrameIDMasterRequest);
+            mt_send_header(kFrameIDSlaveResponse);
         }
         break;
     }
@@ -247,12 +247,15 @@ SlaveHistory::sawFID(uint8_t fid)
     // do we have a saved FID for a frame with no response?
     if (_FIDValid) {
         if (!full()) {
-            _entries[_nextIn].bytes[0] = _savedFID;
+            _entries[_nextIn].time = _fidTime;
+            _entries[_nextIn].frame[0] = _savedFID;
             _nextIn = next(_nextIn);
         }
     }
 
+    // save the FID for when we see the response, or the next FID if not
     _savedFID = fid;
+    _fidTime = Timer::time_now();
     _FIDValid = true;
 }
 
@@ -260,25 +263,26 @@ void
 SlaveHistory::sawResponse(Response &resp)
 {
     if (!full()) {
-        _entries[_nextIn].bytes[0] = _savedFID | RQ_HISTORY_RESPONSE_VALID;
+        _entries[_nextIn].time = _fidTime;
+        _entries[_nextIn].frame[0] = _savedFID | RQ_HISTORY_RESPONSE_VALID;
         _FIDValid = false;
 
         for (uint8_t i = 0; i < 8; i++) {
-            _entries[_nextIn].bytes[i + 1] = resp._bytes[i];
+            _entries[_nextIn].frame[i + 1] = resp._bytes[i];
         }
 
         _nextIn = next(_nextIn);
     }
 }
 
-uint8_t *
+RQHistory *
 SlaveHistory::get()
 {
     if (empty()) {
         return nullptr;
     }
 
-    uint8_t *result = &_entries[_nextOut].bytes[0];
+    RQHistory *result = &_entries[_nextOut];
     _nextOut = next(_nextOut);
     return result;
 }

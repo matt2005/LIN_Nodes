@@ -13,10 +13,6 @@
 
 constexpr uint16_t bytes_to_short(uint8_t low, uint8_t high) { return ((uint16_t)high << 8) + low; }
 
-Link::Link()
-{
-}
-
 void
 Link::connect()
 {
@@ -105,6 +101,15 @@ Link::enable_master(bool enable)
     if (result < 0) {
         throw(std::runtime_error("enable_master: USB error"));
     }
+
+    for (unsigned tries = 0; tries < 20; tries++) {
+        usleep(50000);
+        // check for bus no longer awake
+        if (!(get_status() & RQ_STATUS_AWAKE)) {
+            return;
+        }
+    }
+    throw(std::runtime_error("enable_master: cannot claim the bus"));
 }
 
 uint8_t
@@ -169,7 +174,7 @@ Link::read_data(uint16_t index)
     }
 
     // spin waiting for the transaction to complere
-    for (unsigned tries = 0; tries < 10; tries++) {
+    for (unsigned tries = 0; tries < 50; tries++) {
         usleep(10000);                  // 10ms per try
         uint8_t status = get_status();
 

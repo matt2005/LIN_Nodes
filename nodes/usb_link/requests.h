@@ -35,24 +35,11 @@ enum USBRequest {
 
 // kUSBRequestGetHistory -> IN
 struct RQHistory {
+    uint16_t time;                  // internal milliseconds time the frame started
+    uint8_t frame[9];               // frame data bytes including FID 
 #define RQ_HISTORY_FRAME_VALID      (1<<7)  //< set in frame[0] when the response is valid
 #define RQ_HISTORY_RESPONSE_VALID   (1<<6)  //< set in frame[0] when the response is valid
 #define RQ_HISTORY_FID_MASK         (0x3f)  //< mask for frame[0] to extract FID
-    uint8_t frame[9];
-};
-
-struct RQBeginUpdate {
-    uint8_t nad;                        //< node that we are going to update
-};
-
-struct RQUpdateData {
-    uint8_t     sequence;               //< low 8 bits of program address (high bits are implicit)
-    uint8_t     data[8];                //< next 8 bytes of program data
-};
-
-struct RQFinishUpdate {
-    uint16_t    length;                 //< total length of image (may be up to 7 less than transferred)
-    uint16_t    crc;                    //< crc-16 of firmware over total length
 };
 
 #pragma pack(pop)

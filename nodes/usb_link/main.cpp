@@ -88,10 +88,10 @@ usbFunctionSetup(uchar data[8])
         break;
 
     case kUSBRequestGetHistory:
-        usbMsgPtr = slave.get_history();
+        usbMsgPtr = (uint8_t *)slave.get_history();
 
         if (usbMsgPtr != nullptr) {
-            return (*usbMsgPtr & RQ_HISTORY_RESPONSE_VALID) ? 9 : 1;
+            return sizeof(struct RQHistory);
         }
 
         // if no history, no reply

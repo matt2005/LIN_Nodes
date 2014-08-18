@@ -16,8 +16,6 @@
 class Link
 {
 public:
-    Link();
-
     // connect to the USB link
     void    connect();
 

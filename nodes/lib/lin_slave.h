@@ -92,7 +92,7 @@ protected:
 
     /// Reformat a service request as an error response
     ///
-    static void     st_error_response(Response &resp, uint8_t err);
+    void            st_error_response(Response &resp, uint8_t err);
 
 private:
     Response        _response;          //< canned response frame

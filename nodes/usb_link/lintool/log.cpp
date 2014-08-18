@@ -98,10 +98,10 @@ log(bool forever)
                     resp.SlaveResponse.length);
                 if (resp.SlaveResponse.sid == service_id::kErrorResponse) {
                     printf(" sid: 0x%02x <%s> error: 0x%02x <%s>\n",
-                        resp.SlaveResponse.d1,
-                        Encoding::info(kEncoding_service_id, resp.SlaveResponse.d1) ? : "unknown",
-                        resp.SlaveResponse.d2,
-                        Encoding::info(kEncoding_service_error, resp.SlaveResponse.d2));
+                        resp.ServiceError.original_sid,
+                        Encoding::info(kEncoding_service_id, resp.ServiceError.original_sid) ? : "unknown",
+                        resp.ServiceError.error,
+                        Encoding::info(kEncoding_service_error, resp.ServiceError.error));
                 } else if (resp.SlaveResponse.sid & service_id::kResponseOffset) {
                     uint8_t sid = resp.SlaveResponse.sid & ~service_id::kResponseOffset;
                     printf(" sid: 0x%02x <%s>\n",

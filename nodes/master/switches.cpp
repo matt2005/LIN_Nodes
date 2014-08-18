@@ -26,8 +26,8 @@ struct Debounce {
 };
 
 static const uint8_t    kDebounceCycles = 5; // XXX needs to be computed/tuned
-static const uint8_t    kStateBytes = (input::kNumEncodings + 7) / 8;
-static Debounce         _state[input::kNumEncodings];
+static const uint8_t    kStateBytes = (input_assignment::kNumEncodings + 7) / 8;
+static Debounce         _state[input_assignment::kNumEncodings];
 
 void
 init()
@@ -73,7 +73,7 @@ changed_to_off(uint8_t id)
 bool
 changed()
 {
-    for (uint8_t id = 0; id < input::kNumEncodings; id++) {
+    for (uint8_t id = 0; id < input_assignment::kNumEncodings; id++) {
         if (changed(id)) {
             return true;
         }
@@ -93,7 +93,7 @@ scan()
     }
 
     // XXX should use a bitarray
-#define SET(x)  do { if (x < input::kNumEncodings) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
+#define SET(x)  do { if (x < input_assignment::kNumEncodings) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
 #define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
 
     // fetch the switch inputs
@@ -101,7 +101,7 @@ scan()
 
     // hardcoded ignition input on SP0
     if (MC33972::test(MC33972::kInputSP0)) {
-        SET(input::kIgnition);
+        SET(input_assignment::kIgnition);
     }
 
     // SP1-SP7
@@ -119,7 +119,7 @@ scan()
     }
 
     // debounce raw state
-    for (uint8_t i = 0; i < input::kNumEncodings; i++) {
+    for (uint8_t i = 0; i < input_assignment::kNumEncodings; i++) {
 
         // if no change, reset debounce timer (also clears
         // 'changed' state

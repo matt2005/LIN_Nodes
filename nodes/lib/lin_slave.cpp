@@ -196,12 +196,15 @@ Slave::st_write_data(Parameter::Address address, uint16_t value)
 void
 Slave::st_error_response(Response &resp, uint8_t err)
 {
-    resp.MasterRequest.pci = pci::kSingleFrame;
-    resp.MasterRequest.length = 2;
-    resp.MasterRequest.d1 = resp.MasterRequest.sid;
-    resp.MasterRequest.sid = service_id::kErrorResponse;
-    resp.MasterRequest.d2 = err;
-    resp.MasterRequest.d3 = 0xff;
-    resp.MasterRequest.d4 = 0xff;
-    resp.MasterRequest.d5 = 0xff;
+    uint8_t sid = resp.MasterRequest.sid;
+
+    resp.ServiceError.nad = _nad;
+    resp.ServiceError.pci = pci::kSingleFrame;
+    resp.ServiceError.length = 2;
+    resp.ServiceError.sid = service_id::kErrorResponse;
+    resp.ServiceError.original_sid = sid;
+    resp.ServiceError.error = err;
+    resp.ServiceError.d3 = 0xff;
+    resp.ServiceError.d4 = 0xff;
+    resp.ServiceError.d5 = 0xff;
 }

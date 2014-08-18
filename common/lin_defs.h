@@ -16,27 +16,29 @@ extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);
 } // namespace Encoding
 
 static const uint8_t kEncoding_bootloader_magic = 0;
-static const uint8_t kEncoding_bl_status = 1;
-static const uint8_t kEncoding_input = 2;
-static const uint8_t kEncoding_msec = 3;
-static const uint8_t kEncoding_sec = 4;
-static const uint8_t kEncoding_up_to_10 = 5;
-static const uint8_t kEncoding_node_address = 6;
-static const uint8_t kEncoding_pci = 7;
-static const uint8_t kEncoding_service_id = 8;
-static const uint8_t kEncoding_service_error = 9;
-static const uint8_t kEncoding_v1_output_status = 10;
-static const uint8_t kEncoding_v1_output_assignment = 11;
-static const uint8_t kEncoding_v3_output_status = 12;
-static const uint8_t kEncoding_output_type = 13;
-static const uint8_t kEncoding_output_assignment = 14;
-static const uint8_t kEncoding_pwm_duty_cycle = 15;
-static const uint8_t kEncoding_RPM = 16;
-static const uint8_t kEncoding_PSI = 17;
-static const uint8_t kEncoding_F = 18;
-static const uint8_t kEncoding_V = 19;
-static const uint8_t kEncoding_lambda = 20;
-static const uint8_t kEncoding_MPH = 21;
+static const uint8_t kEncoding_service_error = 1;
+static const uint8_t kEncoding_bl_status = 2;
+static const uint8_t kEncoding_input_assignment = 3;
+static const uint8_t kEncoding_sp_input_mode = 4;
+static const uint8_t kEncoding_sg_input_mode = 5;
+static const uint8_t kEncoding_msec = 6;
+static const uint8_t kEncoding_sec = 7;
+static const uint8_t kEncoding_up_to_10 = 8;
+static const uint8_t kEncoding_node_address = 9;
+static const uint8_t kEncoding_pci = 10;
+static const uint8_t kEncoding_service_id = 11;
+static const uint8_t kEncoding_v1_output_status = 12;
+static const uint8_t kEncoding_v1_output_assignment = 13;
+static const uint8_t kEncoding_v3_output_status = 14;
+static const uint8_t kEncoding_v3_output_type = 15;
+static const uint8_t kEncoding_v3_output_assignment = 16;
+static const uint8_t kEncoding_pwm_duty_cycle = 17;
+static const uint8_t kEncoding_RPM = 18;
+static const uint8_t kEncoding_PSI = 19;
+static const uint8_t kEncoding_F = 20;
+static const uint8_t kEncoding_V = 21;
+static const uint8_t kEncoding_lambda = 22;
+static const uint8_t kEncoding_MPH = 23;
 static const uint8_t kEncoding_none = 0xff;
 
 namespace bootloader_magic
@@ -46,6 +48,17 @@ static const uint16_t kBootloader = 1;
 static const uint16_t kEnterBootloader = 0x4f42;
 static const uint16_t kNumEncodings = 3;
 } // namespace bootloader_magic
+
+namespace service_error
+{
+static const uint16_t kFunctionNotSupported = 0x12;
+static const uint16_t kIncorrectLength = 0x13;
+static const uint16_t kConditionsNotCorrect = 0x22;
+static const uint16_t kOutOfRange = 0x31;
+static const uint16_t kAccessDenied = 0x33;
+static const uint16_t kGeneralFailure = 0x72;
+static const uint16_t kNumEncodings = 6;
+} // namespace service_error
 
 namespace bl_status
 {
@@ -57,7 +70,7 @@ static const uint16_t kPageAddressError = 4;
 static const uint16_t kNumEncodings = 5;
 } // namespace bl_status
 
-namespace input
+namespace input_assignment
 {
 static const uint16_t kUnassigned = 0;
 static const uint16_t kIgnition = 1;
@@ -84,7 +97,26 @@ static const uint16_t kWiperLow = 21;
 static const uint16_t kWiperHigh = 22;
 static const uint16_t kRearDefrost = 23;
 static const uint16_t kNumEncodings = 24;
-} // namespace input
+} // namespace input_assignment
+
+namespace sp_input_mode
+{
+static const uint16_t kActiveLow = 0;
+static const uint16_t kActiveHigh = 1;
+static const uint16_t k2mASense = 2;
+static const uint16_t k16mASense = 3;
+static const uint16_t k5VSense = 4;
+static const uint16_t kNumEncodings = 5;
+} // namespace sp_input_mode
+
+namespace sg_input_mode
+{
+static const uint16_t kActiveLow = 0;
+static const uint16_t k2mASense = 2;
+static const uint16_t k16mASense = 3;
+static const uint16_t k5VSense = 4;
+static const uint16_t kNumEncodings = 4;
+} // namespace sg_input_mode
 
 namespace msec
 {
@@ -140,17 +172,6 @@ static const uint16_t kResponseOffset = 0x40;
 static const uint16_t kNumEncodings = 7;
 } // namespace service_id
 
-namespace service_error
-{
-static const uint16_t kFunctionNotSupported = 0x12;
-static const uint16_t kIncorrectLength = 0x13;
-static const uint16_t kConditionsNotCorrect = 0x22;
-static const uint16_t kOutOfRange = 0x31;
-static const uint16_t kAccessDenied = 0x33;
-static const uint16_t kGeneralFailure = 0x72;
-static const uint16_t kNumEncodings = 6;
-} // namespace service_error
-
 namespace v1_output_status
 {
 static const uint16_t kOK = 0;
@@ -198,7 +219,7 @@ static const uint16_t kShortToBattery = 5;
 static const uint16_t kNumEncodings = 6;
 } // namespace v3_output_status
 
-namespace output_type
+namespace v3_output_type
 {
 static const uint16_t k5AGeneric = 0;
 static const uint16_t k10AGeneric = 1;
@@ -208,9 +229,9 @@ static const uint16_t kLowPowerBulb = 4;
 static const uint16_t kHighPowerBulb = 5;
 static const uint16_t kMotor = 6;
 static const uint16_t kNumEncodings = 7;
-} // namespace output_type
+} // namespace v3_output_type
 
-namespace output_assignment
+namespace v3_output_assignment
 {
 static const uint16_t kUnassigned = 0;
 static const uint16_t kIgnition = 1;
@@ -237,7 +258,7 @@ static const uint16_t kWiperLow = 21;
 static const uint16_t kWiperHigh = 22;
 static const uint16_t kRearDefrost = 23;
 static const uint16_t kNumEncodings = 24;
-} // namespace output_assignment
+} // namespace v3_output_assignment
 
 namespace pwm_duty_cycle
 {
@@ -297,7 +318,6 @@ static const uint8_t kFrameIDSlaveResponse = 0x3d;
 static const uint8_t kFrameIDRelays = 0x01;
 static const uint8_t kFrameIDMasterRequest = 0x3c;
 static const uint8_t kFrameIDECUData = 0x02;
-static const uint8_t kFrameIDProxyRequest = 0x3b;
 
 struct Response
 {
@@ -335,6 +355,17 @@ struct Response
             uint64_t  value:16;
             uint64_t  d5:8;
         } DataByID;
+        struct {
+            uint64_t  nad:8;
+            uint64_t  length:4;
+            uint64_t  pci:4;
+            uint64_t  sid:8;
+            uint64_t  original_sid:8;
+            uint64_t  error:8;
+            uint64_t  d3:8;
+            uint64_t  d4:8;
+            uint64_t  d5:8;
+        } ServiceError;
         struct {
             uint64_t  Ignition:1;
             uint64_t  Start:1;
@@ -430,34 +461,51 @@ extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
 
 static const uint16_t kParamSP1Assign = 0x0400;
-static const uint16_t kParamSP2Assign = 0x0401;
-static const uint16_t kParamSP3Assign = 0x0402;
-static const uint16_t kParamSP4Assign = 0x0403;
-static const uint16_t kParamSP5Assign = 0x0404;
-static const uint16_t kParamSP6Assign = 0x0405;
-static const uint16_t kParamSP7Assign = 0x0406;
-static const uint16_t kParamSG0Assign = 0x0407;
-static const uint16_t kParamSG1Assign = 0x0408;
-static const uint16_t kParamSG2Assign = 0x0409;
-static const uint16_t kParamSG3Assign = 0x040a;
-static const uint16_t kParamSG4Assign = 0x040b;
-static const uint16_t kParamSG5Assign = 0x040c;
-static const uint16_t kParamSG6Assign = 0x040d;
-static const uint16_t kParamSG7Assign = 0x040e;
-static const uint16_t kParamSG8Assign = 0x040f;
-static const uint16_t kParamSG9Assign = 0x0410;
-static const uint16_t kParamSG10Assign = 0x0411;
-static const uint16_t kParamSG11Assign = 0x0412;
-static const uint16_t kParamSG12Assign = 0x0413;
-static const uint16_t kParamSG13Assign = 0x0414;
-static const uint16_t kParamTurnBlinkPeriod = 0x0415;
-static const uint16_t kParamPassingBlinkCount = 0x0416;
-static const uint16_t kParamPathLightTime = 0x0417;
-static const uint16_t kParamInteriorLightTime = 0x0418;
-static const uint16_t kParamWelcomeLightTime = 0x0419;
-static const uint16_t kParamBrakeBlinkPeriod = 0x041a;
-static const uint16_t kParamBrakeBlinkCount = 0x041b;
-static const uint16_t kParamWiperInterval = 0x041c;
+static const uint16_t kParamSP1Mode = 0x0401;
+static const uint16_t kParamSP2Assign = 0x0402;
+static const uint16_t kParamSP2Mode = 0x0403;
+static const uint16_t kParamSP3Assign = 0x0404;
+static const uint16_t kParamSP3Mode = 0x0405;
+static const uint16_t kParamSP4Assign = 0x0406;
+static const uint16_t kParamSP4Mode = 0x0407;
+static const uint16_t kParamSP5Assign = 0x0408;
+static const uint16_t kParamSP5Mode = 0x0409;
+static const uint16_t kParamSP6Assign = 0x040a;
+static const uint16_t kParamSP6Mode = 0x040b;
+static const uint16_t kParamSP7Assign = 0x040c;
+static const uint16_t kParamSP7Mode = 0x040d;
+static const uint16_t kParamSG0Assign = 0x040e;
+static const uint16_t kParamSG0Mode = 0x040f;
+static const uint16_t kParamSG1Assign = 0x0410;
+static const uint16_t kParamSG1Mode = 0x0429;
+static const uint16_t kParamSG2Assign = 0x0412;
+static const uint16_t kParamSG2Mode = 0x0413;
+static const uint16_t kParamSG3Assign = 0x0414;
+static const uint16_t kParamSG3Mode = 0x0415;
+static const uint16_t kParamSG4Assign = 0x0416;
+static const uint16_t kParamSG4Mode = 0x0417;
+static const uint16_t kParamSG5Assign = 0x0418;
+static const uint16_t kParamSG5Mode = 0x0419;
+static const uint16_t kParamSG6Assign = 0x041a;
+static const uint16_t kParamSG6Mode = 0x041b;
+static const uint16_t kParamSG7Assign = 0x041c;
+static const uint16_t kParamSG7Mode = 0x041d;
+static const uint16_t kParamSG8Assign = 0x041e;
+static const uint16_t kParamSG8Mode = 0x041f;
+static const uint16_t kParamSG9Assign = 0x0420;
+static const uint16_t kParamSG9Mode = 0x0421;
+static const uint16_t kParamSG10Assign = 0x0422;
+static const uint16_t kParamSG11Assign = 0x0424;
+static const uint16_t kParamSG12Assign = 0x0426;
+static const uint16_t kParamSG13Assign = 0x0428;
+static const uint16_t kParamTurnBlinkPeriod = 0x042a;
+static const uint16_t kParamPassingBlinkCount = 0x042b;
+static const uint16_t kParamPathLightTime = 0x042c;
+static const uint16_t kParamInteriorLightTime = 0x042d;
+static const uint16_t kParamWelcomeLightTime = 0x042e;
+static const uint16_t kParamBrakeBlinkPeriod = 0x042f;
+static const uint16_t kParamBrakeBlinkCount = 0x0430;
+static const uint16_t kParamWiperInterval = 0x0431;
 
 } // namespace Master
 

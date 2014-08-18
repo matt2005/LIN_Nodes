@@ -86,6 +86,7 @@ lin_CS(bool state)
 {
     if (state) {
         pinLINCS.set();
+
     } else {
         pinLINCS.clear();
     }

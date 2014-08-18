@@ -63,6 +63,7 @@ bool
 RelaySlave::st_write_data(Parameter::Address address, uint16_t value)
 {
     uint8_t encoding = PowerV3::param_encoding(address);
+
     if ((encoding != kEncoding_none) && !Encoding::invalid(encoding, value)) {
         Parameter(address).set(value);
         return true;

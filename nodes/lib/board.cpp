@@ -58,7 +58,7 @@ panic(uint8_t code)
 {
     debug("panic %3u @ %p", code, __builtin_return_address(0));
 
-    // disable interrupts and wait for possible pending LIN transmit to 
+    // disable interrupts and wait for possible pending LIN transmit to
     // complete
     cli();
     ms_delay(10);
@@ -80,7 +80,7 @@ panic(uint8_t code)
             ms_delay(200);
             wdt_reset();
             pinLINCS.clear();
-            ms_delay(200);            
+            ms_delay(200);
         }
     }
 }
@@ -109,17 +109,25 @@ get_mode()
     ms_delay(10);                // allow inputs to settle
 
 #ifdef pinMode1
+
     if (!pinMode1.get())        // 1 bits are pulled low
         mode |= 1;
+
 #ifdef pinMode2
+
     if (!pinMode2.get())
         mode |= 2;
+
 #ifdef pinMode4
+
     if (!pinMode4.get())
         mode |= 4;
+
 #ifdef pinMode8
+
     if (!pinMode8.get())
         mode |= 8;
+
 #endif
 #endif
 #endif
@@ -155,6 +163,7 @@ ms_delay(uint16_t ms)
         us_delay(1000);   // XXX approximate
         ms--;
     }
+
     wdt_reset();
 }
 
@@ -194,7 +203,7 @@ enter_bootloader()
     eeprom_write_word((uint16_t *)(E2END - 1), 0x4f42);
 
     // and wait for the watchdog to reset us
-    for (;;) 
+    for (;;)
         ;
 }
 

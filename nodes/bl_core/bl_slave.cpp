@@ -35,7 +35,7 @@ BLSlave::st_header_received()
         if (_send_index != kNoSendResponse) {
             send_response();
         }
-        
+
         break;
 
     default:
@@ -51,10 +51,12 @@ BLSlave::st_response_received(Response &resp)
 
     switch (current_FrameID()) {
     case kFrameIDMasterRequest:
+
         // device being programmed is always node 32
         if (resp.MasterRequest.nad != Bootloader::kNodeAddress) {
             break;
         }
+
         switch (resp.MasterRequest.sid) {
         case service_id::kReadDataByID:
             _send_index = resp.DataByID.index;
@@ -67,6 +69,7 @@ BLSlave::st_response_received(Response &resp)
                 break;
 
             case Bootloader::kParamPageCRC:
+
                 // pad the buffer out with 0xff
                 while (add_page_byte(0xff)) {
                 }
@@ -75,13 +78,16 @@ BLSlave::st_response_received(Response &resp)
                 if (resp.DataByID.value == _running_crc) {
                     program_page();
                     _page_status = bl_status::kReadyForPage;
+
                 } else {
                     _page_status = bl_status::kPageCRCError;
                 }
             }
+
             break;
 
         case service_id::kDataDump:
+
             // add bytes to the page buffer
             if (_page_status == bl_status::kPageInProgress) {
                 uint8_t count = resp.MasterRequest.length;
@@ -91,11 +97,13 @@ BLSlave::st_response_received(Response &resp)
                     add_page_byte(resp._bytes[field++]);
                 }
             }
+
             break;
 
         default:
             break;
         }
+
         break;
     }
 }
@@ -110,24 +118,31 @@ BLSlave::send_response()
         // XXX should come from the defs file
         value = 1;
         break;
+
     case Generic::kParamBootloaderMode:
         value = 1;
         break;
+
     case Generic::kParamFirmwarePageSize:
         value = SPM_PAGESIZE;
         break;
+
     case Bootloader::kParamPageAddress:
         value = _page_address;
         break;
+
     case Bootloader::kParamPageCRC:
         value = _running_crc;
         break;
+
     case Bootloader::kParamStatus:
         value = _page_status;
         break;
+
     default:
         break;
     }
+
     _send_index = kNoSendResponse;
 
     Response resp;
@@ -173,6 +188,7 @@ BLSlave::set_page_address(uint16_t address)
         _page_offset = 0;
         _running_crc = 0;
         _page_status = bl_status::kPageInProgress;
+
     } else {
         _page_status = bl_status::kPageAddressError;
     }
@@ -187,6 +203,7 @@ BLSlave::add_page_byte(uint8_t byte)
         p[_page_offset++] = byte;
         return true;
     }
+
     return false;
 }
 
@@ -198,12 +215,14 @@ BLSlave::program_page()
         if (_page_buffer[0] == 0x940c) {
             // copy jmp argument
             _reset_vector = _page_buffer[1];
+
         } else {
             // extract rjmp destination
             _reset_vector = ((_page_buffer[0] & ~0xc000) + 1) * 2;
             // convert to jmp
             _page_buffer[0] = 0x940c;
         }
+
         // patch in bootloader reset vector
         _page_buffer[1] = BL_ADDR;
     }
@@ -220,6 +239,7 @@ BLSlave::program_page()
 
     // track the end of the programmed area
     _page_address += SPM_PAGESIZE;
+
     if (_page_address > _program_end) {
         _program_end = _page_address;
     }
@@ -235,6 +255,7 @@ BLSlave::update_program_info()
     boot_page_fill(kInfoPage + 0, get_program_crc(_program_end));
     boot_page_fill(kInfoPage + 2, _reset_vector);
     boot_page_fill(kInfoPage + 4, _program_end);
+
     for (uint8_t offset = 6; offset < SPM_PAGESIZE; offset += 2) {
         boot_page_fill(kInfoPage + offset, 0xffff);
     }

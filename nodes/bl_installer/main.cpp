@@ -39,9 +39,9 @@ main()
     /* make sure the eeprom isn't still programming... */
     eeprom_busy_wait();
 
-    /* 
-     * Erase the first page to all 0xff - kills any hooks to the bootloader 
-     * that it may have inserted while we were being flashed and causes 
+    /*
+     * Erase the first page to all 0xff - kills any hooks to the bootloader
+     * that it may have inserted while we were being flashed and causes
      * execution to return here if we are reset while updating.
      */
     boot_page_erase(0);
@@ -49,7 +49,7 @@ main()
 
     /*
      * Reflash the bootloader and erase to the end of flash.
-     * This will kill the program-valid record in the last page of flash, 
+     * This will kill the program-valid record in the last page of flash,
      * so that we hang up in the bootloader after reset below.
      * Note that FLASHEND is the address of the last byte of flash, not
      * the first address after the end of the flash...
@@ -66,6 +66,7 @@ main()
             if (resid > 0) {
                 boot_page_fill(dst + i, pgm_read_word(src++));
                 resid--;
+
             } else {
                 boot_page_fill(dst + i, 0xffff);
             }
@@ -81,13 +82,16 @@ main()
      * Redirect the reset vector back to the bootloader.
      */
     boot_page_fill(0, 0xc000 | ((BL_ADDR / 2) - 1));
+
     for (uint8_t i = 2; i < SPM_PAGESIZE; i += 2) {
         boot_page_fill(i, 0x0000);
     }
+
     boot_page_write(0);
     boot_spm_busy_wait();
 
     // re-enable the watchdog and let it reset us
     wdt_enable(WDTO_60MS);
+
     for (;;) ;
 }

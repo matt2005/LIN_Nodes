@@ -106,13 +106,14 @@ cmd(Command cmd, uint8_t op1, uint8_t op2)
 }
 
 static void
-wait() 
+wait()
 {
     while (!(SPSR & (1 << SPIF))) {
         if (!(SPCR & (1 << MSTR))) {
             debug("SPI !MSTR");
             Board::panic(Board::kPanicCodeSPI);
         }
+
         if (SPSR & (1 << WCOL)) {
             debug("SPI WCOL");
             Board::panic(Board::kPanicCodeSPI);

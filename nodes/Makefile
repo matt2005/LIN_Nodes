@@ -15,7 +15,9 @@ $(TARGETS):
 	@echo MAKE $(goal) in $(dir)
 	@$(MAKE) -C $(dir) $(goal)
 
-ALLSRC		 = $(foreach dir,$(DIRS),$(wildcard $(dir)*.c $(dir)*.cpp $(dir)*.h))
+EXTRADIRS	 = $(SRCROOT)/usb_link/lintool/ \
+		   $(SRCROOT)/lib/
+ALLSRC		 = $(foreach dir,$(DIRS) $(EXTRADIRS),$(wildcard $(dir)*.c $(dir)*.cpp $(dir)*.h))
 
 .PHONY: reformat
 reformat:

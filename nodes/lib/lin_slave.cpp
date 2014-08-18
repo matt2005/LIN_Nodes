@@ -47,6 +47,7 @@ Slave::st_header_received()
             st_send_response(_response);
             _sendSlaveResponse = false;
         }
+
         break;
 
     default:
@@ -62,11 +63,13 @@ Slave::st_response_received(Response &resp)
 {
     switch (current_FrameID()) {
     case kFrameIDMasterRequest:
+
         // check for broadcast sleep request
         if (resp.MasterRequest.nad == node_address::kSleep) {
             st_sleep_requested(kSleepTypeRequested);
             break;
         }
+
         // check for directly addressed or broadcast master request
         if ((resp.MasterRequest.nad == _nad) ||
             (resp.MasterRequest.nad == node_address::kBroadcast)) {
@@ -74,6 +77,7 @@ Slave::st_response_received(Response &resp)
                 st_slave_response(resp);
             }
         }
+
         break;
 
     default:
@@ -93,12 +97,14 @@ bool
 Slave::st_master_request(Response &resp)
 {
     bool reply = false;
+
     // ReadByID
     switch (resp.MasterRequest.sid) {
 
     case service_id::kReadDataByID: {
         if (resp.DataByID.length != 3) {
             st_error_response(resp, service_error::kIncorrectLength);
+
         } else {
             uint16_t value;
 
@@ -108,11 +114,13 @@ Slave::st_master_request(Response &resp)
                 resp.DataByID.length = 5;
                 resp.DataByID.value = value;
                 resp.DataByID.sid |= service_id::kResponseOffset;
+
             } else {
                 // generic error...
                 st_error_response(resp, service_error::kOutOfRange);
             }
         }
+
         reply = true;
         break;
     }
@@ -120,17 +128,20 @@ Slave::st_master_request(Response &resp)
     case service_id::kWriteDataByID: {
         if (resp.DataByID.length != 5) {
             st_error_response(resp, service_error::kIncorrectLength);
+
         } else {
             // see if we can handle this one
             if (st_write_data(resp.DataByID.index, resp.DataByID.value)) {
                 resp.DataByID.sid |= service_id::kResponseOffset;
                 resp.DataByID.pci = pci::kSingleFrame;
                 resp.DataByID.length = 3;
+
             } else {
                 // generic error...
                 st_error_response(resp, service_error::kOutOfRange);
             }
         }
+
         reply = true;
         break;
     }
@@ -143,6 +154,7 @@ Slave::st_master_request(Response &resp)
             reply = true;
             break;
         }
+
         break;
     }
     }
@@ -150,8 +162,7 @@ Slave::st_master_request(Response &resp)
     return reply;
 }
 
-static const PROGMEM uint16_t page0[] = 
-{
+static const PROGMEM uint16_t page0[] = {
     1,                              // XXX protocol version
     (uint16_t)kBoardFunctionID,
     0,                              // bootloader mode (not)
@@ -171,7 +182,7 @@ Slave::st_read_data(Parameter::Address address, uint16_t &value)
     case Generic::kParamSynch:
     case Generic::kParamProtocol:
         value = errors[address - Generic::kParamLine];
-        return true;   
+        return true;
     }
 
     // handle generic parameters known elsewhere
@@ -179,6 +190,7 @@ Slave::st_read_data(Parameter::Address address, uint16_t &value)
         value = Parameter(address).get();
         return true;
     }
+
     return false;
 }
 
@@ -186,10 +198,12 @@ bool
 Slave::st_write_data(Parameter::Address address, uint16_t value)
 {
     uint8_t encoding = Generic::param_encoding(address);
+
     if ((encoding != kEncoding_none) && !Encoding::invalid(encoding, value)) {
         Parameter(address).set(value);
         return true;
     }
+
     return false;
 }
 

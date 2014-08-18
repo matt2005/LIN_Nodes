@@ -19,7 +19,7 @@
 #ifndef _LIN_DRV_H_
 #define _LIN_DRV_H_
 
-//----- I N C L U D E S                                                                                                    
+//----- I N C L U D E S
 
 #include <avr/io.h>
 
@@ -37,17 +37,17 @@
 
 // ---- Bit Time
 
-    // LINBRR should be set to deliver a clock suitable for 32x (the default) 
-    // oversampling of the desired bit clock. Per the datasheet:
+// LINBRR should be set to deliver a clock suitable for 32x (the default)
+// oversampling of the desired bit clock. Per the datasheet:
 #define CONF_LINBRR     ((F_CPU / (32UL * LIN_BAUDRATE)) - 1)
 
 // ---- Configuration
 
-    // LIN protocols
+// LIN protocols
 #define LIN_1X          (1<<LIN13)
 #define LIN_2X          (0<<LIN13)
 
-    // LIN commands
+// LIN commands
 #define LIN_CMD_MASK    ((1<<LCMD1)|(1<<LCMD0))
 #define LIN_RX_HEADER   ((0<<LCMD1)|(0<<LCMD0))
 #define LIN_ABORT       ((0<<LCMD1)|(0<<LCMD0))
@@ -55,13 +55,13 @@
 #define LIN_RX_RESPONSE ((1<<LCMD1)|(0<<LCMD0))
 #define LIN_TX_RESPONSE ((1<<LCMD1)|(1<<LCMD0))
 
-    // LIN interrupt flags
+// LIN interrupt flags
 #define LIN_ERROR       (1<<LERR )
 #define LIN_IDOK        (1<<LIDOK)
 #define LIN_RXOK        (1<<LRXOK)
 #define LIN_TXOK        (1<<LTXOK)
 
-    // LIN ID masks
+// LIN ID masks
 #define LIN_1X_ID_MASK  ((1<<LID3)|(1<<LID2)|(1<<LID1)|(1<<LID0))
 #define LIN_1X_LEN_MASK ((1<<LID5)|(1<<LID4))
 #define LIN_2X_ID_MASK  ((1<<LID5)|(1<<LID4)| LIN_1X_ID_MASK )
@@ -90,15 +90,15 @@
 
 // ---- Shared C-macros
 
-    // Use of any protocol
+// Use of any protocol
 //#define Lin_set_type(ltype) (( ltype == LIN_2X ) ? Lin_2x_set_type(): Lin_1x_set_type() )
-#define Lin_get_type()      ( LINCR & (1<<LIN1X) )																							
+#define Lin_get_type()      ( LINCR & (1<<LIN1X) )
 #define Lin_set_len(len)    ( LINDLR = (len<<LTXDL0)|(len &(0x0F<<LRXDL0) )
 
-    // Miscellaneous C-macros
+// Miscellaneous C-macros
 #define Lin_get_error_status()  ( LINERR )
 #define Lin_set_baudrate(br)    { LINBRRH = (unsigned char)(((unsigned short)br)>>8); \
-								  LINBRRL = (unsigned char) ((unsigned short)br);	  }
+        LINBRRL = (unsigned char) ((unsigned short)br);	  }
 #define Lin_sw_reset()          ( LINCR = 1<<LSWRES )
 #define Lin_full_reset()        { Lin_sw_reset(); Lin_clear_enable_it(); LINBRRL = 0x00; LINBRRH = 0x00; }
 
@@ -113,7 +113,7 @@
 
 // LIN commands
 #define Lin_abort()         ( LINCR &= ~LIN_CMD_MASK )
-#define Lin_rx_header()     ( LINCR &= ~LIN_CMD_MASK )   
+#define Lin_rx_header()     ( LINCR &= ~LIN_CMD_MASK )
 #define Lin_tx_header()     { LINCR &= ~LIN_CMD_MASK; LINCR|= LIN_TX_HEADER ;  }
 #define Lin_rx_response()   { LINCR &= ~LIN_CMD_MASK; LINCR|= LIN_RX_RESPONSE; }
 #define Lin_tx_response()   { LINCR &= ~LIN_CMD_MASK; LINCR|= LIN_TX_RESPONSE; }
@@ -124,9 +124,9 @@
 #define Is_lin_tx_response_ready()  ( (LINSIR & (1<<LTXOK)) ? 1 : 0 )
 
 // ID & data handling
-#define Lin_get_id()        ( LINIDR & LIN_2X_ID_MASK)      
+#define Lin_get_id()        ( LINIDR & LIN_2X_ID_MASK)
 #define Lin_clear_index()   ( LINSEL = (0<<LAINC)|(0x00<<LINDX0) )
-#define Lin_get_data()      ( LINDAT )      
+#define Lin_get_data()      ( LINDAT )
 #define Lin_set_data(data)  ( LINDAT = data )
 
 //_____ P R O T O T Y P E S ____________________________________________________
@@ -135,11 +135,11 @@
 extern "C" {
 #endif
 
-extern unsigned char lin_init (unsigned char l_type, unsigned long b_rate);
-extern unsigned char lin_tx_header (unsigned char l_type, unsigned char l_id, unsigned char l_len);
-extern unsigned char lin_rx_response (unsigned char l_type, unsigned char l_len);
-extern unsigned char lin_tx_response (unsigned char l_type, unsigned char *l_data, unsigned char l_len);
-extern void lin_get_response (unsigned char *l_data);
+extern unsigned char lin_init(unsigned char l_type, unsigned long b_rate);
+extern unsigned char lin_tx_header(unsigned char l_type, unsigned char l_id, unsigned char l_len);
+extern unsigned char lin_rx_response(unsigned char l_type, unsigned char l_len);
+extern unsigned char lin_tx_response(unsigned char l_type, unsigned char *l_data, unsigned char l_len);
+extern void lin_get_response(unsigned char *l_data);
 
 #ifdef __cplusplus
 }

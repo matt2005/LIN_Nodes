@@ -100,10 +100,13 @@ Parameter::get() const
     switch (address()) {
     case Generic::kParamProtocolVersion:
         return 1;
+
     case Generic::kParamBootloaderMode:
         return 0;
+
     case Generic::kParamFirmwareVersion:
         return RELEASE_VERSION;
+
     case Generic::kParamFirmwarePageSize:
         return SPM_PAGESIZE;
     }

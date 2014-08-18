@@ -81,10 +81,13 @@ usbFunctionSetup(uchar data[8])
             for (uint8_t i = 0; i < LINDev::Error::kErrorMax; i++) {
                 slave.errors[i].reset();
             }
+
             break;
+
         default:
             break;
         }
+
         break;
 
     case kUSBRequestGetHistory:
@@ -110,6 +113,7 @@ usbFunctionSetup(uchar data[8])
             usbMsgPtr = (uint8_t *)slave.get_data();
             return sizeof(uint16_t);
         }
+
         break;
 
     case kUSBRequestWriteData:

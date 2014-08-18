@@ -75,6 +75,7 @@ HD44780::move(Position p)
     if (p.y & 1) {
         cmd |= 0x40;
     }
+
     if (p.y & 2) {
         cmd |= 0x14;
     }

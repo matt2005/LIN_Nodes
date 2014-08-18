@@ -33,20 +33,17 @@ private:
 class Display : public Print
 {
 public:
-    struct Position
-    {
+    struct Position {
         constexpr Position(uint8_t at_x, uint8_t at_y) : x(at_x), y(at_y) {}
-        uint8_t     x:5;
-        uint8_t     y:3;
+        uint8_t     x: 5;
+        uint8_t     y: 3;
     };
-    struct Dimension
-    {
+    struct Dimension {
         constexpr Dimension(uint8_t w, uint8_t h) : width(w), height(h) {}
-        uint8_t     width:5;
-        uint8_t     height:3;
+        uint8_t     width: 5;
+        uint8_t     height: 3;
     };
-    struct Region
-    {
+    struct Region {
         constexpr Region(Position at, Dimension size) : p(at), d(size) {}
         constexpr Region(uint8_t x = 0, uint8_t y = 0, uint8_t width = 0, uint8_t height = 0) : p(x, y), d(width, height) {}
         Position    p;

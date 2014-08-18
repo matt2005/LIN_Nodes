@@ -69,14 +69,14 @@ LINDev::tick()
 }
 
 void
-LINDev::isr_TC() 
+LINDev::isr_TC()
 {
     if (Is_lin_header_ready()) {
 
         // ack the interrupt
         Lin_clear_idok_it();
 
-        // turn off the LIN transmitter 
+        // turn off the LIN transmitter
         // (we might have turned it on to send the header)
         Board::lin_CS(false);
 
@@ -91,6 +91,7 @@ LINDev::isr_TC()
 
         // copy FIFO data into a response
         Response resp;
+
         for (uint8_t i = 0; i < 8; i++) {
             resp._bytes[i] = Lin_get_data();
         }
@@ -104,7 +105,7 @@ LINDev::isr_TC()
 
     if (LINSIR & (1 << LTXOK)) {
 
-        // turn off the LIN transmitter 
+        // turn off the LIN transmitter
         // (we turned it on to send the response)
         Board::lin_CS(false);
 
@@ -122,6 +123,7 @@ LINDev::isr_TC()
 
             // copy FIFO data into a response
             Response resp;
+
             for (uint8_t i = 0; i < 8; i++) {
                 resp._bytes[i] = Lin_get_data();
             }
@@ -141,15 +143,19 @@ LINDev::isr_error()
         if (status & (1 << LBERR)) {
             errors[kErrorLine]++;
         }
+
         if (status & (1 << LCERR)) {
             errors[kErrorChecksum]++;
         }
+
         if (status & (1 << LPERR)) {
             errors[kErrorParity]++;
         }
+
         if (status & (1 << LFERR)) {
             errors[kErrorFraming]++;
         }
+
         if (status & (1 << LSERR)) {
             errors[kErrorSynchronisation]++;
         }
@@ -173,6 +179,7 @@ LINDev::st_expect_response(uint8_t length)
             // arrange for a copy-back after transmission completes
             _responseCopyBack = true;
         }
+
     } else {
         Lin_set_rx_len(length);
         Lin_rx_response();
@@ -188,6 +195,7 @@ LINDev::mt_send_header(uint8_t fid)
 
     // forcibly reset the block to clear pending operation or any other stuck error
     reinit();
+
     if (LINSIR & (1 << LBUSY)) {
         debug("TX header while busy LINSIR=%2x LINERR=%2x", LINSIR, Lin_get_error_status());
         Board::panic(Board::kPanicCodeLIN);
@@ -207,10 +215,11 @@ LINDev::st_send_response(const Response &resp, uint8_t length)
 {
     // may be called to send a response after we're already listening for one
     if (LINSIR & (1 << LBUSY)) {
-        if ((LINCR & LIN_CMD_MASK) == LIN_RX_RESPONSE) {    
+        if ((LINCR & LIN_CMD_MASK) == LIN_RX_RESPONSE) {
             Lin_abort();
             Lin_clear_err_it();
             _responseCopyBack = true;
+
         } else {
             debug("TX response while busy LINCR=%2x LINSIR=%2x", LINCR, LINSIR);
             Board::panic(Board::kPanicCodeLIN);
@@ -223,6 +232,7 @@ LINDev::st_send_response(const Response &resp, uint8_t length)
     // copy data to FIFO
     Lin_set_tx_len(length);
     Lin_clear_index();
+
     for (uint8_t i = 0; i < length; i++) {
         Lin_set_data(resp._bytes[i]);
     }

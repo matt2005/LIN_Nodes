@@ -32,7 +32,7 @@ public:
 
     constexpr uint16_t address() const { return _address; }
     constexpr bool  exists() const { return _address != noAddress; }
-    
+
 private:
     Address         _address;
 };

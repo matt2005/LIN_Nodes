@@ -49,6 +49,6 @@ main(void)
     }
 
     // jump to the application
-    Board::panic(Board::kPanicCodeAssert);        
+    Board::panic(Board::kPanicCodeAssert);
     BLSlave::run_program();
 }

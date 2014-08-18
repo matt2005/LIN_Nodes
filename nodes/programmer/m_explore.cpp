@@ -169,7 +169,7 @@ ExploreMode::draw()
             gDisplay.printf(PSTR("Master"));
             break;
 
-            // also PowerV3
+        // also PowerV3
         case PowerV1::kNodeAddress ... PowerV1::kNodeAddress + 15:
             gDisplay.printf(PSTR("Power %2u"), base - PowerV1::kNodeAddress);
             break;

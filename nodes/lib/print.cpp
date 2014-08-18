@@ -41,7 +41,7 @@ Print::printf(PGM_P fmt, ...)
 nextfmt:
         c = pgm_read_byte(fmt++);
 
-        switch(c) {
+        switch (c) {
         case '\0':                  // sanity
             return;
 
@@ -53,18 +53,18 @@ nextfmt:
             write(va_arg(ap, const char *), w);
             break;
 
-        case 't':
-            {
-                const char *t = va_arg(ap, const char *);
-                unsigned i = va_arg(ap, unsigned);
-                write(Util::strtab(t,i), w);
-            }
-            break;
+        case 't': {
+            const char *t = va_arg(ap, const char *);
+            unsigned i = va_arg(ap, unsigned);
+            write(Util::strtab(t, i), w);
+        }
+        break;
 
         case 'p':
             write('0');
             write('x');
-            /* FALLTHROUGH */
+
+        /* FALLTHROUGH */
         case 'u':
             write(va_arg(ap, unsigned), w ? w : 5);
             break;
@@ -87,22 +87,26 @@ Print::write(uint16_t n, uint8_t width)
     bool clear = false;
 
     buf[pos] = '0';
-    
+
     for (;;) {
         if (n > 0) {
             buf[pos] = '0' + n % 10;
             n /= 10;
+
         } else {
             if (clear) {
                 buf[pos] = ' ';
             }
         }
+
         if (pos == 0) {
             break;
         }
+
         clear = true;
         pos--;
-    } 
+    }
+
     while (pos < width) {
         putc(buf[pos++]);
     }
@@ -118,28 +122,33 @@ Print::writex(uint16_t n, uint8_t width)
 
         if (d <= 9) {
             putc('0' + d);
+
         } else {
             putc('a' + d - 10);
         }
+
         if (shift == 0) {
             break;
         }
+
         shift -= 4;;
     }
 }
 
 void
-Print::write(const char *s, uint8_t width) 
+Print::write(const char *s, uint8_t width)
 {
     if (s == nullptr) {
         s = PSTR("null");
     }
 
     char c;
+
     while (width > strlen_PF((uint_farptr_t)s)) {
         putc(' ');
         width--;
     }
+
     while ((c = pgm_read_byte((uint_farptr_t)s++)) != '\0') {
         putc(c);
     }

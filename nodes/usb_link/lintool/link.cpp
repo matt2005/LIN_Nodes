@@ -30,7 +30,7 @@ connect()
     int err = 0;
 
     if (cnt < 0) {
-        throw(std::runtime_error("usb: no devices"));
+        throw (std::runtime_error("usb: no devices"));
     }
 
     for (i = 0; i < cnt; i++) {
@@ -38,7 +38,7 @@ connect()
         struct libusb_device_descriptor desc;
 
         if (libusb_get_device_descriptor(device, &desc)) {
-            throw(std::runtime_error("usb: can't get descriptor"));
+            throw (std::runtime_error("usb: can't get descriptor"));
         }
 
         // match on vendor/device ID for now
@@ -48,14 +48,14 @@ connect()
             err = libusb_open(device, &_usb_handle);
 
             if (err) {
-                throw(std::runtime_error("usb: open failed"));
+                throw (std::runtime_error("usb: open failed"));
             }
 
             return;
         }
     }
 
-    throw(std::runtime_error("LIN interface not found"));
+    throw (std::runtime_error("LIN interface not found"));
 }
 
 
@@ -104,17 +104,19 @@ enable_master(bool enable)
     int result = request(kUSBRequestEnableMaster, enable ? 1 : 0, 0);
 
     if (result < 0) {
-        throw(std::runtime_error("enable_master: USB error"));
+        throw (std::runtime_error("enable_master: USB error"));
     }
 
     for (unsigned tries = 0; tries < 20; tries++) {
         usleep(50000);
+
         // check for bus no longer awake
         if (!(get_status() & RQ_STATUS_AWAKE)) {
             return;
         }
     }
-    throw(std::runtime_error("enable_master: cannot claim the bus"));
+
+    throw (std::runtime_error("enable_master: cannot claim the bus"));
 }
 
 uint8_t
@@ -125,8 +127,9 @@ get_status(unsigned which, unsigned index)
     int result = request_in(kUSBRequestStatus, index, which, &status, sizeof(status));
 
     if (result < 0) {
-        throw(std::runtime_error("get_status: USB error"));
+        throw (std::runtime_error("get_status: USB error"));
     }
+
     return status;
 }
 
@@ -136,7 +139,7 @@ set_node(uint8_t node)
     int result = request(kUSBRequestSelectNode, node, 0);
 
     if (result < 0) {
-        throw(std::runtime_error("set_node: USB error"));
+        throw (std::runtime_error("set_node: USB error"));
     }
 }
 
@@ -146,7 +149,7 @@ write_data(uint16_t index, uint16_t value)
     int result = request(kUSBRequestWriteData, value, index);
 
     if (result < 0) {
-        throw(std::runtime_error("write_data: USB error"));
+        throw (std::runtime_error("write_data: USB error"));
     }
 }
 
@@ -161,7 +164,7 @@ bulk_data(uint8_t *bytes)
     int result = request(kUSBRequestSendBulk, value, index);
 
     if (result < 0) {
-        throw(std::runtime_error("bulk_data: USB error"));
+        throw (std::runtime_error("bulk_data: USB error"));
     }
 
 }
@@ -175,7 +178,7 @@ read_data(uint16_t index)
     result = request(kUSBRequestReadData, 0, index);
 
     if (result < 0) {
-        throw(std::runtime_error("read_data: USB error in setup"));
+        throw (std::runtime_error("read_data: USB error in setup"));
     }
 
     // spin waiting for the transaction to complere
@@ -184,23 +187,25 @@ read_data(uint16_t index)
         uint8_t status = get_status();
 
         if (status & RQ_STATUS_DATA_ERROR) {
-            throw(std::runtime_error("read_data: LIN error"));
+            throw (std::runtime_error("read_data: LIN error"));
         }
 
         if (status & RQ_STATUS_DATA_READY) {
             result = request_in(kUSBRequestReadResult, 0, 0, (uint8_t *)&value, sizeof(value));
 
             if (result < 0) {
-                throw(std::runtime_error("read_data: USB error in fetch"));
+                throw (std::runtime_error("read_data: USB error in fetch"));
             }
 
             if (result != 2) {
-                throw(std::runtime_error("read_data: data error in fetch"));
+                throw (std::runtime_error("read_data: data error in fetch"));
             }
+
             return value;
         }
     }
-    throw(std::runtime_error("read_data: timed out"));
+
+    throw (std::runtime_error("read_data: timed out"));
 }
 
 } // namespace Link

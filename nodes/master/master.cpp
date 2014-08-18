@@ -62,6 +62,7 @@ MasterNode::_master_task()
             // assume the tester has been disconnected or idled
             _testerPresent = false;
         }
+
         return;
     }
 
@@ -126,7 +127,7 @@ void
 MasterNode::st_header_received()
 {
     // if we are currently the master, and awake...
-    if (_mtAwake && !_testerPresent) { 
+    if (_mtAwake && !_testerPresent) {
         Response resp;
 
         switch (current_FrameID()) {
@@ -189,13 +190,14 @@ MasterNode::st_master_request(Response &resp)
             resp.ReadByID.function = Master::kNodeFunction;
             resp.ReadByID.variant = Master::kNodeVariant;
             reply = true;
-            break;    
+            break;
         }
     }
 
     if (reply == false) {
         reply = Slave::st_master_request(resp);
     }
+
     return reply;
 }
 
@@ -203,7 +205,7 @@ void
 MasterNode::st_response_received(Response &resp)
 {
     // if we are currently the master, and awake...
-    if (_mtAwake && !_testerPresent) { 
+    if (_mtAwake && !_testerPresent) {
 
         switch (current_FrameID()) {
 
@@ -222,6 +224,7 @@ MasterNode::st_response_received(Response &resp)
             LINDev::st_response_received(resp);
             break;
         }
+
     } else {
         // let the slave logic handle it
         Slave::st_response_received(resp);
@@ -250,6 +253,7 @@ bool
 MasterNode::st_write_data(Parameter::Address address, uint16_t value)
 {
     uint8_t encoding = Master::param_encoding(address);
+
     if ((encoding != kEncoding_none) && !Encoding::invalid(encoding, value)) {
         Parameter(address).set(value);
         return true;

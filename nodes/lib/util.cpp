@@ -24,10 +24,12 @@ strtab(const char *table, uint8_t index)
         if (pgm_read_byte(p) == '\0') {
             return nullptr;
         }
+
         // skip past next nul
         while (pgm_read_byte(p++) != '\0') {
         }
     }
+
     return p;
 }
 
@@ -41,10 +43,13 @@ strtablen(const char *table)
         if (pgm_read_byte(p) == '\0') {
             break;
         }
+
         while (pgm_read_byte(p++) != '\0') {
         }
+
         count++;
     }
+
     return count;
 }
 

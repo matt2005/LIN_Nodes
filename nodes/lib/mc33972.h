@@ -15,8 +15,7 @@
 
 namespace MC33972
 {
-enum Input : uint8_t
-{
+enum Input : uint8_t {
     kInputSG0   = 0,
     kInputSG1,
     kInputSG2,

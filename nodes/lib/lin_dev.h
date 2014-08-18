@@ -22,7 +22,7 @@ public:
     static const bool   kLINDevPolled = true;
 
     LINDev(bool polled = kLINDevInterrupts);
-    
+
     /// Do one-time block initialisation
     ///
     void            init();
@@ -31,7 +31,7 @@ public:
     ///
     void            reinit();
 
-    /// Perform periodic actions; polls for new activity in polled 
+    /// Perform periodic actions; polls for new activity in polled
     /// mode.
     ///
     virtual void    tick();
@@ -39,7 +39,7 @@ public:
     /// Called from the transfer-complete ISR
     ///
     void            isr_TC();
-    
+
     /// Called from the error ISR
     ///
     void            isr_error();
@@ -56,7 +56,7 @@ public:
 
     Util::Counter16  errors[kErrorMax];     //< error counters
 
-static_assert((Generic::kParamProtocol - Generic::kParamLine) == (kErrorMax - 1), "LIN error definitions out of sync");
+    static_assert((Generic::kParamProtocol - Generic::kParamLine) == (kErrorMax - 1), "LIN error definitions out of sync");
 
 protected:
     /// Send a LIN header from the master task.
@@ -74,7 +74,7 @@ protected:
     /// @param length           The length of the response to be received.
     ///
     void            st_expect_response(uint8_t length = 8);
-    
+
     /// Called by the slave task from st_st_header_received when it wants to
     /// send a response.
     ///
@@ -88,7 +88,7 @@ protected:
 
     void            st_send_response(const volatile Response &resp, uint8_t length = 8)
     {
-        st_send_response(const_cast<const Response&>(resp), length);
+        st_send_response(const_cast<const Response &>(resp), length);
     }
 
     /// Called when a header has been received.
@@ -98,7 +98,7 @@ protected:
     /// @param fid              The FID from the received header.
     ///
     virtual void    st_header_received();
-    
+
     /// Called when a response requested by st_expect_response has been received.
     ///
     /// @param fid              The FID from the header associated with this
@@ -106,7 +106,7 @@ protected:
     /// @param resp             The received response.
     ///
     virtual void    st_response_received(Response &resp);
-    
+
     /// Called when a response has been sent.
     ///
     /// Can be used to disable the LIN transceiver after transmission is complete.
@@ -118,7 +118,7 @@ protected:
     static uint8_t current_FrameID() { return (uint8_t)Lin_get_id(); }
 
 private:
-    bool            _polled:1;
-    bool            _responseCopyBack:1;
+    bool            _polled: 1;
+    bool            _responseCopyBack: 1;
 };
 

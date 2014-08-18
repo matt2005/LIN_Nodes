@@ -51,9 +51,11 @@ Serial::tx(uint8_t c)
     for (uint8_t mask = 1; mask != 0; mask <<= 1) {
         if (c & mask) {
             pinDebugTX.set();
+
         } else {
             pinDebugTX.clear();
         }
+
         tuned_delay(BIT_DELAY);
     }
 
@@ -66,17 +68,17 @@ Serial::tx(uint8_t c)
 
 void
 Serial::tuned_delay(uint16_t delay)
-{  
-  uint8_t tmp=0;
+{
+    uint8_t tmp = 0;
 
-  asm volatile(
-    "sbiw    %0, 0x01   \n\t"
-    "ldi     %1, 0xFF   \n\t"
-    "cpi     %A0, 0xFF  \n\t"
-    "cpc     %B0, %1    \n\t"
-    "brne    .-10       \n\t"
-    : "+r" (delay), "+a" (tmp)
-    : "0" (delay)
+    asm volatile(
+        "sbiw    %0, 0x01   \n\t"
+        "ldi     %1, 0xFF   \n\t"
+        "cpi     %A0, 0xFF  \n\t"
+        "cpc     %B0, %1    \n\t"
+        "brne    .-10       \n\t"
+        : "+r"(delay), "+a"(tmp)
+        : "0"(delay)
     );
 }
 

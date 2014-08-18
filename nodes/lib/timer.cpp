@@ -26,6 +26,7 @@ Timer::Timer(Callback callback, void *arg, uint16_t interval) :
     if (_first == nullptr) {
         init();
     }
+
     _first = this;
 }
 
@@ -87,6 +88,7 @@ Timer::tick()
             t->_remaining--;
             break;
         }
+
         t = t->_next;
     }
 
@@ -117,6 +119,7 @@ Decrementer::tick()
         if (d->_count > 0) {
             d->_count--;
         }
+
         d = d->_next;
     }
 }

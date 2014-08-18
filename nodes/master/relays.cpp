@@ -306,9 +306,10 @@ turnSignals(Response &resp)
             if (blinkLeft) {
                 resp.Relays.LeftTurn = 1;
                 resp.Relays.RightTurn = 0;
+
             } else {
                 resp.Relays.RightTurn = 1;
-                resp.Relays.LeftTurn = 0;                
+                resp.Relays.LeftTurn = 0;
             }
         }
     }

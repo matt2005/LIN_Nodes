@@ -48,7 +48,8 @@ public:
     };
 
     constexpr Port(Reg_t &ddr, Reg_t &port, Reg_t &pin) : DDR(ddr), PORT(port), PIN(pin) {}
-    constexpr Pin operator[](uint8_t pin) {
+    constexpr Pin operator[](uint8_t pin)
+    {
         return Pin(*this, pin);
     }
     void set(uint8_t val) { PORT = val; };

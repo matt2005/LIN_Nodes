@@ -27,35 +27,45 @@ ToolSlave::tick()
     case kMSDisabled:
         // master is disabled, do nothing
         break;
+
     case kMSWaiting:
+
         // if the bus is idle, become the master
         if (!is_awake()) {
             _masterState = kMSRequest;
             _lastFrameStart.update();
         }
+
         break;
+
     case kMSRequest:
     case kMSResponse:
+
         // if we haven't been re-armed for a while, drop out of master mode
         if (_masterTimeout.is_older_than(1000U)) {
             _masterState = kMSDisabled;
             break;
         }
+
         // if we haven't reached the start of the next frame time, do nothing
         if (!_lastFrameStart.is_older_than(10)) {
             break;
         }
+
         // remember when we sent the next header
         _lastFrameStart.update();
+
         if (_masterState == kMSRequest) {
             // XXX optimisation - defer this until we send a response that
             // needs a SlaveResponse
             _masterState = kMSResponse;
             mt_send_header(kFrameIDMasterRequest);
+
         } else {
             _masterState = kMSRequest;
             mt_send_header(kFrameIDSlaveResponse);
         }
+
         break;
     }
 
@@ -98,7 +108,9 @@ ToolSlave::enable_master(bool enable)
         if (_masterState == kMSDisabled) {
             _masterState = kMSWaiting;
         }
+
         _masterTimeout.update();
+
     } else {
         _masterState = kMSDisabled;
     }
@@ -114,7 +126,7 @@ ToolSlave::st_header_received()
 
     // do slave processing if we aren't the master
     if (_masterState <= kMSWaiting) {
-        Slave::st_header_received();        
+        Slave::st_header_received();
     }
 
     // if we are the active master, we can respond to our own
@@ -168,6 +180,7 @@ ToolSlave::st_header_received()
             default:
                 break;
             }
+
             break;
 
         default:
@@ -200,9 +213,11 @@ ToolSlave::st_response_received(Response &resp)
                 _state = kStateIdle;
             }
         }
+
         break;
 
     default:
+
         // do slave processing if we aren't the master
         if (_masterState <= kMSWaiting) {
             Slave::st_response_received(resp);
@@ -225,12 +240,14 @@ ToolSlave::st_master_request(Response &resp)
 
     switch (resp.MasterRequest.sid) {
     case service_id::kTesterPresent:
+
         // tell the master that we're here, so that it will go away
         if ((_masterState == kMSWaiting) &&
             (resp.MasterRequest.nad == Tester::kNodeAddress)) {
             resp.MasterRequest.sid |= service_id::kResponseOffset;
             reply = true;
         }
+
         break;
 
     default:

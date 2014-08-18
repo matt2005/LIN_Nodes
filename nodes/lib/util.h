@@ -26,8 +26,8 @@ public:
     void            reset() { _value = 0; }
     void            increment() { if (_value < MAX) _value++; }
 
-    operator T & () { return _value; }
-    T & operator++() { increment(); return _value; }
+    operator T &() { return _value; }
+    T &operator++() { increment(); return _value; }
 
 private:
     T               _value;

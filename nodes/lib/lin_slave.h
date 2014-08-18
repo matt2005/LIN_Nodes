@@ -18,7 +18,7 @@
 #include "lin_dev.h"
 #include "timer.h"
 #include "board.h"
- 
+
 class Slave : public LINDev
 {
 public:
@@ -35,7 +35,7 @@ protected:
     };
     static const uint16_t kIdleTimeout = 4000;  //< 4 seconds
 
-    uint8_t         _nad;               //< node address 
+    uint8_t         _nad;               //< node address
     Timestamp       _lastActivity;      //< Bus idle timer
 
     virtual void    st_header_received() override;
@@ -51,7 +51,7 @@ protected:
     /// Called when a LIN::kMasterRequest response is received that addresses
     /// this node.
     ///
-    /// The default handler deals with kServiceIDReadDataByID, 
+    /// The default handler deals with kServiceIDReadDataByID,
     /// kServiceIDWriteDataByID, kServiceIDReadByID/kReadByIDProductID.
     ///
     /// @param resp             The response.
@@ -64,7 +64,7 @@ protected:
     ///
     /// @param resp            The frame to send in response.
     ///
-    void            st_slave_response(const Response &resp) 
+    void            st_slave_response(const Response &resp)
     {
         _response = resp;
         _sendSlaveResponse = true;
@@ -97,7 +97,7 @@ protected:
 private:
     Response        _response;          //< canned response frame
 
-    bool            _sendSlaveResponse:1;
+    bool            _sendSlaveResponse: 1;
 
     static void     idle_timeout(void *arg); //< idle timeout callback
 };

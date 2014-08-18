@@ -78,6 +78,7 @@ SetupMode::action(Encoder::Event bp)
                 gDisplay.clear(Display::Region(0, 1, 20, 2));
                 wantDraw = true;
             }
+
             break;
 
         case Encoder::kEventActivate:
@@ -87,6 +88,7 @@ SetupMode::action(Encoder::Event bp)
         default:
             break;
         }
+
     } else {
         bool indexChanged = false;
 
@@ -96,6 +98,7 @@ SetupMode::action(Encoder::Event bp)
                 _index--;
                 indexChanged = true;
             }
+
             break;
 
         case Encoder::kEventUp:
@@ -103,12 +106,14 @@ SetupMode::action(Encoder::Event bp)
                 _index++;
                 indexChanged = true;
             }
+
             break;
 
         case Encoder::kEventPress:
             if (_index == 0) {
                 return &modeExploreSetup;
             }
+
             _editing = true;
             wantDraw = true;
             break;
@@ -145,7 +150,7 @@ SetupMode::init(uint8_t nad)
 
     if (gSlave.get_parameter(nad, 0, flavour)) {
         switch (flavour) {          // XXX kBoardFunctionID value
-                                    // XXX should be using Read By ID
+        // XXX should be using Read By ID
         case 0:
             _flavour = kFlavourMaster;
             break;
@@ -174,9 +179,11 @@ SetupMode::draw()
     gDisplay.clear(Display::Region(0, 1, 20, 2));
 
     const char *name = PSTR("Back");
+
     if (_index > 0) {
         name = param_name(_param.address());
     }
+
     gDisplay.move(0, 1);
     gDisplay.printf(PSTR("%2s%18s"), _editing ? PSTR("  ") : PSTR(">>"), name);
 
@@ -186,10 +193,13 @@ SetupMode::draw()
 
         gDisplay.move(0, 2);
         gDisplay.printf(PSTR("%2s"), _editing ? PSTR(">>") : PSTR("  "));
+
         if (_readError) {
             gDisplay.printf(PSTR("READ ERROR @ 0x%x"), _param.address());
+
         } else if (info == nullptr) {
             gDisplay.printf(PSTR("%u"), _value);
+
         } else {
             gDisplay.printf(PSTR("%18s"), info);
         }
@@ -286,6 +296,7 @@ SetupMode::adjust_value(int16_t offset)
     if ((offset < 0) && ((offset + _value) > _value)) {
         return false;
     }
+
     if ((offset + _value) < _value) {
         return false;
     }
@@ -296,6 +307,7 @@ SetupMode::adjust_value(int16_t offset)
     if (Encoding::invalid(encoding, new_value)) {
         return false;
     }
+
     _value = new_value;
     return true;
 }

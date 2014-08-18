@@ -24,24 +24,30 @@
 
 void
 print_status()
-{    
+{
     warnx("free memory: %u", Link::get_status(RQ_STATUS_FREEMEM));
     uint8_t status = Link::get_status();
+
     if (status & RQ_STATUS_DATA_READY) {
         warnx("status: DATA_READY");
     }
+
     if (status & RQ_STATUS_DATA_ERROR) {
         warnx("status: DATA_ERROR");
     }
+
     if (status & RQ_STATUS_AWAKE) {
         warnx("status: AWAKE");
     }
+
     if (status & RQ_STATUS_WAITING) {
         warnx("status: WAITING");
     }
+
     if (status & RQ_STATUS_MASTER) {
         warnx("status: MASTER");
     }
+
     warnx("Errors:");
     warnx("  line:            %u", Link::get_status(RQ_STATUS_LINERR, 0));
     warnx("  checksum:        %u", Link::get_status(RQ_STATUS_LINERR, 1));
@@ -58,12 +64,14 @@ print_parameters()
     Link::set_node(1);
 
     uint16_t value = 0xffff;
+
     try {
         value = Link::read_data(Generic::kParamProtocolVersion);
         warnx("%d: got %d", 1, value);
-    } catch(std::runtime_error &re) {
+
+    } catch (std::runtime_error &re) {
         warnx("read failed: %s", re.what());
-        Log::log(false);        
+        Log::log(false);
     }
 
     Link::enable_master(false);
@@ -74,7 +82,7 @@ print_parameters()
 
 int
 main(int argc, const char *argv[])
-{  
+{
     Link::connect();
     Log::clear();
 
@@ -83,13 +91,16 @@ main(int argc, const char *argv[])
             print_status();
             exit(0);
         }
+
         if (!strcmp(argv[1], "-trace")) {
             Log::log();
         }
+
         if (!strcmp(argv[1], "-master")) {
             Link::enable_master(true);
             exit(0);
         }
+
         if (!strcmp(argv[1], "-dump")) {
             print_parameters();
             exit(0);

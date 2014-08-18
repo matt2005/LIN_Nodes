@@ -18,7 +18,7 @@
 class Timer
 {
 public:
-    typedef void        (*Callback)(void *arg);  //< timer expiry callback function
+    typedef void (*Callback)(void *arg);         //< timer expiry callback function
     typedef uint16_t    Timeval;        //< timer period or value in milliseconds
 
     static const Timeval kMaxTimeval = ~(Timeval)0; // UINT16_MAX
@@ -97,7 +97,7 @@ private:
 class Ticker : public Timer
 {
 public:
-    Ticker(Timer::Timeval interval) : 
+    Ticker(Timer::Timeval interval) :
         Timer(Ticker::tick, this, interval),
         _ticked(false)
     {
@@ -109,6 +109,7 @@ public:
             _ticked = false;
             return true;
         }
+
         return false;
     }
 

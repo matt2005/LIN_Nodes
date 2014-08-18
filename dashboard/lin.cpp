@@ -86,7 +86,7 @@ LINDev::interrupt()
     if (reason == UART_U0IIR_IntId_RLS) {
 
         // any line status update will cause us to drop an in-progress frame
-        _fid = LIN::kFrameIDNone;
+        _fid = kFrameIDNone;
         _receivedLen = 0;
         _waitLen = 0;
 
@@ -168,8 +168,8 @@ void
 LINDev::header_received()
 {
     switch (_fid) {
-    case LIN::kFrameIDRelays:
-    case LIN::kFrameIDECUData:
+    case kFrameIDRelays:
+    case kFrameIDECUData:
         _waitLen = 8;
         break;
 
@@ -184,7 +184,7 @@ LINDev::response_received()
     _perfFrames.count();
 
     switch (_fid) {
-    case LIN::kFrameIDRelays:
+    case kFrameIDRelays:
         ttLeftTurn = frame_bit(kRelayIDLeftTurn);
         ttRightTurn = frame_bit(kRelayIDRightTurn);
         ttLowBeam = frame_bit(kRelayIDHeadLights) || frame_bit(kRelayIDLowBeam);
@@ -192,7 +192,7 @@ LINDev::response_received()
         linkUp = true;
         break;
 
-    case LIN::kFrameIDECUData: {
+    case kFrameIDECUData: {
         //LIN::ECUDataFrame f(_buf);
 
         //roadSpeed = f.roadSpeed();

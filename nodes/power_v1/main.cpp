@@ -9,12 +9,14 @@
 
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 
 #include "board.h"
 #include "slave.h"
 
-#include "protocol.h"
-#include "param_power_v1.h"
+#include "lin_defs.h"
+
+using namespace PowerV1;
 
 void
 main(void)
@@ -29,10 +31,10 @@ main(void)
 
 #ifdef DEBUG
     OSCCAL += 7;    // XXX test board's osc is slow
-    debug("1: %u", paramRelay1Assign.get()); // .get() required to avoid internal compiler error
-    debug("2: %u", paramRelay2Assign.get()); // .get() required to avoid internal compiler error
-    debug("3: %u", paramRelay3Assign.get()); // .get() required to avoid internal compiler error
-    debug("4: %u", paramRelay4Assign.get()); // .get() required to avoid internal compiler error
+    debug("1: %u", Parameter(kParamRelay1Assign).get());
+    debug("2: %u", Parameter(kParamRelay2Assign).get());
+    debug("3: %u", Parameter(kParamRelay3Assign).get());
+    debug("4: %u", Parameter(kParamRelay4Assign).get());
 #endif
 
     // power switch control pins
@@ -53,8 +55,15 @@ main(void)
     pinSTATUS4.cfg_input_no_pull();
 # endif
 
-    // init/default parameters
-    power_v1ParamAll(init);
+    // init parameters (set to defaults if not valid)
+    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
+        Parameter p(addr);
+        uint8_t encoding = param_encoding(addr);
+
+        if ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get())) {
+            p.set(param_default(addr));
+        }
+    }
 
     // construct the slave
     RelaySlave  slave(id);
@@ -69,28 +78,28 @@ main(void)
         slave.tick();
 
         // adjust outputs to match our commanded value
-        if (slave.test_relay((RelayID)paramRelay1Assign.get())) {
+        if (slave.test_relay(Parameter(kParamRelay1Assign).get())) {
             pinOUT1.set();
 
         } else {
             pinOUT1.clear();
         }
 
-        if (slave.test_relay((RelayID)paramRelay2Assign.get())) {
+        if (slave.test_relay(Parameter(kParamRelay2Assign).get())) {
             pinOUT2.set();
 
         } else {
             pinOUT2.clear();
         }
 
-        if (slave.test_relay((RelayID)paramRelay3Assign.get())) {
+        if (slave.test_relay(Parameter(kParamRelay3Assign).get())) {
             pinOUT3.set();
 
         } else {
             pinOUT3.clear();
         }
 
-        if (slave.test_relay((RelayID)paramRelay4Assign.get())) {
+        if (slave.test_relay(Parameter(kParamRelay4Assign).get())) {
             pinOUT4.set();
 
         } else {
@@ -124,3 +133,40 @@ main(void)
     }
 }
 
+void
+Parameter::set(uint16_t value) const
+{
+    switch (address()) {
+    case Generic::kParamBootloaderMode:
+        if (value == 0x4f42) {        // 'BO'
+            Board::enter_bootloader();
+        }
+    }
+
+    if ((address() >> 8) == 0x04) {
+        uint8_t index = address() & 0xff;
+        eeprom_update_word((uint16_t *)(index * 2), value);
+    }
+}
+
+uint16_t
+Parameter::get() const
+{
+    switch (address()) {
+    case Generic::kParamProtocolVersion:
+        return 1;
+    case Generic::kParamBootloaderMode:
+        return 0;
+    case Generic::kParamFirmwareVersion:
+        return RELEASE_VERSION;
+    case Generic::kParamFirmwarePageSize:
+        return SPM_PAGESIZE;
+    }
+
+    if ((address() >> 8) == 0x04) {
+        uint8_t index = address() & 0xff;
+        return eeprom_read_word((const uint16_t *)(index * 2));
+    }
+
+    return 0;
+}

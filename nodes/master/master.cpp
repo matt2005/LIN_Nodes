@@ -16,28 +16,23 @@
 #include "board.h"
 #include "master.h"
 
-#include "param_master.h"
-
 // Schedule used in normal operation
 //
-PROGMEM const LIN::FrameID Master::_schedule[] = {
-    LIN::kFrameIDRelays,
-    LIN::kFrameIDProxyRequest,
-    LIN::kFrameIDMasterRequest,
-    LIN::kFrameIDSlaveResponse,
+PROGMEM const uint8_t MasterNode::_schedule[] = {
+    kFrameIDRelays,
+    kFrameIDMasterRequest,
+    kFrameIDSlaveResponse,
 };
 
-const uint8_t Master::_scheduleLength = sizeof(Master::_schedule) / sizeof(Master::_schedule[0]);
+const uint8_t MasterNode::_scheduleLength = sizeof(MasterNode::_schedule) / sizeof(MasterNode::_schedule[0]);
 
-Master::Master() :
-    Slave(LIN::kNodeAddressMaster),
+MasterNode::MasterNode() :
+    Slave(Master::kNodeAddress),
     _testerPresent(0),
-    _mtTimer((Timer::Callback)Master::master_task, this, _frameTime),
+    _mtTimer((Timer::Callback)MasterNode::master_task, this, _frameTime),
     _mtIndex(0),
     _mtAwake(true),
     _mtSleepRequest(false),
-    _stProxyRequest(false),
-    _stProxyResponse(false),
     _stExpectResponse(false)
 {
 #ifdef pinDebugStrobe
@@ -47,20 +42,30 @@ Master::Master() :
 }
 
 void
-Master::master_task(void *arg)
+MasterNode::master_task(void *arg)
 {
-    reinterpret_cast<Master *>(arg)->_master_task();
+    reinterpret_cast<MasterNode *>(arg)->_master_task();
 }
 
 void
-Master::_master_task()
+MasterNode::_master_task()
 {
-    // If the network is not awake, make sure the transceiver is turned off
-    // and don't transmit anything.
+    // If the master task is not awake, don't do anything here.
     if (!_mtAwake) {
         return;
     }
 
+    // If there was a tester attached, and it is still active, don't
+    // do anything here.
+    if (_testerPresent) {
+        if (_lastActivity.is_older_than(2000U)) {
+            // assume the tester has been disconnected or idled
+            _testerPresent = false;
+        }
+        return;
+    }
+
+    // walk along the schedule looking for something to do
     do {
 
         if (_mtIndex >= _scheduleLength) {
@@ -68,7 +73,7 @@ Master::_master_task()
             _mtIndex = 0;
 
             // safe point in the schedule to enable sleep, if requested and allowed
-            if (_mtSleepRequest && !_testerPresent) {
+            if (_mtSleepRequest) {
                 _mtAwake = false;
                 // turn off the transceiver
                 Board::lin_CS(false);
@@ -83,29 +88,21 @@ Master::_master_task()
         }
 
         // get the next frame from the schedule
-        LIN::FrameID fid = schedule_entry(_mtIndex++);
+        uint8_t fid = schedule_entry(_mtIndex++);
 
         // special handling for optional frame types
         switch (fid) {
 
-        case LIN::kFrameIDProxyRequest:
-
-            if (_testerPresent == 0) {
-                continue;
-            }
-
-            break;
-
-        case LIN::kFrameIDMasterRequest:
+        case kFrameIDMasterRequest:
 
             // XXX optimise - only send when we have something to send
 
             break;
 
-        case LIN::kFrameIDSlaveResponse:
+        case kFrameIDSlaveResponse:
 
             // only send when something is expected to respond
-            if (!_stProxyResponse && !_stExpectResponse) {
+            if (!_stExpectResponse) {
                 continue;
             }
 
@@ -126,152 +123,138 @@ Master::_master_task()
 }
 
 void
-Master::st_header_received()
+MasterNode::st_header_received()
 {
-    switch (current_FrameID()) {
-    case LIN::kFrameIDRelays:
-        // send the relay state
-        st_send_response(relayFrame);
-        break;
+    // if we are currently the master, and awake...
+    if (_mtAwake && !_testerPresent) { 
+        Response resp;
 
-    case LIN::kFrameIDProxyRequest:
-        // collect any response from the programmer
-        st_expect_response();
-        break;
+        switch (current_FrameID()) {
+        case kFrameIDRelays:
+            // send the relay state
+            st_send_response(relayFrame);
+            break;
 
-    case LIN::kFrameIDMasterRequest:
+        case kFrameIDMasterRequest:
 
-        // if we have promised to proxy a request, send it immediately
-        if (_stProxyRequest) {
-            st_send_response(_stProxyFrame);
-
-            // if the proxy request was for us, we
-            // need to prepare a reply
-            if ((_stProxyFrame.nad() == _nad) &&
-                (st_master_request(_stProxyFrame))) {
-                _stProxyResponse = true;
-            }
-
-            _stProxyRequest = false;
-
-        } else {
             // XXX should be more flexible about what we send here...
-            st_send_response(LIN::Frame(LIN::kNodeAddressTester,
-                                        2,
-                                        LIN::kServiceIDTesterPresent,
-                                        0,
-                                        _testerPresent));
 
-            if (_testerPresent > 0) {
-                _testerPresent--;
-            }
-        }
+            resp.SlaveResponse.nad = Tester::kNodeAddress;
+            resp.SlaveResponse.pci = pci::kSingleFrame;
+            resp.SlaveResponse.length = 2;
+            resp.SlaveResponse.sid = service_id::kTesterPresent;
+            resp.SlaveResponse.d1 = 0;
+            st_send_response(resp);
 
-        _stExpectResponse = true;
-        break;
+            // make sure that we emit a SlaveResponse frame so that the slave can respond
+            _stExpectResponse = true;
+            break;
 
-    case LIN::kFrameIDSlaveResponse:
+        case kFrameIDSlaveResponse:
 
-        // if we have a proxy response, we should send it
-        if (_stProxyResponse) {
-            st_send_response(_stProxyFrame);
-            _stProxyResponse = false;
-
-        } else {
             // arrange to receive the response for our own use
             st_expect_response();
+
+            break;
+
+        default:
+            LINDev::st_header_received();
+            break;
         }
 
-        break;
+        // reset the idle timeout
+        _lastActivity.update();
 
-    default:
-        LINDev::st_header_received();
-        break;
+    } else {
+        // let the slave logic handle it
+        Slave::st_header_received();
     }
 }
 
-void
-Master::st_response_received(LIN::Frame &frame)
+bool
+MasterNode::st_master_request(Response &resp)
 {
-    switch (current_FrameID()) {
+    bool reply = false;
 
-    case LIN::kFrameIDProxyRequest:
-        // save for re-transmission
-        _stProxyFrame.copy(frame);
-        _stProxyRequest = true;
-        break;
+    // ReadByID
+    switch (resp.MasterRequest.sid) {
 
-    case LIN::kFrameIDSlaveResponse:
-
-        // is this a response from a tester?
-        if ((frame.nad() == LIN::kNodeAddressTester) &&
-            (frame.sid() == (LIN::kServiceIDTesterPresent | LIN::kServiceIDResponseOffset))) {
-            _testerPresent = 0xff;
+    case service_id::kReadByID:
+        switch (resp.MasterRequest.d1) {
+        case 0: // LIN product identification
+            resp.ReadByID.pci = pci::kSingleFrame;
+            resp.ReadByID.length = 6;
+            resp.ReadByID.sid |= service_id::kResponseOffset;
+            resp.ReadByID.vendor = Master::kNodeSupplier;
+            resp.ReadByID.function = Master::kNodeFunction;
+            resp.ReadByID.variant = Master::kNodeVariant;
+            reply = true;
+            break;    
         }
+    }
 
-        break;
+    if (reply == false) {
+        reply = Slave::st_master_request(resp);
+    }
+    return reply;
+}
 
-    default:
-        // intentional bypass of Slave::st_response_received
-        LINDev::st_response_received(frame);
-        break;
+void
+MasterNode::st_response_received(Response &resp)
+{
+    // if we are currently the master, and awake...
+    if (_mtAwake && !_testerPresent) { 
+
+        switch (current_FrameID()) {
+
+        case kFrameIDSlaveResponse:
+
+            // is this a response from a tester?
+            if ((resp.SlaveResponse.nad == Tester::kNodeAddress) &&
+                (resp.SlaveResponse.sid == (service_id::kTesterPresent | service_id::kResponseOffset))) {
+                _testerPresent = true;
+            }
+
+            break;
+
+        default:
+            // intentional bypass of Slave::st_response_received
+            LINDev::st_response_received(resp);
+            break;
+        }
+    } else {
+        // let the slave logic handle it
+        Slave::st_response_received(resp);
     }
 }
 
 void
-Master::st_sleep_requested(SleepType type)
+MasterNode::st_sleep_requested(SleepType type)
 {
     // ignore this
 }
 
 bool
-Master::st_read_data(uint8_t page, uint8_t index, uint16_t &value)
+MasterNode::st_read_data(Parameter::Address address, uint16_t &value)
 {
-    bool result = false;
-
-    switch (page) {
-    case kDataPageStatus:
-        // XXX should implement this in a somewhat-generic fashion?
-        break;
-
-    case kDataPageNodeParameters:
-        if (index < kMasterParamMax) {
-            value = masterParam(index);
-            result = true;
-        }
-
-        break;
-
+    if (Master::param_exists(address)) {
+        value = Parameter(address).get();
+        return true;
     }
 
-    if (!result) {
-        result = Slave::st_read_data(page, index, value);
-    }
-
-    return result;
+    // pass to superclass
+    return Slave::st_read_data(address, value);
 }
 
 bool
-Master::st_write_data(uint8_t page, uint8_t index, uint16_t value)
+MasterNode::st_write_data(Parameter::Address address, uint16_t value)
 {
-    bool result = false;
-
-    switch (page) {
-    case kDataPageNodeParameters:
-        if (index < kMasterParamMax) {
-            masterParam(index).set(value & 0xff);
-            result = true;
-        }
-
-        break;
-
-    default:
-        break;
+    uint8_t encoding = Master::param_encoding(address);
+    if ((encoding != kEncoding_none) && !Encoding::invalid(encoding, value)) {
+        Parameter(address).set(value);
+        return true;
     }
 
-    if (!result) {
-        result = Slave::st_write_data(page, index, value);
-    }
-
-    return result;
+    // pass to superclass
+    return Slave::st_write_data(address, value);
 }

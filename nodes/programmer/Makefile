@@ -1,24 +1,25 @@
+ifeq (1,1)
+$(MAKECMDGOALS):
+	@echo "Programmer build currently disabled pending redesign"
+else
 DEBUG		 = YES
 
 PROG		 = programmer
 SRCS		 = main.cpp \
 		   menu.cpp \
-		   m_edit.cpp \
 		   m_top.cpp \
 		   m_explore.cpp \
 		   m_info.cpp \
 		   m_setup.cpp \
-		   m_test.cpp \
 		   slave.cpp
+
+SRCS		+= lin_defs.cpp
 
 SRCS		+= board.cpp \
 		   encoder.cpp \
 		   hd44780.cpp \
 		   lin_dev.cpp \
 		   lin_slave.cpp \
-		   param_master.cpp \
-		   param_power_v1.cpp \
-		   param_power_v3.cpp \
 		   print.cpp \
 		   softserial.cpp \
 		   timer.cpp \
@@ -27,3 +28,4 @@ SRCS		+= board.cpp \
 BOARD		 = PROGRAMMER_V1
 
 include ../rules.mk
+endif

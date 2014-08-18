@@ -12,6 +12,7 @@ CPPCHECK	 = cppcheck
 SIZE		 = avr-size
 OBJCOPY		 = avr-objcopy
 AVRDUDE		 = avrdude
+XXD		 = xxd
 
 MCU		 = attiny167
 
@@ -38,7 +39,8 @@ CHECKOPTS	 = --enable=warning		\
 INCLUDES	 = -I$(TOPDIR)/common		\
 		   -I$(SRCROOT)/lib		\
 		   -I$(SRCROOT)/$(PROG)		\
-		   $(foreach dir,$(SUBDIRS),-I$(SRCROOT)/$(PROG)/$(dir))
+		   $(foreach dir,$(SUBDIRS),-I$(SRCROOT)/$(PROG)/$(dir)) \
+		   $(foreach dir,$(EXTRA_INCLUDES),-I$(dir))
 
 # -O2 gives best code size, -O3 gives best RAM usage
 COMPILEFLAGS	 = $(ARCHFLAGS)			\
@@ -46,8 +48,8 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 		   -O2				\
 		   -funsigned-char		\
 		   -funsigned-bitfields		\
-		   -fshort-enums		\
 		   -fno-inline-small-functions	\
+		   -fshort-enums		\
 		   -fno-stack-protector		\
 		   -ffreestanding		\
 		   -Wall			\
@@ -59,34 +61,45 @@ COMPILEFLAGS	 = $(ARCHFLAGS)			\
 
 CFLAGS		 = $(COMPILEFLAGS)		\
 		   -std=gnu11			\
-		   -Wstrict-prototypes
+		   -Wstrict-prototypes		\
+		   $(EXTRA_CFLAGS)
 
 CXXFLAGS	 = $(COMPILEFLAGS)		\
 		   -std=gnu++11			\
 		   -fno-exceptions		\
-		   -fno-rtti
+		   -fno-rtti			\
+		   $(EXTRA_CXFLAGS)
 
 ASFLAGS		 = $(ARCHFLAGS)			\
 		   $(INCLUDES)			\
-		   $(DEFINES)
+		   $(DEFINES)			\
+		   $(EXTRA_ASFLAGS)	
 
 LDFLAGS		 = $(ARCHFLAGS)			\
 		   -gdwarf-2			\
 		   -Wl,-gc-sections		\
 		   -Wl,--relax			\
 		   -fno-exceptions		\
-		   -fno-rtti
+		   -fno-rtti			\
+		   $(EXTRA_LDFLAGS)
 
-vpath %.c	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
-vpath %.cpp	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
+vpath %.c	$(SRCROOT)/lib $(SRCROOT)/../common $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
+vpath %.cpp	$(SRCROOT)/lib $(SRCROOT)/../common $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
 vpath %.S	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
 vpath %.h	$(SRCROOT)/lib $(foreach dir,$(SUBDIRS),$(SRCROOT)/$(PROG)/$(dir))
 
-ELF		:= $(BUILDDIR)/$(PROG).elf
-HEX		:= $(BUILDDIR)/$(PROG).hex
+PROGNAME	?= $(PROG)
+ELF		:= $(BUILDDIR)/$(PROGNAME).elf
+HEX		:= $(BUILDDIR)/$(PROGNAME).hex
+BIN		:= $(BUILDDIR)/$(PROGNAME).bin
+HEADER		:= $(BUILDDIR)/$(PROGNAME).h
+MAP		:= $(ELF).map
 
 OBJS		:= $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
 DEPS		:= $(OBJS:.o=.d)
+
+BUILD_TARGET	?= $(ELF)
+UPLOAD_HEX	?= $(HEX)
 
 HDRS		 = $(shell $(CC) -E -H $(DEFINES) $(INCLUDES) $(SRCS))
 
@@ -95,19 +108,32 @@ q		= @
 endif
 
 .SUFFIXES:
+
+build:	$(BUILD_TARGET)
+hex:	$(HEX)
+bin:	$(BIN)
+header:	$(HEADER)
+
 $(ELF) $(OBJS):	$(MAKEFILE_LIST)
 
-build:	$(ELF)
-
-upload: $(ELF)
+upload: $(UPLOAD_HEX)
 #	$(AVRDUDE) -p $(MCU) -c usbasp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
-	$(AVRDUDE) -B 8 -p $(MCU) -c jtag2isp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$< $(FUSES)
+	$(AVRDUDE) -p $(MCU) -c jtag2isp -C $(TOPDIR)/etc/$(MCU).conf -U flash:w:$<:i $(FUSES)
 
 usbload: $(HEX)
 	micronucleus $<
 
 $(HEX): $(ELF)
-	$q $(OBJCOPY) -Oihex $< $@
+	@echo HEX $(notdir $@)
+	$q $(OBJCOPY) -j .text -j .data -O ihex $< $@
+
+$(BIN): $(ELF)
+	@echo BIN $(notdir $@)
+	$q $(OBJCOPY) -j .text -j .data -O binary $< $@
+
+$(HEADER): $(BIN)
+	@echo HEADER $(notdir $@)
+	$q cd $(dir $<) && $(XXD) -i $(notdir $<) > $@
 
 $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 	@echo LINK $(notdir $@)
@@ -117,7 +143,7 @@ $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 .PHONY: clean
 clean:
 	@echo CLEAN $(BUILDDIR)
-	$q rm -f $(ELF) $(OBJS) $(DEPS)
+	$q rm -f $(ELF) $(BIN) $(HEX) $(HEADER) $(OBJS) $(DEPS) $(MAP) $(BUILD_TARGET)
 
 .PHONY: check
 check:

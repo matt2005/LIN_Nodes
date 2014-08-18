@@ -1,7 +1,7 @@
 USBFLAGS	:= $(shell pkg-config --cflags libusb-1.0)
 USBLIBS		:= $(shell pkg-config --libs libusb-1.0)
 
-SRCS		 = lintool.cpp
+SRCS		 = lintool.cpp link.cpp log.cpp ../../../common/lin_defs.cpp
 
 CXX		 = c++
 FLAGS		 = -std=gnu++11 $(USBFLAGS) -O0 -g -Wall

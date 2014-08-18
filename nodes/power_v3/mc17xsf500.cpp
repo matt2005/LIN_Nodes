@@ -10,8 +10,9 @@
 #include "mc17xsf500.h"
 #include "board.h"
 
-#include "protocol.h"
-#include "param_power_v3.h"
+#include "lin_defs.h"
+
+using namespace PowerV3;
 
 namespace MC17XSF500
 {
@@ -93,8 +94,8 @@ public:
         if (duty_cycle > 0) {
             chX_control.on = 1;
 
-            switch (power_v3Param(kParamCH1Type + channel)) {
-            case kRelayTypeHID:
+            switch (Parameter(kParamCH1Type + channel).get()) {
+            case output_type::kHID:
                 chX_control.pwm = 255;              // HID cannot be PWM controlled
                 break;
 
@@ -121,11 +122,11 @@ public:
         over_current_control_1.acm = 0; // XXX might want to enable for low-current loads?
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (power_v3Param(kParamCH1Type + channel)) {
-            case kRelayType5AGeneric:
-            case kRelayTypeLED:
-            case kRelayTypeHID:
-            case kRelayTypeLowPowerBulb:
+            switch (Parameter(kParamCH1Type + channel).get()) {
+            case output_type::k5AGeneric:
+            case output_type::kLED:
+            case output_type::kHID:
+            case output_type::kLowPowerBulb:
                 over_current_control_1.oclo |= (1 << channel);
                 break;
 
@@ -145,10 +146,10 @@ public:
         address.data = 0;
 
         // low-frequency PWM for motors and bulbs
-        switch (paramCH1Type) {
-        case kRelayTypeLowPowerBulb:
-        case kRelayTypeHighPowerBulb:
-        case kRelayTypeMotor:
+        switch (Parameter(kParamCH1Type).get()) {
+        case output_type::kLowPowerBulb:
+        case output_type::kHighPowerBulb:
+        case output_type::kMotor:
             prescaler_1.prs1 = kPRSDiv4;
             break;
 
@@ -156,10 +157,10 @@ public:
             break;
         }
 
-        switch (paramCH2Type) {
-        case kRelayTypeLowPowerBulb:
-        case kRelayTypeHighPowerBulb:
-        case kRelayTypeMotor:
+        switch (Parameter(kParamCH2Type).get()) {
+        case output_type::kLowPowerBulb:
+        case output_type::kHighPowerBulb:
+        case output_type::kMotor:
             prescaler_1.prs2 = kPRSDiv4;
             break;
 
@@ -167,10 +168,10 @@ public:
             break;
         }
 
-        switch (paramCH3Type) {
-        case kRelayTypeLowPowerBulb:
-        case kRelayTypeHighPowerBulb:
-        case kRelayTypeMotor:
+        switch (Parameter(kParamCH3Type).get()) {
+        case output_type::kLowPowerBulb:
+        case output_type::kHighPowerBulb:
+        case output_type::kMotor:
             prescaler_1.prs3 = kPRSDiv4;
             break;
 
@@ -178,10 +179,10 @@ public:
             break;
         }
 
-        switch (paramCH4Type) {
-        case kRelayTypeLowPowerBulb:
-        case kRelayTypeHighPowerBulb:
-        case kRelayTypeMotor:
+        switch (Parameter(kParamCH4Type).get()) {
+        case output_type::kLowPowerBulb:
+        case output_type::kHighPowerBulb:
+        case output_type::kMotor:
             prescaler_1.prs4 = kPRSDiv4;
             break;
 
@@ -189,10 +190,10 @@ public:
             break;
         }
 
-        switch (paramCH5Type) {
-        case kRelayTypeLowPowerBulb:
-        case kRelayTypeHighPowerBulb:
-        case kRelayTypeMotor:
+        switch (Parameter(kParamCH5Type).get()) {
+        case output_type::kLowPowerBulb:
+        case output_type::kHighPowerBulb:
+        case output_type::kMotor:
             prescaler_1.prs5 = kPRSDiv4;
             break;
 
@@ -211,9 +212,9 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (power_v3Param(kParamCH1Type + channel)) {
-            case kRelayTypeLowPowerBulb:
-            case kRelayTypeHighPowerBulb:
+            switch (Parameter(kParamCH1Type + channel).get()) {
+            case output_type::kLowPowerBulb:
+            case output_type::kHighPowerBulb:
                 break;
 
             default:
@@ -236,8 +237,8 @@ public:
         address.data = 0;
 
         for (uint8_t channel = 0; channel < num_channels; channel++) {
-            switch (power_v3Param(kParamCH1Type + channel)) {
-            case kRelayTypeLED:
+            switch (Parameter(kParamCH1Type + channel).get()) {
+            case output_type::kLED:
                 olled_control.olled_en |= (1 << channel);
                 break;
 

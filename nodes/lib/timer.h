@@ -126,7 +126,7 @@ public:
     bool            is_older_than(Timer::Timeval interval) const { return time_since() > interval; }
     void            update() { _taken = Timer::time_now(); }
 
-//private:
+private:
     volatile Timer::Timeval _taken;
 };
 

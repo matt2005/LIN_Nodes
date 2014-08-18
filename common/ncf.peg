@@ -1,0 +1,215 @@
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.
+# ----------------------------------------------------------------------------
+
+PEG LIN_NCF (node_capability_file)
+
+##
+## syntax
+##
+
+###################################################################################################
+
+node_capability_file    <- SPACE 'node_capability_file' SEMICOLON
+                            language_version
+                            node_definition*
+                            EOF ;
+
+    language_version        <- 'LIN_language_version' EQUALS String SEMICOLON ;
+
+
+node_definition         <- 'node' SPACE Name OPEN_BRACE
+                            general_definition
+                            diagnostic_definition
+                            frame_definition?
+                            parameter_definition?
+                            encoding_definition?
+                            status_management?
+                            free_text_definition?
+                            CLOSE_BRACE ;
+
+###################################################################################################
+    
+general_definition      <- 'general' OPEN_BRACE
+                            protocol_version
+                            supplier
+                            function
+                            variant
+                            bitrate
+                            sends_wakeup
+                            CLOSE_BRACE ;
+
+    protocol_version    <- 'LIN_protocol_version' EQUALS String SEMICOLON ;
+    supplier            <- 'supplier' EQUALS Integer SEMICOLON ;
+    function            <- 'function' EQUALS Integer SEMICOLON ;
+    variant             <- 'variant' EQUALS Integer SEMICOLON ;
+    bitrate             <- 'bitrate' EQUALS 
+                            (automatic_bitrate / select_bitrate / fixed_bitrate) 
+                            SEMICOLON ;
+    automatic_bitrate   <- 'automatic' SPACE min_bitrate? SPACE max_bitrate? SEMICOLON ;
+    min_bitrate         <- 'min' SPACE fixed_bitrate ;
+    max_bitrate         <- 'max' SPACE fixed_bitrate ;
+    select_bitrate      <- 'select' SPACE OPEN_BRACE
+                            fixed_bitrate
+                            (COMMA fixed_bitrate)*
+                            CLOSE_BRACE ;
+    fixed_bitrate       <- (Real SPACE 'kbps') / Integer ;      # integer format as per J2602-3
+    sends_wakeup        <- 'sends_wake_up_signal' EQUALS String SEMICOLON ;
+
+###################################################################################################
+
+diagnostic_definition   <- 'diagnostic' OPEN_BRACE
+                            node_address
+                            diagnostic_class
+                            support_sid?
+                            max_message_length?
+                            CLOSE_BRACE ;
+
+    node_address            <- 'NAD' EQUALS (node_address_range / node_address_list) SEMICOLON ;
+    node_address_range      <- Integer 'to' Integer ;
+    node_address_list       <- Integer (COMMA Integer)* ;
+    diagnostic_class        <- 'diagnostic_class' EQUALS Integer SEMICOLON ;
+    support_sid             <- 'support_sid' OPEN_BRACE
+                                Integer
+                                (COMMA Integer)*
+                                CLOSE_BRACE SEMICOLON ;
+    max_message_length      <- 'max_message_length' EQUALS Integer SEMICOLON ;
+
+###################################################################################################
+
+frame_definition        <- 'frames' OPEN_BRACE
+                            published_frame*
+                            subscribed_frame*
+                            CLOSE_BRACE ;
+
+    published_frame         <- 'publish' SPACE Name OPEN_BRACE
+                                frame_properties?
+                                frame_signals?
+                                CLOSE_BRACE ;
+
+    # XXX duplication here seems pointless
+    subscribed_frame        <- 'subscribe' SPACE Name OPEN_BRACE
+                                frame_properties?
+                                frame_signals?
+                                CLOSE_BRACE ;
+
+        frame_properties        <- frame_length 
+                                   frame_min_period?
+                                   frame_max_period? 
+                                   frame_id? ;
+
+            frame_length            <- 'length' EQUALS Integer SEMICOLON ;
+            frame_min_period        <- 'min_period' EQUALS Integer 'ms' SEMICOLON ;
+            frame_max_period        <- 'max_period' EQUALS Integer 'ms' SEMICOLON ;
+            # J2602-3 says this is <identifier>, but the LIN LDF spec says <integer>; the latter
+            # is more useful so we'll go with that.
+            frame_id                <- 'frame_id' EQUALS Integer SEMICOLON ;
+
+        frame_signals           <- 'signals' OPEN_BRACE
+                                    signal+
+                                    CLOSE_BRACE ;
+
+            signal                  <- Name OPEN_BRACE
+                                        (signal_init_value / signal_init_array)
+                                        signal_size
+                                        signal_offset
+                                        signal_encoding?
+                                        CLOSE_BRACE ;
+
+                signal_init_value       <- 'init_value' EQUALS Integer SEMICOLON ; 
+                signal_init_array       <- 'init_value' EQUALS OPEN_BRACE 
+                                            Integer
+                                            (COMMA Integer)*
+                                            CLOSE_BRACE SEMICOLON ; 
+                signal_size             <- 'size' EQUALS Integer SEMICOLON ;
+                signal_offset           <- 'offset' EQUALS Integer SEMICOLON ;
+                signal_encoding         <- Name SEMICOLON ;
+
+###################################################################################################
+
+parameter_definition    <- 'parameters' OPEN_BRACE
+                            parameter*
+                            CLOSE_BRACE;
+
+    parameter               <-  Name OPEN_BRACE
+                                parameter_init_value?
+                                parameter_address?
+                                parameter_encoding?
+                                CLOSE_BRACE ;
+
+        parameter_init_value    <- 'init_value' EQUALS Integer SEMICOLON ;
+        parameter_address       <- 'address' EQUALS Integer SEMICOLON ;
+        parameter_encoding      <- Name SEMICOLON ;
+
+###################################################################################################
+
+encoding_definition     <- 'encoding' OPEN_BRACE
+                            encoding*
+                            CLOSE_BRACE ;
+
+    encoding                <- Name OPEN_BRACE
+                                (logical_value / physical_range)+   # XXX missing BCD/ASCII
+                                CLOSE_BRACE ;
+                
+        logical_value           <- 'logical_value'
+                                    COMMA Integer
+                                    (COMMA String)?
+                                    SEMICOLON ;
+        physical_range          <- 'physical_value'
+                                    COMMA Integer
+                                    COMMA Integer 
+                                    COMMA Real
+                                    COMMA Real
+                                    (COMMA String)?
+                                    SEMICOLON ;
+
+###################################################################################################
+
+status_management       <- 'status_management' OPEN_BRACE
+                            response_error
+                            fault_state_signals?
+                            CLOSE_BRACE ;
+
+    response_error          <- 'response_error' EQUALS Name SEMICOLON ;
+    fault_state_signals     <- 'fault_state_signals' EQUALS
+                                Name
+                                (COMMA Name)*
+                                SEMICOLON ;
+
+###################################################################################################
+
+free_text_definition    <- 'free_text' OPEN_BRACE
+                            String
+                            CLOSE_BRACE ;
+
+###################################################################################################
+
+# terminals
+        Name            <- SPACE name_value SPACE               ;
+leaf:   name_value      <- <alpha> ([_] / <alnum>)*             ;
+        Integer         <- SPACE integer_value SPACE            ;
+leaf:   integer_value   <- '0x' <xdigit>+ / <ddigit>+           ;
+        Real            <- SPACE real_value SPACE               ;
+leaf:   real_value      <- <ddigit> ('.' / <ddigit>)*           ;
+        String          <- OPEN_QUOTE string_value CLOSE_QUOTE  ;
+leaf:   string_value    <- (!QUOTE .)*                          ;
+
+
+# tokens
+void:   OPEN_BRACE      <- SPACE '{' SPACE              ;
+void:   CLOSE_BRACE     <- SPACE '}' SPACE              ;
+void:   OPEN_QUOTE      <- SPACE QUOTE                  ;
+void:   CLOSE_QUOTE     <- QUOTE SPACE                  ;
+void:   QUOTE           <- '"'                          ;
+void:   SPACE           <- (<space> / EOL / COMMENT)*   ;
+void:   EQUALS          <- SPACE '=' SPACE              ;
+void:   COMMENT         <- '//' (!EOL .)* EOL           ;   # XXX no support for /* */
+void:   SEMICOLON       <- SPACE ';' SPACE              ;
+void:   COMMA           <- SPACE ',' SPACE              ;
+void:   EOL             <- '\n\r' / '\n' / '\r'         ;
+void:   EOF             <- !.                           ;
+
+END;

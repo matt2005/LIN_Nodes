@@ -10,23 +10,25 @@
 ///@file slave.h
 
 #include "lin_slave.h"
+#include "lin_defs.h"
 
 class RelaySlave : public Slave
 {
 public:
     RelaySlave(uint8_t BoardID);
 
-    bool            test_relay(RelayID id) const
+    bool            test_relay(uint8_t relay_id)
     {
-        return (id < kRelayIDMax) && (relayFrame.test(id));
+        // we know the relay frame is just an array of bits with relay 0 as the first bit
+        return (_relayFrame._raw >> relay_id) & 1;
     }
 
 protected:
     virtual void    st_header_received() override;
-    virtual void    st_response_received(LIN::Frame &frame) override;
-    virtual bool    st_read_data(uint8_t page, uint8_t index, uint16_t &value) override;
-    virtual bool    st_write_data(uint8_t page, uint8_t index, uint16_t value) override;
+    virtual void    st_response_received(Response &frame) override;
+    virtual bool    st_read_data(Parameter::Address address, uint16_t &value) override;
+    virtual bool    st_write_data(Parameter::Address address, uint16_t value) override;
 
 private:
-    volatile LIN::RelayFrame relayFrame;
+    Response    _relayFrame;
 };

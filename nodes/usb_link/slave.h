@@ -11,9 +11,10 @@
 
 #pragma once
 
+#include <timer.h>
+#include <lin_slave.h>
+
 #include "requests.h"
-#include "lin_slave.h"
-#include "lin_protocol.h"
 
 class SlaveHistory
 {
@@ -39,24 +40,21 @@ public:
     ///
     /// @param f                The response to push.
     ///
-    void            sawResponse(LIN::Frame &f);
+    void            sawResponse(Response &f);
 
     /// Get a pointer to the oldest frame in the queue.
     /// This will remain valid until at least the next poll cycle.
     ///
     /// @return                 true if a frame was pulled
     ///
-    uint8_t         *get();
+    RQHistory       *get();
 
 private:
-    struct Entry {
-        uint8_t     bytes[9];
-    };
-
     static const uint8_t    _size = 8;
-    Entry                   _entries[_size + 1];
+    RQHistory               _entries[_size + 1];
 
     uint8_t                 _savedFID;
+    uint16_t                _fidTime;
     bool                    _FIDValid;
     uint8_t                 _nextIn;
     volatile uint8_t        _nextOut;
@@ -71,21 +69,27 @@ class ToolSlave : public Slave
 public:
     ToolSlave();
 
-    uint8_t         *get_history() { return _history.get(); }
+    virtual void    tick() override;
 
-    void            get_data_by_id(uint8_t nad, uint8_t page, uint8_t index);
-    void            set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value);
+    RQHistory       *get_history() { return _history.get(); }
+
+    void            get_data_by_id(uint8_t nad, Parameter::Address address);
+    void            set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value);
+    void            send_bulk(uint8_t nad, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3);
+    void            enable_master(bool enable);
 
     uint16_t        *get_data() { return &_dataValue; }
 
     bool            is_data_ready() const { return _state == kStateIdle; }
     bool            is_data_error() const { return _state == kStateError; }
+    bool            is_waiting() const { return _masterState == kMSWaiting; }
+    bool            is_master() const { return _masterState > kMSWaiting; }
 
 protected:
     virtual void    st_header_received() override;
-    virtual void    st_response_received(LIN::Frame &frame) override;
+    virtual void    st_response_received(Response &frame) override;
     virtual void    st_sleep_requested(SleepType type) override;
-    virtual bool    st_master_request(LIN::Frame &frame) override;
+    virtual bool    st_master_request(Response &frame) override;
 
 private:
     enum State : uint8_t {
@@ -94,14 +98,26 @@ private:
 
         kStateSetData,
         kStateGetData,
+        kStateBulkData,
         kStateWaitData
     };
 
     SlaveHistory        _history;
-    State               _state;
+    State               _state = kStateIdle;
 
-    uint8_t             _nodeAddress;
-    uint8_t             _dataPage;
-    uint8_t             _dataIndex;
-    uint16_t            _dataValue;
+    uint8_t             _nodeAddress = 0;
+    Parameter::Address  _dataAddress = 0;
+    uint16_t            _dataValue = 0;
+    uint8_t             _dataBytes[4];
+
+    enum MasterState : uint8_t {
+        kMSDisabled,            // master mode disabled
+        kMSWaiting,             // waiting for the master to notice us and go offline
+        kMSRequest,             // send master request next
+        kMSResponse             // send slave response next
+    };
+
+    MasterState         _masterState = kMSDisabled;
+    Timestamp           _lastFrameStart;
+    Timestamp           _masterTimeout;
 };

@@ -1,0 +1,1191 @@
+#!/usr/bin/tclsh
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.
+# ----------------------------------------------------------------------------
+#
+# LIN 2.1 NCF parser with extensions.
+#
+# Extends <node_definition> with the addition of:
+#
+# <parameter_definition> ::= 
+#   parameters { 
+#       <parameter>[, <parameter>]
+#   }
+#
+# <parameter> :=
+#   <name> { 
+#       init_value = <initial_value> ;
+#       address = <parameter_address>;
+#       (<encoding_name> ;)
+#   } 
+#
+# <initial_value> ::= <integer>
+# <parameter_address> ::= <integer>
+#
+# Legal values for parameters are taken from the encoding, otherwise they are
+# the full range of the parameter data type (uint16_t).
+#
+# Also implements a 'template' node, which all other nodes inherit from.
+# This is a good place to put definitions that all nodes should be aware of.
+#
+
+package require fileutil
+package require pt::peg::from::peg
+package require pt::peg::container
+package require pt::peg::interp
+package require pt::ast
+
+namespace eval util {
+
+    # Throw an exception
+    #
+    proc throw {{msg "Abort"}} {
+        global throwInfo
+        lappend throwInfo $msg
+        return -code 100
+    }
+
+    # Wrap execution of cmd, add msg to the backtrace if throw is called
+    #
+    proc wrap {cmd msg} {
+        global throwInfo
+
+        puts "$msg"
+        set code [catch {uplevel 1 $cmd} result options]
+        switch -- $code {
+            100 {
+                if {[info level] == 1} {
+                    puts "ABORT: $msg"
+                    foreach context [lreverse $throwInfo] {
+                        puts stderr $context
+                    }
+                    exit 1
+                }
+                util::throw $msg
+            }
+            1 {
+                return -options $options $result
+            }
+            default {
+                return -code $code $result
+            }
+        }
+    }
+
+    # Given a body of text, convert a byte offset into a 
+    # line,column tuple.
+    #
+    proc offset_to_line {src byteoff} {
+        set pretext [string range $src 0 $byteoff]
+        set prelines [split $pretext "\n"]
+        set line [llength $prelines]
+        set char [expr $byteoff - [string last "\n" $pretext]]
+
+        return [list $line $char]    
+    }
+
+    # Format an error from pt::rde over the given source
+    #
+    proc throw_rde_error {src msg} {
+
+        if {[string first "pt::rde" $msg] < 0} {
+            util::throw $msg
+        }
+
+        lassign $msg sender byteoff candidates
+
+        lassign [offset_to_line $src $byteoff] line char
+        set detail "\[$line:$char\] expected one of:"
+        foreach cand $candidates {
+            lassign $cand type desc
+            append detail " $desc"
+        }
+        util::throw $detail
+    }
+
+    # Print an AST fragment rooted in a named node in readable form
+    #
+    proc print_ast {depth ast} {
+
+        set children [lassign $ast kind name]
+
+        set spaces [string repeat " " $depth]
+        if {$name != {}} {
+            puts "$spaces$kind '$name'"
+        } else {
+            puts "$spaces$kind"        
+        }
+        foreach child $children {
+            print_ast [expr $depth + 2] $child
+        }
+
+    }
+
+}
+
+namespace eval encoding {
+
+    variable by_name [dict create]
+    variable validate [list]
+
+    # Decode an encoding, which consists of a name,
+    # and one or more physical range or logical value tokens.
+    #
+    proc from_ast {kind name ast} {
+
+        variable by_name
+
+        util::wrap {
+
+            if {[exists $name]} {
+                util::throw "encoding '$name' multiply defined"
+            }
+
+            # Each encoding is represented as a list of dictionaries
+            dict set by_name $name [list]
+
+            foreach child $ast {
+                set value [lassign $child ckind cname]
+                set edict [dict create]
+
+                switch -- $ckind {
+                    "physical_range" {
+                        lassign $value min max scale offset description
+                        dict set edict kind "range"
+                        dict set edict min $min
+                        dict set edict max $max
+                        dict set edict scale $scale
+                        dict set edict offset $offset
+                        dict set edict description $description
+                    }
+                    "logical_value" {
+                        lassign $value key description
+                        dict set edict kind "value"
+                        dict set edict value $key
+                        dict set edict description $description
+                    }
+                    "default" {
+                        util::throw "unexpected encoding kind '$kind'"
+                    }
+                }
+
+                dict lappend by_name $name $edict
+            }
+        } "processing encoding '$name'"
+    }
+
+    proc exists {name} {
+
+        variable by_name
+
+        return [dict exists $by_name $name]
+    }
+
+    proc needs_validation {name} {
+
+        variable by_name
+        variable validate
+
+        if {![exists $name]} {
+            util::throw "encoding '${name}' marked for validation but does not exist"
+        }
+        if {[lsearch -exact $validate $name] < 0} {
+            lappend validate $name
+        }
+    }
+
+    proc report {} {
+
+        variable by_name
+
+        puts "Encodings:"
+        foreach name [dict keys $by_name] {
+            puts "  ${name}:"
+            set values [dict get $by_name $name]
+            foreach value $values {
+                puts "    ${value}"
+            }
+        }
+    }
+
+    proc emit_decl {fh} {
+
+        variable by_name
+
+        # Prototypes for the utility functions
+        #
+        puts $fh ""
+        puts $fh "namespace Encoding"
+        puts $fh "{"
+        puts $fh "extern bool                 invalid(uint8_t encoding, uint16_t value);"
+        puts $fh "extern const PROGMEM char   *name(uint8_t encoding);"
+        puts $fh "extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);"
+        puts $fh "} // namespace Encoding"
+
+        # Constants for all encoding types
+        #
+        puts $fh ""
+        set index 0
+        foreach name [dict keys $by_name] {
+            puts $fh "static const uint8_t kEncoding_${name} = ${index};"
+            incr index
+        }
+        puts $fh "static const uint8_t kEncoding_none = 0xff;"       
+
+        # Constants for all logical values
+        #
+        dict for {name encinfo} $by_name {
+            puts $fh ""
+            puts $fh "namespace ${name}"
+            puts $fh "{"
+            foreach subencoding $encinfo {
+                dict with subencoding {
+                    switch -- $kind {
+                        "value" {
+                            if {$description != {}} {
+                                puts $fh "static const uint16_t k${description} = ${value};"
+                            }
+                        }
+                        "range" {
+                            if {$description != {}} {
+                                puts $fh "static const uint16_t k${description}Min = ${min};"
+                                puts $fh "static const uint16_t k${description}Max = ${max};"
+                            }
+                        }
+                    }
+                }
+            }
+            puts $fh "static const uint16_t kNumEncodings = [llength $encinfo];"
+            puts $fh "} // namespace ${name}"
+        }
+    }
+
+    proc emit_def {fh} {
+
+        variable by_name
+        variable validate
+
+        puts $fh ""
+        puts $fh "namespace Encoding"
+        puts $fh "{"
+
+        # Validation function that knows the legal values for each encoding.
+        #
+        # XXX optimisation opportunity: generate customised versions on a node-by-node basis.
+        #
+        puts $fh "bool"
+        puts $fh "invalid(uint8_t encoding, uint16_t value)"
+        puts $fh "{"
+
+        foreach name $validate {
+            set encinfo [dict get $by_name $name]
+
+            puts $fh "    if (encoding == kEncoding_${name}) {"
+            set ranges [list]
+            set values [list]
+            foreach subencoding $encinfo {
+                dict with subencoding {
+                    switch -- $kind {
+                        "range" {
+                            lappend ranges [list $min $max]
+                        }
+                        "value" {
+                            lappend values $value
+                        }
+                    }
+                }
+            }
+
+            # convert adjacent values into ranges
+            set values [lsort -integer $values]
+            set index 0
+            while {$index < [llength $values]} {
+                # possible minimum range value
+                set min [lindex $values $index]
+
+                # scan looking for a value not in sequence
+                set offset 0
+                while {[lindex $values [expr $index + $offset]] == [expr $min + $offset]} {
+                    incr offset
+                }
+                # if we found at least three values in sequence
+                if {$offset > 2} {
+                    incr offset -1
+                    set max [lindex $values [expr $index + $offset]]
+                    set values [lreplace $values $index [expr $index + $offset]]
+                    lappend ranges [list $min $max]
+                } else {
+                    incr index
+                }
+
+            }
+            foreach range $ranges {
+                lassign $range min max
+                puts $fh "        if ((value >= ${min}) && (value <= ${max})) {"
+                puts $fh "            return false;"
+                puts $fh "        }"
+            }
+            foreach value $values {
+                puts $fh "        if (value == ${value}) {"
+                puts $fh "            return false;"
+                puts $fh "        }"
+            }
+            puts $fh "    }"
+        }
+
+        puts $fh "    return true;"
+        puts $fh "}"
+
+        # String tables for encoding names, info strings, etc.
+        #
+        puts $fh ""
+        dict for {name encinfo} $by_name {
+            # encoding name
+            puts $fh "static const PROGMEM char _encoding_name_${name}\[\] = \"${name}\";"
+            # subencoding info strings for value encodings
+            set index 0
+            foreach subencoding $encinfo {
+                dict with subencoding {
+                    switch -- $kind {
+                        "value" {
+                            puts $fh "static const PROGMEM char _encoding_info_${name}_${index}\[\] = \"${description}\";"
+                        }
+                    }
+                    incr index;
+                }
+            }
+        }
+
+        # Lookup function that can turn an encoding index as supplied to parameters,
+        # signal definitions, etc into an encoding name.
+        #
+        puts $fh ""
+        puts $fh "const PROGMEM char *"
+        puts $fh "name(uint8_t encoding)"
+        puts $fh "{"
+        foreach name [dict keys $by_name] {
+            puts $fh "    if (encoding == kEncoding_${name}) {"
+            puts $fh "        return &_encoding_name_${name}\[0\];"
+            puts $fh "    }"
+        }
+        puts $fh "    return nullptr;"
+        puts $fh "}"
+
+        # Lookup function that converts encoding index & value into a possible
+        # info string.
+        #
+        puts $fh ""
+        puts $fh "const PROGMEM char *"
+        puts $fh "info(uint8_t encoding, uint16_t value)"
+        puts $fh "{"
+
+        dict for {name encinfo} $by_name {
+            puts $fh "    if (encoding == kEncoding_${name}) {"
+            set index 0
+            foreach subencoding $encinfo {
+                dict with subencoding {
+                    switch -- $kind {
+                        "value" {
+                            puts $fh "        if (value == ${value}) {"
+                            puts $fh "            return &_encoding_info_${name}_${index}\[0\];"
+                            puts $fh "        }"
+                        }
+                    }
+                }
+                incr index
+            }
+            puts $fh "    }"
+        }
+
+        puts $fh "    return nullptr;"
+        puts $fh "}"
+        puts $fh "} // namespace Encoding"
+
+    }
+}
+
+namespace eval signal {
+
+    variable by_name [dict create]
+
+    proc from_ast {kind name ast} {
+
+        variable by_name
+
+        # Signals are represented by a dictionary containing their properties
+        #
+        dict set by_name $name [dict create]
+
+        # iterate signal properties
+        foreach prop $ast {
+            lassign $prop pkind pname pvalue
+
+            # validate properties
+            # XXX should check size + offset ...
+            switch -- $pkind {
+                signal_encoding {
+                    if {![encoding::exists $pvalue]} {
+                        util::throw "signal '$name' specifies unknown encoding '$pvalue'"
+                    }
+                }
+            }
+
+            # update frame signal database
+            dict set by_name $name $pkind $pvalue
+        }
+    }
+
+    proc report {} {
+
+        variable by_name
+
+        puts "Signals:"
+        dict for {name properties} $by_name {
+            puts "  $name: "
+            dict for {kind value} $properties {
+                puts "    ${kind}: ${value}"
+            }
+        }
+    }
+
+    proc emit_decl {fh} {
+
+#        variable by_name
+#
+#        puts $fh ""
+#        puts $fh "namespace Signal"
+#        puts $fh "{"
+#        dict for {name siginfo} $by_name {
+#
+#            set size [dict get $siginfo signal_size]
+#            set offset [dict get $siginfo signal_offset]
+#            if {[dict exists $siginfo signal_encoding]} {
+#                set encoding [dict get $siginfo signal_encoding]
+#            } else {
+#                set encoding "none"                
+#            }
+#
+#            puts $fh "class ${name} : public SignalBase"
+#            puts $fh "{"
+#            puts $fh "public:"
+#            puts $fh "    constexpr ${name}(Response &r) : SignalBase(r, ${offset}, ${size}, kEncoding_${encoding}) {}"
+#            puts $fh "};"
+#        }
+#        puts $fh "} // namespace Signal"
+    }
+
+    proc emit_def {fh} {
+ 
+         variable by_name
+
+       # currently nothing required
+    }
+
+    proc property {name property} {
+
+        variable by_name
+
+        return [dict get $by_name $name signal_${property}]
+    }
+}
+
+namespace eval frame {
+
+    variable by_name [dict create]
+
+    # Decode a frame which consists of a set of properties and signals.
+    #
+    proc from_ast {kind name ast} {
+
+        variable by_name
+
+        util::wrap {
+
+            # Each frame is represented as a dictionary of properties
+            # and a list of signal names
+            dict set by_name $name properties [dict create]
+            dict set by_name $name signals [list]
+
+            dict with by_name $name {
+
+                foreach child $ast {
+                    set subtree [lassign $child ckind cname]
+                    switch -- $ckind {
+                        "frame_properties" {
+                            # iterate frame properties
+                            foreach prop $subtree {
+                                lassign $prop pkind pname pvalue
+                                dict set properties $pkind $pvalue
+                            }
+                        }
+                        "frame_signals" {
+                            # iterate frame signals
+                            foreach signal $subtree {
+                                set sprops [lassign $signal skind sname]
+                                signal::from_ast $skind $sname $sprops
+                                lappend signals $sname
+                            }
+                        }
+                    }
+                }
+            }
+        } "processing frame '$name'"
+    }
+
+    proc exists {name} {
+
+        variable by_name
+
+        return [dict exists $by_name $name]
+    }
+
+    proc report {} {
+
+        variable by_name
+
+        puts "Frames:"
+        foreach name [dict keys $by_name] {
+            puts "  ${name}:"
+            dict for {pkind pvalue} [dict get $by_name $name properties] {
+                puts "    ${pkind}: ${pvalue}"
+            }
+            puts -nonewline "    signals:"
+            foreach signal [dict get $by_name $name signals] {
+                puts -nonewline " ${signal}"
+            }
+            puts ""
+        }
+    }
+
+    proc emit_decl {fh} {
+
+        variable by_name
+        
+        puts $fh ""
+        puts $fh "namespace Frame"
+        puts $fh "{"
+        puts $fh "extern const PROGMEM char *name(uint8_t fid);"
+        puts $fh "}"
+
+        puts $fh ""
+        foreach name [dict keys $by_name] {
+            if {[dict exists $by_name $name properties frame_id]} {
+                set fid [dict get $by_name $name properties frame_id]
+                puts $fh "static const uint8_t kFrameID${name} = ${fid};"
+            }
+        }
+
+        puts $fh ""
+        puts $fh "struct Response"
+        puts $fh "{"
+        puts $fh "    Response() : _bytes {0, 0, 0, 0, 0, 0, 0, 0} {}"
+        puts $fh "    union"
+        puts $fh "    {"
+        puts $fh "        uint8_t   _bytes\[8\];"
+        puts $fh "        uint64_t  _raw;"
+        foreach name [dict keys $by_name] {
+            set signals [dict get $by_name $name signals]
+            if {$signals != {}} {
+                puts $fh "        struct {"
+                set used 0
+                foreach signal $signals {
+                    set size [signal::property $signal size]
+                    set offset [signal::property $signal offset]
+                    if {$offset < $used} {
+                        util::throw "signal ${signal} in ${name} overlaps or out of order"
+                    }
+                    if {$offset > $used} {
+                        set pad [expr $offset - $used]
+                        puts $fh "            uint64_t  pad${used}:${pad};"
+                        incr used $pad
+                    }
+                    puts $fh "            uint64_t  ${signal}:${size};"
+                    incr used $size
+                }
+                puts $fh "        } ${name};"
+            }
+        }
+        puts $fh "    };"
+        puts $fh "};"
+
+    }
+
+    proc emit_def {fh} {
+
+        variable by_name
+
+        puts $fh ""
+        puts $fh "namespace Frame"
+        puts $fh "{"
+        foreach name [dict keys $by_name] {
+            if {[dict exists $by_name $name properties frame_id]} {
+                puts $fh "static const PROGMEM char _frame_name_${name}\[\] = \"${name}\";"
+            }
+        }
+        puts $fh ""
+        puts $fh "const PROGMEM char *"
+        puts $fh "name(uint8_t fid)"
+        puts $fh "{"
+        foreach name [dict keys $by_name] {
+            if {[dict exists $by_name $name properties frame_id]} {
+                puts $fh "    if (fid == kFrameID${name}) {"
+                puts $fh "        return &_frame_name_${name}\[0\];"
+                puts $fh "    }"
+            }
+        }
+        puts $fh "    return nullptr;"
+        puts $fh "}"
+        puts $fh "} // namespace Frame"
+
+
+        # currently nothing required
+    }
+}
+
+namespace eval parameter {
+
+    variable nodes [list]
+    variable by_name [dict create]
+    variable last_address 0
+
+    proc from_ast {node name ast} {
+
+        variable nodes
+        variable by_name
+        variable last_address
+
+        if {[node_index $node] < 0} {
+            lappend nodes $node
+        }
+
+        # Each parameter is represented as a dictionary containing
+        # its properties. Parameters with the same name are uniqued
+        # by the node name.
+        #
+        set name "${node}~${name}"
+        dict set by_name $name [dict create]
+        dict set by_name $name node $node
+
+        foreach property $ast {
+            lassign $property pkind pname pvalue
+            dict set by_name $name $pkind $pvalue
+
+            if {$pkind == "parameter_encoding"} {
+                encoding::needs_validation $pvalue
+            }
+        }
+
+        # Handle automatic address increment
+        if {[dict exists $by_name $name parameter_address]} {
+            set last_address [dict get $by_name $name parameter_address]
+        } else {
+            incr last_address
+            dict set by_name $name parameter_address [format "0x%04x" $last_address]
+        }
+    }
+
+    proc exists {node name} {
+
+        variable by_name
+
+        return [dict exists $by_name "${node}~${name}"]
+    }
+
+    proc report {} {
+
+        variable nodes
+
+        puts "Parameters:"
+        foreach node $nodes {
+            puts "    ${node}:"
+            set nodeparam [for_node $node]
+            dict for {key properties} $nodeparam {
+                lassign [split $key "~"] node pname
+                puts "        ${pname}: ${properties}"
+            }
+        }
+    }
+
+    proc node_index {node} {
+
+        variable nodes
+
+        return [lsearch -exact $nodes $node]
+    }
+
+    proc for_node {name} {
+
+        variable by_name
+
+        return [dict filter $by_name script {pname pinfo} {string equal [dict get ${pinfo} node] ${name}}]
+    }
+
+    proc emit_decl {fh} {
+
+        variable nodes
+        variable by_name
+
+        foreach node $nodes {
+            puts $fh ""
+            puts $fh "namespace ${node}"
+            puts $fh "{"
+            puts $fh "extern bool param_exists(Parameter::Address address);"
+            puts $fh "extern uint16_t param_default(Parameter::Address address);"
+            puts $fh "extern uint8_t param_encoding(Parameter::Address address);"
+            puts $fh "extern const PROGMEM char *param_name(Parameter::Address address);"
+
+            puts $fh ""
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                set address [dict get $pattr parameter_address]
+                puts $fh "static const uint16_t kParam${pname} = ${address};"
+            }
+
+            puts $fh ""
+            puts $fh "} // namespace ${node}"
+        }
+    }
+
+    proc emit_def {fh} {
+
+        variable nodes
+        variable by_name
+
+        foreach node $nodes {
+            puts $fh ""
+            puts $fh "namespace ${node}"
+            puts $fh "{"
+
+            puts $fh ""
+            puts $fh "bool"
+            puts $fh "param_exists(Parameter::Address address)"
+            puts $fh "{"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                puts $fh "    if (address == kParam${pname}) {"
+                puts $fh "        return true;"
+                puts $fh "    }"
+            }
+            puts $fh "    return false;"
+            puts $fh "}"
+
+            puts $fh ""
+            puts $fh "uint16_t"
+            puts $fh "param_default(Parameter::Address address)"
+            puts $fh "{"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+
+                if {[dict exists $pattr parameter_init_value]} {
+                    set value [dict get $pattr parameter_init_value]
+                    puts $fh "    if (address == kParam${pname}) {"
+                    puts $fh "        return ${value};"
+                    puts $fh "    }"
+                }
+            }
+            puts $fh "    return 0;"
+            puts $fh "}"
+
+            puts $fh ""
+            puts $fh "uint8_t"
+            puts $fh "param_encoding(Parameter::Address address)"
+            puts $fh "{"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                if {[dict exists $pattr parameter_encoding]} {
+                    set encoding [dict get $pattr parameter_encoding]
+                    puts $fh "    if (address == kParam${pname}) {"
+                    puts $fh "        return kEncoding_${encoding};"
+                    puts $fh "    }"
+                }
+            }
+            puts $fh "    return kEncoding_none;"
+            puts $fh "}"
+
+            # String table for parameter names
+            #
+            puts $fh ""
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                puts $fh "static const PROGMEM char _param_name_${pname}\[\] = \"${pname}\";"
+            }
+
+            puts $fh ""
+            puts $fh "const PROGMEM char *"
+            puts $fh "param_name(Parameter::Address address)"
+            puts $fh "{"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                puts $fh "    if (address == kParam${pname}) {"
+                puts $fh "        return &_param_name_${pname}\[0\];"
+                puts $fh "    }"
+            }
+            puts $fh "    return nullptr;"
+            puts $fh "}"
+            puts $fh ""
+
+            puts $fh ""
+            puts $fh "} // namespace ${node}"
+        }
+    }
+}
+
+namespace eval node {
+
+    variable by_name [dict create]
+    variable max_address 0
+
+    proc properties_from_ast {name ast} {
+
+        variable by_name
+        variable max_address
+
+        util::wrap {
+
+            foreach property $ast {
+                lassign $property pkind pname pvalue
+                switch -- $pkind {
+                    "bitrate" {
+                        set brvalue [lassign $pvalue brkind brname]
+                        switch -- $brkind {
+                            "fixed_bitrate" {
+                                if {$brvalue < 100} {
+                                    set brvalue [expr int($brvalue * 1000)]
+                                }
+                            }
+                            "default" {
+                                util::throw "non-fixed bitrates not supported"
+                            }
+                        }
+                        set pvalue $brvalue
+                    }
+                    "node_address" {
+                        set navalue [lassign $pvalue nakind naname]
+                        switch -- $nakind {
+                            "node_address_list" {
+                                set pvalue $navalue
+                                foreach addr $navalue {
+                                    if {$addr > $max_address} {
+                                        set max_address $addr
+                                    }
+                                }
+                            }
+                            "node_address_range" {
+                                lassign $navalue min max
+                                if {$max < $min} {
+                                    util::throw "node address range invalid"
+                                }
+                                set pvalue {}
+                                for {set na $min} {$na <= $max} {incr na} {
+                                    lappend pvalue $na
+                                }
+                                if {$max > $max_address} {
+                                    set max_address $max
+                                }
+                            }
+                        }
+                    }
+                }
+                dict set by_name $name properties $pkind $pvalue
+            }
+        } "handling properties for node '$name'"
+    }
+
+    # Import a node definition
+    #
+    proc from_ast {kind name ast} {
+
+        variable by_name
+
+        util::wrap {
+
+            if {[exists $name]} {
+                util::throw "Multiple definitions of node '$name' not allowed."
+            }
+
+            # Each node is represented as a dictionary of properties, 
+            # a dictionary of parameters, and a list of published and
+            # subscribed frames.
+            dict set by_name $name properties [dict create]
+            dict set by_name $name parameters [list]
+            dict set by_name $name publishes [list]
+            dict set by_name $name subscribes [list]
+
+            foreach child $ast {
+                set value [lassign $child ckind cname]
+
+                switch -- $ckind {
+                    "general_definition" -
+                    "diagnostic_definition" {
+                        properties_from_ast $name $value
+                    }
+
+                    "frame_definition" {
+                        foreach frame $value {
+                            set fvalue [lassign $frame fkind fname]
+                            switch -- $fkind {
+                                "published_frame" {
+                                    dict lappend by_name $name publishes $fname
+                                }
+                                "subscribed_frame" {
+                                    if {![frame::exists $fname]} {
+                                        util::throw "subscription to unknown frame '$fname'"
+                                    }
+                                    dict lappend by_name $name subscribes $fname
+                                }
+                            }
+                        }
+                    }
+
+                    "parameter_definition" {
+                        foreach parameter $value {
+                            set pvalue [lassign $parameter pkind pname]
+                            parameter::from_ast $name $pname $pvalue
+                            dict lappend by_name $name parameters $pname
+                        }
+                    }
+                }
+            }
+        } "processing node '$name'"
+    }
+
+    proc exists {name} {
+
+        variable by_name
+
+        return [dict exists $by_name $name]
+    }
+
+    proc report {} {
+
+        variable by_name
+
+        puts "Nodes:"
+        foreach name [dict keys $by_name] {
+            puts "  ${name}:"
+            dict for {pname pvalue} [dict get $by_name $name properties] {
+                puts "    ${pname}: ${pvalue}"
+            }
+            puts -nonewline "    parameters:"
+            foreach pname [dict get $by_name $name parameters] {
+                puts -nonewline " ${pname}"
+            }
+            puts ""
+            puts -nonewline "    publishes:"
+            foreach fname [dict get $by_name $name publishes] {
+                puts -nonewline " ${fname}"
+            }
+            puts ""
+            puts -nonewline "    subscribes:"
+            foreach fname [dict get $by_name $name subscribes] {
+                puts -nonewline " ${fname}"
+            }
+            puts ""
+        }
+    }
+
+    proc emit_decl {fh} {
+
+        variable by_name
+        variable max_address
+
+        foreach name [dict keys $by_name] {
+
+            puts $fh ""
+            puts $fh "namespace ${name}"
+            puts $fh "{"
+
+            # emit basic node properties
+            set properties [dict get $by_name $name properties]
+            set node_address [dict get $properties node_address]
+            if {[llength $node_address] > 1} {
+                set node_address [lindex $node_address 0]
+            }
+            puts $fh "    static const uint8_t kNodeAddress = ${node_address};"
+            puts $fh "    static const uint16_t kNodeSupplier = [dict get ${properties} supplier];"
+            puts $fh "    static const uint16_t kNodeFunction = [dict get ${properties} function];"
+            puts $fh "    static const uint8_t kNodeVariant = [dict get ${properties} variant];"            
+
+
+            puts $fh "} // namespace ${name}"
+
+        }
+
+        puts $fh ""
+        puts $fh "static const uint8_t kNodeAddressMax = ${max_address};"
+    }
+
+    proc emit_def {fh} {
+
+        variable by_name
+
+
+    }
+
+}
+
+namespace eval parser {
+    # Inhale the grammar from the PEG format
+    #
+    proc load_grammar {parser_name} {
+
+        set grammar [fileutil::cat ncf.peg]
+        if {[catch {pt::peg::from::peg convert $grammar} result]} {
+            if {[scan "can't read \"mymode(%s)\": no such element in array" missing] == 1} {
+                util::throw "grammar: name '$missing' used but not defined"
+            } else {
+                util::throw_rde_error $grammar $result
+            }
+        }
+        pt::peg::container cont
+        cont deserialize = $result
+        pt::peg::interp $parser_name
+        $parser_name use [namespace current]::cont
+    }
+
+    # Parse the node definitions
+    #
+    proc parse_def {parser ncf} {
+        if {[catch {$parser parset $ncf} result]} {
+            util::throw_rde_error $ncf $result
+        }
+        #puts [pt::ast print $result]
+        #puts $result
+        return $result
+    }
+
+    # Walk the AST and generate a version with values pulled in from the text
+    #
+    # After processing, each node in the tree is a list of the format:
+    #
+    # <type> <name> <value> [<value>...]
+    #
+    # <value> may be a single value (for a leaf) or a list of one more subnodes.
+    #
+    proc walk_internalise {text ast} {
+
+        set output [list]
+
+        set children [lassign $ast kind first last]
+
+        switch -- $kind {
+            "Name" -
+            "String" -
+            "Integer" -
+            "Real" {
+                # process the value field for each of the leaf types
+                lassign $children child
+                lassign $child flavour vstart vend
+                return [string range $text $vstart $vend]
+            }
+        }
+        # walk the subtree
+        set subtree [list]
+        foreach child $children {
+            lappend subtree [walk_internalise $text $child]
+        }
+
+        # Consume the name property for nodes that have one
+        switch -- $kind {
+            "node_definition" -
+            "published_frame" -
+            "subscribed_frame" -
+            "signal" -
+            "parameter" -
+            "encoding" {
+                set subtree [lassign $subtree name]
+            }
+            default {
+                set name {}
+            }
+        }
+
+        # Return the modified node
+        set prefix [list $kind $name]
+        return [concat $prefix $subtree]
+    }
+
+
+    # Walk the AST, invoking [callback] for each node matching {matching}.
+    # Children of a matched node are not walked.
+    #
+    proc walk {ast matching callback} {
+
+        set children [lassign $ast kind name]
+
+        if {$kind == $matching} {
+            {*}$callback $kind $name $children
+        } else {
+            foreach child $children {
+                walk $child $matching $callback
+            }
+        }
+    }
+
+    proc load_defs {argv} {
+
+        global defs
+
+        set defs [dict create]
+
+        util::wrap {load_grammar ncf_parser} "loading grammar"
+        lassign $argv fname
+        set ncf [util::wrap {fileutil::cat $fname} "reading node configuration"]
+        set ast [util::wrap {parse_def ncf_parser $ncf} "parsing node configuration"]
+        set ast [util::wrap {walk_internalise $ncf $ast} "preprocessing node configuration"]
+
+        #puts $ast
+        #display 0 $ast
+
+        # Initialise collections
+        dict set defs nodes {}
+        dict set defs frames {}
+        dict set defs encodings {}
+
+        # collect definitions
+        util::wrap {walk $ast "encoding" encoding::from_ast} "scan for encodings"
+        util::wrap {walk $ast "published_frame" frame::from_ast} "scan for frames"
+        util::wrap {walk $ast "node_definition" node::from_ast} "scan for nodes"
+
+    }
+}
+# and write them to our intermediate form
+
+util::wrap {parser::load_defs $argv} "parsing $argv"
+
+foreach ns {encoding signal frame parameter node} {
+    util::wrap {${ns}::report} "reporting ${ns}"
+}
+
+util::wrap {set fh [open "lin_defs.h" "w"]
+    puts $fh "// AUTOMATICALLY GENERATED - DO NOT EDIT"
+    puts $fh "#pragma once"
+    puts $fh "#ifdef __AVR__"
+    puts $fh "# include <avr/pgmspace.h>"
+    puts $fh "#else"
+    puts $fh "# define PROGMEM"
+    puts $fh "#endif"
+    puts $fh "#include \"lin_types.h\""
+    puts $fh ""
+
+    foreach ns {encoding signal frame parameter node} {
+        util::wrap {${ns}::emit_decl $fh} "generating declarations for ${ns}"
+    }
+
+    close $fh
+} "creating lin_defs.h"
+
+util::wrap {set fh [open "lin_defs.cpp" "w"]
+    puts $fh "// AUTOMATICALLY GENERATED - DO NOT EDIT"
+    puts $fh "#include \"lin_defs.h\""
+    puts $fh ""
+
+    foreach ns {encoding signal frame parameter node} {
+        util::wrap {${ns}::emit_def $fh } "generating definitions for ${ns}"
+    }
+
+    close $fh
+} "creating lin_defs.cpp"

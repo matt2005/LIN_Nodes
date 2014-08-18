@@ -19,7 +19,7 @@ extern "C" {
 #include "usbdrv.h"
 }
 
-ToolSlave slave;    //< polled-mode slave driver
+ToolSlave slave;    //< polled-mode LIN driver (not really a slave...)
 
 static uint8_t      currentNAD;
 
@@ -49,11 +49,24 @@ usbFunctionSetup(uchar data[8])
                 status |= RQ_STATUS_AWAKE;
             }
 
+            if (slave.is_waiting()) {
+                status |= RQ_STATUS_WAITING;
+            }
+
+            if (slave.is_master()) {
+                status |= RQ_STATUS_MASTER;
+            }
+
             break;
 
         case RQ_STATUS_FREEMEM:
             status = Board::freemem();
             break;
+
+        case RQ_STATUS_LINERR:
+            if (rq->wValue.bytes[0] < LINDev::Error::kErrorMax) {
+                status = slave.errors[rq->wValue.bytes[0]];
+            }
 
         default:
             break;
@@ -62,11 +75,23 @@ usbFunctionSetup(uchar data[8])
         usbMsgPtr = &status;
         return sizeof(status);
 
+    case kUSBRequestClearStatus:
+        switch (rq->wIndex.bytes[0]) {
+        case RQ_STATUS_LINERR:
+            for (uint8_t i = 0; i < LINDev::Error::kErrorMax; i++) {
+                slave.errors[i].reset();
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+
     case kUSBRequestGetHistory:
-        usbMsgPtr = slave.get_history();
+        usbMsgPtr = (uint8_t *)slave.get_history();
 
         if (usbMsgPtr != nullptr) {
-            return (*usbMsgPtr & RQ_HISTORY_RESPONSE_VALID) ? 9 : 1;
+            return sizeof(struct RQHistory);
         }
 
         // if no history, no reply
@@ -77,7 +102,7 @@ usbFunctionSetup(uchar data[8])
         break;
 
     case kUSBRequestReadData:
-        slave.get_data_by_id(currentNAD, rq->wIndex.bytes[0], rq->wIndex.bytes[1]);
+        slave.get_data_by_id(currentNAD, rq->wIndex.word);
         break;
 
     case kUSBRequestReadResult:
@@ -85,16 +110,20 @@ usbFunctionSetup(uchar data[8])
             usbMsgPtr = (uint8_t *)slave.get_data();
             return sizeof(uint16_t);
         }
-
         break;
 
     case kUSBRequestWriteData:
-        slave.set_data_by_id(currentNAD, rq->wIndex.bytes[0], rq->wIndex.bytes[1], rq->wValue.word);
+        slave.set_data_by_id(currentNAD, rq->wIndex.word, rq->wValue.word);
         break;
 
-    case kUSBRequestBeginUpdate:
-    case kUSBRequestUpdateData:
-    case kUSBRequestFinishUpdate:
+    case kUSBRequestSendBulk:
+        slave.send_bulk(currentNAD, rq->wValue.bytes[0], rq->wValue.bytes[1], rq->wIndex.bytes[0], rq->wIndex.bytes[1]);
+        break;
+
+    case kUSBRequestEnableMaster:
+        slave.enable_master(rq->wValue.bytes[0] != 0);
+        break;
+
     default:
         break;
     }
@@ -114,7 +143,7 @@ main(void)
     //Board::panic(Board::kPanicCodeRecovery);
 
     usbInit();
-    usbDeviceDisconnect();  /* enforce re-enumeration, do this while interrupts are disabled! */
+    usbDeviceDisconnect();  /* force re-enumeration, do this while interrupts are disabled! */
     uint8_t i = 0;
 
     while (--i) {           /* fake USB disconnect for > 250 ms */
@@ -136,3 +165,13 @@ main(void)
     }
 }
 
+void
+Parameter::set(uint16_t value) const
+{
+}
+
+uint16_t
+Parameter::get() const
+{
+    return 0;
+}

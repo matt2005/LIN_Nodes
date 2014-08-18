@@ -16,19 +16,18 @@
 #include "slave.h"
 
 bool
-ProgrammerSlave::set_parameter(uint8_t nad, uint8_t param, uint8_t value)
+ProgrammerSlave::set_parameter(uint8_t nad, Parameter::Address address, uint16_t value)
 {
-    return set_data_by_id(nad, kDataPageNodeParameters, param, value);
+    return set_data_by_id(nad, address, value);
 }
 
 bool
-ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t value)
+ProgrammerSlave::set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value)
 {
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
         _nodeAddress = nad;
-        _dataPage = page;
-        _dataIndex = index;
+        _dataAddress = address;
         _dataValue = value;
         _state = kStateSetData;
         sei();
@@ -37,9 +36,9 @@ ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
             continue;
         }
 
-        uint8_t readback = ~value;
+        uint16_t readback = ~value;
 
-        if (get_parameter(nad, index, readback) && (readback == value)) {
+        if (get_parameter(nad, address, readback) && (readback == value)) {
             return true;
         }
 
@@ -51,29 +50,24 @@ ProgrammerSlave::set_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
 }
 
 bool
-ProgrammerSlave::get_parameter(uint8_t nad, uint8_t param, uint8_t &value)
+ProgrammerSlave::get_parameter(uint8_t nad, Parameter::Address address, uint16_t &value)
 {
-    uint16_t tmp;
-
-    bool result = get_data_by_id(nad, kDataPageNodeParameters, param, tmp);
-    value = tmp & 0xff;
-    return result;
+    return get_data_by_id(nad, address, value);
 }
 
 bool
 ProgrammerSlave::get_error_count(uint8_t nad, uint8_t err, uint16_t &count)
 {
-    return get_data_by_id(nad, kDataPageLINErrors, err, count);
+    return get_data_by_id(nad, Generic::kParamLine + err, count);
 }
 
 bool
-ProgrammerSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16_t &value)
+ProgrammerSlave::get_data_by_id(uint8_t nad, Parameter::Address address, uint16_t &value)
 {
     for (uint8_t tries = 0; tries < 3; tries++) {
         cli();
         _nodeAddress = nad;
-        _dataPage = page;
-        _dataIndex = index;
+        _dataAddress = address;
         _dataValue = 0;
         _state = kStateGetData;
         sei();
@@ -93,26 +87,29 @@ ProgrammerSlave::get_data_by_id(uint8_t nad, uint8_t page, uint8_t index, uint16
 void
 ProgrammerSlave::st_header_received()
 {
+    Response resp;
+
     switch (current_FrameID()) {
-    case LIN::kFrameIDProxyRequest:
+    case kFrameIDProxyRequest:
         switch (_state) {
         case kStateSetData:
-            st_send_response(LIN::Frame(_nodeAddress,
-                                        5,
-                                        LIN::kServiceIDWriteDataByID,
-                                        _dataIndex,
-                                        _dataPage,
-                                        _dataValue & 0xff,
-                                        _dataValue << 8));
+            resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.pci = pci::kSingleFrame;
+            resp.DataByID.length = 5;
+            resp.DataByID.sid = service_id::kWriteDataByID;
+            resp.DataByID.index = _dataAddress;
+            resp.DataByID.value = _dataValue;
+            st_send_response(resp);
             _state = kStateIdle;
             break;
 
         case kStateGetData:
-            st_send_response(LIN::Frame(_nodeAddress,
-                                        3,
-                                        LIN::kServiceIDReadDataByID,
-                                        _dataIndex,
-                                        _dataPage));
+            resp.DataByID.nad = _nodeAddress;
+            resp.DataByID.pci = pci::kSingleFrame;
+            resp.DataByID.length = 3;
+            resp.DataByID.sid = service_id::kReadDataByID;
+            resp.DataByID.index = _dataAddress;
+            st_send_response(resp);
             _state = kStateWaitData;
             break;
 
@@ -128,7 +125,7 @@ ProgrammerSlave::st_header_received()
 
         break;
 
-    case LIN::kFrameIDSlaveResponse:
+    case kFrameIDSlaveResponse:
 
         // are we expecting someone else to be sending a response?
         if (_state == kStateWaitData) {
@@ -146,25 +143,24 @@ ProgrammerSlave::st_header_received()
 }
 
 void
-ProgrammerSlave::st_response_received(LIN::Frame &frame)
+ProgrammerSlave::st_response_received(Response &resp)
 {
     switch (current_FrameID()) {
-    case LIN::kFrameIDSlaveResponse:
+    case kFrameIDSlaveResponse:
 
         // is this a response to a current request?
         if ((_state == kStateWaitData) &&
-            (frame.nad() == _nodeAddress) &&
-            (frame.sid() == (LIN::kServiceIDReadDataByID | LIN::kServiceIDResponseOffset))) {
+            (resp.SlaveResponse.nad == _nodeAddress) &&
+            (resp.SlaveResponse.sid == (service_id::kReadDataByID | service_id::kResponseOffset))) {
 
             // sanity-check the response
-            if ((frame.pci() != 5) ||
-                (frame.d1() != _dataIndex) ||
-                (frame.d2() != _dataPage)) {
+            if ((resp.DataByID.length != 5) ||
+                (resp.DataByID.index != _dataAddress)) {
                 _state = kStateError;
-                debug("get: frame err");
+                debug("get: resp err");
 
             } else {
-                _dataValue = frame.d3() | (frame.d4() << 8);
+                _dataValue = resp.DataByID.value;
                 _state = kStateIdle;
             }
         }
@@ -175,7 +171,7 @@ ProgrammerSlave::st_response_received(LIN::Frame &frame)
         break;
     }
 
-    Slave::st_response_received(frame);
+    Slave::st_response_received(resp);
 }
 
 void
@@ -185,17 +181,17 @@ ProgrammerSlave::st_sleep_requested(SleepType type)
 }
 
 bool
-ProgrammerSlave::st_master_request(LIN::Frame &frame)
+ProgrammerSlave::st_master_request(Response &resp)
 {
     bool reply = false;
 
-    switch (frame.sid()) {
-    case LIN::kServiceIDTesterPresent:
+    switch (resp.MasterRequest.sid) {
+    case service_id::kTesterPresent:
 
         // send a positive response to a directly-addressed request
         // unless suspended
-        if (!_suspended && (frame.nad() == LIN::kNodeAddressTester)) {
-            frame.sid() |= LIN::kServiceIDResponseOffset;
+        if (!_suspended && (resp.MasterRequest.nad == Tester::kNodeAddress)) {
+            resp.MasterRequest.sid |= service_id::kResponseOffset;
             reply = true;
         }
 

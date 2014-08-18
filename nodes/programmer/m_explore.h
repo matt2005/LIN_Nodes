@@ -13,7 +13,7 @@
 
 #include "menu.h"
 #include "bitarray.h"
-#include "lin_protocol.h"
+#include "lin_defs.h"
 
 namespace Menu
 {
@@ -28,7 +28,7 @@ protected:
     virtual Mode    *select();
 
 private:
-    static Bitarray<LIN::kNodeAddressMaxAssigned> _presentMask;
+    static StaticBitarray<kNodeAddressMax> _presentMask;
 
     static void     draw();
     static uint8_t  search_up(uint8_t from);

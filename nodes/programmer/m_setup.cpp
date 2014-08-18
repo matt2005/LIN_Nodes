@@ -9,12 +9,6 @@
 
 #include "util.h"
 #include "board.h"
-#include "param_master.h"
-#include "param_power_v1.h"
-#include "param_power_v3.h"
-
-#include "lin_protocol.h"
-#include "protocol.h"
 
 #include "m_top.h"
 #include "slave.h"
@@ -27,8 +21,8 @@ ExploreSetupMode::select()
 {
     switch (_node) {
 
-    case LIN::kNodeAddressMaster:
-    case LIN::kNodeAddressPowerBase ...(LIN::kNodeAddressPowerBase + 15):
+    case Master::kNodeAddress:
+    case PowerV1::kNodeAddress ... PowerV1::kNodeAddress + 15:
         modeSetup.init(_node);
         return &modeSetup;
 
@@ -57,75 +51,87 @@ ExploreSetupMode::select()
 // +--------------------+
 //
 
-uint8_t         SetupMode::_nad;
-uint8_t         SetupMode::_param;
-uint8_t         SetupMode::_value;
-SetupMode::Flavour SetupMode::_flavour;
-uint8_t         SetupMode::_max_param;
-bool            SetupMode::_editing;
-
 Mode *
 SetupMode::action(Encoder::Event bp)
 {
-    bool indexChanged = false;
+    bool wantDraw = false;
 
-    switch (bp) {
-    case Encoder::kEventDown:
-        if (_param > 0) {
-            _param--;
-        }
+    if (_editing) {
+        switch (bp) {
+        case Encoder::kEventDown:
 
-        indexChanged = true;
-        break;
+            wantDraw = adjust_value(-1);
+            break;
 
-    case Encoder::kEventUp:
-        if (_param < _max_param) {
-            _param++;
-        }
+        case Encoder::kEventUp:
+            wantDraw = adjust_value(1);
+            break;
 
-        indexChanged = true;
-        break;
-
-    case Encoder::kEventPress:
-        switch (_param) {
-        case 0:
-            return &modeExploreSetup;
-
-        default:
-            _editing = true;
-            gDisplay.move(0, 1);
-            gDisplay.printf(PSTR("  "));
-            gDisplay.move(0, 2);
-            gDisplay.printf(PSTR(">>"));
-            // edit was already setup up at draw time
-            return &modeEdit;
-        }
-
-        break;
-
-    case Encoder::kEventActivate:
-        if (_editing) {
+        case Encoder::kEventPress:
             _editing = false;
 
-            if (!gSlave.set_parameter(_nad, _param, _value)) {
-                gDisplay.clear();
-                gDisplay.printf(PSTR("%2u write err"), _param);
+            if (!gSlave.set_parameter(_nad, _param.address(), _value)) {
+                gDisplay.clear(Display::Region(0, 1, 20, 2));
+                gDisplay.move(2, 2);
+                gDisplay.printf(PSTR("%2u write err"), _param.address());
                 Board::ms_delay(5000);
-                gDisplay.clear();
+                gDisplay.clear(Display::Region(0, 1, 20, 2));
+                wantDraw = true;
             }
+            break;
 
-        } else {
-            _param = 1;
+        case Encoder::kEventActivate:
+            wantDraw = true;
+            break;
+
+        default:
+            break;
+        }
+    } else {
+        bool indexChanged = false;
+
+        switch (bp) {
+        case Encoder::kEventDown:
+            if (_index > 0) {
+                _index--;
+                indexChanged = true;
+            }
+            break;
+
+        case Encoder::kEventUp:
+            if (param(_index + 1).exists()) {
+                _index++;
+                indexChanged = true;
+            }
+            break;
+
+        case Encoder::kEventPress:
+            if (_index == 0) {
+                return &modeExploreSetup;
+            }
+            _editing = true;
+            wantDraw = true;
+            break;
+
+        case Encoder::kEventActivate:
+            gDisplay.clear();
+            print_title();
+            _index = 1;
+            indexChanged = true;
+            break;
+
+        default:
+            break;
         }
 
-        indexChanged = true;
-        break;
-
-    default:
-        break;
+        if (indexChanged) {
+            wantDraw = true;
+            _param = param(_index);
+            _readError = !gSlave.get_parameter(_nad, _param.address(), _value);
+        }
     }
 
-    if (indexChanged) {
+    if (wantDraw) {
         draw();
     }
 
@@ -135,10 +141,11 @@ SetupMode::action(Encoder::Event bp)
 void
 SetupMode::init(uint8_t nad)
 {
-    uint8_t flavour = 0;
+    uint16_t flavour = 0;
 
     if (gSlave.get_parameter(nad, 0, flavour)) {
         switch (flavour) {          // XXX kBoardFunctionID value
+                                    // XXX should be using Read By ID
         case 0:
             _flavour = kFlavourMaster;
             break;
@@ -158,58 +165,33 @@ SetupMode::init(uint8_t nad)
     }
 
     _nad = nad;
-    _max_param = Util::strtablen(param_names()) - 1;
+    _index = 1;
 }
 
 void
 SetupMode::draw()
 {
-    gDisplay.clear();
-    print_title();
+    gDisplay.clear(Display::Region(0, 1, 20, 2));
+
+    const char *name = PSTR("Back");
+    if (_index > 0) {
+        name = param_name(_param.address());
+    }
     gDisplay.move(0, 1);
-    gDisplay.printf(PSTR(">>"));
-    gDisplay.printf((_param == 0) ?
-                    PSTR("Back") :
-                    param_name());
-    gDisplay.move(2, 2);
+    gDisplay.printf(PSTR("%2s%18s"), _editing ? PSTR("  ") : PSTR(">>"), name);
 
-    if (_param > 0) {
-        if (!gSlave.get_parameter(_nad, _param, _value)) {
-            gDisplay.printf(PSTR("read error"));
+    if (_index > 0) {
 
+        const char *info = Encoding::info(param_encoding(_param.address()), _value);
+
+        gDisplay.move(0, 2);
+        gDisplay.printf(PSTR("%2s"), _editing ? PSTR(">>") : PSTR("  "));
+        if (_readError) {
+            gDisplay.printf(PSTR("READ ERROR @ 0x%x"), _param.address());
+        } else if (info == nullptr) {
+            gDisplay.printf(PSTR("%u"), _value);
         } else {
-            const char *fmt = param_format();
-            const char *tab = nullptr;
-
-            if (pgm_read_byte(fmt) == '%') {
-
-                switch (pgm_read_byte(fmt + 1)) {
-                case 'O':
-                    tab = namesForRelayID;
-                    break;
-
-                case 'S':
-                    tab = namesForSwitchID;
-                    break;
-
-                case 'T':
-                    tab = namesForRelayType;
-                    break;
-                }
-            }
-
-            if (tab != nullptr) {
-                modeEdit.init(this, &_value, Display::Region(2, 2, 18, 1), tab);
-
-            } else {
-                modeEdit.init(this,
-                              &_value,
-                              Display::Region(2, 2, 18, 1),
-                              param().min_value(),
-                              param().max_value(), fmt);
-            }
-
-            modeEdit.draw();
+            gDisplay.printf(PSTR("%18s"), info);
         }
     }
 }
@@ -225,8 +207,11 @@ SetupMode::print_title()
         break;
 
     case kFlavourPowerV1:
+        msg = PSTR("4ch Power");
+        break;
+
     case kFlavourPowerV3:
-        msg = PSTR("Power Node");
+        msg = PSTR("5ch Power");
         break;
 
     default:
@@ -236,59 +221,83 @@ SetupMode::print_title()
     gDisplay.printf(PSTR("%s Setup:"), msg);
 }
 
+uint8_t
+SetupMode::param_encoding(Parameter::Address addr)
+{
+    switch (_flavour) {
+    case kFlavourMaster:
+        return Master::param_encoding(addr);
+
+    case kFlavourPowerV1:
+        return PowerV1::param_encoding(addr);
+        break;
+
+    case kFlavourPowerV3:
+        return PowerV3::param_encoding(addr);
+        break;
+    }
+
+    return kEncoding_none;
+}
+
+const char *
+SetupMode::param_name(Parameter::Address addr)
+{
+    switch (_flavour) {
+    case kFlavourMaster:
+        return Master::param_name(addr);
+
+    case kFlavourPowerV1:
+        return PowerV1::param_name(addr);
+        break;
+
+    case kFlavourPowerV3:
+        return PowerV3::param_name(addr);
+        break;
+    }
+
+    return nullptr;
+}
+
 Parameter
-SetupMode::param()
+SetupMode::param(uint8_t index)
 {
-    switch (_flavour) {
-    case kFlavourMaster:
-        return masterParam(_param);
+    if (index > 0) {
 
-    case kFlavourPowerV1:
-        return power_v1Param(_param);
+        // scan for the index'th parameter
+        for (Parameter::Address addr = 0x0400; addr < 0x4ff; addr++) {
 
-    case kFlavourPowerV3:
-        return power_v3Param(_param);
-
-    default:
-        Board::panic(Board::kPanicCodeAssert);
+            if (param_encoding(addr) != kEncoding_none) {
+                if (--index == 0) {
+                    return Parameter(addr);
+                }
+            }
+        }
     }
+
+    // cons up a non-existent parameter
+    return Parameter(Parameter::noAddress);
 }
 
-PGM_P
-SetupMode::param_names()
+bool
+SetupMode::adjust_value(int16_t offset)
 {
-    switch (_flavour) {
-    case kFlavourMaster:
-        return masterParamNames;
-
-    case kFlavourPowerV1:
-        return power_v1ParamNames;
-
-    case kFlavourPowerV3:
-        return power_v3ParamNames;
-
-    default:
-        Board::panic(Board::kPanicCodeAssert);
+    // check offset doesn't cause wrap
+    if ((offset < 0) && ((offset + _value) > _value)) {
+        return false;
     }
-}
-
-PGM_P
-SetupMode::param_formats()
-{
-    switch (_flavour) {
-    case kFlavourMaster:
-        return masterParamFormats;
-
-    case kFlavourPowerV1:
-        return power_v1ParamFormats;
-
-    case kFlavourPowerV3:
-        return power_v3ParamFormats;
-
-    default:
-        Board::panic(Board::kPanicCodeAssert);
+    if ((offset + _value) < _value) {
+        return false;
     }
-}
 
+    uint16_t new_value = _value + offset;
+    uint8_t encoding = param_encoding(_param.address());
+
+    if (Encoding::invalid(encoding, new_value)) {
+        return false;
+    }
+    _value = new_value;
+    return true;
+}
 
 } // namespace Menu

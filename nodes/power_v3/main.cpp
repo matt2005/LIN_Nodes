@@ -9,14 +9,15 @@
 
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 
 #include "board.h"
 #include "slave.h"
 #include "mc17xsf500.h"
 
-#include "parameter.h"
-#include "protocol.h"
-#include "param_power_v3.h"
+#include "lin_defs.h"
+
+using namespace PowerV3;
 
 void
 main(void)
@@ -29,8 +30,15 @@ main(void)
         Board::panic(Board::kPanicCodeRecovery);
     }
 
-    // init/default parameters
-    power_v3ParamAll(init);
+    // init parameters (set to defaults if not valid)
+    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
+        Parameter p(addr);
+        uint8_t encoding = param_encoding(addr);
+
+        if ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get())) {
+            p.set(param_default(addr));
+        }
+    }
 
     // construct the slave
     RelaySlave slave(id);
@@ -47,23 +55,28 @@ main(void)
         wdt_reset();
         slave.tick();
 
-        // sort out parameter layout
-        const uint8_t base = kParamCH1Assign1;
-        const uint8_t pwm_base = kParamCH1PWM1;
-        const uint8_t stride = kParamCH2Assign1 - kParamCH1Assign1;
-        const uint8_t assigns = stride / 2;
+        // sort out parameter layout - assumes parameters are packed, with all CH1 parameters
+        // followed by all CH2 parameters
+        const uint8_t channelStride = PowerV3::kParamCH2Assign1 - PowerV3::kParamCH1Assign1;
+        const uint8_t assignStride = PowerV3::kParamCH1Assign2 - PowerV3::kParamCH1Assign1;
+        const uint16_t assignBase = PowerV3::kParamCH1Assign1;
+        const uint16_t pwmBase = PowerV3::kParamCH1PWM1;
+        const uint8_t assigns = channelStride / 2;
 
         // update outputs
         for (unsigned output = 0; output < MC17XSF500::num_channels; output++) {
+
             uint8_t duty_cycle = 0;
-            uint8_t offset = output * stride;
 
             for (uint8_t assign = 0; assign < assigns; assign++) {
-                if (slave.test_relay((RelayID)power_v3Param(base + offset + assign).get())) {
-                    uint8_t d = power_v3Param(pwm_base + offset + assign);
+                uint8_t offset = (output * channelStride) + (assign * assignStride);
+                uint16_t assigned = Parameter(assignBase + offset).get();
 
-                    if (d > duty_cycle) {
-                        duty_cycle = d;
+                if (slave.test_relay(assigned)) {
+                    uint16_t pwm = Parameter(pwmBase + offset).get();
+
+                    if (pwm > duty_cycle) {
+                        duty_cycle = pwm;
                     }
                 }
             }
@@ -73,3 +86,40 @@ main(void)
     }
 }
 
+void
+Parameter::set(uint16_t value) const
+{
+    switch (address()) {
+    case Generic::kParamBootloaderMode:
+        if (value == 0x4f42) {        // 'BO'
+            Board::enter_bootloader();
+        }
+    }
+
+    if ((address() >> 8) == 0x04) {
+        uint8_t index = address() & 0xff;
+        eeprom_update_word((uint16_t *)(index * 2), value);
+    }
+}
+
+uint16_t
+Parameter::get() const
+{
+    switch (address()) {
+    case Generic::kParamProtocolVersion:
+        return 1;
+    case Generic::kParamBootloaderMode:
+        return 0;
+    case Generic::kParamFirmwareVersion:
+        return RELEASE_VERSION;
+    case Generic::kParamFirmwarePageSize:
+        return SPM_PAGESIZE;
+    }
+
+    if ((address() >> 8) == 0x04) {
+        uint8_t index = address() & 0xff;
+        return eeprom_read_word((const uint16_t *)(index * 2));
+    }
+
+    return 0;
+}

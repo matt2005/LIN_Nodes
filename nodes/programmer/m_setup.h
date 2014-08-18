@@ -12,7 +12,6 @@
 #pragma once
 
 #include "util.h"
-
 #include "menu.h"
 
 namespace Menu
@@ -23,7 +22,7 @@ class SetupMode : public Mode
 public:
 
     virtual Mode    *action(Encoder::Event bp) override;
-    static void     init(uint8_t nad);
+    void            init(uint8_t nad);
 
 private:
     enum Flavour : uint8_t {
@@ -32,31 +31,23 @@ private:
         kFlavourPowerV3
     };
 
-    static uint8_t  _nad;
-    static uint8_t  _param;
-    static uint8_t  _value;
+    uint8_t         _nad;
+    Flavour         _flavour;
 
-    static Flavour  _flavour;
-    static uint8_t  _max_param;
-    static bool     _editing;
+    uint8_t         _index;
+    Parameter       _param;
+    uint16_t        _value;
+
+    bool            _editing;
+    bool            _readError;
 
     void            draw();
 
-    static void     print_title();
-    static Parameter param();
-    static PGM_P    param_names();
-    static PGM_P    param_formats();
-
-    static PGM_P    param_name()
-    {
-        return Util::strtab(param_names(), _param);
-    }
-
-    static PGM_P    param_format()
-    {
-        return Util::strtab(param_formats(), _param);
-    }
-
+    void            print_title();
+    uint8_t         param_encoding(Parameter::Address addr);
+    const char      *param_name(Parameter::Address addr);
+    Parameter       param(uint8_t index);
+    bool            adjust_value(int16_t offset);
 };
 
 } // namespace Menu

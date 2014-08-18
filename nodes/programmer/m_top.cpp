@@ -22,8 +22,6 @@ TopMode             modeTop;
 ExploreSetupMode    modeExploreSetup;
 SetupMode           modeSetup;
 ExploreTestMode     modeExploreTest;
-TestMode            modeTest;
-EditMode            modeEdit;
 InfoMode            modeInfo;
 
 struct topNode {
@@ -33,7 +31,6 @@ struct topNode {
 
 static PROGMEM Mode *const nodes[] = {
     &modeExploreSetup,
-    &modeExploreTest,
     &modeInfo
 };
 
@@ -64,7 +61,7 @@ TopMode::action(Encoder::Event bp)
         break;
 
     case Encoder::kEventDown:
-        if (_index < 2) {
+        if (_index < 1) {
             _index++;
             wantDraw = true;
         }
@@ -98,8 +95,6 @@ TopMode::draw()
     gDisplay.move(3, 1);
     gDisplay.printf(PSTR("Setup"));
     gDisplay.move(3, 2);
-    gDisplay.printf(PSTR("Diagnostics"));
-    gDisplay.move(3, 3);
     gDisplay.printf(PSTR("Info"));
 
     gDisplay.move(1, _index + 1);

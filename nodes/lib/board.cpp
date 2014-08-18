@@ -13,6 +13,7 @@
 #include <avr/power.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 #include <util/delay_basic.h>
 
 #include "board.h"
@@ -30,6 +31,11 @@ Serial       debugPort;
 
 void init()
 {
+    // clear the reset status register and disable the watchdog (as it may be running)
+    // XXX save reset cause for later use?
+    MCUSR = 0;
+    wdt_disable();
+
     // set the prescaler for maximum speed
     clock_prescale_set(clock_div_1);
 
@@ -185,7 +191,7 @@ enter_bootloader()
     wdt_reset();
 
     // write magic to the EEPROM to cause us to wait in the bootloader
-    eeprom_write_word((uint16_t *)(E2END - 2), 0x4f42);
+    eeprom_write_word((uint16_t *)(E2END - 1), 0x4f42);
 
     // and wait for the watchdog to reset us
     for (;;) 

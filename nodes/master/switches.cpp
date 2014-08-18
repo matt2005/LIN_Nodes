@@ -9,13 +9,13 @@
 
 
 #include "mc33972.h"
-#include "lin_protocol.h"
 #include "board.h"
 
 #include "switches.h"
 
-#include "protocol.h"
-#include "param_Master.h"
+#include "lin_defs.h"
+
+using namespace Master;
 
 namespace Switches
 {
@@ -26,8 +26,8 @@ struct Debounce {
 };
 
 static const uint8_t    kDebounceCycles = 5; // XXX needs to be computed/tuned
-static const uint8_t    kStateBytes = (kSwitchIDMax + 7) / 8;
-static Debounce         _state[kSwitchIDMax];
+static const uint8_t    kStateBytes = (input::kNumEncodings + 7) / 8;
+static Debounce         _state[input::kNumEncodings];
 
 void
 init()
@@ -73,7 +73,7 @@ changed_to_off(uint8_t id)
 bool
 changed()
 {
-    for (uint8_t id = 0; id < kSwitchIDMax; id++) {
+    for (uint8_t id = 0; id < input::kNumEncodings; id++) {
         if (changed(id)) {
             return true;
         }
@@ -92,7 +92,8 @@ scan()
         rawstate[i] = 0;
     }
 
-#define SET(x)  do { if (x < kSwitchIDMax) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
+    // XXX should use a bitarray
+#define SET(x)  do { if (x < input::kNumEncodings) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
 #define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
 
     // fetch the switch inputs
@@ -100,25 +101,25 @@ scan()
 
     // hardcoded ignition input on SP0
     if (MC33972::test(MC33972::kInputSP0)) {
-        SET(kSwitchIDIgnition);
+        SET(input::kIgnition);
     }
 
     // SP1-SP7
     for (uint8_t sw = 0; sw <= 6; sw++) {
         if (MC33972::test(MC33972::kInputSP1 + sw)) {
-            SET(masterParam(kParamSPAssign1 + sw));
+            SET(Parameter(kParamSP1Assign + sw).get());
         }
     }
 
     // SG0-SG13
     for (uint8_t sw = 0; sw <= 13; sw++) {
         if (MC33972::test(MC33972::kInputSG0 + sw)) {
-            SET(masterParam(kParamSGAssign0 + sw));
+            SET(Parameter(kParamSG0Assign + sw).get());
         }
     }
 
     // debounce raw state
-    for (uint8_t i = 0; i < kSwitchIDMax; i++) {
+    for (uint8_t i = 0; i < input::kNumEncodings; i++) {
 
         // if no change, reset debounce timer (also clears
         // 'changed' state

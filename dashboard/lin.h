@@ -51,7 +51,7 @@ private:
     uint8_t             _buf[9];
     uint8_t             _receivedLen    = 0;
     uint8_t             _waitLen        = 0;
-    uint8_t             _fid            = LIN::kFrameIDNone;
+    uint8_t             _fid            = kFrameIDNone;
     State               _state          = waitBreak;
 
     PerfCounter         _perfFrames;

@@ -1,0 +1,580 @@
+// ----------------------------------------------------------------------------
+// "THE BEER-WARE LICENSE" (Revision 42):
+// <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+// can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a beer in return.
+// ----------------------------------------------------------------------------
+//
+// Experimental node configuration file
+//
+// XXX would benefit from some templates exposing frame members, etc.
+// XXX LIN API not very good, do not generate code to conform
+// XXX NCF lacks a mechanism for defining parameters; the parameters
+//     clause here is nonstandard
+//
+// Note: none of these nodes support Assign Frame Identifier Range, as
+//       all frame identifiers in the design are fixed.
+// 
+
+node_capability_file;
+LIN_language_version = "2.1+";
+
+//
+// Generic node definition that can be used when talking to an arbitrary
+// node before it has been identified. Defines the baseline for nodes
+// in the system.
+//
+node Generic {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0000;
+        variant = 0x00;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }    
+    diagnostic {
+        NAD = 1 to 32;
+        diagnostic_class = 1;
+        support_sid { 0x22, 0x2e, 0xb2 };
+    }
+    frames {
+        publish SlaveResponse {
+            length = 8;
+            frame_id = 0x3d;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }
+                d1              { init_value = 0; size = 8; offset = 24; }
+                d2              { init_value = 0; size = 8; offset = 32; }
+                d3              { init_value = 0; size = 8; offset = 40; }
+                d4              { init_value = 0; size = 8; offset = 48; }
+                d5              { init_value = 0; size = 8; offset = 56; }
+            }
+        }
+        publish ReadByID {
+            length = 0;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }                
+                vendor          { init_value = 0; size = 16; offset = 24; }
+                function        { init_value = 0; size = 16; offset = 40; }
+                variant         { init_value = 0; size = 8; offset = 56; }            
+            }
+        }
+        publish DataByID {
+            length = 8;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }                
+                index           { init_value = 0; size = 16; offset = 24; }
+                value           { init_value = 0; size = 16; offset = 40; }
+                d5              { init_value = 0; size = 8; offset = 56; }
+            }
+        }
+        subscribe MasterRequest {}
+    }
+    parameters {
+        ProtocolVersion     { address = 0x0000; }
+        BoardFunction       {                   }
+        BootloaderMode      {                   bootloader_magic; }
+        FirmwareVersion     {                   }
+        FirmwarePageSize    {                   }
+
+        WatchdogResets      { address = 0x0100; }
+        SupplyVoltage       {                   }
+        Temperature         {                   }
+
+        Line                { address = 0x0200; }
+        Checksum            {                   }
+        Parity              {                   }
+        Framing             {                   }
+        Synch               {                   }
+        Protocol            {                   }
+
+        ConfigBase          { address = 0x0400; }
+    }
+    encoding {
+        bootloader_magic {
+            logical_value, 0, "Program";
+            logical_value, 1, "Bootloader";
+            logical_value, 0x4f42, "EnterBootloader";
+        }
+    }
+}
+
+node Bootloader {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0000;
+        variant = 0x00;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }    
+    diagnostic {
+        NAD = 32;
+        diagnostic_class = 1;
+        support_sid { 0x22 };
+    }
+    frames {
+        subscribe MasterRequest {}
+    }
+    parameters {
+        Status              { address = 0x0300; bl_status; }
+
+        PageAddress         { address = 0x0400; }
+        PageCRC             {                   }
+    }
+    encoding {
+        bl_status {
+            logical_value, 0, "WaitingForProgrammer";
+            logical_value, 1, "ReadyForPage";
+            logical_value, 2, "PageInProgress";
+            logical_value, 3, "PageCRCError";
+            logical_value, 4, "PageAddressError";
+        }
+    }
+}
+
+node Master {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0000;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "yes";
+    }
+    diagnostic {
+        NAD = 1;
+        diagnostic_class = 1;
+        support_sid { 0x22, 0x2e, 0xb2 };
+    }
+    frames {
+        publish Relays {
+            length = 8;
+            min_period = 10 ms;
+            max_period = 100 ms;
+            frame_id = 0x01;
+            signals {
+                Ignition        { init_value = 0; size = 1; offset = 0; }
+                Start           { init_value = 0; size = 1; offset = 1; }
+                LightsUp        { init_value = 0; size = 1; offset = 2; }
+                LightsDown      { init_value = 0; size = 1; offset = 3; }
+                HeadLights      { init_value = 0; size = 1; offset = 4; }
+                LowBeam         { init_value = 0; size = 1; offset = 5; }
+                HighBeam        { init_value = 0; size = 1; offset = 6; }
+                FogLights       { init_value = 0; size = 1; offset = 7; }
+                MarkerLights    { init_value = 0; size = 1; offset = 8; }
+                LeftTurn        { init_value = 0; size = 1; offset = 9; }
+                LeftTurnMarker  { init_value = 0; size = 1; offset = 10; }
+                RightTurn       { init_value = 0; size = 1; offset = 11; }
+                RightTurnMarker { init_value = 0; size = 1; offset = 12; }
+                Brake           { init_value = 0; size = 1; offset = 13; }
+                Reverse         { init_value = 0; size = 1; offset = 14; }
+                InteriorLight   { init_value = 0; size = 1; offset = 15; }
+                CabinFan1       { init_value = 0; size = 1; offset = 16; }
+                CabinFan2       { init_value = 0; size = 1; offset = 17; }
+                CabinFan3       { init_value = 0; size = 1; offset = 18; }
+                CabinFan4       { init_value = 0; size = 1; offset = 19; }
+                WiperLow        { init_value = 0; size = 1; offset = 20; }
+                WiperHigh       { init_value = 0; size = 1; offset = 21; }
+                RearDefrost     { init_value = 0; size = 1; offset = 22; }
+            }
+        }
+        publish MasterRequest {
+            length = 8;
+            frame_id = 0x3c;
+            signals {
+                nad             { init_value = 0; size = 8; offset = 0; node_address; }
+                length          { init_value = 0; size = 4; offset = 8; }
+                pci             { init_value = 0; size = 4; offset = 12; pci; }
+                sid             { init_value = 0; size = 8; offset = 16; service_id; }
+                d1              { init_value = 0; size = 8; offset = 24; }
+                d2              { init_value = 0; size = 8; offset = 32; }
+                d3              { init_value = 0; size = 8; offset = 40; }
+                d4              { init_value = 0; size = 8; offset = 48; }
+                d5              { init_value = 0; size = 8; offset = 56; }
+            }
+        }
+        subscribe ProxyRequest {}
+        subscribe SlaveResponse {}
+    }
+    parameters {
+        SP1Assign               { init_value = 0;   address = 0x0400; input; }
+        SP2Assign               { init_value = 0;                     input; }
+        SP3Assign               { init_value = 0;                     input; }
+        SP4Assign               { init_value = 0;                     input; }
+        SP5Assign               { init_value = 0;                     input; }
+        SP6Assign               { init_value = 0;                     input; }
+        SP7Assign               { init_value = 0;                     input; }
+        SG0Assign               { init_value = 0;                     input; }
+        SG1Assign               { init_value = 0;                     input; }
+        SG2Assign               { init_value = 0;                     input; }
+        SG3Assign               { init_value = 0;                     input; }
+        SG4Assign               { init_value = 0;                     input; }
+        SG5Assign               { init_value = 0;                     input; }
+        SG6Assign               { init_value = 0;                     input; }
+        SG7Assign               { init_value = 0;                     input; }
+        SG8Assign               { init_value = 0;                     input; }
+        SG9Assign               { init_value = 0;                     input; }
+        SG10Assign              { init_value = 0;                     input; }
+        SG11Assign              { init_value = 0;                     input; }
+        SG12Assign              { init_value = 0;                     input; }
+        SG13Assign              { init_value = 0;                     input; }
+        TurnBlinkPeriod         { init_value = 500;                   msec; }
+        PassingBlinkCount       { init_value = 0;                     up_to_10; }
+        PathLightTime           { init_value = 30;                    sec; }
+        InteriorLightTime       { init_value = 30;                    sec; }
+        WelcomeLightTime        { init_value = 30;                    sec; }
+        BrakeBlinkPeriod        { init_value = 0;                     msec; }
+        BrakeBlinkCount         { init_value = 0;                     up_to_10; }
+        WiperInterval           { init_value = 0;                     msec; }
+    }
+    encoding {
+        input {
+            logical_value, 0, "Unassigned";
+            logical_value, 1, "Ignition";
+            logical_value, 2, "Start";
+            logical_value, 3, "MarkerLights";
+            logical_value, 4, "HeadLights";
+            logical_value, 5, "HighBeam";
+            logical_value, 6, "HighBeamToggle";
+            logical_value, 7, "FogLight";
+            logical_value, 8, "LeftTurn";
+            logical_value, 9, "RightTurn";
+            logical_value, 10, "Brake";
+            logical_value, 11, "Reverse";
+            logical_value, 12, "Door";
+            logical_value, 13, "InteriorLight";
+            logical_value, 14, "Hazard";
+            logical_value, 15, "DoorUnlock";
+            logical_value, 16, "LightsUp";
+            logical_value, 17, "CabinFan1";
+            logical_value, 18, "CabinFan2";
+            logical_value, 19, "CabinFan3";
+            logical_value, 20, "WiperInt";
+            logical_value, 21, "WiperLow";
+            logical_value, 22, "WiperHigh";
+            logical_value, 23, "RearDefrost";
+        }
+        msec {
+            logical_value, 0, "Disabled";
+            physical_value, 100, 65000, 1, 0, "Milliseconds";
+        }
+        sec {
+            logical_value, 0, "Disabled";
+            physical_value, 1, 600, 1, 0, "Seconds";
+        }
+        up_to_10 {
+            logical_value, 0, "Disabled";
+            physical_value, 1, 10, 1, 0, "Count"; 
+        }
+        node_address {
+            logical_value, 0, "Sleep";
+            physical_value, 1, 125, 0, 0, "NodeAddress";
+            logical_value, 126, "Functional";
+            logical_value, 127, "Broadcast";
+        }
+        pci {
+            logical_value, 0, "SingleFrame";
+            logical_value, 1, "FirstFrame";
+            logical_value, 2, "ContiuationFrame";
+        }
+        service_id {
+            logical_value, 0x22, "ReadDataByID";      
+            logical_value, 0x2e, "WriteDataByID";     
+            logical_value, 0x3e, "TesterPresent";     
+            logical_value, 0xb2, "ReadByID";          
+            logical_value, 0xb4, "DataDump";          
+            logical_value, 0x7f, "ErrorResponse";     
+            logical_value, 0x40, "ResponseOffset";
+        }
+        // written to the D2 signal for error replies
+        service_error {
+            logical_value, 0x12, "FunctionNotSupported";
+            logical_value, 0x13, "IncorrectLength";
+            logical_value, 0x22, "ConditionsNotCorrect";
+            logical_value, 0x31, "OutOfRange";
+            logical_value, 0x33, "AccessDenied";
+            logical_value, 0x72, "GeneralFailure";
+        }
+    }
+}
+
+node PowerV1 {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0001;
+        variant = 0x10;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 2 to 16;
+        diagnostic_class = 1;
+        support_sid { 0x22, 0x2e, 0xb2 };
+    }
+    frames {
+        subscribe Relays {}
+    }
+    parameters {
+        Relay1Status    { init_value = 0; address = 0x0300; v1_output_status; }
+        Relay2Status    { init_value = 0;                   v1_output_status; }
+        Relay3Status    { init_value = 0;                   v1_output_status; }
+        Relay4Status    { init_value = 0;                   v1_output_status; }
+
+        Relay1Assign    { init_value = 0; address = 0x0400; v1_output_assignment; }
+        Relay2Assign    { init_value = 0;                   v1_output_assignment; }
+        Relay3Assign    { init_value = 0;                   v1_output_assignment; }
+        Relay4Assign    { init_value = 0;                   v1_output_assignment; }
+    }
+    encoding {
+        v1_output_status {
+            logical_value, 0, "OK";
+            logical_value, 1, "Fault";
+        }
+        v1_output_assignment {
+            logical_value, 0, "Unassigned";
+            logical_value, 1, "Ignition";
+            logical_value, 2, "Start";
+            logical_value, 3, "LightsUp";
+            logical_value, 4, "LightsDown";
+            logical_value, 5, "HeadLights";
+            logical_value, 6, "LowBeam";
+            logical_value, 7, "HighBeam";
+            logical_value, 8, "FogLights";
+            logical_value, 9, "MarkerLights";
+            logical_value, 10, "LeftTurn";
+            logical_value, 11, "LeftTurnMarker";
+            logical_value, 12, "RightTurn";
+            logical_value, 13, "RightTurnMarker";
+            logical_value, 14, "Brake";
+            logical_value, 15, "Reverse";
+            logical_value, 16, "InteriorLight";
+            logical_value, 17, "CabinFan1";
+            logical_value, 18, "CabinFan2";
+            logical_value, 19, "CabinFan3";
+            logical_value, 20, "CabinFan4";
+            logical_value, 21, "WiperLow";
+            logical_value, 22, "WiperHigh";
+            logical_value, 23, "RearDefrost";
+        }
+    }
+}
+
+node PowerV3 {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0002;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 2 to 16;
+        diagnostic_class = 1;
+        support_sid { 0x22, 0x2e, 0xb2 };
+    }
+    frames {
+        subscribe Relays {}
+    }
+    parameters {
+        CH1Status   { init_value = 0;   address = 0x0300; v3_output_status; }
+        CH2Status   { init_value = 0;                     v3_output_status; }
+        CH3Status   { init_value = 0;                     v3_output_status; }
+        CH4Status   { init_value = 0;                     v3_output_status; }
+        CH5Status   { init_value = 0;                     v3_output_status; }
+
+        CH1Type     { init_value = 0;   address = 0x0400; output_type; }
+        CH2Type     { init_value = 0;                     output_type; }
+        CH3Type     { init_value = 0;                     output_type; }
+        CH4Type     { init_value = 0;                     output_type; }
+        CH5Type     { init_value = 0;                     output_type; }
+
+        CH1Assign1  { init_value = 255;                   output_assignment; }
+        CH1Assign2  { init_value = 255;                   output_assignment; }
+        CH1Assign3  { init_value = 255;                   output_assignment; }
+        CH1Assign4  { init_value = 255;                   output_assignment; }
+        CH1PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH1PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH1PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH1PWM4     { init_value = 0;                     pwm_duty_cycle; }
+
+        CH2Assign1  { init_value = 255;                   output_assignment; }
+        CH2Assign2  { init_value = 255;                   output_assignment; }
+        CH2Assign3  { init_value = 255;                   output_assignment; }
+        CH2Assign4  { init_value = 255;                   output_assignment; }
+        CH2PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH2PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH2PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH2PWM4     { init_value = 0;                     pwm_duty_cycle; }
+
+        CH3Assign1  { init_value = 255;                   output_assignment; }
+        CH3Assign2  { init_value = 255;                   output_assignment; }
+        CH3Assign3  { init_value = 255;                   output_assignment; }
+        CH3Assign4  { init_value = 255;                   output_assignment; }
+        CH3PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH3PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH3PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH3PWM4     { init_value = 0;                     pwm_duty_cycle; }
+
+        CH4Assign1  { init_value = 255;                   output_assignment; }
+        CH4Assign2  { init_value = 255;                   output_assignment; }
+        CH4Assign3  { init_value = 255;                   output_assignment; }
+        CH4Assign4  { init_value = 255;                   output_assignment; }
+        CH4PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH4PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH4PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH4PWM4     { init_value = 0;                     pwm_duty_cycle; }
+
+        CH5Assign1  { init_value = 255;                   output_assignment; }
+        CH5Assign2  { init_value = 255;                   output_assignment; }
+        CH5Assign3  { init_value = 255;                   output_assignment; }
+        CH5Assign4  { init_value = 255;                   output_assignment; }
+        CH5PWM1     { init_value = 0;                     pwm_duty_cycle; }
+        CH5PWM2     { init_value = 0;                     pwm_duty_cycle; }
+        CH5PWM3     { init_value = 0;                     pwm_duty_cycle; }
+        CH5PWM4     { init_value = 0;                     pwm_duty_cycle; }
+    }
+    encoding {
+        v3_output_status {
+            logical_value, 0, "OK";
+            logical_value, 1, "OpenCircuit";
+            logical_value, 2, "OverCurrent";
+            logical_value, 3, "OverTemperature";
+            logical_value, 4, "ShortToGround";
+            logical_value, 5, "ShortToBattery";
+        }
+        output_type {
+            logical_value, 0, "5AGeneric";
+            logical_value, 1, "10AGeneric";
+            logical_value, 2, "LED";
+            logical_value, 3, "HID";
+            logical_value, 4, "LowPowerBulb";
+            logical_value, 5, "HighPowerBulb";
+            logical_value, 6, "Motor";
+        }
+        output_assignment {
+            logical_value, 0, "Unassigned";
+            logical_value, 1, "Ignition";
+            logical_value, 2, "Start";
+            logical_value, 3, "LightsUp";
+            logical_value, 4, "LightsDown";
+            logical_value, 5, "HeadLights";
+            logical_value, 6, "LowBeam";
+            logical_value, 7, "HighBeam";
+            logical_value, 8, "FogLights";
+            logical_value, 9, "MarkerLights";
+            logical_value, 10, "LeftTurn";
+            logical_value, 11, "LeftTurnMarker";
+            logical_value, 12, "RightTurn";
+            logical_value, 13, "RightTurnMarker";
+            logical_value, 14, "Brake";
+            logical_value, 15, "Reverse";
+            logical_value, 16, "InteriorLight";
+            logical_value, 17, "CabinFan1";
+            logical_value, 18, "CabinFan2";
+            logical_value, 19, "CabinFan3";
+            logical_value, 20, "CabinFan4";
+            logical_value, 21, "WiperLow";
+            logical_value, 22, "WiperHigh";
+            logical_value, 23, "RearDefrost";
+        }
+        pwm_duty_cycle { physical_value, 0, 100, 1, 0, "Percent"; }
+    }
+}
+
+node ECUBridge {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0003;
+        variant = 0x10;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 18;
+        diagnostic_class = 1;
+        support_sid { 0x22, 0x2e, 0xb2 };
+    }
+    frames {
+        publish ECUData {
+            length = 8;
+            min_period = 10 ms;
+            max_period = 100 ms;
+            frame_id = 0x02;
+            signals {
+                RPM                 { init_value = 0; size = 8; offset = 0;  RPM; }
+                oilPressure         { init_value = 0; size = 8; offset = 8;  PSI; }
+                oilTemperature      { init_value = 0; size = 8; offset = 16; F; }
+                coolantTemperature  { init_value = 0; size = 8; offset = 24; F; }
+                fuelPressure        { init_value = 0; size = 8; offset = 32; PSI; }
+                voltage             { init_value = 0; size = 8; offset = 40; V; }
+                AFR                 { init_value = 0; size = 8; offset = 48; lambda; }
+                roadSpeed           { init_value = 0; size = 8; offset = 56; MPH; }
+            }
+        }
+    }
+    encoding {
+        RPM     { physical_value, 0, 255, 30, 0, "RPM"; }
+        PSI     { physical_value, 0, 255, 1, 0, "PSI"; }
+        F       { physical_value, 0, 255, 1, 0, "Temperature"; }
+        V       { physical_value, 0, 255, 0.1, 0, "Volts"; }
+        lambda  { physical_value, 0, 255, 0.1, 0, "Lambda"; }
+        MPH     { physical_value, 0, 255, 1, 0, "MPH"; }
+    }   
+}
+
+node Dashboard {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0004;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "no";
+    }
+    diagnostic {
+        NAD = 19;
+        diagnostic_class = 1;
+        support_sid { 0xb2 };
+    }
+    frames {
+        subscribe Relays {}
+        subscribe ECUData {}
+    }
+    encoding {}
+}
+
+node Tester {
+    general {
+        LIN_protocol_version = "2.1";
+        supplier = 0xb007;
+        function = 0x0005;
+        variant = 0x01;
+        bitrate = 19.2 kbps;
+        sends_wake_up_signal = "yes";
+    }
+    diagnostic {
+        NAD = 20;
+        diagnostic_class = 0;
+    }
+    frames {
+        publish ProxyRequest {
+            length = 8;
+            frame_id = 0x3b;
+        }
+    }
+    encoding {}
+}

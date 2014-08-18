@@ -13,6 +13,8 @@ SRCS		 = main.cpp \
 		   usbdrv.c \
 		   usbdrvasm.S
 
+SRCS		+= lin_defs.cpp
+
 SRCS		+= board.cpp \
 		   lin_dev.cpp \
 		   lin_slave.cpp \

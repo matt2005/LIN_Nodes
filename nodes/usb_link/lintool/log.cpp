@@ -7,29 +7,23 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <err.h>
-
 #include <stdexcept>
 
+#include "log.h"
 #include "link.h"
 
 #include "../../../common/lin_defs.h"
 
-
-Link *gLink;
+namespace Log 
+{
 
 void
-log_history(bool forever = true)
+log(bool forever)
 {
     for (;;) {
         struct RQHistory hist;
 
-        int result = gLink->request_in(kUSBRequestGetHistory, 0, 0, (unsigned char *)&hist, sizeof(hist));
+        int result = Link::request_in(kUSBRequestGetHistory, 0, 0, (unsigned char *)&hist, sizeof(hist));
 
         if (result < 0) {
             throw(std::runtime_error("trace: USB error"));
@@ -143,12 +137,12 @@ log_history(bool forever = true)
 }
 
 void
-clear_history()
+clear()
 {
     for (;;) {
-        uint8_t frame[9];
+        RQHistory hist;
 
-        int result = gLink->request_in(kUSBRequestGetHistory, 0, 0, frame, 9);
+        int result = Link::request_in(kUSBRequestGetHistory, 0, 0, (uint8_t *)&hist, sizeof(hist));
 
         if (result < 0) {
             throw(std::runtime_error("trace: USB error"));
@@ -160,82 +154,5 @@ clear_history()
     }
 }
 
-void
-print_status()
-{    
-    warnx("free memory: %u", gLink->get_status(RQ_STATUS_FREEMEM));
-    uint8_t status = gLink->get_status();
-    if (status & RQ_STATUS_DATA_READY) {
-        warnx("status: DATA_READY");
-    }
-    if (status & RQ_STATUS_DATA_ERROR) {
-        warnx("status: DATA_ERROR");
-    }
-    if (status & RQ_STATUS_AWAKE) {
-        warnx("status: AWAKE");
-    }
-    if (status & RQ_STATUS_WAITING) {
-        warnx("status: WAITING");
-    }
-    if (status & RQ_STATUS_MASTER) {
-        warnx("status: MASTER");
-    }
-    warnx("Errors:");
-    warnx("  line:            %u", gLink->get_status(RQ_STATUS_LINERR, 0));
-    warnx("  checksum:        %u", gLink->get_status(RQ_STATUS_LINERR, 1));
-    warnx("  parity:          %u", gLink->get_status(RQ_STATUS_LINERR, 2));
-    warnx("  framing:         %u", gLink->get_status(RQ_STATUS_LINERR, 3));
-    warnx("  synchronisation: %u", gLink->get_status(RQ_STATUS_LINERR, 4));
-    warnx("  protocol:        %u", gLink->get_status(RQ_STATUS_LINERR, 5));
-}
-
-void
-print_parameters()
-{
-    gLink->enable_master(true);
-    gLink->set_node(1);
-
-    uint16_t value = 0xffff;
-    try {
-        value = gLink->read_data(Generic::kParamProtocolVersion);
-        warnx("%d: got %d", 1, value);
-    } catch(std::runtime_error &re) {
-        warnx("read failed: %s", re.what());
-        log_history(false);        
-    }
-
-    gLink->enable_master(false);
-
-}
-
-
-
-int
-main(int argc, const char *argv[])
-{
-    gLink = new Link;
-    
-    gLink->connect();
-    clear_history();
-
-    if (argc == 2) {
-        if (!strcmp(argv[1], "-status")) {
-            print_status();
-            exit(0);
-        }
-        if (!strcmp(argv[1], "-trace")) {
-            log_history();
-        }
-        if (!strcmp(argv[1], "-master")) {
-            gLink->enable_master(true);
-            exit(0);
-        }
-        if (!strcmp(argv[1], "-dump")) {
-            print_parameters();
-            exit(0);
-        }
-    }
-
-    errx(1, "must supply one of -trace, -dump ...");
-}
+} // namespace Log
 

@@ -13,26 +13,22 @@
 #include "../usbconfig.h"
 #include "../requests.h"
 
-class Link
+namespace Link
 {
-public:
-    // connect to the USB link
-    void    connect();
+// connect to the USB link
+extern void     connect();
 
-    // low-level request methods
-    int     request(uint8_t bRequest, uint16_t wValue, uint16_t wIndex);
-    int     request_in(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength);
-    int     request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength);
+// low-level request methods
+extern int      request(uint8_t bRequest, uint16_t wValue, uint16_t wIndex);
+extern int      request_in(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength);
+extern int      request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength);
 
-    // link primitives
-    void        enable_master(bool enable);
-    uint8_t     get_status(unsigned which = RQ_STATUS_FLAGS, unsigned index = 0);
-    void        set_node(uint8_t node);
-    void        write_data(uint16_t index, uint16_t value);
-    uint16_t    read_data(uint16_t index);
-    void        bulk_data(uint8_t *bytes);
+// link primitives
+extern void     enable_master(bool enable);
+extern uint8_t  get_status(unsigned which = RQ_STATUS_FLAGS, unsigned index = 0);
+extern void     set_node(uint8_t node);
+extern void     write_data(uint16_t index, uint16_t value);
+extern uint16_t read_data(uint16_t index);
+extern void     bulk_data(uint8_t *bytes);
 
-private:
-    libusb_context              *_usb_ctx = nullptr;
-    struct libusb_device_handle *_usb_handle = nullptr;
-};
+} // namespace Link

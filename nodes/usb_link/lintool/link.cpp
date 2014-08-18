@@ -11,10 +11,15 @@
 #include <unistd.h>
 #include "link.h"
 
+namespace Link
+{
+libusb_context              *_usb_ctx = nullptr;
+struct libusb_device_handle *_usb_handle = nullptr;
+
 constexpr uint16_t bytes_to_short(uint8_t low, uint8_t high) { return ((uint16_t)high << 8) + low; }
 
 void
-Link::connect()
+connect()
 {
     libusb_init(&_usb_ctx);
 
@@ -55,7 +60,7 @@ Link::connect()
 
 
 int
-Link::request(uint8_t bRequest, uint16_t wValue, uint16_t wIndex)
+request(uint8_t bRequest, uint16_t wValue, uint16_t wIndex)
 {
     return libusb_control_transfer(_usb_handle,
                                    LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
@@ -68,7 +73,7 @@ Link::request(uint8_t bRequest, uint16_t wValue, uint16_t wIndex)
 }
 
 int
-Link::request_in(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength)
+request_in(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength)
 {
     return libusb_control_transfer(_usb_handle,
                                    LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN,
@@ -81,7 +86,7 @@ Link::request_in(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned ch
 }
 
 int
-Link::request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength)
+request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength)
 {
     return libusb_control_transfer(_usb_handle,
                                    LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT,
@@ -94,7 +99,7 @@ Link::request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned c
 }
 
 void
-Link::enable_master(bool enable)
+enable_master(bool enable)
 {
     int result = request(kUSBRequestEnableMaster, enable ? 1 : 0, 0);
 
@@ -113,7 +118,7 @@ Link::enable_master(bool enable)
 }
 
 uint8_t
-Link::get_status(unsigned which, unsigned index)
+get_status(unsigned which, unsigned index)
 {
     uint8_t status = 0;
 
@@ -126,7 +131,7 @@ Link::get_status(unsigned which, unsigned index)
 }
 
 void
-Link::set_node(uint8_t node)
+set_node(uint8_t node)
 {
     int result = request(kUSBRequestSelectNode, node, 0);
 
@@ -136,7 +141,7 @@ Link::set_node(uint8_t node)
 }
 
 void
-Link::write_data(uint16_t index, uint16_t value)
+write_data(uint16_t index, uint16_t value)
 {
     int result = request(kUSBRequestWriteData, value, index);
 
@@ -146,7 +151,7 @@ Link::write_data(uint16_t index, uint16_t value)
 }
 
 void
-Link::bulk_data(uint8_t *bytes)
+bulk_data(uint8_t *bytes)
 {
     uint8_t value, index;
 
@@ -162,7 +167,7 @@ Link::bulk_data(uint8_t *bytes)
 }
 
 uint16_t
-Link::read_data(uint16_t index)
+read_data(uint16_t index)
 {
     int result;
     uint16_t value;
@@ -197,3 +202,5 @@ Link::read_data(uint16_t index)
     }
     throw(std::runtime_error("read_data: timed out"));
 }
+
+} // namespace Link

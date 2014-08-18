@@ -15,28 +15,37 @@ extern const PROGMEM char   *name(uint8_t encoding);
 extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);
 } // namespace Encoding
 
-static const uint8_t kEncoding_bl_status = 0;
-static const uint8_t kEncoding_input = 1;
-static const uint8_t kEncoding_msec = 2;
-static const uint8_t kEncoding_sec = 3;
-static const uint8_t kEncoding_up_to_10 = 4;
-static const uint8_t kEncoding_node_address = 5;
-static const uint8_t kEncoding_pci = 6;
-static const uint8_t kEncoding_service_id = 7;
-static const uint8_t kEncoding_service_error = 8;
-static const uint8_t kEncoding_v1_output_status = 9;
-static const uint8_t kEncoding_v1_output_assignment = 10;
-static const uint8_t kEncoding_v3_output_status = 11;
-static const uint8_t kEncoding_output_type = 12;
-static const uint8_t kEncoding_output_assignment = 13;
-static const uint8_t kEncoding_pwm_duty_cycle = 14;
-static const uint8_t kEncoding_RPM = 15;
-static const uint8_t kEncoding_PSI = 16;
-static const uint8_t kEncoding_F = 17;
-static const uint8_t kEncoding_V = 18;
-static const uint8_t kEncoding_lambda = 19;
-static const uint8_t kEncoding_MPH = 20;
+static const uint8_t kEncoding_bootloader_magic = 0;
+static const uint8_t kEncoding_bl_status = 1;
+static const uint8_t kEncoding_input = 2;
+static const uint8_t kEncoding_msec = 3;
+static const uint8_t kEncoding_sec = 4;
+static const uint8_t kEncoding_up_to_10 = 5;
+static const uint8_t kEncoding_node_address = 6;
+static const uint8_t kEncoding_pci = 7;
+static const uint8_t kEncoding_service_id = 8;
+static const uint8_t kEncoding_service_error = 9;
+static const uint8_t kEncoding_v1_output_status = 10;
+static const uint8_t kEncoding_v1_output_assignment = 11;
+static const uint8_t kEncoding_v3_output_status = 12;
+static const uint8_t kEncoding_output_type = 13;
+static const uint8_t kEncoding_output_assignment = 14;
+static const uint8_t kEncoding_pwm_duty_cycle = 15;
+static const uint8_t kEncoding_RPM = 16;
+static const uint8_t kEncoding_PSI = 17;
+static const uint8_t kEncoding_F = 18;
+static const uint8_t kEncoding_V = 19;
+static const uint8_t kEncoding_lambda = 20;
+static const uint8_t kEncoding_MPH = 21;
 static const uint8_t kEncoding_none = 0xff;
+
+namespace bootloader_magic
+{
+static const uint16_t kProgram = 0;
+static const uint16_t kBootloader = 1;
+static const uint16_t kEnterBootloader = 0x4f42;
+static const uint16_t kNumEncodings = 3;
+} // namespace bootloader_magic
 
 namespace bl_status
 {
@@ -377,6 +386,7 @@ struct Response
 
 namespace Generic
 {
+extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
@@ -401,6 +411,7 @@ static const uint16_t kParamConfigBase = 0x0400;
 
 namespace Bootloader
 {
+extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
@@ -413,6 +424,7 @@ static const uint16_t kParamPageCRC = 0x0401;
 
 namespace Master
 {
+extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
@@ -451,6 +463,7 @@ static const uint16_t kParamWiperInterval = 0x041c;
 
 namespace PowerV1
 {
+extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
@@ -468,6 +481,7 @@ static const uint16_t kParamRelay4Assign = 0x0403;
 
 namespace PowerV3
 {
+extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
@@ -527,66 +541,66 @@ static const uint16_t kParamCH5PWM4 = 0x042c;
 
 namespace Generic
 {
-    static const uint8_t kNodeAddress  = 1;
+    static const uint8_t kNodeAddress = 1;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0000;
-    static const uint8_t kNodeVariant  = 0x00;
+    static const uint8_t kNodeVariant = 0x00;
 } // namespace Generic
 
 namespace Bootloader
 {
-    static const uint8_t kNodeAddress  = 32;
+    static const uint8_t kNodeAddress = 32;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0000;
-    static const uint8_t kNodeVariant  = 0x00;
+    static const uint8_t kNodeVariant = 0x00;
 } // namespace Bootloader
 
 namespace Master
 {
-    static const uint8_t kNodeAddress  = 1;
+    static const uint8_t kNodeAddress = 1;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0000;
-    static const uint8_t kNodeVariant  = 0x01;
+    static const uint8_t kNodeVariant = 0x01;
 } // namespace Master
 
 namespace PowerV1
 {
-    static const uint8_t kNodeAddress  = 2;
+    static const uint8_t kNodeAddress = 2;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0001;
-    static const uint8_t kNodeVariant  = 0x10;
+    static const uint8_t kNodeVariant = 0x10;
 } // namespace PowerV1
 
 namespace PowerV3
 {
-    static const uint8_t kNodeAddress  = 2;
+    static const uint8_t kNodeAddress = 2;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0002;
-    static const uint8_t kNodeVariant  = 0x01;
+    static const uint8_t kNodeVariant = 0x01;
 } // namespace PowerV3
 
 namespace ECUBridge
 {
-    static const uint8_t kNodeAddress  = 18;
+    static const uint8_t kNodeAddress = 18;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0003;
-    static const uint8_t kNodeVariant  = 0x10;
+    static const uint8_t kNodeVariant = 0x10;
 } // namespace ECUBridge
 
 namespace Dashboard
 {
-    static const uint8_t kNodeAddress  = 19;
+    static const uint8_t kNodeAddress = 19;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0004;
-    static const uint8_t kNodeVariant  = 0x01;
+    static const uint8_t kNodeVariant = 0x01;
 } // namespace Dashboard
 
 namespace Tester
 {
-    static const uint8_t kNodeAddress  = 20;
+    static const uint8_t kNodeAddress = 20;
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0005;
-    static const uint8_t kNodeVariant  = 0x01;
+    static const uint8_t kNodeVariant = 0x01;
 } // namespace Tester
 
 static const uint8_t kNodeAddressMax = 32;

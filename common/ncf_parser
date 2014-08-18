@@ -732,6 +732,7 @@ namespace eval parameter {
             puts $fh ""
             puts $fh "namespace ${node}"
             puts $fh "{"
+            puts $fh "extern bool param_exists(Parameter::Address address);"
             puts $fh "extern uint16_t param_default(Parameter::Address address);"
             puts $fh "extern uint8_t param_encoding(Parameter::Address address);"
             puts $fh "extern const PROGMEM char *param_name(Parameter::Address address);"
@@ -757,6 +758,19 @@ namespace eval parameter {
             puts $fh ""
             puts $fh "namespace ${node}"
             puts $fh "{"
+
+            puts $fh ""
+            puts $fh "bool"
+            puts $fh "param_exists(Parameter::Address address)"
+            puts $fh "{"
+            dict for {pkey pattr} [for_node $node] {
+                lassign [split $pkey "~"] pnode pname
+                puts $fh "    if (address == kParam${pname}) {"
+                puts $fh "        return true;"
+                puts $fh "    }"
+            }
+            puts $fh "    return false;"
+            puts $fh "}"
 
             puts $fh ""
             puts $fh "uint16_t"

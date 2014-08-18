@@ -83,7 +83,7 @@ node Generic {
     parameters {
         ProtocolVersion     { address = 0x0000; }
         BoardFunction       {                   }
-        BootloaderMode      {                   }
+        BootloaderMode      {                   bootloader_magic; }
         FirmwareVersion     {                   }
         FirmwarePageSize    {                   }
 
@@ -99,6 +99,13 @@ node Generic {
         Protocol            {                   }
 
         ConfigBase          { address = 0x0400; }
+    }
+    encoding {
+        bootloader_magic {
+            logical_value, 0, "Program";
+            logical_value, 1, "Bootloader";
+            logical_value, 0x4f42, "EnterBootloader";
+        }
     }
 }
 

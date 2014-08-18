@@ -7,6 +7,17 @@ namespace Encoding
 bool
 invalid(uint8_t encoding, uint16_t value)
 {
+    if (encoding == kEncoding_bootloader_magic) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 1) {
+            return false;
+        }
+        if (value == 0x4f42) {
+            return false;
+        }
+    }
     if (encoding == kEncoding_bl_status) {
         if ((value >= 0) && (value <= 4)) {
             return false;
@@ -77,6 +88,10 @@ invalid(uint8_t encoding, uint16_t value)
     return true;
 }
 
+static const PROGMEM char _encoding_name_bootloader_magic[] = "bootloader_magic";
+static const PROGMEM char _encoding_info_bootloader_magic_0[] = "Program";
+static const PROGMEM char _encoding_info_bootloader_magic_1[] = "Bootloader";
+static const PROGMEM char _encoding_info_bootloader_magic_2[] = "EnterBootloader";
 static const PROGMEM char _encoding_name_bl_status[] = "bl_status";
 static const PROGMEM char _encoding_info_bl_status_0[] = "WaitingForProgrammer";
 static const PROGMEM char _encoding_info_bl_status_1[] = "ReadyForPage";
@@ -216,6 +231,9 @@ static const PROGMEM char _encoding_name_MPH[] = "MPH";
 const PROGMEM char *
 name(uint8_t encoding)
 {
+    if (encoding == kEncoding_bootloader_magic) {
+        return &_encoding_name_bootloader_magic[0];
+    }
     if (encoding == kEncoding_bl_status) {
         return &_encoding_name_bl_status[0];
     }
@@ -285,6 +303,17 @@ name(uint8_t encoding)
 const PROGMEM char *
 info(uint8_t encoding, uint16_t value)
 {
+    if (encoding == kEncoding_bootloader_magic) {
+        if (value == 0) {
+            return &_encoding_info_bootloader_magic_0[0];
+        }
+        if (value == 1) {
+            return &_encoding_info_bootloader_magic_1[0];
+        }
+        if (value == 0x4f42) {
+            return &_encoding_info_bootloader_magic_2[0];
+        }
+    }
     if (encoding == kEncoding_bl_status) {
         if (value == 0) {
             return &_encoding_info_bl_status_0[0];
@@ -706,6 +735,57 @@ name(uint8_t fid)
 namespace Generic
 {
 
+bool
+param_exists(Parameter::Address address)
+{
+    if (address == kParamProtocolVersion) {
+        return true;
+    }
+    if (address == kParamBoardFunction) {
+        return true;
+    }
+    if (address == kParamBootloaderMode) {
+        return true;
+    }
+    if (address == kParamFirmwareVersion) {
+        return true;
+    }
+    if (address == kParamFirmwarePageSize) {
+        return true;
+    }
+    if (address == kParamWatchdogResets) {
+        return true;
+    }
+    if (address == kParamSupplyVoltage) {
+        return true;
+    }
+    if (address == kParamTemperature) {
+        return true;
+    }
+    if (address == kParamLine) {
+        return true;
+    }
+    if (address == kParamChecksum) {
+        return true;
+    }
+    if (address == kParamParity) {
+        return true;
+    }
+    if (address == kParamFraming) {
+        return true;
+    }
+    if (address == kParamSynch) {
+        return true;
+    }
+    if (address == kParamProtocol) {
+        return true;
+    }
+    if (address == kParamConfigBase) {
+        return true;
+    }
+    return false;
+}
+
 uint16_t
 param_default(Parameter::Address address)
 {
@@ -715,6 +795,9 @@ param_default(Parameter::Address address)
 uint8_t
 param_encoding(Parameter::Address address)
 {
+    if (address == kParamBootloaderMode) {
+        return kEncoding_bootloader_magic;
+    }
     return kEncoding_none;
 }
 
@@ -791,6 +874,21 @@ param_name(Parameter::Address address)
 namespace Bootloader
 {
 
+bool
+param_exists(Parameter::Address address)
+{
+    if (address == kParamStatus) {
+        return true;
+    }
+    if (address == kParamPageAddress) {
+        return true;
+    }
+    if (address == kParamPageCRC) {
+        return true;
+    }
+    return false;
+}
+
 uint16_t
 param_default(Parameter::Address address)
 {
@@ -830,6 +928,99 @@ param_name(Parameter::Address address)
 
 namespace Master
 {
+
+bool
+param_exists(Parameter::Address address)
+{
+    if (address == kParamSP1Assign) {
+        return true;
+    }
+    if (address == kParamSP2Assign) {
+        return true;
+    }
+    if (address == kParamSP3Assign) {
+        return true;
+    }
+    if (address == kParamSP4Assign) {
+        return true;
+    }
+    if (address == kParamSP5Assign) {
+        return true;
+    }
+    if (address == kParamSP6Assign) {
+        return true;
+    }
+    if (address == kParamSP7Assign) {
+        return true;
+    }
+    if (address == kParamSG0Assign) {
+        return true;
+    }
+    if (address == kParamSG1Assign) {
+        return true;
+    }
+    if (address == kParamSG2Assign) {
+        return true;
+    }
+    if (address == kParamSG3Assign) {
+        return true;
+    }
+    if (address == kParamSG4Assign) {
+        return true;
+    }
+    if (address == kParamSG5Assign) {
+        return true;
+    }
+    if (address == kParamSG6Assign) {
+        return true;
+    }
+    if (address == kParamSG7Assign) {
+        return true;
+    }
+    if (address == kParamSG8Assign) {
+        return true;
+    }
+    if (address == kParamSG9Assign) {
+        return true;
+    }
+    if (address == kParamSG10Assign) {
+        return true;
+    }
+    if (address == kParamSG11Assign) {
+        return true;
+    }
+    if (address == kParamSG12Assign) {
+        return true;
+    }
+    if (address == kParamSG13Assign) {
+        return true;
+    }
+    if (address == kParamTurnBlinkPeriod) {
+        return true;
+    }
+    if (address == kParamPassingBlinkCount) {
+        return true;
+    }
+    if (address == kParamPathLightTime) {
+        return true;
+    }
+    if (address == kParamInteriorLightTime) {
+        return true;
+    }
+    if (address == kParamWelcomeLightTime) {
+        return true;
+    }
+    if (address == kParamBrakeBlinkPeriod) {
+        return true;
+    }
+    if (address == kParamBrakeBlinkCount) {
+        return true;
+    }
+    if (address == kParamWiperInterval) {
+        return true;
+    }
+    return false;
+}
 
 uint16_t
 param_default(Parameter::Address address)
@@ -1146,6 +1337,36 @@ param_name(Parameter::Address address)
 namespace PowerV1
 {
 
+bool
+param_exists(Parameter::Address address)
+{
+    if (address == kParamRelay1Status) {
+        return true;
+    }
+    if (address == kParamRelay2Status) {
+        return true;
+    }
+    if (address == kParamRelay3Status) {
+        return true;
+    }
+    if (address == kParamRelay4Status) {
+        return true;
+    }
+    if (address == kParamRelay1Assign) {
+        return true;
+    }
+    if (address == kParamRelay2Assign) {
+        return true;
+    }
+    if (address == kParamRelay3Assign) {
+        return true;
+    }
+    if (address == kParamRelay4Assign) {
+        return true;
+    }
+    return false;
+}
+
 uint16_t
 param_default(Parameter::Address address)
 {
@@ -1250,6 +1471,162 @@ param_name(Parameter::Address address)
 
 namespace PowerV3
 {
+
+bool
+param_exists(Parameter::Address address)
+{
+    if (address == kParamCH1Status) {
+        return true;
+    }
+    if (address == kParamCH2Status) {
+        return true;
+    }
+    if (address == kParamCH3Status) {
+        return true;
+    }
+    if (address == kParamCH4Status) {
+        return true;
+    }
+    if (address == kParamCH5Status) {
+        return true;
+    }
+    if (address == kParamCH1Type) {
+        return true;
+    }
+    if (address == kParamCH2Type) {
+        return true;
+    }
+    if (address == kParamCH3Type) {
+        return true;
+    }
+    if (address == kParamCH4Type) {
+        return true;
+    }
+    if (address == kParamCH5Type) {
+        return true;
+    }
+    if (address == kParamCH1Assign1) {
+        return true;
+    }
+    if (address == kParamCH1Assign2) {
+        return true;
+    }
+    if (address == kParamCH1Assign3) {
+        return true;
+    }
+    if (address == kParamCH1Assign4) {
+        return true;
+    }
+    if (address == kParamCH1PWM1) {
+        return true;
+    }
+    if (address == kParamCH1PWM2) {
+        return true;
+    }
+    if (address == kParamCH1PWM3) {
+        return true;
+    }
+    if (address == kParamCH1PWM4) {
+        return true;
+    }
+    if (address == kParamCH2Assign1) {
+        return true;
+    }
+    if (address == kParamCH2Assign2) {
+        return true;
+    }
+    if (address == kParamCH2Assign3) {
+        return true;
+    }
+    if (address == kParamCH2Assign4) {
+        return true;
+    }
+    if (address == kParamCH2PWM1) {
+        return true;
+    }
+    if (address == kParamCH2PWM2) {
+        return true;
+    }
+    if (address == kParamCH2PWM3) {
+        return true;
+    }
+    if (address == kParamCH2PWM4) {
+        return true;
+    }
+    if (address == kParamCH3Assign1) {
+        return true;
+    }
+    if (address == kParamCH3Assign2) {
+        return true;
+    }
+    if (address == kParamCH3Assign3) {
+        return true;
+    }
+    if (address == kParamCH3Assign4) {
+        return true;
+    }
+    if (address == kParamCH3PWM1) {
+        return true;
+    }
+    if (address == kParamCH3PWM2) {
+        return true;
+    }
+    if (address == kParamCH3PWM3) {
+        return true;
+    }
+    if (address == kParamCH3PWM4) {
+        return true;
+    }
+    if (address == kParamCH4Assign1) {
+        return true;
+    }
+    if (address == kParamCH4Assign2) {
+        return true;
+    }
+    if (address == kParamCH4Assign3) {
+        return true;
+    }
+    if (address == kParamCH4Assign4) {
+        return true;
+    }
+    if (address == kParamCH4PWM1) {
+        return true;
+    }
+    if (address == kParamCH4PWM2) {
+        return true;
+    }
+    if (address == kParamCH4PWM3) {
+        return true;
+    }
+    if (address == kParamCH4PWM4) {
+        return true;
+    }
+    if (address == kParamCH5Assign1) {
+        return true;
+    }
+    if (address == kParamCH5Assign2) {
+        return true;
+    }
+    if (address == kParamCH5Assign3) {
+        return true;
+    }
+    if (address == kParamCH5Assign4) {
+        return true;
+    }
+    if (address == kParamCH5PWM1) {
+        return true;
+    }
+    if (address == kParamCH5PWM2) {
+        return true;
+    }
+    if (address == kParamCH5PWM3) {
+        return true;
+    }
+    if (address == kParamCH5PWM4) {
+        return true;
+    }
+    return false;
+}
 
 uint16_t
 param_default(Parameter::Address address)

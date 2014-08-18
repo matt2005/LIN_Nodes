@@ -108,6 +108,7 @@ Parameter::get() const
         return SPM_PAGESIZE;
     }
 
+    // XXX magic numbers
     if ((address() >> 8) == 0x04) {
         uint8_t index = address() & 0xff;
         return eeprom_read_word((const uint16_t *)(index * 2));

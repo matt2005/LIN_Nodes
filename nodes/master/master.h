@@ -65,11 +65,6 @@ private:
     static void     master_task(void *arg);
     void            _master_task();
 
-    // slave task state
-    Response        _stProxyFrame;
-
-    bool            _stProxyRequest;        //< true when _proxyFrame needs to be sent as a Master Request
-    bool            _stProxyResponse;       //< true when _proxyFrame needs to be sent as a Slave Response
     bool            _stExpectResponse;
 
     static uint8_t schedule_entry(uint8_t idx)

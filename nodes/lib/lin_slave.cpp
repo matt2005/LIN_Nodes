@@ -175,8 +175,7 @@ Slave::st_read_data(Parameter::Address address, uint16_t &value)
     }
 
     // handle generic parameters known elsewhere
-    uint8_t encoding = Generic::param_encoding(address);
-    if (encoding != kEncoding_none) {
+    if (Generic::param_exists(address)) {
         value = Parameter(address).get();
         return true;
     }

@@ -20,7 +20,6 @@
 //
 PROGMEM const uint8_t MasterNode::_schedule[] = {
     kFrameIDRelays,
-    //kFrameIDProxyRequest,
     kFrameIDMasterRequest,
     kFrameIDSlaveResponse,
 };
@@ -34,8 +33,6 @@ MasterNode::MasterNode() :
     _mtIndex(0),
     _mtAwake(true),
     _mtSleepRequest(false),
-    _stProxyRequest(false),
-    _stProxyResponse(false),
     _stExpectResponse(false)
 {
 #ifdef pinDebugStrobe
@@ -96,10 +93,6 @@ MasterNode::_master_task()
         // special handling for optional frame types
         switch (fid) {
 
-        case kFrameIDProxyRequest:
-
-            break;
-
         case kFrameIDMasterRequest:
 
             // XXX optimise - only send when we have something to send
@@ -109,7 +102,7 @@ MasterNode::_master_task()
         case kFrameIDSlaveResponse:
 
             // only send when something is expected to respond
-            if (!_stProxyResponse && !_stExpectResponse) {
+            if (!_stExpectResponse) {
                 continue;
             }
 
@@ -132,35 +125,19 @@ MasterNode::_master_task()
 void
 MasterNode::st_header_received()
 {
-    switch (current_FrameID()) {
-    case kFrameIDRelays:
-        // send the relay state
-        st_send_response(relayFrame);
-        break;
+    // if we are currently the master, and awake...
+    if (_mtAwake && !_testerPresent) { 
+        Response resp;
 
-    case kFrameIDProxyRequest:
-        // collect any response from the programmer
-        st_expect_response();
-        break;
+        switch (current_FrameID()) {
+        case kFrameIDRelays:
+            // send the relay state
+            st_send_response(relayFrame);
+            break;
 
-    case kFrameIDMasterRequest:
+        case kFrameIDMasterRequest:
 
-        // if we have promised to proxy a request, send it immediately
-        if (_stProxyRequest) {
-            st_send_response(_stProxyFrame);
-
-            // if the proxy request was for us, we
-            // need to prepare a reply
-            if ((_stProxyFrame.MasterRequest.nad == _nad) &&
-                (st_master_request(_stProxyFrame))) {
-                _stProxyResponse = true;
-            }
-
-            _stProxyRequest = false;
-
-        } else if (!_testerPresent) {
             // XXX should be more flexible about what we send here...
-            Response resp;
 
             resp.SlaveResponse.nad = Tester::kNodeAddress;
             resp.SlaveResponse.pci = pci::kSingleFrame;
@@ -168,32 +145,30 @@ MasterNode::st_header_received()
             resp.SlaveResponse.sid = service_id::kTesterPresent;
             resp.SlaveResponse.d1 = 0;
             st_send_response(resp);
-        }
 
-        _stExpectResponse = true;
-        break;
+            // make sure that we emit a SlaveResponse frame so that the slave can respond
+            _stExpectResponse = true;
+            break;
 
-    case kFrameIDSlaveResponse:
+        case kFrameIDSlaveResponse:
 
-        // if we have a proxy response, we should send it
-        if (_stProxyResponse) {
-            st_send_response(_stProxyFrame);
-            _stProxyResponse = false;
-
-        } else {
             // arrange to receive the response for our own use
             st_expect_response();
+
+            break;
+
+        default:
+            LINDev::st_header_received();
+            break;
         }
 
-        break;
+        // reset the idle timeout
+        _lastActivity.update();
 
-    default:
-        LINDev::st_header_received();
-        break;
+    } else {
+        // let the slave logic handle it
+        Slave::st_header_received();
     }
-
-    // reset the idle timeout
-    _lastActivity.update();
 }
 
 bool
@@ -227,28 +202,29 @@ MasterNode::st_master_request(Response &resp)
 void
 MasterNode::st_response_received(Response &resp)
 {
-    switch (current_FrameID()) {
+    // if we are currently the master, and awake...
+    if (_mtAwake && !_testerPresent) { 
 
-    case kFrameIDProxyRequest:
-        // save for re-transmission
-        _stProxyFrame = resp;
-        _stProxyRequest = true;
-        break;
+        switch (current_FrameID()) {
 
-    case kFrameIDSlaveResponse:
+        case kFrameIDSlaveResponse:
 
-        // is this a response from a tester?
-        if ((resp.SlaveResponse.nad == Tester::kNodeAddress) &&
-            (resp.SlaveResponse.sid == (service_id::kTesterPresent | service_id::kResponseOffset))) {
-            _testerPresent = true;
+            // is this a response from a tester?
+            if ((resp.SlaveResponse.nad == Tester::kNodeAddress) &&
+                (resp.SlaveResponse.sid == (service_id::kTesterPresent | service_id::kResponseOffset))) {
+                _testerPresent = true;
+            }
+
+            break;
+
+        default:
+            // intentional bypass of Slave::st_response_received
+            LINDev::st_response_received(resp);
+            break;
         }
-
-        break;
-
-    default:
-        // intentional bypass of Slave::st_response_received
-        LINDev::st_response_received(resp);
-        break;
+    } else {
+        // let the slave logic handle it
+        Slave::st_response_received(resp);
     }
 }
 
@@ -261,9 +237,7 @@ MasterNode::st_sleep_requested(SleepType type)
 bool
 MasterNode::st_read_data(Parameter::Address address, uint16_t &value)
 {
-    // Handle node parameters
-    uint8_t encoding = Master::param_encoding(address);
-    if (encoding != kEncoding_none) {
+    if (Master::param_exists(address)) {
         value = Parameter(address).get();
         return true;
     }
@@ -281,5 +255,6 @@ MasterNode::st_write_data(Parameter::Address address, uint16_t value)
         return true;
     }
 
+    // pass to superclass
     return Slave::st_write_data(address, value);
 }

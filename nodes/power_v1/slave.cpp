@@ -50,8 +50,7 @@ bool
 RelaySlave::st_read_data(Parameter::Address address, uint16_t &value)
 {
     // Handle node parameters
-    uint8_t encoding = PowerV1::param_encoding(address);
-    if (encoding != kEncoding_none) {
+    if (PowerV1::param_exists(address)) {
         value = Parameter(address).get();
         return true;
     }

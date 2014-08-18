@@ -581,7 +581,7 @@ namespace eval frame {
         puts $fh ""
         puts $fh "struct Response"
         puts $fh "{"
-        puts $fh "    Response() : _bytes {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff} {}"
+        puts $fh "    Response() : _bytes {0, 0, 0, 0, 0, 0, 0, 0} {}"
         puts $fh "    union"
         puts $fh "    {"
         puts $fh "        uint8_t   _bytes\[8\];"
@@ -990,10 +990,10 @@ namespace eval node {
             if {[llength $node_address] > 1} {
                 set node_address [lindex $node_address 0]
             }
-            puts $fh "    static const uint8_t kNodeAddress  = ${node_address};"
+            puts $fh "    static const uint8_t kNodeAddress = ${node_address};"
             puts $fh "    static const uint16_t kNodeSupplier = [dict get ${properties} supplier];"
             puts $fh "    static const uint16_t kNodeFunction = [dict get ${properties} function];"
-            puts $fh "    static const uint8_t kNodeVariant  = [dict get ${properties} variant];"            
+            puts $fh "    static const uint8_t kNodeVariant = [dict get ${properties} variant];"            
 
 
             puts $fh "} // namespace ${name}"

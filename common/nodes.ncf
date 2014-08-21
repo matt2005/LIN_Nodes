@@ -4,17 +4,6 @@
 // can do whatever you want with this stuff. If we meet some day, and you think
 // this stuff is worth it, you can buy me a beer in return.
 // ----------------------------------------------------------------------------
-//
-// Experimental node configuration file
-//
-// XXX would benefit from some templates exposing frame members, etc.
-// XXX LIN API not very good, do not generate code to conform
-// XXX NCF lacks a mechanism for defining parameters; the parameters
-//     clause here is nonstandard
-//
-// Note: none of these nodes support Assign Frame Identifier Range, as
-//       all frame identifiers in the design are fixed.
-// 
 
 node_capability_file;
 LIN_language_version = "2.1+";
@@ -143,7 +132,7 @@ node Bootloader {
     diagnostic {
         NAD = 32;
         diagnostic_class = 1;
-        support_sid { 0x22 };
+        support_sid { 0x22, 0x2e, 0xb4 };
     }
     frames {
         subscribe MasterRequest {}

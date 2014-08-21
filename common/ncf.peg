@@ -5,6 +5,12 @@
 # this stuff is worth it, you can buy me a beer in return.
 # ----------------------------------------------------------------------------
 
+#
+# PEG grammar for the LIN 2.1 Node Capability File syntax.
+#
+# Supports multiple node definitions within a single file.
+#
+
 PEG LIN_NCF (node_capability_file)
 
 ##

@@ -28,8 +28,9 @@
 # Legal values for parameters are taken from the encoding, otherwise they are
 # the full range of the parameter data type (uint16_t).
 #
-# Also implements a 'template' node, which all other nodes inherit from.
-# This is a good place to put definitions that all nodes should be aware of.
+# Note: the scope of signal definitions is not clear from the specification.
+#       Since it suits this application best, the tool scopes them to the 
+#       frame in which they are defined.
 #
 
 package require fileutil
@@ -177,6 +178,8 @@ namespace eval encoding {
         } "processing encoding '$name'"
     }
 
+    # Returns true if the named encoding exists
+    #
     proc exists {name} {
 
         variable by_name
@@ -184,6 +187,8 @@ namespace eval encoding {
         return [dict exists $by_name $name]
     }
 
+    # Returns true if the named encoding needs validation support
+    # 
     proc needs_validation {name} {
 
         variable by_name
@@ -197,6 +202,8 @@ namespace eval encoding {
         }
     }
 
+    # Print information about encodings
+    #
     proc report {} {
 
         variable by_name
@@ -211,6 +218,8 @@ namespace eval encoding {
         }
     }
 
+    # Emit C++ declarations for all encodings
+    #
     proc emit_decl {fh} {
 
         variable by_name
@@ -263,6 +272,8 @@ namespace eval encoding {
         }
     }
 
+    # Emit C++ definitions for all encodings
+    #
     proc emit_def {fh} {
 
         variable by_name
@@ -438,6 +449,8 @@ namespace eval signal {
         }
     }
 
+    # Print information about signals
+    #
     proc report {} {
 
         variable by_name
@@ -453,37 +466,22 @@ namespace eval signal {
 
     proc emit_decl {fh} {
 
-#        variable by_name
-#
-#        puts $fh ""
-#        puts $fh "namespace Signal"
-#        puts $fh "{"
-#        dict for {name siginfo} $by_name {
-#
-#            set size [dict get $siginfo signal_size]
-#            set offset [dict get $siginfo signal_offset]
-#            if {[dict exists $siginfo signal_encoding]} {
-#                set encoding [dict get $siginfo signal_encoding]
-#            } else {
-#                set encoding "none"                
-#            }
-#
-#            puts $fh "class ${name} : public SignalBase"
-#            puts $fh "{"
-#            puts $fh "public:"
-#            puts $fh "    constexpr ${name}(Response &r) : SignalBase(r, ${offset}, ${size}, kEncoding_${encoding}) {}"
-#            puts $fh "};"
-#        }
-#        puts $fh "} // namespace Signal"
+        variable by_name
+
+        # Signal declarations are emitted in the context of the frame
+        # they apply to.
     }
 
     proc emit_def {fh} {
  
-         variable by_name
+        variable by_name
 
-       # currently nothing required
+        # Signal definitions are emitted in the context of the frame
+        # they apply to.
     }
 
+    # Return the named property for the named signal
+    #
     proc property {name property} {
 
         variable by_name
@@ -535,6 +533,8 @@ namespace eval frame {
         } "processing frame '$name'"
     }
 
+    # Returns true it the named frame exists
+    #
     proc exists {name} {
 
         variable by_name
@@ -542,6 +542,8 @@ namespace eval frame {
         return [dict exists $by_name $name]
     }
 
+    # Print information about frames
+    #
     proc report {} {
 
         variable by_name
@@ -560,6 +562,8 @@ namespace eval frame {
         }
     }
 
+    # Emit C++ declarations
+    #
     proc emit_decl {fh} {
 
         variable by_name
@@ -578,6 +582,8 @@ namespace eval frame {
             }
         }
 
+        # Declare a structure containing a union of all known frames
+        #
         puts $fh ""
         puts $fh "struct Response"
         puts $fh "{"
@@ -613,6 +619,8 @@ namespace eval frame {
 
     }
 
+    # Emit C++ definitions
+    #
     proc emit_def {fh} {
 
         variable by_name

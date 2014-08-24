@@ -83,8 +83,8 @@ Parameter::set(uint16_t value) const
 {
     switch (address()) {
     case Generic::kParamBootloaderMode:
-        if (value == 0x4f42) {        // 'BO'
-            Board::enter_bootloader();
+        if (value == bootloader_magic::kEnterBootloader) {
+            Board::enter_bootloader(Master::kNodeAddress);
         }
     }
 

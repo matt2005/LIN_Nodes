@@ -22,7 +22,7 @@
 class Slave : public LINDev
 {
 public:
-    Slave(uint8_t nad, bool polled = kLINDevInterrupts);
+    Slave(uint8_t nad = 0xff, bool polled = kLINDevInterrupts);
 
     virtual void    tick() override;
     bool            is_awake() const { return !_lastActivity.is_older_than(100); }

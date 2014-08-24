@@ -2,7 +2,9 @@ SRCROOT		:= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 DIRS		 = $(dir $(wildcard $(SRCROOT)/*/Makefile))
 MAKECMDGOALS	?= build
 
-DIR_GOALS	:= $(filter-out reformat,$(MAKECMDGOALS))
+PSEUDOGOALS	 = reformat bundle
+
+DIR_GOALS	:= $(filter-out $(PSEUDOGOALS),$(MAKECMDGOALS))
 TARGETS		:= $(foreach dir,$(DIRS),$(addsuffix -$(dir),$(DIR_GOALS)))
 
 .PHONY: $(MAKECMDGOALS) $(TARGETS)
@@ -22,3 +24,7 @@ ALLSRC		 = $(foreach dir,$(DIRS) $(EXTRADIRS),$(wildcard $(dir)*.c $(dir)*.cpp $
 .PHONY: reformat
 reformat:
 	@$(SRCROOT)/../etc/reformat.sh $(ALLSRC)
+
+.PHONY: bundle
+bundle:
+	@$(SRCROOT)/../etc/mkfw.py --dir $(SRCROOT)/../build --git_identity .. > $(SRCROOT)/../build/nodes.fw

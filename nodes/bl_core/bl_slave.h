@@ -26,15 +26,18 @@ private:
     static const uint16_t kInfoPage = FLASHEND - (SPM_PAGESIZE - 1);
     static const uint16_t kNoSendResponse = 0xffff;
 
-    static uint16_t        _send_index;
-    static uint16_t        _page_address;
-    static uint8_t         _page_offset;
-    static uint16_t        _running_crc;
-    static uint16_t        _page_status;
-    static uint16_t        _program_end;
-    static uint16_t        _reset_vector;
-    static uint16_t        _page_buffer[];
+    static uint8_t      _nad;
+    static uint16_t     _send_index;
+    static uint16_t     _page_address;
+    static uint8_t      _page_offset;
+    static uint16_t     _running_crc;
+    static uint16_t     _page_status;
+    static uint16_t     _program_end;
+    static uint16_t     _reset_vector;
+    static uint16_t     _page_buffer[];
 
+    static uint8_t      nad();
+    static uint8_t      function();
     static void         set_page_address(uint16_t address);
     static bool         add_page_byte(uint8_t byte);
     void                send_response();

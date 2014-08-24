@@ -17,6 +17,8 @@
 namespace Log
 {
 
+const char pad[] = "                                      ";
+
 void
 log(bool forever)
 {
@@ -70,13 +72,14 @@ log(bool forever)
 
             switch (fid) {
             case kFrameIDMasterRequest:
-                printf("                                nad: %u pci: %u length: %u sid: 0x%02x <%s>\n",
+                printf("%s nad: %u pci: %u length: %u sid: 0x%02x <%s>\n",
+                       pad,
                        resp.MasterRequest.nad,
                        resp.MasterRequest.pci,
                        resp.MasterRequest.length,
                        resp.MasterRequest.sid,
                        Encoding::info(kEncoding_service_id, resp.MasterRequest.sid) ? : "unknown");
-                printf("                               ");
+                printf("%s", pad);
 
                 if (resp.MasterRequest.length >= 2) {
                     printf(" d1: %u", resp.MasterRequest.d1);
@@ -102,7 +105,8 @@ log(bool forever)
                 break;
 
             case kFrameIDSlaveResponse:
-                printf("                                nad: %u pci: %u length: %u",
+                printf("%s nad: %u pci: %u length: %u",
+                       pad,
                        resp.SlaveResponse.nad,
                        resp.SlaveResponse.pci,
                        resp.SlaveResponse.length);
@@ -119,7 +123,7 @@ log(bool forever)
                     printf(" sid: 0x%02x <%s>\n",
                            resp.SlaveResponse.sid,
                            Encoding::info(kEncoding_service_id, sid) ? : "unknown");
-                    printf("                               ");
+                    printf("%s", pad);
 
                     if (resp.SlaveResponse.length >= 2) {
                         printf(" d1: %u", resp.SlaveResponse.d1);

@@ -16,4 +16,6 @@ SRCS		+= board.cpp \
 
 BOARD		 = POWER_V1
 
+build: bin
+
 include ../rules.mk

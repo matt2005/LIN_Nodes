@@ -194,13 +194,15 @@ freemem()
 }
 
 void
-enter_bootloader()
+enter_bootloader(uint8_t nad, uint8_t function)
 {
     // make sure the watchdog doesn't catch us while we're updating the EEPROM
     wdt_reset();
 
     // write magic to the EEPROM to cause us to wait in the bootloader
-    eeprom_write_word((uint16_t *)(E2END - 1), 0x4f42);
+    eeprom_update_byte((uint8_t *)E2END - 3, nad);
+    eeprom_update_byte((uint8_t *)E2END - 2, function);
+    eeprom_update_word((uint16_t *)(E2END - 1), 0x4f42);
 
     // and wait for the watchdog to reset us
     for (;;)

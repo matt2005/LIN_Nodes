@@ -12,8 +12,8 @@
 #include "slave.h"
 #include "board.h"
 
-RelaySlave::RelaySlave(uint8_t BoardID) :
-    Slave(PowerV1::kNodeAddress + BoardID - 1)
+RelaySlave::RelaySlave(uint8_t boardID) :
+    Slave(node_address(boardID))
 {
 }
 

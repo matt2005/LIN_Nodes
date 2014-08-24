@@ -75,6 +75,8 @@ ToolSlave::tick()
 void
 ToolSlave::set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value)
 {
+    refresh_master();
+    
     _nodeAddress = nad;
     _dataAddress = address;
     _dataValue = value;
@@ -84,6 +86,8 @@ ToolSlave::set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t valu
 void
 ToolSlave::get_data_by_id(uint8_t nad, Parameter::Address address)
 {
+    refresh_master();
+    
     _nodeAddress = nad;
     _dataAddress = address;
     _dataValue = 0;
@@ -93,6 +97,8 @@ ToolSlave::get_data_by_id(uint8_t nad, Parameter::Address address)
 void
 ToolSlave::send_bulk(uint8_t nad, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3)
 {
+    refresh_master();
+    
     _nodeAddress = nad;
     _dataBytes[0] = d0;
     _dataBytes[1] = d1;
@@ -113,6 +119,14 @@ ToolSlave::enable_master(bool enable)
 
     } else {
         _masterState = kMSDisabled;
+    }
+}
+
+void
+ToolSlave::refresh_master()
+{
+    if (_masterState > kMSWaiting) {
+        _masterTimeout.update();
     }
 }
 

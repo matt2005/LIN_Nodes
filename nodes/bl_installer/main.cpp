@@ -79,6 +79,13 @@ main()
     }
 
     /*
+     * Set up the EEPROM for forced bootloader entry and unknown board ID/function
+     */
+    eeprom_update_byte((uint8_t *)E2END - 3, 0xff);
+    eeprom_update_byte((uint8_t *)E2END - 2, 0xff);
+    eeprom_update_word((uint16_t *)(E2END - 1), 0x4f42);
+
+    /*
      * Redirect the reset vector back to the bootloader.
      */
     boot_page_fill(0, 0xc000 | ((BL_ADDR / 2) - 1));

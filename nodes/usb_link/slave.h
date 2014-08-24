@@ -108,7 +108,7 @@ private:
     uint8_t             _nodeAddress = 0;
     Parameter::Address  _dataAddress = 0;
     uint16_t            _dataValue = 0;
-    uint8_t             _dataBytes[4];
+    uint8_t             _dataBytes[32];
 
     enum MasterState : uint8_t {
         kMSDisabled,            // master mode disabled
@@ -120,4 +120,6 @@ private:
     MasterState         _masterState = kMSDisabled;
     Timestamp           _lastFrameStart;
     Timestamp           _masterTimeout;
+
+    void            refresh_master();
 };

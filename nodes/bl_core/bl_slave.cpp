@@ -52,8 +52,7 @@ BLSlave::st_response_received(Response &resp)
     switch (current_FrameID()) {
     case kFrameIDMasterRequest:
 
-        // device being programmed is always node 32
-        if (resp.MasterRequest.nad != Bootloader::kNodeAddress) {
+        if (resp.MasterRequest.nad != nad()) {
             break;
         }
 
@@ -64,6 +63,15 @@ BLSlave::st_response_received(Response &resp)
 
         case service_id::kWriteDataByID:
             switch (resp.DataByID.index) {
+            case Generic::kParamBootloaderMode:
+                // reset the bootloader state
+                if (resp.DataByID.value == 1) {
+                    _page_status = bl_status::kWaitingForProgrammer;
+                    _program_end = 0;
+                    _reset_vector = 0;
+                }
+                break;
+
             case Bootloader::kParamPageAddress:
                 set_page_address(resp.DataByID.value);
                 break;
@@ -90,7 +98,7 @@ BLSlave::st_response_received(Response &resp)
 
             // add bytes to the page buffer
             if (_page_status == bl_status::kPageInProgress) {
-                uint8_t count = resp.MasterRequest.length;
+                uint8_t count = resp.MasterRequest.length - 1;
                 uint8_t field = 3;
 
                 while (count--) {
@@ -111,12 +119,16 @@ BLSlave::st_response_received(Response &resp)
 void
 BLSlave::send_response()
 {
-    uint16_t value = 0;
+    uint16_t value = 0x0bad;
 
     switch (_send_index) {
     case Generic::kParamProtocolVersion:
         // XXX should come from the defs file
         value = 1;
+        break;
+
+    case Generic::kParamBoardFunction:
+        value = function();
         break;
 
     case Generic::kParamBootloaderMode:
@@ -143,15 +155,15 @@ BLSlave::send_response()
         break;
     }
 
-    _send_index = kNoSendResponse;
-
     Response resp;
-    resp.DataByID.nad = 32;
+    resp.DataByID.nad = nad();
     resp.DataByID.pci = pci::kSingleFrame;
     resp.DataByID.length = 5;
     resp.DataByID.sid = (service_id::kReadDataByID | service_id::kResponseOffset);
     resp.DataByID.index = _send_index;
     resp.DataByID.value = value;
+
+    _send_index = kNoSendResponse;
 
     st_send_response(resp);
 }
@@ -176,8 +188,6 @@ BLSlave::run_program()
 void
 BLSlave::set_page_address(uint16_t address)
 {
-    _page_address = address;
-
     // kill the current program info, since we are starting a new program
     if (_page_status == bl_status::kWaitingForProgrammer) {
         update_program_info();
@@ -185,10 +195,10 @@ BLSlave::set_page_address(uint16_t address)
 
     // set the new page address and prepare for the page
     if ((_page_address < BL_ADDR) && !(_page_address % SPM_PAGESIZE)) {
+        _page_address = address;
         _page_offset = 0;
         _running_crc = 0;
         _page_status = bl_status::kPageInProgress;
-
     } else {
         _page_status = bl_status::kPageAddressError;
     }
@@ -198,7 +208,7 @@ bool
 BLSlave::add_page_byte(uint8_t byte)
 {
     if (_page_offset < SPM_PAGESIZE) {
-        _running_crc = _crc16_update(_running_crc, byte);
+        _running_crc = _crc_xmodem_update(_running_crc, byte);
         uint8_t *p = (uint8_t *)&_page_buffer[0];
         p[_page_offset++] = byte;
         return true;
@@ -274,4 +284,23 @@ BLSlave::get_program_crc(uint16_t length)
     }
 
     return crc;
+}
+
+uint8_t
+BLSlave::nad()
+{
+    uint8_t value = eeprom_read_byte((uint8_t *)(E2END - 3));
+
+    if (value == 0xff) {
+        value = Bootloader::kNodeAddress;
+    }
+    return value;
+}
+
+uint8_t
+BLSlave::function()
+{
+    uint8_t value = eeprom_read_byte((uint8_t *)(E2END - 2));    
+
+    return value;
 }

@@ -77,7 +77,7 @@ uint16_t freemem();
 
 /// Reboot into the bootloader
 ///
-void enter_bootloader();
+void enter_bootloader(uint8_t nad = 0xff, uint8_t function = kBoardFunctionID);
 
 /// Set the LIN CS state
 ///

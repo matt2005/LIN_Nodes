@@ -61,7 +61,7 @@ void
 print_parameters()
 {
     Link::enable_master(true);
-    Link::set_node(1);
+    Link::set_node(32);
 
     uint16_t value = 0xffff;
 
@@ -84,16 +84,24 @@ int
 main(int argc, const char *argv[])
 {
     Link::connect();
-    Log::clear();
 
     if (argc == 2) {
+
+        if (!strcmp(argv[1], "-history")) {
+            Log::log(false);
+            exit(0);
+        }
+
+        Log::clear();
+
         if (!strcmp(argv[1], "-status")) {
             print_status();
             exit(0);
         }
 
         if (!strcmp(argv[1], "-trace")) {
-            Log::log();
+            Log::log(true);
+            exit(0);
         }
 
         if (!strcmp(argv[1], "-master")) {
@@ -103,10 +111,11 @@ main(int argc, const char *argv[])
 
         if (!strcmp(argv[1], "-dump")) {
             print_parameters();
+            Log::log(false);
             exit(0);
         }
     }
 
-    errx(1, "must supply one of -trace, -dump ...");
+    errx(1, "must supply one of -status, -trace, -master, -dump");
 }
 

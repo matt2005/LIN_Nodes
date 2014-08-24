@@ -45,8 +45,12 @@ kParamFirmwareVersion   = 0x0003
 kParamFirmwarePageSize  = 0x0004
 
 kParamStatus            = 0x0300
+kParamMemory            = 0x0301
+kParamEEPROM            = 0x0302
 kParamPageAddress       = 0x0400
-kParamPageCRC           = 0x0401
+kParamPageOffset        = 0x0401
+kParamPageCRC           = 0x0402
+kParamDebugPointer      = 0x0403
 
 # kParamStatus values
 kWaitingForProgrammer   = 0
@@ -183,7 +187,7 @@ class Link (object):
     def _wait_data_ready(self):
         tries = 0
         while tries < 20:
-            time.sleep(0.005)
+            time.sleep(0.01)
             if self.is_data_ready:
                 return
             tries += 1

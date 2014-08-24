@@ -27,14 +27,15 @@ private:
     static const uint16_t kNoSendResponse = 0xffff;
 
     static uint8_t      _nad;
-    static uint16_t     _send_index;
-    static uint16_t     _page_address;
-    static uint8_t      _page_offset;
-    static uint16_t     _running_crc;
-    static uint16_t     _page_status;
-    static uint16_t     _program_end;
-    static uint16_t     _reset_vector;
-    static uint16_t     _page_buffer[];
+    static uint16_t     _sendIndex;
+    static uint16_t     _pageAddress;
+    static uint8_t      _pageOffset;
+    static uint16_t     _runningCrc;
+    static uint16_t     _pageStatus;
+    static uint16_t     _programEnd;
+    static uint16_t     _resetVector;
+    static uint16_t     _pageBuffer[];
+    static uint16_t     _memoryPointer;
 
     static uint8_t      nad();
     static uint8_t      function();

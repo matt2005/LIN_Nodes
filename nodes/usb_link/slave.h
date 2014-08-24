@@ -50,7 +50,7 @@ public:
     RQHistory       *get();
 
 private:
-    static const uint8_t    _size = 8;
+    static const uint8_t    _size = 16;
     RQHistory               _entries[_size + 1];
 
     uint8_t                 _savedFID;
@@ -108,7 +108,7 @@ private:
     uint8_t             _nodeAddress = 0;
     Parameter::Address  _dataAddress = 0;
     uint16_t            _dataValue = 0;
-    uint8_t             _dataBytes[32];
+    uint8_t             _dataBytes[4];
 
     enum MasterState : uint8_t {
         kMSDisabled,            // master mode disabled

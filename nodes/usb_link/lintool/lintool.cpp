@@ -78,7 +78,23 @@ print_parameters()
 
 }
 
+void
+bl_dump_memory()
+{
+    Link::enable_master(true);
+    Link::set_node(32);
 
+    for (unsigned address = 0; address < 16384; address++) {
+        Link::write_data(Bootloader::kParamDebugPointer, address);
+        unsigned readback = Link::read_data(Bootloader::kParamDebugPointer);
+        if (readback != address) {
+            Log::log(false);
+            errx(1, "address pointer readback error, got %u expected %u", readback, address);
+        }
+        uint8_t value = Link::read_data(Bootloader::kParamMemory);
+        warnx("%d: %02x", address, value);
+    }
+}
 
 int
 main(int argc, const char *argv[])
@@ -87,17 +103,17 @@ main(int argc, const char *argv[])
 
     if (argc == 2) {
 
+        if (!strcmp(argv[1], "-status")) {
+            print_status();
+            exit(0);
+        }
+
         if (!strcmp(argv[1], "-history")) {
             Log::log(false);
             exit(0);
         }
 
         Log::clear();
-
-        if (!strcmp(argv[1], "-status")) {
-            print_status();
-            exit(0);
-        }
 
         if (!strcmp(argv[1], "-trace")) {
             Log::log(true);
@@ -109,13 +125,18 @@ main(int argc, const char *argv[])
             exit(0);
         }
 
-        if (!strcmp(argv[1], "-dump")) {
+        if (!strcmp(argv[1], "-dump_params")) {
             print_parameters();
             Log::log(false);
             exit(0);
         }
+
+        if (!strcmp(argv[1], "-bl_dump_memory")) {
+            bl_dump_memory();
+            exit(0);
+        }
     }
 
-    errx(1, "must supply one of -status, -trace, -master, -dump");
+    errx(1, "must supply one of -status, -trace, -master, -dump_params -bl_dump_memory");
 }
 

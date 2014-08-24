@@ -937,10 +937,22 @@ param_exists(Parameter::Address address)
     if (address == kParamStatus) {
         return true;
     }
+    if (address == kParamMemory) {
+        return true;
+    }
+    if (address == kParamEEPROM) {
+        return true;
+    }
     if (address == kParamPageAddress) {
         return true;
     }
+    if (address == kParamPageOffset) {
+        return true;
+    }
     if (address == kParamPageCRC) {
+        return true;
+    }
+    if (address == kParamDebugPointer) {
         return true;
     }
     return false;
@@ -962,8 +974,12 @@ param_encoding(Parameter::Address address)
 }
 
 static const PROGMEM char _param_name_Status[] = "Status";
+static const PROGMEM char _param_name_Memory[] = "Memory";
+static const PROGMEM char _param_name_EEPROM[] = "EEPROM";
 static const PROGMEM char _param_name_PageAddress[] = "PageAddress";
+static const PROGMEM char _param_name_PageOffset[] = "PageOffset";
 static const PROGMEM char _param_name_PageCRC[] = "PageCRC";
+static const PROGMEM char _param_name_DebugPointer[] = "DebugPointer";
 
 const PROGMEM char *
 param_name(Parameter::Address address)
@@ -971,11 +987,23 @@ param_name(Parameter::Address address)
     if (address == kParamStatus) {
         return &_param_name_Status[0];
     }
+    if (address == kParamMemory) {
+        return &_param_name_Memory[0];
+    }
+    if (address == kParamEEPROM) {
+        return &_param_name_EEPROM[0];
+    }
     if (address == kParamPageAddress) {
         return &_param_name_PageAddress[0];
     }
+    if (address == kParamPageOffset) {
+        return &_param_name_PageOffset[0];
+    }
     if (address == kParamPageCRC) {
         return &_param_name_PageCRC[0];
+    }
+    if (address == kParamDebugPointer) {
+        return &_param_name_DebugPointer[0];
     }
     return nullptr;
 }

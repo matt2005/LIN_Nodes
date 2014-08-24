@@ -448,8 +448,12 @@ extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
 
 static const uint16_t kParamStatus = 0x0300;
+static const uint16_t kParamMemory = 0x0301;
+static const uint16_t kParamEEPROM = 0x0302;
 static const uint16_t kParamPageAddress = 0x0400;
-static const uint16_t kParamPageCRC = 0x0401;
+static const uint16_t kParamPageOffset = 0x0401;
+static const uint16_t kParamPageCRC = 0x0402;
+static const uint16_t kParamDebugPointer = 0x0403;
 
 } // namespace Bootloader
 

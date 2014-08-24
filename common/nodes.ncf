@@ -139,9 +139,13 @@ node Bootloader {
     }
     parameters {
         Status              { address = 0x0300; bl_status; }
+        Memory              {                   }
+        EEPROM              {                   }
 
         PageAddress         { address = 0x0400; }
+        PageOffset          {                   }
         PageCRC             {                   }
+        DebugPointer        {                   }
     }
     encoding {
         bl_status {

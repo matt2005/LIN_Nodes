@@ -14,14 +14,15 @@
 
 #include "bl_slave.h"
 
-uint16_t        BLSlave::_send_index = kNoSendResponse;
-uint16_t        BLSlave::_page_address = 0;
-uint8_t         BLSlave::_page_offset = 0;
-uint16_t        BLSlave::_running_crc = 0;
-uint16_t        BLSlave::_page_status = bl_status::kWaitingForProgrammer;
-uint16_t        BLSlave::_program_end = 0;
-uint16_t        BLSlave::_reset_vector = 0;
-uint16_t        BLSlave::_page_buffer[SPM_PAGESIZE / 2];
+uint16_t        BLSlave::_sendIndex = kNoSendResponse;
+uint16_t        BLSlave::_pageAddress = 0;
+uint8_t         BLSlave::_pageOffset = 0;
+uint16_t        BLSlave::_runningCrc = 0;
+uint16_t        BLSlave::_pageStatus = bl_status::kWaitingForProgrammer;
+uint16_t        BLSlave::_programEnd = 0;
+uint16_t        BLSlave::_resetVector = 0;
+uint16_t        BLSlave::_pageBuffer[SPM_PAGESIZE / 2];
+uint16_t        BLSlave::_memoryPointer = 0;
 
 void
 BLSlave::st_header_received()
@@ -32,7 +33,7 @@ BLSlave::st_header_received()
         break;
 
     case kFrameIDSlaveResponse:
-        if (_send_index != kNoSendResponse) {
+        if (_sendIndex != kNoSendResponse) {
             send_response();
         }
 
@@ -47,7 +48,7 @@ void
 BLSlave::st_response_received(Response &resp)
 {
     // reset some state
-    _send_index = kNoSendResponse;
+    _sendIndex = kNoSendResponse;
 
     switch (current_FrameID()) {
     case kFrameIDMasterRequest:
@@ -58,7 +59,7 @@ BLSlave::st_response_received(Response &resp)
 
         switch (resp.MasterRequest.sid) {
         case service_id::kReadDataByID:
-            _send_index = resp.DataByID.index;
+            _sendIndex = resp.DataByID.index;
             break;
 
         case service_id::kWriteDataByID:
@@ -66,9 +67,9 @@ BLSlave::st_response_received(Response &resp)
             case Generic::kParamBootloaderMode:
                 // reset the bootloader state
                 if (resp.DataByID.value == 1) {
-                    _page_status = bl_status::kWaitingForProgrammer;
-                    _program_end = 0;
-                    _reset_vector = 0;
+                    _pageStatus = bl_status::kWaitingForProgrammer;
+                    _programEnd = 0;
+                    _resetVector = 0;
                 }
                 break;
 
@@ -83,13 +84,17 @@ BLSlave::st_response_received(Response &resp)
                 }
 
                 // if the CRC matches, program the page
-                if (resp.DataByID.value == _running_crc) {
+                if (resp.DataByID.value == _runningCrc) {
                     program_page();
-                    _page_status = bl_status::kReadyForPage;
+                    _pageStatus = bl_status::kReadyForPage;
 
                 } else {
-                    _page_status = bl_status::kPageCRCError;
+                    _pageStatus = bl_status::kPageCRCError;
                 }
+
+            case Bootloader::kParamDebugPointer:
+                _memoryPointer = resp.DataByID.value;
+                break;
             }
 
             break;
@@ -97,7 +102,7 @@ BLSlave::st_response_received(Response &resp)
         case service_id::kDataDump:
 
             // add bytes to the page buffer
-            if (_page_status == bl_status::kPageInProgress) {
+            if (_pageStatus == bl_status::kPageInProgress) {
                 uint8_t count = resp.MasterRequest.length - 1;
                 uint8_t field = 3;
 
@@ -121,7 +126,7 @@ BLSlave::send_response()
 {
     uint16_t value = 0x0bad;
 
-    switch (_send_index) {
+    switch (_sendIndex) {
     case Generic::kParamProtocolVersion:
         // XXX should come from the defs file
         value = 1;
@@ -140,16 +145,33 @@ BLSlave::send_response()
         break;
 
     case Bootloader::kParamPageAddress:
-        value = _page_address;
+        value = _pageAddress;
+        break;
+
+    case Bootloader::kParamPageOffset:
+        value = _pageOffset;
         break;
 
     case Bootloader::kParamPageCRC:
-        value = _running_crc;
+        value = _runningCrc;
+        break;
+
+    case Bootloader::kParamDebugPointer:
+        value = _memoryPointer;
         break;
 
     case Bootloader::kParamStatus:
-        value = _page_status;
+        value = _pageStatus;
         break;
+
+    case Bootloader::kParamMemory:
+        value = pgm_read_byte((const uint8_t *)_memoryPointer);
+        break;
+
+    case Bootloader::kParamEEPROM:
+        value = eeprom_read_byte((const uint8_t *)_memoryPointer);
+        break;
+
 
     default:
         break;
@@ -160,10 +182,10 @@ BLSlave::send_response()
     resp.DataByID.pci = pci::kSingleFrame;
     resp.DataByID.length = 5;
     resp.DataByID.sid = (service_id::kReadDataByID | service_id::kResponseOffset);
-    resp.DataByID.index = _send_index;
+    resp.DataByID.index = _sendIndex;
     resp.DataByID.value = value;
 
-    _send_index = kNoSendResponse;
+    _sendIndex = kNoSendResponse;
 
     st_send_response(resp);
 }
@@ -189,28 +211,28 @@ void
 BLSlave::set_page_address(uint16_t address)
 {
     // kill the current program info, since we are starting a new program
-    if (_page_status == bl_status::kWaitingForProgrammer) {
+    if (_pageStatus == bl_status::kWaitingForProgrammer) {
         update_program_info();
     }
 
     // set the new page address and prepare for the page
-    if ((_page_address < BL_ADDR) && !(_page_address % SPM_PAGESIZE)) {
-        _page_address = address;
-        _page_offset = 0;
-        _running_crc = 0;
-        _page_status = bl_status::kPageInProgress;
+    if ((_pageAddress < BL_ADDR) && !(_pageAddress % SPM_PAGESIZE)) {
+        _pageAddress = address;
+        _pageOffset = 0;
+        _runningCrc = 0;
+        _pageStatus = bl_status::kPageInProgress;
     } else {
-        _page_status = bl_status::kPageAddressError;
+        _pageStatus = bl_status::kPageAddressError;
     }
 }
 
 bool
 BLSlave::add_page_byte(uint8_t byte)
 {
-    if (_page_offset < SPM_PAGESIZE) {
-        _running_crc = _crc_xmodem_update(_running_crc, byte);
-        uint8_t *p = (uint8_t *)&_page_buffer[0];
-        p[_page_offset++] = byte;
+    if (_pageOffset < SPM_PAGESIZE) {
+        _runningCrc = _crc_xmodem_update(_runningCrc, byte);
+        uint8_t *p = (uint8_t *)&_pageBuffer[0];
+        p[_pageOffset++] = byte;
         return true;
     }
 
@@ -221,37 +243,37 @@ void
 BLSlave::program_page()
 {
     // patch our reset vector into the buffer
-    if (_page_address == 0) {
-        if (_page_buffer[0] == 0x940c) {
+    if (_pageAddress == 0) {
+        if (_pageBuffer[0] == 0x940c) {
             // copy jmp argument
-            _reset_vector = _page_buffer[1];
+            _resetVector = _pageBuffer[1];
 
         } else {
             // extract rjmp destination
-            _reset_vector = ((_page_buffer[0] & ~0xc000) + 1) * 2;
+            _resetVector = ((_pageBuffer[0] & ~0xc000) + 1) * 2;
             // convert to jmp
-            _page_buffer[0] = 0x940c;
+            _pageBuffer[0] = 0x940c;
         }
 
         // patch in bootloader reset vector
-        _page_buffer[1] = BL_ADDR;
+        _pageBuffer[1] = BL_ADDR;
     }
 
-    boot_page_erase(_page_address);
+    boot_page_erase(_pageAddress);
     boot_spm_busy_wait();
 
     for (uint8_t i = 0; i < (SPM_PAGESIZE / 2); i++) {
-        boot_page_fill(_page_address + (i * 2), _page_buffer[i]);
+        boot_page_fill(_pageAddress + (i * 2), _pageBuffer[i]);
     }
 
-    boot_page_write(_page_address);
+    boot_page_write(_pageAddress);
     boot_spm_busy_wait();
 
     // track the end of the programmed area
-    _page_address += SPM_PAGESIZE;
+    _pageAddress += SPM_PAGESIZE;
 
-    if (_page_address > _program_end) {
-        _program_end = _page_address;
+    if (_pageAddress > _programEnd) {
+        _programEnd = _pageAddress;
     }
 }
 
@@ -262,9 +284,9 @@ BLSlave::update_program_info()
     boot_page_erase(kInfoPage);
     boot_spm_busy_wait();
 
-    boot_page_fill(kInfoPage + 0, get_program_crc(_program_end));
-    boot_page_fill(kInfoPage + 2, _reset_vector);
-    boot_page_fill(kInfoPage + 4, _program_end);
+    boot_page_fill(kInfoPage + 0, get_program_crc(_programEnd));
+    boot_page_fill(kInfoPage + 2, _resetVector);
+    boot_page_fill(kInfoPage + 4, _programEnd);
 
     for (uint8_t offset = 6; offset < SPM_PAGESIZE; offset += 2) {
         boot_page_fill(kInfoPage + offset, 0xffff);

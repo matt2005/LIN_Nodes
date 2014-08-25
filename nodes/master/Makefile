@@ -20,6 +20,6 @@ SRCS		+= board.cpp \
 BOARD		 = MASTER_V1
 #FUSES		 = $(RES_FUSES)
 
-build: bin
+build: fw
 
 include ../rules.mk

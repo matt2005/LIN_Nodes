@@ -1,0 +1,171 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <msmith@purgatory.org> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
+ */
+
+#include <stdio.h>
+#include <err.h>
+
+#include "param.h"
+#include "link.h"
+
+ParamSet::ParamSet(unsigned node) :
+    _node(node)
+{
+    Link::set_node(_node);
+    Link::enable_master(true);
+
+    _function = Link::read_data(Generic::kParamBoardFunction);    
+
+    // XXX magic numbers
+    for (auto address = 0; address < 0x10000U; address++) {
+        if (Param(address, _function).exists()) {
+            auto p = new Param(address, _function);
+
+            p->fetch();
+            _params.push_back(p);
+        }
+    }
+}
+
+ParamSet::~ParamSet()
+{
+    for (;;) {
+        auto p = _params.front();
+        if (p == nullptr) {
+            break;
+        }
+        _params.pop_front();
+        delete p;
+    }
+}
+
+void
+ParamSet::sync()
+{
+    for (auto p : _params) {
+        p->store();
+    }
+}
+
+void
+ParamSet::print()
+{
+    printf("[%u:%u:%s]\n", _node, _function, Encoding::info(kEncoding_board_function, _function));
+    for (auto p : _params) {
+        auto str = p->format();
+        printf("%s\n", str);
+        delete str;
+    }
+}
+
+bool
+Param::exists() const
+{
+    if (Generic::param_exists(_address)) {
+        return true;
+    }
+
+    switch (_function) {
+    case board_function::kMaster:
+        return Master::param_exists(_address);
+    case board_function::kPowerV1:
+        return PowerV1::param_exists(_address);
+    case board_function::kPowerV3:
+        return PowerV3::param_exists(_address);
+    case board_function::kUnconfigured:
+        return Bootloader::param_exists(_address);
+    default:
+        break;
+    }
+    return false;
+}
+
+void
+Param::fetch()
+{
+    _value = Link::read_data(_address);
+}
+
+void
+Param::store()
+{
+    // XXX magic numbers
+    if ((_address >= 0x400) && (_address < 0x500)) {
+        Link::write_data(_address, _value);
+    }
+}
+
+void
+Param::set(unsigned value) 
+{
+    // XXX validation
+    _value = value;
+}
+
+const char *
+Param::format()
+{
+    char *str;
+    const char *info = Encoding::info(encoding(), _value);
+    if (info == nullptr) {
+        info = "";
+    }
+
+    asprintf(&str, "%u %s %u %s", _address, name(), _value, info);
+    return str;
+}
+
+const char *
+Param::name()
+{
+    const char *str = nullptr;
+
+    switch (_function) {
+    case board_function::kMaster:
+        str = Master::param_name(_address);
+        break;
+    case board_function::kPowerV1:
+        str = PowerV1::param_name(_address);
+        break;
+    case board_function::kPowerV3:
+        str = PowerV3::param_name(_address);
+        break;
+    case board_function::kUnconfigured:
+        str = Bootloader::param_name(_address);
+        break;
+    }
+
+    if (str == nullptr) {
+        str = Generic::param_name(_address);
+    }
+
+    return str;    
+}
+
+unsigned
+Param::encoding()
+{
+    unsigned value = kEncoding_none;
+
+    switch (_function) {
+    case board_function::kMaster:
+        value = Master::param_encoding(_address);
+        break;
+    case board_function::kPowerV1:
+        value = PowerV1::param_encoding(_address);
+        break;
+    case board_function::kPowerV3:
+        value = PowerV3::param_encoding(_address);
+        break;
+    case board_function::kUnconfigured:
+        value = Bootloader::param_encoding(_address);
+        break;
+    }
+
+    return value;
+}

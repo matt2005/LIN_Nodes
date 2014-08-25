@@ -13,8 +13,6 @@
 // v1 power node
 //
 
-static const uint8_t kBoardFunctionID = 1;
-
 #define pinOUT1        portB[0]
 #define pinSTATUS1     portB[1]
 #define pinOUT2        portB[2]

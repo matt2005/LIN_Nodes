@@ -9,6 +9,7 @@
 
 #include <stdexcept>
 #include <unistd.h>
+#include <err.h>
 #include "link.h"
 
 namespace Link
@@ -104,6 +105,7 @@ enable_master(bool enable)
     int result = request(kUSBRequestEnableMaster, enable ? 1 : 0, 0);
 
     if (result < 0) {
+        warnx("usb error %d", result);
         throw (std::runtime_error("enable_master: USB error"));
     }
 
@@ -181,31 +183,28 @@ read_data(uint16_t index)
         throw (std::runtime_error("read_data: USB error in setup"));
     }
 
-    // spin waiting for the transaction to complere
-    for (unsigned tries = 0; tries < 50; tries++) {
-        usleep(10000);                  // 10ms per try
-        uint8_t status = get_status();
+    uint8_t status = get_status();
 
-        if (status & RQ_STATUS_DATA_ERROR) {
-            throw (std::runtime_error("read_data: LIN error"));
-        }
-
-        if (status & RQ_STATUS_DATA_READY) {
-            result = request_in(kUSBRequestReadResult, 0, 0, (uint8_t *)&value, sizeof(value));
-
-            if (result < 0) {
-                throw (std::runtime_error("read_data: USB error in fetch"));
-            }
-
-            if (result != 2) {
-                throw (std::runtime_error("read_data: data error in fetch"));
-            }
-
-            return value;
-        }
+    if (status & RQ_STATUS_DATA_ERROR) {
+        throw (std::runtime_error("read_data: LIN error"));
     }
 
-    throw (std::runtime_error("read_data: timed out"));
+    if (status & RQ_STATUS_DATA_READY) {
+        result = request_in(kUSBRequestReadResult, 0, 0, (uint8_t *)&value, sizeof(value));
+
+        if (result < 0) {
+            throw (std::runtime_error("read_data: USB error in fetch"));
+        }
+
+        if (result != 2) {
+            throw (std::runtime_error("read_data: data error in fetch"));
+        }
+
+        return value;
+    }
+
+    throw (std::runtime_error("read_data: data phase error"));
+
 }
 
 } // namespace Link

@@ -139,7 +139,8 @@ Parameter::set(uint16_t value) const
     switch (address()) {
     case Generic::kParamBootloaderMode:
         if (value == bootloader_magic::kEnterBootloader) {
-            Board::enter_bootloader(RelaySlave::node_address(Board::get_mode()));
+            Board::enter_bootloader(RelaySlave::node_address(Board::get_mode()),
+                                    board_function::kPowerV1);
         }
     }
 
@@ -155,6 +156,9 @@ Parameter::get() const
     switch (address()) {
     case Generic::kParamProtocolVersion:
         return 1;
+
+    case Generic::kParamBoardFunction:
+        return board_function::kPowerV1;
 
     case Generic::kParamBootloaderMode:
         return 0;

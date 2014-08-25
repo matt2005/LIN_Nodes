@@ -85,7 +85,7 @@ node Generic {
     }
     parameters {
         ProtocolVersion     { address = 0x0000; }
-        BoardFunction       {                   }
+        BoardFunction       {                   board_function; }
         BootloaderMode      {                   bootloader_magic; }
         FirmwareVersion     {                   }
         FirmwarePageSize    {                   }
@@ -102,8 +102,19 @@ node Generic {
         Protocol            {                   }
 
         ConfigBase          { address = 0x0400; }
+        ConfigTop           { address = 0x04ef; }
     }
     encoding {
+        board_function {
+            logical_value, 0, "Unknown";
+            logical_value, 1, "Master";
+            logical_value, 2, "PowerV1";
+            logical_value, 3, "PowerV3";
+            logical_value, 4, "ECUBridge";
+            logical_value, 5, "Dashboard";
+            logical_value, 6, "Tester";
+            logical_value, 255, "Unconfigured";
+        }
         bootloader_magic {
             logical_value, 0, "Program";
             logical_value, 1, "Bootloader";
@@ -139,13 +150,12 @@ node Bootloader {
     }
     parameters {
         Status              { address = 0x0300; bl_status; }
-        Memory              {                   }
-        EEPROM              {                   }
-
-        PageAddress         { address = 0x0400; }
+        PageAddress         {                   }
         PageOffset          {                   }
         PageCRC             {                   }
         DebugPointer        {                   }
+        Memory              {                   }
+        EEPROM              {                   }
     }
     encoding {
         bl_status {
@@ -162,7 +172,7 @@ node Master {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
-        function = 0x0000;
+        function = 0x0001;  // board_function::kMaster
         variant = 0x01;
         bitrate = 19.2 kbps;
         sends_wake_up_signal = "yes";
@@ -352,7 +362,7 @@ node PowerV1 {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
-        function = 0x0001;
+        function = 0x0002;  // board_function::kPowerV1
         variant = 0x10;
         bitrate = 19.2 kbps;
         sends_wake_up_signal = "no";
@@ -414,7 +424,7 @@ node PowerV3 {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
-        function = 0x0002;
+        function = 0x0003;  // board_function::kPowerV1
         variant = 0x01;
         bitrate = 19.2 kbps;
         sends_wake_up_signal = "no";
@@ -537,7 +547,7 @@ node ECUBridge {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
-        function = 0x0003;
+        function = 0x0004;  // board_function::kECUBridge
         variant = 0x10;
         bitrate = 19.2 kbps;
         sends_wake_up_signal = "no";
@@ -579,7 +589,7 @@ node Dashboard {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
-        function = 0x0004;
+        function = 0x0005;  // board_function::kDashboard
         variant = 0x01;
         bitrate = 19.2 kbps;
         sends_wake_up_signal = "no";
@@ -600,7 +610,7 @@ node Tester {
     general {
         LIN_protocol_version = "2.1";
         supplier = 0xb007;
-        function = 0x0005;
+        function = 0x0006;
         variant = 0x01;
         bitrate = 19.2 kbps;
         sends_wake_up_signal = "yes";

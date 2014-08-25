@@ -5,6 +5,8 @@
 SRCROOT		:= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 TOPDIR		:= $(abspath $(SRCROOT)/..)
 BUILDDIR	:= $(TOPDIR)/build/$(PROG)
+GIT_IDENTITY	:= $(shell git describe --always --dirty)
+
 
 CC		 = avr-gcc
 CXX		 = avr-g++
@@ -93,6 +95,7 @@ ELF		:= $(BUILDDIR)/$(PROGNAME).elf
 HEX		:= $(BUILDDIR)/$(PROGNAME).hex
 BIN		:= $(BUILDDIR)/$(PROGNAME).bin
 HEADER		:= $(BUILDDIR)/$(PROGNAME).h
+FW		:= $(BUILDDIR)/$(PROGNAME).fw
 MAP		:= $(ELF).map
 
 OBJS		:= $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
@@ -113,6 +116,7 @@ build:	$(BUILD_TARGET)
 hex:	$(HEX)
 bin:	$(BIN)
 header:	$(HEADER)
+fw:	$(FW)
 
 $(ELF) $(OBJS):	$(MAKEFILE_LIST)
 
@@ -134,6 +138,11 @@ $(BIN): $(ELF)
 $(HEADER): $(BIN)
 	@echo HEADER $(notdir $@)
 	$q cd $(dir $<) && $(XXD) -i $(notdir $<) > $@
+
+$(FW): $(HEX)
+	@echo FW $(notdir $@)
+	$q echo "Node: $(PROG) $(GIT_IDENTITY)" > $@
+	$q cat $(HEX) >> $@
 
 $(ELF):	$(OBJS) $(MAKEFILE_LIST)
 	@echo LINK $(notdir $@)

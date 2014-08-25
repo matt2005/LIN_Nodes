@@ -13,11 +13,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include <getopt.h>
 
 #include <stdexcept>
 
 #include "link.h"
 #include "log.h"
+#include "param.h"
+#include "firmware.h"
 
 #include "../../../common/lin_defs.h"
 
@@ -58,85 +61,169 @@ print_status()
 }
 
 void
-print_parameters()
+dump_params(unsigned node)
 {
-    Link::enable_master(true);
-    Link::set_node(32);
+    Log::clear();
 
-    uint16_t value = 0xffff;
-
-    try {
-        value = Link::read_data(Generic::kParamProtocolVersion);
-        warnx("%d: got %d", 1, value);
-
-    } catch (std::runtime_error &re) {
-        warnx("read failed: %s", re.what());
-        Log::log(false);
-    }
-
-    Link::enable_master(false);
-
+    auto set = new ParamSet(node);
+    set->print();
+    delete set;
 }
 
 void
-bl_dump_memory()
+print_parameters(unsigned node)
 {
+    Log::clear();
+    Link::set_node(node);
     Link::enable_master(true);
-    Link::set_node(32);
+    warnx("dumping node %u", node);
+
+    for (unsigned address = 0; address < 0x10000; address++) {
+        if (Generic::param_exists(address)) {
+            printf("%s %u\n", Generic::param_name(address), Link::read_data(address));
+            Log::acquire();
+        }
+    }
+
+    if (Link::read_data(Generic::kParamBootloaderMode) != 0) {
+        for (unsigned address = 0; address < 0x10000; address++) {
+            if (Bootloader::param_exists(address)) {
+                printf("%s %u\n", Bootloader::param_name(address), Link::read_data(address));
+                Log::acquire();
+            }
+        }
+    } else {
+        switch (Link::read_data(Generic::kParamBoardFunction)) {
+        case board_function::kMaster:
+            for (unsigned address = 0; address < 0x10000; address++) {
+                if (Master::param_exists(address)) {
+                    printf("%s %u\n", Master::param_name(address), Link::read_data(address));
+                    Log::acquire();
+                }
+            }
+            break;
+        case board_function::kPowerV1:
+            for (unsigned address = 0; address < 0x10000; address++) {
+                if (PowerV1::param_exists(address)) {
+                    printf("%s %u\n", PowerV1::param_name(address), Link::read_data(address));
+                    Log::acquire();
+                }
+            }
+            break;
+        case board_function::kPowerV3:
+            for (unsigned address = 0; address < 0x10000; address++) {
+                if (PowerV3::param_exists(address)) {
+                    printf("%s %u\n", PowerV3::param_name(address), Link::read_data(address));
+                    Log::acquire();
+                }
+            }
+            break;
+        }
+    }
+    Link::enable_master(false);
+    Log::print();
+}
+
+void
+bl_dump_memory(unsigned node)
+{
+    Log::clear();
+    Link::enable_master(true);
+    Link::set_node(node);
 
     for (unsigned address = 0; address < 16384; address++) {
         Link::write_data(Bootloader::kParamDebugPointer, address);
         unsigned readback = Link::read_data(Bootloader::kParamDebugPointer);
+        Log::acquire();
         if (readback != address) {
-            Log::log(false);
+            Log::print();
             errx(1, "address pointer readback error, got %u expected %u", readback, address);
         }
         uint8_t value = Link::read_data(Bootloader::kParamMemory);
         warnx("%d: %02x", address, value);
     }
+    Log::print();
+}
+
+void
+usage()
+{
+    warnx("usage: lintool [-l][-h][-n <node>][-f <file>] <command>");
+    warnx("    -l  enable logging");
+    warnx("    -n  set node address for some commands");
+    warnx("    -f  add a firmware file (may be specified more than once)");
+    warnx("    -h  print this help");
+    warnx("  <command>:");
+    warnx("    status        Print link status");
+    warnx("    history       Dump recent history from link");
+    warnx("    trace         Trace LIN traffic (^C to exit)");
+    warnx("    dump_params   Dump all parameters for <node>");
+    exit(1);
 }
 
 int
-main(int argc, const char *argv[])
+main(int argc, char *argv[])
 {
-    Link::connect();
+    int ch;
+    unsigned node = Bootloader::kNodeAddress;
 
-    if (argc == 2) {
-
-        if (!strcmp(argv[1], "-status")) {
-            print_status();
-            exit(0);
-        }
-
-        if (!strcmp(argv[1], "-history")) {
-            Log::log(false);
-            exit(0);
-        }
-
-        Log::clear();
-
-        if (!strcmp(argv[1], "-trace")) {
-            Log::log(true);
-            exit(0);
-        }
-
-        if (!strcmp(argv[1], "-master")) {
-            Link::enable_master(true);
-            exit(0);
-        }
-
-        if (!strcmp(argv[1], "-dump_params")) {
-            print_parameters();
-            Log::log(false);
-            exit(0);
-        }
-
-        if (!strcmp(argv[1], "-bl_dump_memory")) {
-            bl_dump_memory();
-            exit(0);
+    while ((ch = getopt(argc, argv, "f:ln:h")) != -1) {
+        switch (ch) {
+        case 'f':
+            new Firmware(optarg);
+            break;
+        case 'l':
+            Log::enable = true;
+            break;
+        case 'n':
+            node = strtoul(optarg, 0, 0);
+            break;
+        default:
+            warnx("unrecognised argument '-%c'", ch);
+            // FALLTHROUGH
+        case 'h':
+            usage();
         }
     }
 
-    errx(1, "must supply one of -status, -trace, -master, -dump_params -bl_dump_memory");
+    argc -= optind;
+    argv += optind;
+
+    if (argc < 1) {
+        warnx("missing command");
+        usage();
+    }
+
+    Link::connect();
+
+    if (!strcmp(argv[0], "status")) {
+        print_status();
+        exit(0);
+    }
+
+    if (!strcmp(argv[0], "history")) {
+        Log::acquire();
+        Log::print();
+        exit(0);
+    }
+
+    if (!strcmp(argv[0], "trace")) {
+        Log::trace();
+        exit(0);
+    }
+
+    if (!strcmp(argv[0], "dump_params")) {
+//        print_parameters(node);
+        dump_params(node);
+        exit(0);
+    }
+
+    if (!strcmp(argv[0], "bl_dump_memory")) {
+        bl_dump_memory(node);
+        exit(0);
+    }
+
+    warnx("unrecognised command '%s'", argv[0]);
+    usage();
 }
 

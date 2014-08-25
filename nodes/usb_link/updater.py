@@ -68,6 +68,7 @@ class Link (object):
         if self._dev is None:
             raise ValueError('USB Link not found')
         self._dev.set_configuration();
+        print 'default timeout {}'.format(self._dev.default_timeout)
 
     def _request(self, request, value = 0, index = 0, outData = None, inLen = 0):
         requestType = usb.util.CTRL_TYPE_VENDOR | usb.util.CTRL_RECIPIENT_DEVICE

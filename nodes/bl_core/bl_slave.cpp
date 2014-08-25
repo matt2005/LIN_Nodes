@@ -95,8 +95,12 @@ BLSlave::st_response_received(Response &resp)
             case Bootloader::kParamDebugPointer:
                 _memoryPointer = resp.DataByID.value;
                 break;
-            }
 
+            case Generic::kParamConfigBase ... Generic::kParamConfigTop:
+                eeprom_update_word((uint16_t *)((_sendIndex - Generic::kParamConfigBase) * 2), resp.DataByID.value);
+                break;
+
+            }
             break;
 
         case service_id::kDataDump:
@@ -172,6 +176,13 @@ BLSlave::send_response()
         value = eeprom_read_byte((const uint8_t *)_memoryPointer);
         break;
 
+    case Generic::kParamLine ... Generic::kParamProtocol:
+        value = errors[_sendIndex - Generic::kParamLine];
+        break;
+
+    case Generic::kParamConfigBase ... Generic::kParamConfigTop:
+        value = eeprom_read_word((uint16_t *)((_sendIndex - Generic::kParamConfigBase) * 2));
+        break;
 
     default:
         break;

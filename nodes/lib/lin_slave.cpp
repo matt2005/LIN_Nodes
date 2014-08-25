@@ -162,14 +162,6 @@ Slave::st_master_request(Response &resp)
     return reply;
 }
 
-static const PROGMEM uint16_t page0[] = {
-    1,                              // XXX protocol version
-    (uint16_t)kBoardFunctionID,
-    0,                              // bootloader mode (not)
-    RELEASE_VERSION,
-    SPM_PAGESIZE,
-};
-
 bool
 Slave::st_read_data(Parameter::Address address, uint16_t &value)
 {

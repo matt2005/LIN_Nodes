@@ -15,31 +15,45 @@ extern const PROGMEM char   *name(uint8_t encoding);
 extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);
 } // namespace Encoding
 
-static const uint8_t kEncoding_bootloader_magic = 0;
-static const uint8_t kEncoding_service_error = 1;
-static const uint8_t kEncoding_bl_status = 2;
-static const uint8_t kEncoding_input_assignment = 3;
-static const uint8_t kEncoding_sp_input_mode = 4;
-static const uint8_t kEncoding_sg_input_mode = 5;
-static const uint8_t kEncoding_msec = 6;
-static const uint8_t kEncoding_sec = 7;
-static const uint8_t kEncoding_up_to_10 = 8;
-static const uint8_t kEncoding_node_address = 9;
-static const uint8_t kEncoding_pci = 10;
-static const uint8_t kEncoding_service_id = 11;
-static const uint8_t kEncoding_v1_output_status = 12;
-static const uint8_t kEncoding_v1_output_assignment = 13;
-static const uint8_t kEncoding_v3_output_status = 14;
-static const uint8_t kEncoding_v3_output_type = 15;
-static const uint8_t kEncoding_v3_output_assignment = 16;
-static const uint8_t kEncoding_pwm_duty_cycle = 17;
-static const uint8_t kEncoding_RPM = 18;
-static const uint8_t kEncoding_PSI = 19;
-static const uint8_t kEncoding_F = 20;
-static const uint8_t kEncoding_V = 21;
-static const uint8_t kEncoding_lambda = 22;
-static const uint8_t kEncoding_MPH = 23;
+static const uint8_t kEncoding_board_function = 0;
+static const uint8_t kEncoding_bootloader_magic = 1;
+static const uint8_t kEncoding_service_error = 2;
+static const uint8_t kEncoding_bl_status = 3;
+static const uint8_t kEncoding_input_assignment = 4;
+static const uint8_t kEncoding_sp_input_mode = 5;
+static const uint8_t kEncoding_sg_input_mode = 6;
+static const uint8_t kEncoding_msec = 7;
+static const uint8_t kEncoding_sec = 8;
+static const uint8_t kEncoding_up_to_10 = 9;
+static const uint8_t kEncoding_node_address = 10;
+static const uint8_t kEncoding_pci = 11;
+static const uint8_t kEncoding_service_id = 12;
+static const uint8_t kEncoding_v1_output_status = 13;
+static const uint8_t kEncoding_v1_output_assignment = 14;
+static const uint8_t kEncoding_v3_output_status = 15;
+static const uint8_t kEncoding_v3_output_type = 16;
+static const uint8_t kEncoding_v3_output_assignment = 17;
+static const uint8_t kEncoding_pwm_duty_cycle = 18;
+static const uint8_t kEncoding_RPM = 19;
+static const uint8_t kEncoding_PSI = 20;
+static const uint8_t kEncoding_F = 21;
+static const uint8_t kEncoding_V = 22;
+static const uint8_t kEncoding_lambda = 23;
+static const uint8_t kEncoding_MPH = 24;
 static const uint8_t kEncoding_none = 0xff;
+
+namespace board_function
+{
+static const uint16_t kUnknown = 0;
+static const uint16_t kMaster = 1;
+static const uint16_t kPowerV1 = 2;
+static const uint16_t kPowerV3 = 3;
+static const uint16_t kECUBridge = 4;
+static const uint16_t kDashboard = 5;
+static const uint16_t kTester = 6;
+static const uint16_t kUnconfigured = 255;
+static const uint16_t kNumEncodings = 8;
+} // namespace board_function
 
 namespace bootloader_magic
 {
@@ -437,6 +451,7 @@ static const uint16_t kParamFraming = 0x0203;
 static const uint16_t kParamSynch = 0x0204;
 static const uint16_t kParamProtocol = 0x0205;
 static const uint16_t kParamConfigBase = 0x0400;
+static const uint16_t kParamConfigTop = 0x04ef;
 
 } // namespace Generic
 
@@ -448,12 +463,12 @@ extern uint8_t param_encoding(Parameter::Address address);
 extern const PROGMEM char *param_name(Parameter::Address address);
 
 static const uint16_t kParamStatus = 0x0300;
-static const uint16_t kParamMemory = 0x0301;
-static const uint16_t kParamEEPROM = 0x0302;
-static const uint16_t kParamPageAddress = 0x0400;
-static const uint16_t kParamPageOffset = 0x0401;
-static const uint16_t kParamPageCRC = 0x0402;
-static const uint16_t kParamDebugPointer = 0x0403;
+static const uint16_t kParamPageAddress = 0x0301;
+static const uint16_t kParamPageOffset = 0x0302;
+static const uint16_t kParamPageCRC = 0x0303;
+static const uint16_t kParamDebugPointer = 0x0304;
+static const uint16_t kParamMemory = 0x0305;
+static const uint16_t kParamEEPROM = 0x0306;
 
 } // namespace Bootloader
 
@@ -611,7 +626,7 @@ namespace Master
 {
     static const uint8_t kNodeAddress = 1;
     static const uint16_t kNodeSupplier = 0xb007;
-    static const uint16_t kNodeFunction = 0x0000;
+    static const uint16_t kNodeFunction = 0x0001;
     static const uint8_t kNodeVariant = 0x01;
 } // namespace Master
 
@@ -619,7 +634,7 @@ namespace PowerV1
 {
     static const uint8_t kNodeAddress = 2;
     static const uint16_t kNodeSupplier = 0xb007;
-    static const uint16_t kNodeFunction = 0x0001;
+    static const uint16_t kNodeFunction = 0x0002;
     static const uint8_t kNodeVariant = 0x10;
 } // namespace PowerV1
 
@@ -627,7 +642,7 @@ namespace PowerV3
 {
     static const uint8_t kNodeAddress = 2;
     static const uint16_t kNodeSupplier = 0xb007;
-    static const uint16_t kNodeFunction = 0x0002;
+    static const uint16_t kNodeFunction = 0x0003;
     static const uint8_t kNodeVariant = 0x01;
 } // namespace PowerV3
 
@@ -635,7 +650,7 @@ namespace ECUBridge
 {
     static const uint8_t kNodeAddress = 18;
     static const uint16_t kNodeSupplier = 0xb007;
-    static const uint16_t kNodeFunction = 0x0003;
+    static const uint16_t kNodeFunction = 0x0004;
     static const uint8_t kNodeVariant = 0x10;
 } // namespace ECUBridge
 
@@ -643,7 +658,7 @@ namespace Dashboard
 {
     static const uint8_t kNodeAddress = 19;
     static const uint16_t kNodeSupplier = 0xb007;
-    static const uint16_t kNodeFunction = 0x0004;
+    static const uint16_t kNodeFunction = 0x0005;
     static const uint8_t kNodeVariant = 0x01;
 } // namespace Dashboard
 
@@ -651,7 +666,7 @@ namespace Tester
 {
     static const uint8_t kNodeAddress = 20;
     static const uint16_t kNodeSupplier = 0xb007;
-    static const uint16_t kNodeFunction = 0x0005;
+    static const uint16_t kNodeFunction = 0x0006;
     static const uint8_t kNodeVariant = 0x01;
 } // namespace Tester
 

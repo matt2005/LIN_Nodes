@@ -12,9 +12,6 @@
 // v1 master board
 //
 
-static const uint8_t kBoardFunctionID = 0;
-
-
 #define pinMode1        portA[5]    // SCK/ENCBUT pulled low will force recovery mode
 
 #define pinMOSI         portA[4]

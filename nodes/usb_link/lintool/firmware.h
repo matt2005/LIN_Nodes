@@ -7,16 +7,25 @@
  * ----------------------------------------------------------------------------
  */
 
-#pragma once
+#include <map>
+#include <list>
 
-// v1 usb link module using the generic node board
-//
+#include <stdint.h>
 
-#define pinLINRX        portA[0]
-#define pinLINTX        portA[1]
-#define pinLINCS        portA[6]
+class Firmware
+{
+public:
+    Firmware(const char *fromFile);
+    ~Firmware();
 
-#define pinDebugTX      portA[7]
+    unsigned        max_address() const { return _bytes.end()->first; }
 
-#define pinUSBDPlus     portB[6]
-#define pinUSBDMinus    portB[3]
+    static Firmware *for_function(unsigned function);
+
+private:
+
+    static std::list<Firmware *>    _firmwares;
+
+    const char                      *_functionName;
+    std::map<unsigned, uint8_t>     _bytes;
+};

@@ -80,7 +80,10 @@ public:
 
     uint16_t        *get_data() { return &_dataValue; }
 
-    bool            is_data_ready() const { return _state == kStateIdle; }
+    bool            is_data_ready() const 
+    {
+        return ((_state == kStateIdle) || is_data_error()) && (is_awake() || is_master()); 
+    }
     bool            is_data_error() const { return _state == kStateError; }
     bool            is_waiting() const { return _masterState == kMSWaiting; }
     bool            is_master() const { return _masterState > kMSWaiting; }

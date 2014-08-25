@@ -7,6 +7,14 @@ namespace Encoding
 bool
 invalid(uint8_t encoding, uint16_t value)
 {
+    if (encoding == kEncoding_board_function) {
+        if ((value >= 0) && (value <= 6)) {
+            return false;
+        }
+        if (value == 255) {
+            return false;
+        }
+    }
     if (encoding == kEncoding_bootloader_magic) {
         if (value == 0) {
             return false;
@@ -101,6 +109,15 @@ invalid(uint8_t encoding, uint16_t value)
     return true;
 }
 
+static const PROGMEM char _encoding_name_board_function[] = "board_function";
+static const PROGMEM char _encoding_info_board_function_0[] = "Unknown";
+static const PROGMEM char _encoding_info_board_function_1[] = "Master";
+static const PROGMEM char _encoding_info_board_function_2[] = "PowerV1";
+static const PROGMEM char _encoding_info_board_function_3[] = "PowerV3";
+static const PROGMEM char _encoding_info_board_function_4[] = "ECUBridge";
+static const PROGMEM char _encoding_info_board_function_5[] = "Dashboard";
+static const PROGMEM char _encoding_info_board_function_6[] = "Tester";
+static const PROGMEM char _encoding_info_board_function_7[] = "Unconfigured";
 static const PROGMEM char _encoding_name_bootloader_magic[] = "bootloader_magic";
 static const PROGMEM char _encoding_info_bootloader_magic_0[] = "Program";
 static const PROGMEM char _encoding_info_bootloader_magic_1[] = "Bootloader";
@@ -255,6 +272,9 @@ static const PROGMEM char _encoding_name_MPH[] = "MPH";
 const PROGMEM char *
 name(uint8_t encoding)
 {
+    if (encoding == kEncoding_board_function) {
+        return &_encoding_name_board_function[0];
+    }
     if (encoding == kEncoding_bootloader_magic) {
         return &_encoding_name_bootloader_magic[0];
     }
@@ -333,6 +353,32 @@ name(uint8_t encoding)
 const PROGMEM char *
 info(uint8_t encoding, uint16_t value)
 {
+    if (encoding == kEncoding_board_function) {
+        if (value == 0) {
+            return &_encoding_info_board_function_0[0];
+        }
+        if (value == 1) {
+            return &_encoding_info_board_function_1[0];
+        }
+        if (value == 2) {
+            return &_encoding_info_board_function_2[0];
+        }
+        if (value == 3) {
+            return &_encoding_info_board_function_3[0];
+        }
+        if (value == 4) {
+            return &_encoding_info_board_function_4[0];
+        }
+        if (value == 5) {
+            return &_encoding_info_board_function_5[0];
+        }
+        if (value == 6) {
+            return &_encoding_info_board_function_6[0];
+        }
+        if (value == 255) {
+            return &_encoding_info_board_function_7[0];
+        }
+    }
     if (encoding == kEncoding_bootloader_magic) {
         if (value == 0) {
             return &_encoding_info_bootloader_magic_0[0];
@@ -840,6 +886,9 @@ param_exists(Parameter::Address address)
     if (address == kParamConfigBase) {
         return true;
     }
+    if (address == kParamConfigTop) {
+        return true;
+    }
     return false;
 }
 
@@ -852,6 +901,9 @@ param_default(Parameter::Address address)
 uint8_t
 param_encoding(Parameter::Address address)
 {
+    if (address == kParamBoardFunction) {
+        return kEncoding_board_function;
+    }
     if (address == kParamBootloaderMode) {
         return kEncoding_bootloader_magic;
     }
@@ -873,6 +925,7 @@ static const PROGMEM char _param_name_Framing[] = "Framing";
 static const PROGMEM char _param_name_Synch[] = "Synch";
 static const PROGMEM char _param_name_Protocol[] = "Protocol";
 static const PROGMEM char _param_name_ConfigBase[] = "ConfigBase";
+static const PROGMEM char _param_name_ConfigTop[] = "ConfigTop";
 
 const PROGMEM char *
 param_name(Parameter::Address address)
@@ -922,6 +975,9 @@ param_name(Parameter::Address address)
     if (address == kParamConfigBase) {
         return &_param_name_ConfigBase[0];
     }
+    if (address == kParamConfigTop) {
+        return &_param_name_ConfigTop[0];
+    }
     return nullptr;
 }
 
@@ -937,12 +993,6 @@ param_exists(Parameter::Address address)
     if (address == kParamStatus) {
         return true;
     }
-    if (address == kParamMemory) {
-        return true;
-    }
-    if (address == kParamEEPROM) {
-        return true;
-    }
     if (address == kParamPageAddress) {
         return true;
     }
@@ -953,6 +1003,12 @@ param_exists(Parameter::Address address)
         return true;
     }
     if (address == kParamDebugPointer) {
+        return true;
+    }
+    if (address == kParamMemory) {
+        return true;
+    }
+    if (address == kParamEEPROM) {
         return true;
     }
     return false;
@@ -974,24 +1030,18 @@ param_encoding(Parameter::Address address)
 }
 
 static const PROGMEM char _param_name_Status[] = "Status";
-static const PROGMEM char _param_name_Memory[] = "Memory";
-static const PROGMEM char _param_name_EEPROM[] = "EEPROM";
 static const PROGMEM char _param_name_PageAddress[] = "PageAddress";
 static const PROGMEM char _param_name_PageOffset[] = "PageOffset";
 static const PROGMEM char _param_name_PageCRC[] = "PageCRC";
 static const PROGMEM char _param_name_DebugPointer[] = "DebugPointer";
+static const PROGMEM char _param_name_Memory[] = "Memory";
+static const PROGMEM char _param_name_EEPROM[] = "EEPROM";
 
 const PROGMEM char *
 param_name(Parameter::Address address)
 {
     if (address == kParamStatus) {
         return &_param_name_Status[0];
-    }
-    if (address == kParamMemory) {
-        return &_param_name_Memory[0];
-    }
-    if (address == kParamEEPROM) {
-        return &_param_name_EEPROM[0];
     }
     if (address == kParamPageAddress) {
         return &_param_name_PageAddress[0];
@@ -1004,6 +1054,12 @@ param_name(Parameter::Address address)
     }
     if (address == kParamDebugPointer) {
         return &_param_name_DebugPointer[0];
+    }
+    if (address == kParamMemory) {
+        return &_param_name_Memory[0];
+    }
+    if (address == kParamEEPROM) {
+        return &_param_name_EEPROM[0];
     }
     return nullptr;
 }

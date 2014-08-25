@@ -9,6 +9,9 @@
 
 namespace Log
 {
+extern bool enable;
+extern void acquire();
+extern void print();
 extern void clear();
-extern void log(bool forever = false);
+extern void trace();
 } // namespace Log

@@ -12,8 +12,6 @@
 // v1 programmer module using the generic node board
 //
 
-static const uint8_t kBoardFunctionID = 10;
-
 #define portLCD         portB
 #define lcdBitE         (1<<6)
 #define lcdBitRnW       (1<<5)

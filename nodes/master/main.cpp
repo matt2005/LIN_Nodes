@@ -84,7 +84,7 @@ Parameter::set(uint16_t value) const
     switch (address()) {
     case Generic::kParamBootloaderMode:
         if (value == bootloader_magic::kEnterBootloader) {
-            Board::enter_bootloader(Master::kNodeAddress);
+            Board::enter_bootloader(Master::kNodeAddress, board_function::kMaster);
         }
     }
 
@@ -100,6 +100,9 @@ Parameter::get() const
     switch (address()) {
     case Generic::kParamProtocolVersion:
         return 1;
+
+    case Generic::kParamBoardFunction:
+        return board_function::kMaster;
 
     case Generic::kParamBootloaderMode:
         return 0;

@@ -104,10 +104,6 @@ usbFunctionSetup(uchar data[8])
         currentNAD = rq->wValue.bytes[0];
         break;
 
-    case kUSBRequestReadData:
-        slave.get_data_by_id(currentNAD, rq->wIndex.word);
-        break;
-
     case kUSBRequestReadResult:
         if (slave.is_data_ready()) {
             usbMsgPtr = (uint8_t *)slave.get_data();
@@ -116,16 +112,28 @@ usbFunctionSetup(uchar data[8])
 
         break;
 
+    case kUSBRequestReadData:
+        slave.get_data_by_id(currentNAD, rq->wIndex.word);
+        usbDisableAllRequests();
+        break;
+
     case kUSBRequestWriteData:
         slave.set_data_by_id(currentNAD, rq->wIndex.word, rq->wValue.word);
+        usbDisableAllRequests();
         break;
 
     case kUSBRequestSendBulk:
         slave.send_bulk(currentNAD, rq->wValue.bytes[0], rq->wValue.bytes[1], rq->wIndex.bytes[0], rq->wIndex.bytes[1]);
+        usbDisableAllRequests();
         break;
 
     case kUSBRequestEnableMaster:
-        slave.enable_master(rq->wValue.bytes[0] != 0);
+        if (rq->wValue.bytes[0] != 0) {
+            slave.enable_master(true);
+            usbDisableAllRequests();
+        } else {
+            slave.enable_master(false);
+        }
         break;
 
     default:
@@ -165,6 +173,12 @@ main(void)
     for (;;) {
         wdt_reset();
         slave.tick();
+
+        // busy period has ended, we are ready for the next request
+        if (usbAllRequestsAreDisabled() && slave.is_data_ready()) {
+            usbEnableAllRequests();
+        }
+
         usbPoll();
     }
 }

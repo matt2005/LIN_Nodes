@@ -18,7 +18,9 @@ public:
     Firmware(const char *fromFile);
     ~Firmware();
 
-    unsigned        max_address() const { return _bytes.end()->first; }
+    unsigned        max_address() const { return _bytes.rbegin()->first; }
+    bool            get_bytes(unsigned base, unsigned count, uint8_t *buf) const;
+
 
     static Firmware *for_function(unsigned function);
 

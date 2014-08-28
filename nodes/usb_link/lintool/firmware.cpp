@@ -98,3 +98,22 @@ Firmware::for_function(unsigned function)
     }
     return nullptr;
 }
+
+bool
+Firmware::get_bytes(unsigned base, unsigned count, uint8_t *buf) const
+{
+    bool result = false;
+
+    while (count--) {
+        auto it = _bytes.find(base);
+
+        if (it == _bytes.end()) {
+            *buf = 0xff;
+        } else {
+            *buf = it->second;
+            result = true;
+        }
+        base++;
+        buf++;
+    }
+}

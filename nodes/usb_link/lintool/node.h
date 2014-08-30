@@ -22,6 +22,8 @@ public:
     ~Node();
 
     static void     scan(unsigned address = kNoNode);
+    static bool     exists(unsigned address);
+
     static void     clear() { _list.clear(); }
     static List     &nodes() { return _list; }
 

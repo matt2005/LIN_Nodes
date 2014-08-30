@@ -7,7 +7,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
 #include <err.h>
 
 #include "param.h"
@@ -46,6 +47,30 @@ ParamSet::~ParamSet()
     }
 }
 
+char *
+ParamSet::identity() const
+{
+    char *str;
+    asprintf(&str, "[%u:%u:%s]\n", _node, _function, Encoding::info(kEncoding_board_function, _function));
+    return str;
+}
+
+void
+ParamSet::print(FILE *fp) const
+{
+    char *str = identity(); 
+    fprintf(fp, "%s", str);
+    free(str);
+
+    for (auto p : _params) {
+        if (p->is_valid()) {
+            auto str = p->format();
+            fprintf(fp, "%s\n", str);
+            delete str;
+        }
+    }
+}
+
 void
 ParamSet::sync()
 {
@@ -54,28 +79,47 @@ ParamSet::sync()
     }
 }
 
-void
-ParamSet::print()
-{
-    printf("[%u:%u:%s]\n", _node, _function, Encoding::info(kEncoding_board_function, _function));
-    for (auto p : _params) {
-        if (p->valid()) {
-            auto str = p->format();
-            printf("%s\n", str);
-            delete str;
-        }
-    }
-}
-
 bool
-ParamSet::dirty() const
+ParamSet::is_dirty() const
 {
     for (auto p : _params) {
-        if (p->dirty()) {
+        if (p->is_dirty()) {
             return true;
         }
     }
     return false;
+}
+
+char *
+Param::format() const
+{
+    char *str;
+    const char *info = Encoding::info(encoding(), _value);
+    if (info == nullptr) {
+        info = "";
+    }
+
+    asprintf(&str, "%u %s %u %s", _address, name(), _value, info);
+    return str;
+}
+
+void
+Param::sync()
+{
+    if (!_valid) {
+        fetch();
+    } else if (_dirty) {
+        store();
+    }
+}
+
+void
+Param::set(unsigned value) 
+{
+    // XXX validation
+    _value = value;
+    _dirty = true;
+    _valid = true;
 }
 
 bool
@@ -98,16 +142,6 @@ Param::exists() const
         break;
     }
     return false;
-}
-
-void
-Param::sync()
-{
-    if (!_valid) {
-        fetch();
-    } else if (_dirty) {
-        store();
-    }
 }
 
 void
@@ -135,30 +169,31 @@ Param::store()
     }
 }
 
-void
-Param::set(unsigned value) 
+unsigned
+Param::encoding() const
 {
-    // XXX validation
-    _value = value;
-    _dirty = true;
-    _valid = true;
-}
+    unsigned value = kEncoding_none;
 
-const char *
-Param::format()
-{
-    char *str;
-    const char *info = Encoding::info(encoding(), _value);
-    if (info == nullptr) {
-        info = "";
+    switch (_function) {
+    case board_function::kMaster:
+        value = Master::param_encoding(_address);
+        break;
+    case board_function::kPowerV1:
+        value = PowerV1::param_encoding(_address);
+        break;
+    case board_function::kPowerV3:
+        value = PowerV3::param_encoding(_address);
+        break;
+    case board_function::kUnconfigured:
+        value = Bootloader::param_encoding(_address);
+        break;
     }
 
-    asprintf(&str, "%u %s %u %s", _address, name(), _value, info);
-    return str;
+    return value;
 }
 
 const char *
-Param::name()
+Param::name() const
 {
     const char *str = nullptr;
 
@@ -184,25 +219,3 @@ Param::name()
     return str;    
 }
 
-unsigned
-Param::encoding()
-{
-    unsigned value = kEncoding_none;
-
-    switch (_function) {
-    case board_function::kMaster:
-        value = Master::param_encoding(_address);
-        break;
-    case board_function::kPowerV1:
-        value = PowerV1::param_encoding(_address);
-        break;
-    case board_function::kPowerV3:
-        value = PowerV3::param_encoding(_address);
-        break;
-    case board_function::kUnconfigured:
-        value = Bootloader::param_encoding(_address);
-        break;
-    }
-
-    return value;
-}

@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <list>
+#include <cstdio>
 
 #include "../../../common/lin_defs.h"
 
@@ -24,14 +25,15 @@ public:
         _function(function)
     {}
 
-    const char          *format();
+    char                *format() const;
 
     void                sync();
     void                set(unsigned value);
-    unsigned            get() const { return _value; }
     bool                exists() const;
-    bool                valid() const { return _valid; }
-    bool                dirty() const { return _dirty; }
+
+    unsigned            get() const { return _value; }
+    bool                is_valid() const { return _valid; }
+    bool                is_dirty() const { return _dirty; }
 
 private:
     bool        _valid = false;
@@ -43,8 +45,8 @@ private:
 
     void                fetch();
     void                store();
-    unsigned            encoding();
-    const char          *name();
+    unsigned            encoding() const;
+    const char          *name() const;
 };
 
 class ParamSet
@@ -53,11 +55,13 @@ public:
     ParamSet(unsigned node);
     ~ParamSet();
 
-    void                sync();
-    void                print();
-    Param::List         list();
+    char                *identity() const;
+    void                print(FILE *fp = stdout) const;
 
-    bool                dirty() const;
+    void                sync();
+    bool                is_dirty() const;
+
+    Param::List         list() { return _params; }
 
 private:
     unsigned            _node;

@@ -25,6 +25,47 @@
 
 #include "../../../common/lin_defs.h"
 
+void
+scan(unsigned node)
+{
+    Node::scan(node);
+
+    for (auto n : Node::nodes()) {
+        auto pset = n->params();
+        char *str = pset->identity();
+
+        printf("%s", str);
+        free(str);
+    }
+}
+
+void
+dump_params(unsigned node, const char *pfile)
+{
+    Node::scan(node);
+
+    if (Node::exists(Bootloader::kNodeAddress) && (node == Node::kNoNode)) {
+        errx(1, "ERROR: cannot save all parameters, there is a node that needs recovery");
+    }
+
+    FILE *fp;
+
+    if (pfile == nullptr) {
+        fp = stdout;
+    } else {
+        fp = fopen(pfile, "w");
+        if (fp == nullptr) {
+            err(1, "open %s", pfile);
+        }
+    }
+
+    for (auto n : Node::nodes()) {
+        auto pset = n->params();
+
+        pset->print(fp);
+    }
+    fclose(fp);
+}
 
 void
 print_status()
@@ -62,70 +103,6 @@ print_status()
 }
 
 void
-dump_params(unsigned node)
-{
-    Log::clear();
-
-    auto set = new ParamSet(node);
-    set->print();
-    delete set;
-}
-
-void
-print_parameters(unsigned node)
-{
-    Log::clear();
-    Link::set_node(node);
-    Link::enable_master(true);
-    warnx("dumping node %u", node);
-
-    for (unsigned address = 0; address < 0x10000; address++) {
-        if (Generic::param_exists(address)) {
-            printf("%s %u\n", Generic::param_name(address), Link::read_data(address));
-            Log::acquire();
-        }
-    }
-
-    if (Link::read_data(Generic::kParamBootloaderMode) != 0) {
-        for (unsigned address = 0; address < 0x10000; address++) {
-            if (Bootloader::param_exists(address)) {
-                printf("%s %u\n", Bootloader::param_name(address), Link::read_data(address));
-                Log::acquire();
-            }
-        }
-    } else {
-        switch (Link::read_data(Generic::kParamBoardFunction)) {
-        case board_function::kMaster:
-            for (unsigned address = 0; address < 0x10000; address++) {
-                if (Master::param_exists(address)) {
-                    printf("%s %u\n", Master::param_name(address), Link::read_data(address));
-                    Log::acquire();
-                }
-            }
-            break;
-        case board_function::kPowerV1:
-            for (unsigned address = 0; address < 0x10000; address++) {
-                if (PowerV1::param_exists(address)) {
-                    printf("%s %u\n", PowerV1::param_name(address), Link::read_data(address));
-                    Log::acquire();
-                }
-            }
-            break;
-        case board_function::kPowerV3:
-            for (unsigned address = 0; address < 0x10000; address++) {
-                if (PowerV3::param_exists(address)) {
-                    printf("%s %u\n", PowerV3::param_name(address), Link::read_data(address));
-                    Log::acquire();
-                }
-            }
-            break;
-        }
-    }
-    Link::enable_master(false);
-    Log::print();
-}
-
-void
 bl_dump_memory(unsigned node)
 {
     Log::clear();
@@ -147,31 +124,45 @@ bl_dump_memory(unsigned node)
 }
 
 void
-scan(unsigned node)
-{
-    Node::scan(node);
-
-    for (auto n : Node::nodes()) {
-        auto pset = n->params();
-
-        pset->print();
-    }
-}
-
-void
 usage()
 {
-    warnx("usage: lintool [-l][-h][-n <node>][-f <file>] <command>");
-    warnx("    -l  enable logging");
-    warnx("    -n  set node address for some commands");
-    warnx("    -f  add a firmware file (may be specified more than once)");
-    warnx("    -h  print this help");
-    warnx("  <command>:");
-    warnx("    status        Print link status");
-    warnx("    history       Dump recent history from link");
-    warnx("    trace         Trace LIN traffic (^C to exit)");
-    warnx("    dump_params   Dump all parameters for <node>");
-    warnx("    scan          Scan for and list nodes");
+    warnx("Usage:");
+    fprintf(stderr, "Common options:")
+    fprintf(stderr, "        -l  enable logging");
+    fprintf(stderr, "        -n  set specific node address");
+    fprintf(stderr, "        -p  specify a parameter file");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool [-h]");
+    fprintf(stderr, "    Print this help.");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool trace");
+    fprintf(stderr, "    Dump recent history from link.");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool trace");
+    fprintf(stderr, "    Trace LIN traffic (^C to exit).");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool [-l] status");
+    fprintf(stderr, "    Print link status.");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool [-l][-n <node>] <scan>");
+    fprintf(stderr, "    Scan for a specific node or list all nodes.");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool [-l][-n <node>][-p <file>] dump_params");
+    fprintf(stderr, "    Dump parameters to file (or stdout if -p not specified).");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool [-l][-n <node>][-p <file>] load_params");
+    fprintf(stderr, "    Load parameters fril file (or stdin if -p not specified).");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool [-l][-n <node>] -f <file> [-f <file> ...] update");
+    fprintf(stderr, "    Update node firmware for one or more nodes. Only nodes for which firmware")
+    fprintf(stderr, "    is loaded can be updated. If -n is not specified, all nodes will be updated.")
+    fprintf(stderr, "        -f  add a firmware file (may be specified more than once)");
+    fprintf(stderr, "");
+    fprintf(stderr, "lintool [-l] -f <file> recover");
+    fprintf(stderr, "    Recover a node in bootloader mode. If the node advertises a type, it must")
+    fprintf(stderr, "    match a type in the specified firmware file.")
+    fprintf(stderr, "        -f  specify a firmware file");
+    fprintf(stderr, "");
     exit(1);
 }
 
@@ -180,8 +171,9 @@ main(int argc, char *argv[])
 {
     int ch;
     unsigned node = Node::kNoNode;
+    const char *pfile = nullptr;
 
-    while ((ch = getopt(argc, argv, "f:ln:h")) != -1) {
+    while ((ch = getopt(argc, argv, "f:hln:p:")) != -1) {
         switch (ch) {
         case 'f':
             new Firmware(optarg);
@@ -191,6 +183,9 @@ main(int argc, char *argv[])
             break;
         case 'n':
             node = strtoul(optarg, 0, 0);
+            break;
+        case 'p':
+            pfile = strdup(optarg);
             break;
         default:
             warnx("unrecognised argument '-%c'", ch);
@@ -215,6 +210,16 @@ main(int argc, char *argv[])
         exit(0);
     }
 
+    if (!strcmp(argv[0], "scan")) {
+        scan(node);
+        exit(0);
+    }
+
+    if (!strcmp(argv[0], "dump_params")) {
+        dump_params(node, pfile);
+        exit(0);
+    }
+
     if (!strcmp(argv[0], "history")) {
         Log::acquire();
         Log::print();
@@ -226,21 +231,11 @@ main(int argc, char *argv[])
         exit(0);
     }
 
-    if (!strcmp(argv[0], "dump_params")) {
-//        print_parameters(node);
-        dump_params(node);
-        exit(0);
-    }
-
     if (!strcmp(argv[0], "bl_dump_memory")) {
         bl_dump_memory(node);
         exit(0);
     }
 
-    if (!strcmp(argv[0], "scan")) {
-        scan(node);
-        exit(0);
-    }
 
     warnx("unrecognised command '%s'", argv[0]);
     usage();

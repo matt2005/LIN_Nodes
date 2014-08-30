@@ -26,10 +26,12 @@ ParamSet::ParamSet(unsigned node) :
         if (Param(address, _function).exists()) {
             auto p = new Param(address, _function);
 
-            p->fetch();
             _params.push_back(p);
         }
     }
+
+    // get parameters
+    sync();
 }
 
 ParamSet::~ParamSet()
@@ -48,7 +50,7 @@ void
 ParamSet::sync()
 {
     for (auto p : _params) {
-        p->store();
+        p->sync();
     }
 }
 
@@ -57,10 +59,23 @@ ParamSet::print()
 {
     printf("[%u:%u:%s]\n", _node, _function, Encoding::info(kEncoding_board_function, _function));
     for (auto p : _params) {
-        auto str = p->format();
-        printf("%s\n", str);
-        delete str;
+        if (p->valid()) {
+            auto str = p->format();
+            printf("%s\n", str);
+            delete str;
+        }
     }
+}
+
+bool
+ParamSet::dirty() const
+{
+    for (auto p : _params) {
+        if (p->dirty()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool
@@ -86,9 +101,28 @@ Param::exists() const
 }
 
 void
+Param::sync()
+{
+    if (!_valid) {
+        fetch();
+    } else if (_dirty) {
+        store();
+    }
+}
+
+void
 Param::fetch()
 {
-    _value = Link::read_data(_address);
+    _dirty = false;
+    _valid = true;
+    try {
+        _value = Link::read_data(_address);
+    } catch (Link::NoParam) {
+        _valid = false;
+    } catch (...) {
+        _valid = false;
+        throw;
+    }
 }
 
 void
@@ -97,6 +131,7 @@ Param::store()
     // XXX magic numbers
     if ((_address >= 0x400) && (_address < 0x500)) {
         Link::write_data(_address, _value);
+        _dirty = false;
     }
 }
 
@@ -105,6 +140,8 @@ Param::set(unsigned value)
 {
     // XXX validation
     _value = value;
+    _dirty = true;
+    _valid = true;
 }
 
 const char *

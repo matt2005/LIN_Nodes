@@ -45,6 +45,10 @@ usbFunctionSetup(uchar data[8])
                 status |= RQ_STATUS_DATA_ERROR;
             }
 
+            if (slave.is_data_rejected()) {
+                status |= RQ_STATUS_DATA_REJECTED;
+            }
+
             if (slave.is_awake()) {
                 status |= RQ_STATUS_AWAKE;
             }

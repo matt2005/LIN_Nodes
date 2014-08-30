@@ -6,32 +6,17 @@
  * this stuff is worth it, you can buy me a beer in return.
  * ----------------------------------------------------------------------------
  */
+#pragma once
 
 #include <stdint.h>
 #include <list>
 
 #include "../../../common/lin_defs.h"
 
-class Param;
-
-class ParamSet
-{
-public:
-    ParamSet(unsigned node);
-    ~ParamSet();
-
-    void        sync();
-    void        print();
-
-private:
-    unsigned                _node;
-    unsigned                _function = board_function::kUnknown;
-    std::list<Param *>      _params;
-};
-
 class Param
 {
 public:
+    typedef std::list<Param *>  List;
     static const unsigned   kMaxAddress = 0xffff;
 
     Param(unsigned address, unsigned function) :
@@ -41,17 +26,41 @@ public:
 
     const char          *format();
 
-    void                fetch();
-    void                store();
+    void                sync();
     void                set(unsigned value);
     unsigned            get() const { return _value; }
     bool                exists() const;
+    bool                valid() const { return _valid; }
+    bool                dirty() const { return _dirty; }
 
 private:
-    unsigned    _address;
-    unsigned    _function;
+    bool        _valid = false;
+    bool        _dirty = false;
     unsigned    _value = 0;
 
+    unsigned    _address;
+    unsigned    _function;
+
+    void                fetch();
+    void                store();
     unsigned            encoding();
     const char          *name();
+};
+
+class ParamSet
+{
+public:
+    ParamSet(unsigned node);
+    ~ParamSet();
+
+    void                sync();
+    void                print();
+    Param::List         list();
+
+    bool                dirty() const;
+
+private:
+    unsigned            _node;
+    unsigned            _function = board_function::kUnknown;
+    Param::List         _params;
 };

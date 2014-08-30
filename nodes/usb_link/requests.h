@@ -26,9 +26,10 @@ enum USBRequest {
 #define RQ_STATUS_FLAGS         0
 #define RQ_STATUS_DATA_READY        (1<<0)
 #define RQ_STATUS_DATA_ERROR        (1<<1)
-#define RQ_STATUS_AWAKE             (1<<2)
-#define RQ_STATUS_WAITING           (1<<3)
-#define RQ_STATUS_MASTER            (1<<4)
+#define RQ_STATUS_DATA_REJECTED     (1<<2)
+#define RQ_STATUS_AWAKE             (1<<3)
+#define RQ_STATUS_WAITING           (1<<4)
+#define RQ_STATUS_MASTER            (1<<5)
 
 #define RQ_STATUS_FREEMEM       1
 #define RQ_STATUS_LINERR        2   // wValue = error counter index

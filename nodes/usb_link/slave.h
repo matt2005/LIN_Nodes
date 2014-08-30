@@ -82,9 +82,10 @@ public:
 
     bool            is_data_ready() const 
     {
-        return ((_state == kStateIdle) || is_data_error()) && (is_awake() || is_master()); 
+        return ((_state < kStateMaxIdle) && (is_awake() || is_master()));
     }
     bool            is_data_error() const { return _state == kStateError; }
+    bool            is_data_rejected() const { return _state == kStateRejected; }
     bool            is_waiting() const { return _masterState == kMSWaiting; }
     bool            is_master() const { return _masterState > kMSWaiting; }
 
@@ -98,6 +99,9 @@ private:
     enum State : uint8_t {
         kStateIdle,
         kStateError,
+        kStateRejected,
+
+        kStateMaxIdle,
 
         kStateSetData,
         kStateGetData,

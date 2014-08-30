@@ -21,6 +21,7 @@
 #include "log.h"
 #include "param.h"
 #include "firmware.h"
+#include "node.h"
 
 #include "../../../common/lin_defs.h"
 
@@ -146,6 +147,18 @@ bl_dump_memory(unsigned node)
 }
 
 void
+scan(unsigned node)
+{
+    Node::scan(node);
+
+    for (auto n : Node::nodes()) {
+        auto pset = n->params();
+
+        pset->print();
+    }
+}
+
+void
 usage()
 {
     warnx("usage: lintool [-l][-h][-n <node>][-f <file>] <command>");
@@ -158,6 +171,7 @@ usage()
     warnx("    history       Dump recent history from link");
     warnx("    trace         Trace LIN traffic (^C to exit)");
     warnx("    dump_params   Dump all parameters for <node>");
+    warnx("    scan          Scan for and list nodes");
     exit(1);
 }
 
@@ -165,7 +179,7 @@ int
 main(int argc, char *argv[])
 {
     int ch;
-    unsigned node = Bootloader::kNodeAddress;
+    unsigned node = Node::kNoNode;
 
     while ((ch = getopt(argc, argv, "f:ln:h")) != -1) {
         switch (ch) {
@@ -220,6 +234,11 @@ main(int argc, char *argv[])
 
     if (!strcmp(argv[0], "bl_dump_memory")) {
         bl_dump_memory(node);
+        exit(0);
+    }
+
+    if (!strcmp(argv[0], "scan")) {
+        scan(node);
         exit(0);
     }
 

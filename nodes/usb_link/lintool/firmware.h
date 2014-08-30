@@ -6,6 +6,7 @@
  * this stuff is worth it, you can buy me a beer in return.
  * ----------------------------------------------------------------------------
  */
+#pragma once
 
 #include <map>
 #include <list>
@@ -21,11 +22,9 @@ public:
     unsigned        max_address() const { return _bytes.rbegin()->first; }
     bool            get_bytes(unsigned base, unsigned count, uint8_t *buf) const;
 
-
     static Firmware *for_function(unsigned function);
 
 private:
-
     static std::list<Firmware *>    _firmwares;
 
     const char                      *_functionName;

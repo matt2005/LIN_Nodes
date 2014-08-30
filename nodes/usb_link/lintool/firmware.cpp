@@ -116,4 +116,5 @@ Firmware::get_bytes(unsigned base, unsigned count, uint8_t *buf) const
         base++;
         buf++;
     }
+    return result;
 }

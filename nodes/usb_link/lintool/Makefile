@@ -1,19 +1,17 @@
 USBFLAGS	:= $(shell pkg-config --cflags libusb-1.0)
 USBLIBS		:= $(shell pkg-config --libs libusb-1.0)
 
-SRCS		 = lintool.cpp			\
-		   firmware.cpp			\
-		   link.cpp			\
-		   log.cpp			\
-		   param.cpp			\
+SRCS		 = $(wildcard *.cpp)		\
 		   ../../../common/lin_defs.cpp
+
+HDRS		 = $(wildcard *.h)
 
 CXX		 = c++
 FLAGS		 = -std=gnu++11 $(USBFLAGS) -O0 -g -Wall
 
 PROG		 = lintool
 
-$(PROG):	$(SRCS)
+$(PROG):	$(SRCS) $(HDRS)
 	$(CXX) -o $@ $(FLAGS) $(SRCS) $(USBLIBS)
 
 .PHONY: clean

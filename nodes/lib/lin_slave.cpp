@@ -206,7 +206,7 @@ Slave::st_error_response(Response &resp, uint8_t err)
 
     resp.ServiceError.nad = _nad;
     resp.ServiceError.pci = pci::kSingleFrame;
-    resp.ServiceError.length = 2;
+    resp.ServiceError.length = 3;
     resp.ServiceError.sid = service_id::kErrorResponse;
     resp.ServiceError.original_sid = sid;
     resp.ServiceError.error = err;

@@ -129,6 +129,7 @@ void
 BLSlave::send_response()
 {
     uint16_t value = 0x0bad;
+    bool invalid = false;
 
     switch (_sendIndex) {
     case Generic::kParamProtocolVersion:
@@ -185,16 +186,24 @@ BLSlave::send_response()
         break;
 
     default:
+        invalid = true;
         break;
     }
 
     Response resp;
     resp.DataByID.nad = nad();
     resp.DataByID.pci = pci::kSingleFrame;
-    resp.DataByID.length = 5;
-    resp.DataByID.sid = (service_id::kReadDataByID | service_id::kResponseOffset);
-    resp.DataByID.index = _sendIndex;
-    resp.DataByID.value = value;
+    if (!invalid) {
+        resp.DataByID.length = 5;
+        resp.DataByID.sid = (service_id::kReadDataByID | service_id::kResponseOffset);
+        resp.DataByID.index = _sendIndex;
+        resp.DataByID.value = value;
+    } else {
+        resp.ServiceError.length = 3;
+        resp.ServiceError.sid = service_id::kErrorResponse;
+        resp.ServiceError.original_sid = service_id::kReadDataByID;
+        resp.ServiceError.error = service_error::kFunctionNotSupported;
+    }
 
     _sendIndex = kNoSendResponse;
 

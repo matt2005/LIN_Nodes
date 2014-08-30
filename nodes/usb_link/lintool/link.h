@@ -6,8 +6,10 @@
  * this stuff is worth it, you can buy me a beer in return.
  * ----------------------------------------------------------------------------
  */
+#pragma once
 
 #include <stdint.h>
+#include <stdexcept>
 #include <libusb-1.0/libusb.h>
 
 #include "../usbconfig.h"
@@ -15,6 +17,13 @@
 
 namespace Link
 {
+
+class NoParam : public std::runtime_error
+{
+public:
+    NoParam() : std::runtime_error("parameter not found") {}
+};
+
 // connect to the USB link
 extern void     connect();
 

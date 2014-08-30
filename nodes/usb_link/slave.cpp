@@ -214,17 +214,22 @@ ToolSlave::st_response_received(Response &resp)
 
         // is this a response to a current request?
         if ((_state == kStateWaitData) &&
-            (resp.SlaveResponse.nad == _nodeAddress) &&
-            (resp.SlaveResponse.sid == (service_id::kReadDataByID | service_id::kResponseOffset))) {
+            (resp.SlaveResponse.nad == _nodeAddress)) {
 
             // sanity-check the response
-            if ((resp.DataByID.length != 5) ||
-                (resp.DataByID.index != _dataAddress)) {
-                _state = kStateError;
-
-            } else {
+            if ((resp.DataByID.length == 5) &&
+                (resp.SlaveResponse.sid == (service_id::kReadDataByID | service_id::kResponseOffset)) &&
+                (resp.DataByID.index == _dataAddress)) {
                 _dataValue = resp.DataByID.value;
                 _state = kStateIdle;
+
+            } else if ((resp.ServiceError.length == 3) &&
+                       (resp.ServiceError.sid == service_id::kErrorResponse) &&
+                       (resp.ServiceError.original_sid == service_id::kReadDataByID) &&
+                       (resp.ServiceError.error == service_error::kFunctionNotSupported)) {
+                _state = kStateRejected;
+            } else {
+                _state = kStateError;
             }
         }
 

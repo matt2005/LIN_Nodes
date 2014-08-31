@@ -12,8 +12,14 @@
 #include <stdexcept>
 
 #include "firmware.h"
+#include "exceptions.h"
 
 namespace Upload
 {
+EXCEPTION(Exception, ExProtocol);
+EXCEPTION(Exception, ExBadFirmware);
+EXCEPTION(Exception, ExLink);
+EXCEPTION(Exception, ExCRCError);
+
 extern void upload(Firmware *fw);
 } // namespace Upload

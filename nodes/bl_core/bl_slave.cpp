@@ -91,6 +91,7 @@ BLSlave::st_response_received(Response &resp)
                 } else {
                     _pageStatus = bl_status::kPageCRCError;
                 }
+                break;
 
             case Bootloader::kParamDebugPointer:
                 _memoryPointer = resp.DataByID.value;
@@ -239,7 +240,7 @@ BLSlave::set_page_address(uint16_t address)
     if ((_pageAddress < BL_ADDR) && !(_pageAddress % SPM_PAGESIZE)) {
         _pageAddress = address;
         _pageOffset = 0;
-        _runningCrc = 0;
+        _runningCrc = 0xffff;
         _pageStatus = bl_status::kPageInProgress;
     } else {
         _pageStatus = bl_status::kPageAddressError;
@@ -250,7 +251,7 @@ bool
 BLSlave::add_page_byte(uint8_t byte)
 {
     if (_pageOffset < SPM_PAGESIZE) {
-        _runningCrc = _crc_xmodem_update(_runningCrc, byte);
+        _runningCrc = _crc_ccitt_update(_runningCrc, byte);
         uint8_t *p = (uint8_t *)&_pageBuffer[0];
         p[_pageOffset++] = byte;
         return true;
@@ -319,10 +320,10 @@ BLSlave::update_program_info()
 uint16_t
 BLSlave::get_program_crc(uint16_t length)
 {
-    uint16_t crc = 0;
+    uint16_t crc = 0xffff;
 
     for (uint16_t ptr = 0; ptr < length; ptr++) {
-        crc = _crc16_update(crc, pgm_read_byte(ptr));
+        crc = _crc_ccitt_update(crc, pgm_read_byte(ptr));
     }
 
     return crc;

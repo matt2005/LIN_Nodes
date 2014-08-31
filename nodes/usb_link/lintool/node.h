@@ -12,6 +12,7 @@
 
 #include "param.h"
 #include "firmware.h"
+#include "exceptions.h"
 
 class Node
 {
@@ -21,6 +22,9 @@ public:
 
     Node(unsigned address);
     ~Node();
+
+    EXCEPTION(Exception, ExScanFailed);
+    EXCEPTION(Exception, ExUpdateFailed);
 
     static void     scan(unsigned address = kNoNode);
     static bool     exists(unsigned address);
@@ -43,5 +47,6 @@ private:
     unsigned        _address;
 
     void            upload(Firmware *fw);
+    static void     _scan(unsigned address);
 };
 

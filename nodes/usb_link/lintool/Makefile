@@ -23,6 +23,6 @@ clean:
 
 .PHONY: reformat
 reformat:
-	../../../etc/reformat.sh \
+	@../../../etc/reformat.sh \
 		$(filter-out $(NO_FORMAT_SRCS),$(SRCS)) \
 		$(filter-out $(NO_FORMAT_SRCS),$(HDRS))

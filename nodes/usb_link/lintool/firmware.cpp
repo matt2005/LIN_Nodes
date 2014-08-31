@@ -30,11 +30,11 @@ Firmware::Firmware(const char *fromFile)
     FILE *fp = fopen(fromFile, "r");
 
     if (fp == nullptr) {
-        throw (std::runtime_error("can't open file"));
+        RAISE(ExIOFailed, "cannot open firmware file '" << fromFile << "'");
     }
 
     if (fscanf(fp, "Node: %64s %64s\n", functionName, revision) != 2) {
-        throw (std::runtime_error("invalid format"));
+        RAISE(ExIOFailed, "invalid firmware file '" << fromFile << "'");
     }
 
     _functionName = strdup(functionName);
@@ -66,7 +66,7 @@ Firmware::Firmware(const char *fromFile)
 
             while (count--) {
                 if (sscanf(line + pos, "%2x", &byte) != 1) {
-                    throw (std::runtime_error("malformed intelhex"));
+                    RAISE(ExIOFailed, "malformed firmware file '" << fromFile << "'");
                 }
 
                 sum += byte;
@@ -76,23 +76,24 @@ Firmware::Firmware(const char *fromFile)
             }
 
             if (sscanf(line + pos, "%2x", &byte) != 1) {
-                throw (std::runtime_error("malformed intelhex"));
+                RAISE(ExIOFailed, "malformed firmware file '" << fromFile << "'");
             }
 
             sum = (~sum + 1) & 0xff;
 
             if (sum != byte) {
-                throw (std::runtime_error("intelhex checksum error"));
+                RAISE(ExIOFailed, "checksum error in firmware file '" << fromFile << "'");
             }
         }
     }
 
     if (_bytes.empty()) {
-        throw (std::runtime_error("no data in file"));
+        RAISE(ExIOFailed, "no data in firmware file '" << fromFile << "'");
     }
 
     // add ourselves to the list
     _firmwares.push_back(this);
+    warnx("loaded %s from %s", functionName, fromFile);
 }
 
 Firmware::~Firmware()
@@ -106,7 +107,7 @@ Firmware *
 Firmware::for_function(unsigned function)
 {
     if (_firmwares.size() == 0) {
-        throw (std::runtime_error("no firmware file loaded"));
+        RAISE(ExLookup, "no firmware file loaded");
     }
 
     const char *name = Encoding::info(kEncoding_board_function, function);
@@ -124,12 +125,14 @@ Firmware *
 Firmware::implied_firmware()
 {
     if (_firmwares.size() == 0) {
-        throw (std::runtime_error("no firmware file loaded"));
+        RAISE(ExLookup, "no firmware file loaded");
     }
+
     if (_firmwares.size() == 1) {
         return _firmwares.front();
     }
-    throw (std::runtime_error("too many firmware files loaded"));
+
+    RAISE(ExLookup, "too many firmware files loaded");
 }
 
 bool

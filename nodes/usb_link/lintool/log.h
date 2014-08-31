@@ -15,4 +15,13 @@ extern void acquire();
 extern void print();
 extern void clear();
 extern void trace();
+
+class LogWrapper
+{
+public:
+    ~LogWrapper() { Log::acquire(); }
+};
+
+#define LIN_LOG_BLOCK    Log::LogWrapper _lw_##__LINE__;
+
 } // namespace Log

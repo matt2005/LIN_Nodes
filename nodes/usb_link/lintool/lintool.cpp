@@ -57,11 +57,13 @@ scan(int argc, char *argv[])
         case 'n':
             node = strtoul(optarg, nullptr, 0);
             break;
+
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
             usage();
         }
     }
+
     argc -= optind;
     argv += optind;
 
@@ -69,12 +71,12 @@ scan(int argc, char *argv[])
 
     for (auto n : Node::nodes()) {
         auto pset = n->params();
-        pset.sync();
         char *str = pset.identity();
 
         printf("%s", str);
         free(str);
     }
+    Log::print();
 }
 
 void
@@ -88,11 +90,13 @@ dump_params(int argc, char *argv[])
         case 'n':
             node = strtoul(optarg, nullptr, 0);
             break;
+
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
             usage();
         }
     }
+
     argc -= optind;
     argv += optind;
 
@@ -110,6 +114,7 @@ dump_params(int argc, char *argv[])
         pset.sync();
         pdb.store(pset);
     }
+
     pdb.write(pfile);
 }
 
@@ -124,11 +129,13 @@ load_params(int argc, char *argv[])
         case 'n':
             node = strtoul(optarg, nullptr, 0);
             break;
+
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
             usage();
         }
     }
+
     argc -= optind;
     argv += optind;
 
@@ -144,7 +151,7 @@ load_params(int argc, char *argv[])
     try {
         pdb.read(pfile);
 
-    } catch (std::runtime_error e) {
+    } catch (std::runtime_error &e) {
         errx(1, "ERROR: reading %s: %s", pfile, e.what());
     }
 
@@ -172,7 +179,7 @@ load_params(int argc, char *argv[])
             try {
                 pset.set(dbparam.second);
 
-            } catch (std::runtime_error e) {
+            } catch (std::runtime_error &e) {
                 warnx("WARNING: node %u does not support parameter %s.",
                       nodeAddress, dbparam.second.get("name").toString().c_str());
             }
@@ -186,36 +193,49 @@ update(int argc, char *argv[])
     unsigned node = Node::kNoNode;
     int ch;
 
+    for (unsigned i = 0; i < argc; i++) {
+        warnx("%u: %s", i, argv[i]);
+    }
+
     while ((ch = getopt(argc, argv, "n:")) != -1) {
         switch (ch) {
         case 'n':
             node = strtoul(optarg, nullptr, 0);
+            warnx("node %u", node);
             break;
+
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
             usage();
         }
     }
+
     argc -= optind;
     argv += optind;
 
     Node::scan(node);
 
-    for (unsigned arg = 1; arg < argc; arg++) {
+    for (unsigned arg = 0; arg < argc; arg++) {
         try {
+            warnx("fw: %u %s", arg, argv[arg]);
             new Firmware(argv[arg]);
+
         } catch (std::runtime_error &e) {
             errx(1, "ERROR: loading firmware from %s: %s", argv[arg], e.what());
         }
     }
 
     for (auto n : Node::nodes()) {
-        n->update();
+        try {
+            n->update();
+
+        } catch (Exception &e) {
+            warnx("WARNING: failed updating node@%u: %s", n->address(), e.what());
+        }
     }
 }
 
-struct
-{
+struct {
     const char  *cmd;
     const char *help;
     void (*func)(int argc, char *argv[]);
@@ -265,8 +285,7 @@ struct
         "    To update a node in recovery mode that has lost its type, pass -n 32 and supply\n"
         "    only one firmware file. The node will take the identity specified in the file.\n",
         update
-    },
-    {nullptr, nullptr, nullptr}
+    }
 };
 
 void
@@ -275,9 +294,11 @@ usage()
     warnx("Usage:");
     fprintf(stderr, "Common options:\n");
     fprintf(stderr, "        -l  enable logging\n");
+
     for (auto cmd : commands) {
         fprintf(stderr, "%s", cmd.help);
     }
+
     exit(1);
 }
 
@@ -291,19 +312,35 @@ main(int argc, char *argv[])
         case 'l':
             Log::enable = true;
             break;
+
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
             usage();
         }
     }
+
     argc -= optind;
     argv += optind;
+    optreset = 1;
+    optind = 1;
 
-    Link::connect();
+    try {
+        Link::connect();
+
+    } catch (Exception &e) {
+        errx(1, "connection failed: %s", e.what());
+    }
 
     for (auto cmd : commands) {
         if (!strcmp(cmd.cmd, argv[0])) {
-            cmd.func(argc, argv);
+            try {
+                cmd.func(argc, argv);
+
+            } catch (Exception &e) {
+                errx(1, "%s failed: %s", cmd.cmd, e.what());
+                Log::print();
+            }
+
             exit(0);
         }
     }

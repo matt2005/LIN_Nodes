@@ -13,6 +13,7 @@
 #include "node.h"
 #include "link.h"
 #include "upload.h"
+#include "log.h"
 
 Node::List  Node::_list;
 static std::list<unsigned> knownAddresses = {
@@ -52,24 +53,39 @@ Node::~Node()
 void
 Node::scan(unsigned address)
 {
+    _list.clear();
 
     if (address == kNoNode) {
-        _list.clear();
 
         for (auto addr : knownAddresses) {
-            Node::scan(addr);
+            Node::_scan(addr);
         }
-
     } else {
-        Link::set_node(address);
-        Link::enable_master();
+        Node::_scan(address);
+    }
+    if (nodes().empty()) {
+        RAISE(ExScanFailed, "no nodes found");
+    }
+}
 
-        try {
-            Link::read_data(Generic::kParamProtocolVersion);
-            new Node(address);
+void
+Node::_scan(unsigned address)
+{
+    Link::set_node(address);
+    Link::enable_master();
 
-        } catch (...) {
-        }
+    try {
+        Link::read_param(Generic::kParamProtocolVersion);
+        new Node(address);
+
+    } catch (Link::ExLINError &e) {
+        // probably a timeout, ignore this
+    } catch (Exception &e) {
+        // fatal link error
+        RAISE(ExScanFailed, "scan failed: " << e.what());
+
+    } catch (...) {
+        throw;
     }
 }
 
@@ -103,14 +119,20 @@ Node::update()
     // get the firmware
     Firmware *fw;
 
-    if (function() == board_function::kUnconfigured) {
-        fw = Firmware::implied_firmware();
-    } else {
-        fw = Firmware::for_function(function());
+    try {
+        if (function() == board_function::kUnconfigured) {
+            fw = Firmware::implied_firmware();
+
+        } else {
+            fw = Firmware::for_function(function());
+        }
+
+    } catch (Exception &e) {
+        RAISE(ExUpdateFailed, e.what());
     }
 
     if (fw == nullptr) {
-        throw (std::runtime_error("no firmware available"));
+        RAISE(ExUpdateFailed, "no firmware available");
     }
 
     // select the node

@@ -68,7 +68,7 @@ acquire()
         auto result = Link::request_in(kUSBRequestGetHistory, 0, 0, (unsigned char *)&hist, sizeof(hist));
 
         if (result < 0) {
-            throw (std::runtime_error("trace: USB error"));
+            RAISE(Link::ExUSBFailed, "USB error " << result);
         }
 
         if (result == 0) {
@@ -76,7 +76,7 @@ acquire()
         }
 
         if (result != sizeof(hist)) {
-            throw (std::runtime_error("trace: bad packet size"));
+            RAISE(Link::ExLinkFailed, "bad trace packet size" << result);
         }
 
         auto ent = new Entry(hist);
@@ -134,7 +134,7 @@ Entry::print()
     printf("%05d:%02x: ", _time, _fid);
 
     if (_responseValid) {
-        printf("%02x %02x %02x %02x %02x %02x %02x %02x : <%s>\n",
+        printf("%02x %02x %02x %02x %02x %02x %02x %02x : <%s>",
                _resp._bytes[0],
                _resp._bytes[1],
                _resp._bytes[2],
@@ -147,14 +147,11 @@ Entry::print()
 
         switch (_fid) {
         case kFrameIDMasterRequest:
-            printf("%s nad: %u pci: %u length: %u sid: 0x%02x <%s>\n",
-                   pad,
+            printf(" nad: %u pci: %u length: %u sid: 0x%02x",
                    _resp.MasterRequest.nad,
                    _resp.MasterRequest.pci,
                    _resp.MasterRequest.length,
-                   _resp.MasterRequest.sid,
-                   Encoding::info(kEncoding_service_id, _resp.MasterRequest.sid) ? : "unknown");
-            printf("%s", pad);
+                   _resp.MasterRequest.sid);
 
             if (_resp.MasterRequest.length >= 2) {
                 printf(" d1: %u", _resp.MasterRequest.d1);
@@ -176,12 +173,31 @@ Entry::print()
                 printf(" d5: %u", _resp.MasterRequest.d5);
             }
 
+            printf("\n%s <%s>",
+                   pad,
+                   Encoding::info(kEncoding_service_id, _resp.MasterRequest.sid) ? : "unknown");
+
+            switch (_resp.MasterRequest.sid & ~service_id::kResponseOffset) {
+            case service_id::kReadDataByID:
+                printf(" index: 0x%04x", _resp.DataByID.index);
+                break;
+            case service_id::kWriteDataByID:
+                printf(" index: 0x%04x value: 0x%04x", _resp.DataByID.index, _resp.DataByID.value);
+                break;
+            case service_id::kDataDump:
+                printf(" {%02x,%02x,%02x,%02x}",
+                    _resp.MasterRequest.d1, 
+                    _resp.MasterRequest.d2, 
+                    _resp.MasterRequest.d3, 
+                    _resp.MasterRequest.d4);
+                break;
+            }
             printf("\n");
+
             break;
 
         case kFrameIDSlaveResponse:
-            printf("%s nad: %u pci: %u length: %u",
-                   pad,
+            printf(" nad: %u pci: %u length: %u",
                    _resp.SlaveResponse.nad,
                    _resp.SlaveResponse.pci,
                    _resp.SlaveResponse.length);
@@ -195,10 +211,7 @@ Entry::print()
 
             } else if (_resp.SlaveResponse.sid & service_id::kResponseOffset) {
                 uint8_t sid = _resp.SlaveResponse.sid & ~service_id::kResponseOffset;
-                printf(" sid: 0x%02x <%s>\n",
-                       _resp.SlaveResponse.sid,
-                       Encoding::info(kEncoding_service_id, sid) ? : "unknown");
-                printf("%s", pad);
+                printf(" sid: 0x%02x", _resp.SlaveResponse.sid);
 
                 if (_resp.SlaveResponse.length >= 2) {
                     printf(" d1: %u", _resp.SlaveResponse.d1);
@@ -220,8 +233,16 @@ Entry::print()
                     printf(" d5: %u", _resp.SlaveResponse.d5);
                 }
 
-                printf("\n");
+                printf("\n%s <%s>",
+                       pad,
+                       Encoding::info(kEncoding_service_id, sid) ? : "unknown");
 
+                switch (sid) {
+                case service_id::kReadDataByID:
+                    printf(" index: 0x%04x value: 0x%04x", _resp.DataByID.index, _resp.DataByID.value);
+                    break;
+                }
+                printf("\n");
             } else {
                 printf(" sid 0x%02x <malformed>\n", _resp.SlaveResponse.sid);
             }

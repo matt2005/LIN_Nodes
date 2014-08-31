@@ -13,11 +13,16 @@
 
 #include <stdint.h>
 
+#include "exceptions.h"
+
 class Firmware
 {
 public:
     Firmware(const char *fromFile);
     ~Firmware();
+
+    EXCEPTION(Exception, ExIOFailed);
+    EXCEPTION(Exception, ExLookup);
 
     unsigned        max_address() const { return _bytes.rbegin()->first; }
     bool            get_bytes(unsigned base, unsigned count, uint8_t *buf) const;

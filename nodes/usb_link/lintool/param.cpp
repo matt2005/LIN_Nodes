@@ -39,14 +39,15 @@ Param::set(unsigned value)
 {
     if (encoding() != kEncoding_none) {
         if (Encoding::invalid(encoding(), value)) {
-            throw (std::runtime_error("bad value"));
+            RAISE(ExBadValue, "invalid value " << value << " for " << name());
         }
 
         _value = value;
         _dirty = true;
         _valid = true;
     }
-    throw (std::runtime_error("attempt to set value with no encoding"));
+
+    RAISE(ExNotSettable, "cannot set " << name());
 }
 
 unsigned
@@ -55,7 +56,8 @@ Param::get()
     if (_valid) {
         return _value;
     }
-    throw (std::runtime_error("attempt to get not-valid parameter"));
+
+    RAISE(ExNotValid, name() << " is not valid at this time");
 }
 
 bool
@@ -92,9 +94,9 @@ Param::fetch()
     _valid = true;
 
     try {
-        _value = Link::read_data(_address);
+        _value = Link::read_param(_address);
 
-    } catch (Link::NoParam) {
+    } catch (Link::ExNoParam) {
         _valid = false;
 
     } catch (...) {
@@ -108,7 +110,7 @@ Param::store()
 {
     // XXX magic numbers
     if ((_address >= 0x400) && (_address < 0x500)) {
-        Link::write_data(_address, _value);
+        Link::write_param(_address, _value);
         _dirty = false;
     }
 }
@@ -189,7 +191,7 @@ ParamSet::ParamSet(unsigned node) :
     Link::set_node(_node);
     Link::enable_master();
 
-    _function = Link::read_data(Generic::kParamBoardFunction);
+    _function = Link::read_param(Generic::kParamBoardFunction);
 
     // XXX magic numbers
     for (auto address = 0; address < 0x10000U; address++) {
@@ -256,7 +258,7 @@ ParamSet::set(Jzon::Node &fromNode)
         }
     }
 
-    throw (std::runtime_error("parameter does not exist"));
+    RAISE(Param::ExNonexistent, "parameter " << name << "does not exist in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -278,7 +280,7 @@ ParamDB::read(const char *path)
     _rootNode = parser.parseFile(path);
 
     if (!_rootNode.isValid()) {
-        throw (std::runtime_error("JSON parse error"));
+        RAISE(ExJSONInvalid, "parse error");
     }
 }
 

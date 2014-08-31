@@ -16,6 +16,7 @@
 #include <lin_defs.h>
 
 #include "Jzon.h"
+#include "exceptions.h"
 
 class Param
 {
@@ -27,6 +28,11 @@ public:
         _address(address),
         _function(function)
     {}
+
+    EXCEPTION(Exception, ExBadValue);
+    EXCEPTION(Exception, ExNotSettable);
+    EXCEPTION(Exception, ExNotValid);
+    EXCEPTION(Exception, ExNonexistent);
 
     char                *format() const;
 
@@ -84,6 +90,8 @@ class ParamDB
 public:
     ParamDB();
     ~ParamDB();
+
+    EXCEPTION(Exception, ExJSONInvalid);
 
     void                read(const char *path);
     void                write(const char *path);

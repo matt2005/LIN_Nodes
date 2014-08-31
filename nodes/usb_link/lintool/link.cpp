@@ -12,6 +12,7 @@
 #include <err.h>
 
 #include "link.h"
+#include "log.h"
 
 namespace Link
 {
@@ -32,7 +33,7 @@ connect()
     int err = 0;
 
     if (cnt < 0) {
-        throw (std::runtime_error("usb: no devices"));
+        RAISE(ExUSBFailed, "no USB devices found");
     }
 
     for (i = 0; i < cnt; i++) {
@@ -40,7 +41,7 @@ connect()
         struct libusb_device_descriptor desc;
 
         if (libusb_get_device_descriptor(device, &desc)) {
-            throw (std::runtime_error("usb: can't get descriptor"));
+            RAISE(ExUSBFailed, "can't get device descriptor");
         }
 
         // match on vendor/device ID for now
@@ -50,14 +51,14 @@ connect()
             err = libusb_open(device, &_usb_handle);
 
             if (err) {
-                throw (std::runtime_error("usb: open failed"));
+                RAISE(ExUSBFailed, "open failed");
             }
 
             return;
         }
     }
 
-    throw (std::runtime_error("LIN interface not found"));
+    RAISE(ExConnectFailed, "LIN interface not found");
 }
 
 
@@ -103,11 +104,12 @@ request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *d
 void
 enable_master(bool enable)
 {
+    LIN_LOG_BLOCK;
+
     int result = request(kUSBRequestEnableMaster, enable ? 1 : 0, 0);
 
     if (result < 0) {
-        warnx("usb error %d", result);
-        throw (std::runtime_error("enable_master: USB error"));
+        RAISE(ExUSBFailed, "USB error " << result);
     }
 
     for (unsigned tries = 0; tries < 20; tries++) {
@@ -119,7 +121,7 @@ enable_master(bool enable)
         }
     }
 
-    throw (std::runtime_error("enable_master: cannot claim the bus"));
+    RAISE(ExLinkFailed, "cannot claim the bus");
 }
 
 uint8_t
@@ -130,7 +132,7 @@ get_status(unsigned which, unsigned index)
     int result = request_in(kUSBRequestStatus, index, which, &status, sizeof(status));
 
     if (result < 0) {
-        throw (std::runtime_error("get_status: USB error"));
+        RAISE(ExUSBFailed, "USB error " << result);
     }
 
     return status;
@@ -142,73 +144,79 @@ set_node(uint8_t node)
     int result = request(kUSBRequestSelectNode, node, 0);
 
     if (result < 0) {
-        throw (std::runtime_error("set_node: USB error"));
+        RAISE(ExUSBFailed, "USB error " << result);
     }
 }
 
 void
-write_data(uint16_t index, uint16_t value)
+write_param(uint16_t index, uint16_t value)
 {
+    LIN_LOG_BLOCK;
+
     int result = request(kUSBRequestWriteData, value, index);
 
     if (result < 0) {
-        throw (std::runtime_error("write_data: USB error"));
+        RAISE(ExUSBFailed, "USB error " << result);
     }
 }
 
 void
 bulk_data(uint8_t *bytes)
 {
-    uint8_t value, index;
+    LIN_LOG_BLOCK;
 
-    value = bytes[0] + ((uint16_t)(bytes[1]) << 8);
-    index = bytes[2] + ((uint16_t)(bytes[3]) << 8);
+    uint16_t value, index;
+
+    value = bytes[0] + (((uint16_t)bytes[1]) << 8);
+    index = bytes[2] + (((uint16_t)bytes[3]) << 8);
 
     int result = request(kUSBRequestSendBulk, value, index);
 
     if (result < 0) {
-        throw (std::runtime_error("bulk_data: USB error"));
+        RAISE(ExUSBFailed, "USB error " << result);
     }
 
 }
 
 uint16_t
-read_data(uint16_t index)
+read_param(uint16_t index)
 {
+    LIN_LOG_BLOCK;
+
     int result;
     uint16_t value;
 
     result = request(kUSBRequestReadData, 0, index);
 
     if (result < 0) {
-        throw (std::runtime_error("read_data: USB error in setup"));
+        RAISE(ExUSBFailed, "USB error " << result);
     }
 
     uint8_t status = get_status();
 
     if (status & RQ_STATUS_DATA_ERROR) {
-        throw (std::runtime_error("read_data: LIN error"));
+        RAISE(ExLINError, "error in LIN data phase");
     }
 
     if (status & RQ_STATUS_DATA_REJECTED) {
-        throw (NoParam());
+        RAISE(ExNoParam, "node rejected parameter");
     }
 
     if (status & RQ_STATUS_DATA_READY) {
         result = request_in(kUSBRequestReadResult, 0, 0, (uint8_t *)&value, sizeof(value));
 
         if (result < 0) {
-            throw (std::runtime_error("read_data: USB error in fetch"));
+            RAISE(ExUSBFailed, "USB error " << result);
         }
 
         if (result != 2) {
-            throw (std::runtime_error("read_data: data error in fetch"));
+            RAISE(ExLinkFailed, "bad data size in read: " << result);
         }
 
         return value;
     }
 
-    throw (std::runtime_error("read_data: data phase error"));
+    RAISE(ExLINError, "data phase error");
 
 }
 

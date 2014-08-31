@@ -12,17 +12,19 @@
 #include <stdexcept>
 #include <libusb-1.0/libusb.h>
 
+#include "exceptions.h"
+
 #include "../usbconfig.h"
 #include "../requests.h"
 
 namespace Link
 {
 
-class NoParam : public std::runtime_error
-{
-public:
-    NoParam() : std::runtime_error("parameter not found") {}
-};
+EXCEPTION(Exception, ExConnectFailed);
+EXCEPTION(Exception, ExUSBFailed);
+EXCEPTION(Exception, ExLinkFailed);
+EXCEPTION(Exception, ExLINError);
+EXCEPTION(Exception, ExNoParam);
 
 // connect to the USB link
 extern void     connect();
@@ -36,8 +38,8 @@ extern int      request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, 
 extern void     enable_master(bool enable = true);
 extern uint8_t  get_status(unsigned which = RQ_STATUS_FLAGS, unsigned index = 0);
 extern void     set_node(uint8_t node);
-extern void     write_data(uint16_t index, uint16_t value);
-extern uint16_t read_data(uint16_t index);
+extern void     write_param(uint16_t index, uint16_t value);
+extern uint16_t read_param(uint16_t index);
 extern void     bulk_data(uint8_t *bytes);
 
 // diagnostics

@@ -46,6 +46,16 @@ Param::set(unsigned value)
         _dirty = true;
         _valid = true;
     }
+    throw (std::runtime_error("attempt to set value with no encoding"));
+}
+
+unsigned
+Param::get()
+{
+    if (_valid) {
+        return _value;
+    }
+    throw (std::runtime_error("attempt to get not-valid parameter"));
 }
 
 bool
@@ -165,7 +175,7 @@ Param::info() const
     const char *str = Encoding::info(encoding(), _value);
 
     if (str == nullptr) {
-        str = "-";
+        str = "";
     }
 
     return str;
@@ -177,7 +187,7 @@ ParamSet::ParamSet(unsigned node) :
     _node(node)
 {
     Link::set_node(_node);
-    Link::enable_master(true);
+    Link::enable_master();
 
     _function = Link::read_data(Generic::kParamBoardFunction);
 

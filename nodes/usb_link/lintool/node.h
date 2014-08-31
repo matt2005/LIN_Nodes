@@ -11,6 +11,7 @@
 #include <list>
 
 #include "param.h"
+#include "firmware.h"
 
 class Node
 {
@@ -30,12 +31,17 @@ public:
     static Node     *matching(unsigned address, unsigned function);
 
     unsigned        address() const { return _address; }
+    unsigned        function() { return params().function(); }
     ParamSet        &params() { return _params; }
+
+    void            update();
 
 private:
     static List     _list;
 
     ParamSet        _params;
     unsigned        _address;
+
+    void            upload(Firmware *fw);
 };
 

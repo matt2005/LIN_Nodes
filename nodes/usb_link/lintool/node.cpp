@@ -8,9 +8,11 @@
  */
 
 #include <err.h>
+#include <unistd.h>
 
 #include "node.h"
 #include "link.h"
+#include "upload.h"
 
 Node::List  Node::_list;
 static std::list<unsigned> knownAddresses = {
@@ -35,6 +37,18 @@ static std::list<unsigned> knownAddresses = {
     Bootloader::kNodeAddress
 };
 
+Node::Node(unsigned address) :
+    _params(address),
+    _address(address)
+{
+    _list.push_back(this);
+}
+
+Node::~Node()
+{
+    _list.remove(this);
+}
+
 void
 Node::scan(unsigned address)
 {
@@ -48,7 +62,7 @@ Node::scan(unsigned address)
 
     } else {
         Link::set_node(address);
-        Link::enable_master(true);
+        Link::enable_master();
 
         try {
             Link::read_data(Generic::kParamProtocolVersion);
@@ -63,7 +77,7 @@ bool
 Node::exists(unsigned address)
 {
     for (auto n : _list) {
-        if (n->_address == address) {
+        if (n->address() == address) {
             return true;
         }
     }
@@ -75,7 +89,7 @@ Node *
 Node::matching(unsigned address, unsigned function)
 {
     for (auto n : _list) {
-        if ((n->_address == address) && (n->params().function() == function)) {
+        if ((n->address() == address) && (n->function() == function)) {
             return n;
         }
     }
@@ -83,14 +97,27 @@ Node::matching(unsigned address, unsigned function)
     return nullptr;
 }
 
-Node::Node(unsigned address) :
-    _params(address),
-    _address(address)
+void
+Node::update()
 {
-    _list.push_back(this);
+    // get the firmware
+    Firmware *fw;
+
+    if (function() == board_function::kUnconfigured) {
+        fw = Firmware::implied_firmware();
+    } else {
+        fw = Firmware::for_function(function());
+    }
+
+    if (fw == nullptr) {
+        throw (std::runtime_error("no firmware available"));
+    }
+
+    // select the node
+    Link::set_node(address());
+    Link::enable_master();
+
+    // upload firmware to the selected node
+    Upload::upload(fw);
 }
 
-Node::~Node()
-{
-    _list.remove(this);
-}

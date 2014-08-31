@@ -23,7 +23,7 @@ public:
     typedef std::list<Param *>  List;
     static const unsigned   kMaxAddress = 0xffff;
 
-    Param(unsigned address, unsigned function) :
+    Param(unsigned address, unsigned function = board_function::kUnknown) :
         _address(address),
         _function(function)
     {}
@@ -32,9 +32,9 @@ public:
 
     void                sync();
     void                set(unsigned value);
+    unsigned            get();
     bool                exists() const;
 
-    unsigned            get() const { return _value; }
     unsigned            address() const { return _address; }
     const char          *name() const;
     const char          *info() const;
@@ -42,12 +42,12 @@ public:
     bool                is_dirty() const { return _dirty; }
 
 private:
-    bool        _valid = false;
-    bool        _dirty = false;
-    unsigned    _value = 0;
+    bool                _valid = false;
+    bool                _dirty = false;
+    unsigned            _value = 0;
 
-    unsigned    _address;
-    unsigned    _function;
+    unsigned            _address;
+    unsigned            _function;
 
     void                fetch();
     void                store();

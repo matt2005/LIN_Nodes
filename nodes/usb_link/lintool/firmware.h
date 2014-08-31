@@ -23,6 +23,7 @@ public:
     bool            get_bytes(unsigned base, unsigned count, uint8_t *buf) const;
 
     static Firmware *for_function(unsigned function);
+    static Firmware *implied_firmware();
 
 private:
     static std::list<Firmware *>    _firmwares;

@@ -105,6 +105,10 @@ Firmware::~Firmware()
 Firmware *
 Firmware::for_function(unsigned function)
 {
+    if (_firmwares.size() == 0) {
+        throw (std::runtime_error("no firmware file loaded"));
+    }
+
     const char *name = Encoding::info(kEncoding_board_function, function);
 
     for (auto p : _firmwares) {
@@ -114,6 +118,18 @@ Firmware::for_function(unsigned function)
     }
 
     return nullptr;
+}
+
+Firmware *
+Firmware::implied_firmware()
+{
+    if (_firmwares.size() == 0) {
+        throw (std::runtime_error("no firmware file loaded"));
+    }
+    if (_firmwares.size() == 1) {
+        return _firmwares.front();
+    }
+    throw (std::runtime_error("too many firmware files loaded"));
 }
 
 bool

@@ -32,7 +32,8 @@ scan(unsigned node)
 
     for (auto n : Node::nodes()) {
         auto pset = n->params();
-        char *str = pset->identity();
+        pset.sync();
+        char *str = pset.identity();
 
         printf("%s", str);
         free(str);
@@ -48,23 +49,18 @@ dump_params(unsigned node, const char *pfile)
         errx(1, "ERROR: cannot save all parameters, there is a node that needs recovery");
     }
 
-    FILE *fp;
-
     if (pfile == nullptr) {
-        fp = stdout;
-    } else {
-        fp = fopen(pfile, "w");
-        if (fp == nullptr) {
-            err(1, "ERROR: %s", pfile);
-        }
+        pfile = "/dev/stdout";
     }
+
+    ParamDB pdb;
 
     for (auto n : Node::nodes()) {
         auto pset = n->params();
-
-        pset->write(fp);
+        pset.sync();
+        pdb.store(pset);
     }
-    fclose(fp);
+    pdb.write(pfile);
 }
 
 void
@@ -79,6 +75,40 @@ load_params(unsigned node, const char *pfile)
         errx(1, "ERROR: missing parameter filename");
     }
 
+    ParamDB pdb;
+    try {
+        pdb.read(pfile);
+    } catch (std::runtime_error e) {
+        errx(1, "ERROR: reading %s: %s", pfile, e.what());
+    }
+
+    for (auto dbnode : pdb.nodes()) {
+        unsigned nodeAddress = dbnode.second.get("node").toInt();
+        unsigned nodeFunction = dbnode.second.get("function").toInt();
+
+        auto node = Node::matching(nodeAddress, nodeFunction);
+        if (node == nullptr) {
+            if (Node::exists(nodeAddress)) {
+                warnx("WARNING: node at %u does not match function %u.", nodeAddress, nodeFunction);
+            } else {
+                warnx("WARNING: node at %u is not responding.", nodeAddress);
+            }
+            continue;
+        }
+
+        auto pset = node->params();
+        auto dbparams = dbnode.second.get("parameters");
+        for (auto dbparam : dbparams) {
+            try {
+                pset.set(dbparam.second);
+            } catch (std::runtime_error e) {
+                warnx("WARNING: node %u does not support parameter %s.", 
+                    nodeAddress, dbparam.second.get("name").toString().c_str());
+            }
+        }
+    }
+
+#if 0
     FILE *fp = fopen(pfile, "r");
     if (fp == nullptr) {
         err(1, "ERROR: %s", pfile);
@@ -87,10 +117,11 @@ load_params(unsigned node, const char *pfile)
     for (auto n : Node::nodes()) {
         auto pset = n->params();
 
-        pset->read(fp);
-        pset->sync();
+        pset.read(fp);
+        pset.sync();
     }
     fclose(fp);
+#endif
 }
 
 void
@@ -119,42 +150,42 @@ void
 usage()
 {
     warnx("Usage:");
-    fprintf(stderr, "Common options:");
-    fprintf(stderr, "        -l  enable logging");
-    fprintf(stderr, "        -n  set specific node address");
-    fprintf(stderr, "        -p  specify a parameter file");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool [-h]");
-    fprintf(stderr, "    Print this help.");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool trace");
-    fprintf(stderr, "    Dump recent history from link.");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool trace");
-    fprintf(stderr, "    Trace LIN traffic (^C to exit).");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool [-l] status");
-    fprintf(stderr, "    Print link status.");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool [-l][-n <node>] <scan>");
-    fprintf(stderr, "    Scan for a specific node or list all nodes.");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool [-l][-n <node>][-p <file>] dump_params");
-    fprintf(stderr, "    Dump parameters to file (or stdout if -p not specified).");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool [-l][-n <node>][-p <file>] load_params");
-    fprintf(stderr, "    Load parameters fril file (or stdin if -p not specified).");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool [-l][-n <node>] -f <file> [-f <file> ...] update");
-    fprintf(stderr, "    Update node firmware for one or more nodes. Only nodes for which firmware");
-    fprintf(stderr, "    is loaded can be updated. If -n is not specified, all nodes will be updated.");
-    fprintf(stderr, "        -f  add a firmware file (may be specified more than once)");
-    fprintf(stderr, "");
-    fprintf(stderr, "lintool [-l] -f <file> recover");
-    fprintf(stderr, "    Recover a node in bootloader mode. If the node advertises a type, it must");
-    fprintf(stderr, "    match a type in the specified firmware file.");
-    fprintf(stderr, "        -f  specify a firmware file");
-    fprintf(stderr, "");
+    fprintf(stderr, "Common options:\n");
+    fprintf(stderr, "        -l  enable logging\n");
+    fprintf(stderr, "        -n  set specific node address\n");
+    fprintf(stderr, "        -p  specify a parameter file\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool [-h]\n");
+    fprintf(stderr, "    Print this help.\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool trace\n");
+    fprintf(stderr, "    Dump recent history from link.\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool trace\n");
+    fprintf(stderr, "    Trace LIN traffic (^C to exit).\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool [-l] status\n");
+    fprintf(stderr, "    Print link status.\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool [-l][-n <node>] <scan>\n");
+    fprintf(stderr, "    Scan for a specific node or list all nodes.\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool [-l][-n <node>][-p <file>] dump_params\n");
+    fprintf(stderr, "    Dump parameters to file (or stdout if -p not specified).\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool [-l][-n <node>][-p <file>] load_params\n");
+    fprintf(stderr, "    Load parameters fril file (or stdin if -p not specified).\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool [-l][-n <node>] -f <file> [-f <file> ...] update\n");
+    fprintf(stderr, "    Update node firmware for one or more nodes. Only nodes for which firmware\n");
+    fprintf(stderr, "    is loaded can be updated. If -n is not specified, all nodes will be updated.\n");
+    fprintf(stderr, "        -f  add a firmware file (may be specified more than once)\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "lintool [-l] -f <file> recover\n");
+    fprintf(stderr, "    Recover a node in bootloader mode. If the node advertises a type, it must\n");
+    fprintf(stderr, "    match a type in the specified firmware file.\n");
+    fprintf(stderr, "        -f  specify a firmware file\n");
+    fprintf(stderr, "\n");
     exit(1);
 }
 

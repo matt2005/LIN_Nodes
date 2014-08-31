@@ -27,12 +27,15 @@ public:
     static void     clear() { _list.clear(); }
     static List     &nodes() { return _list; }
 
+    static Node     *matching(unsigned address, unsigned function);
+
     unsigned        address() const { return _address; }
-    ParamSet        *params() const { return new ParamSet(_address); }
+    ParamSet        &params() { return _params; }
 
 private:
     static List     _list;
 
+    ParamSet        _params;
     unsigned        _address;
 };
 

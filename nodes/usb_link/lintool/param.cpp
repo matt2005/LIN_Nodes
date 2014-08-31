@@ -14,130 +14,12 @@
 #include "param.h"
 #include "link.h"
 
-ParamSet::ParamSet(unsigned node) :
-    _node(node)
-{
-    Link::set_node(_node);
-    Link::enable_master(true);
-
-    _function = Link::read_data(Generic::kParamBoardFunction);    
-
-    // XXX magic numbers
-    for (auto address = 0; address < 0x10000U; address++) {
-        if (Param(address, _function).exists()) {
-            auto p = new Param(address, _function);
-
-            _params.push_back(p);
-        }
-    }
-
-    // get parameters
-    sync();
-}
-
-ParamSet::~ParamSet()
-{
-    for (;;) {
-        auto p = _params.front();
-        if (p == nullptr) {
-            break;
-        }
-        _params.pop_front();
-        delete p;
-    }
-}
-
-char *
-ParamSet::identity() const
-{
-    char *str;
-    asprintf(&str, "[%u:%u:%s]\n", _node, _function, Encoding::info(kEncoding_board_function, _function));
-    return str;
-}
-
-void
-ParamSet::write(FILE *fp) const
-{
-    char *str = identity(); 
-    fprintf(fp, "%s", str);
-    free(str);
-
-    for (auto p : _params) {
-        if (p->is_valid()) {
-            auto str = p->format();
-            fprintf(fp, "%s\n", str);
-            delete str;
-        }
-    }
-}
-
-void
-ParamSet::read(FILE *fp)
-{
-    // rewind the file
-    fseek(fp, 0, SEEK_SET);
-
-    // scan the file looking for our parameters
-    char line[100];
-    bool reading = false;
-    while (!feof(fp)) {
-        line[0] = '\0';
-        fgets(line, sizeof(line), fp);
-
-        unsigned node, address, function, value;
-        char name[100];
-        char info[100];
-
-        // is this an address line?
-        if (sscanf(line, "[%u:%u:%s]", &node, &function, name) == 3) {
-            if (reading) {
-                break;
-            } else if ((node == _node) && (function == _function)) {
-                reading = true;
-            }
-        } else if (sscanf(line, "%u %s %u %s", &address, name, &value, info) != 4) {
-            if (reading) {
-                // XXX here is where we would do parameter conversions...
-                for (auto p : _params) {
-                    if (p->address() == address) {
-                        p->set(value);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void
-ParamSet::sync()
-{
-    for (auto p : _params) {
-        p->sync();
-    }
-}
-
-bool
-ParamSet::is_dirty() const
-{
-    for (auto p : _params) {
-        if (p->is_dirty()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 char *
 Param::format() const
 {
     char *str;
-    const char *info = Encoding::info(encoding(), _value);
-    if (info == nullptr) {
-        info = "-";
-    }
 
-    asprintf(&str, "%u %s %u %s", _address, name(), _value, info);
+    asprintf(&str, "%u %s %u %s", _address, name(), _value, info());
     return str;
 }
 
@@ -154,10 +36,14 @@ Param::sync()
 void
 Param::set(unsigned value) 
 {
-    // XXX validation
-    _value = value;
-    _dirty = true;
-    _valid = true;
+    if (encoding() != kEncoding_none) {
+        if (Encoding::invalid(encoding(), value)) {
+            throw (std::runtime_error("bad value"));
+        }
+        _value = value;
+        _dirty = true;
+        _valid = true;
+    }
 }
 
 bool
@@ -257,3 +143,150 @@ Param::name() const
     return str;    
 }
 
+const char *
+Param::info() const
+{
+    const char *str = Encoding::info(encoding(), _value);
+    if (str == nullptr) {
+        str = "-";
+    }
+    return str;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+ParamSet::ParamSet(unsigned node) :
+    _node(node)
+{
+    Link::set_node(_node);
+    Link::enable_master(true);
+
+    _function = Link::read_data(Generic::kParamBoardFunction);    
+
+    // XXX magic numbers
+    for (auto address = 0; address < 0x10000U; address++) {
+        if (Param(address, _function).exists()) {
+            auto p = new Param(address, _function);
+
+            _params.push_back(p);
+        }
+    }
+}
+
+ParamSet::~ParamSet()
+{
+    for (;;) {
+        auto p = _params.front();
+        if (p == nullptr) {
+            break;
+        }
+        _params.pop_front();
+        delete p;
+    }
+}
+
+char *
+ParamSet::identity() const
+{
+    char *str;
+    asprintf(&str, "[%u:%u:%s]\n", _node, _function, Encoding::info(kEncoding_board_function, _function));
+    return str;
+}
+
+bool
+ParamSet::is_dirty() const
+{
+    for (auto p : _params) {
+        if (p->is_dirty()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void
+ParamSet::sync()
+{
+    for (auto p : _params) {
+        p->sync();
+    }
+}
+
+void
+ParamSet::set(Jzon::Node &fromNode)
+{
+    const char *name = fromNode.get("name").toString().c_str();
+    unsigned value = fromNode.get("value").toInt();
+
+    for (auto p : _params) {
+        if (!strcmp(p->name(), name)) {
+            p->set(value);
+            return;
+        }
+    }
+    throw (std::runtime_error("parameter does not exist"));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+ParamDB::ParamDB() :
+    _rootNode(Jzon::array())
+{
+}
+
+ParamDB::~ParamDB()
+{
+}
+
+void
+ParamDB::read(const char *path)
+{
+    Jzon::Parser parser;
+
+    _rootNode = parser.parseFile(path);
+    if (!_rootNode.isValid()) {
+        throw (std::runtime_error("JSON parse error"));
+    }
+}
+
+void
+ParamDB::write(const char *path)
+{
+    const Jzon::Format compactFormat = { true, true, false, 4 };
+    Jzon::Writer writer(compactFormat);
+
+    writer.writeFile(_rootNode, path);
+}
+
+void
+ParamDB::store(ParamSet &pset)
+{
+    auto node = Jzon::object();
+
+    node.add("name", Encoding::info(kEncoding_board_function, pset.function()));
+    node.add("node", (int)pset.node());
+    node.add("function", (int)pset.function());
+
+    auto params = Jzon::array();
+    for (auto p : pset.list()) {
+
+        if (p->is_valid()) {
+            auto param = Jzon::object();
+
+            param.add("name", p->name());
+            param.add("address", (int)p->address());
+            param.add("value", (int)p->get());
+            param.add("info", p->info());
+
+            params.add(param);
+        }
+    }
+    node.add("parameters", params);
+    _rootNode.add(node);
+}
+
+void
+ParamDB::fetch(ParamSet &pset)
+{
+
+}

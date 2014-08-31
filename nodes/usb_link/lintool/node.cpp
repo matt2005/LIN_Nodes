@@ -67,7 +67,19 @@ Node::exists(unsigned address)
     return false;
 }
 
+Node *
+Node::matching(unsigned address, unsigned function)
+{
+    for (auto n : _list) {
+        if ((n->_address == address) && (n->params().function() == function)) {
+            return n;
+        }
+    }
+    return nullptr;
+}
+
 Node::Node(unsigned address) :
+    _params(address),
     _address(address)
 {
     _list.push_back(this);

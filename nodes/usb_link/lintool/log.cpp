@@ -7,13 +7,15 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <stdexcept>
-#include <list>
 #include <err.h>
+
+#include <list>
+#include <stdexcept>
+
+#include <lin_defs.h>
+
 #include "log.h"
 #include "link.h"
-
-#include "../../../common/lin_defs.h"
 
 namespace Log
 {

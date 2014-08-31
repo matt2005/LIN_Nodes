@@ -211,4 +211,39 @@ read_data(uint16_t index)
 
 }
 
+void
+print_status()
+{
+    warnx("free memory: %u", Link::get_status(RQ_STATUS_FREEMEM));
+    uint8_t status = Link::get_status();
+
+    if (status & RQ_STATUS_DATA_READY) {
+        warnx("status: DATA_READY");
+    }
+
+    if (status & RQ_STATUS_DATA_ERROR) {
+        warnx("status: DATA_ERROR");
+    }
+
+    if (status & RQ_STATUS_AWAKE) {
+        warnx("status: AWAKE");
+    }
+
+    if (status & RQ_STATUS_WAITING) {
+        warnx("status: WAITING");
+    }
+
+    if (status & RQ_STATUS_MASTER) {
+        warnx("status: MASTER");
+    }
+
+    warnx("Errors:");
+    warnx("  line:            %u", Link::get_status(RQ_STATUS_LINERR, 0));
+    warnx("  checksum:        %u", Link::get_status(RQ_STATUS_LINERR, 1));
+    warnx("  parity:          %u", Link::get_status(RQ_STATUS_LINERR, 2));
+    warnx("  framing:         %u", Link::get_status(RQ_STATUS_LINERR, 3));
+    warnx("  synchronisation: %u", Link::get_status(RQ_STATUS_LINERR, 4));
+    warnx("  protocol:        %u", Link::get_status(RQ_STATUS_LINERR, 5));
+}
+
 } // namespace Link

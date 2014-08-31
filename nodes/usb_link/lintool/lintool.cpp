@@ -8,22 +8,22 @@
  */
 
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <err.h>
 #include <getopt.h>
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <stdexcept>
+
+#include <lin_defs.h>
 
 #include "link.h"
 #include "log.h"
 #include "param.h"
 #include "firmware.h"
 #include "node.h"
-
-#include "../../../common/lin_defs.h"
 
 void
 scan(unsigned node)
@@ -55,51 +55,42 @@ dump_params(unsigned node, const char *pfile)
     } else {
         fp = fopen(pfile, "w");
         if (fp == nullptr) {
-            err(1, "open %s", pfile);
+            err(1, "ERROR: %s", pfile);
         }
     }
 
     for (auto n : Node::nodes()) {
         auto pset = n->params();
 
-        pset->print(fp);
+        pset->write(fp);
     }
     fclose(fp);
 }
 
 void
-print_status()
+load_params(unsigned node, const char *pfile)
 {
-    warnx("free memory: %u", Link::get_status(RQ_STATUS_FREEMEM));
-    uint8_t status = Link::get_status();
+    Node::scan(node);
 
-    if (status & RQ_STATUS_DATA_READY) {
-        warnx("status: DATA_READY");
+    if (Node::exists(Bootloader::kNodeAddress) && (node == Node::kNoNode)) {
+        errx(1, "ERROR: cannot load all parameters, there is a node that needs recovery");
+    }
+    if (pfile == nullptr) {
+        errx(1, "ERROR: missing parameter filename");
     }
 
-    if (status & RQ_STATUS_DATA_ERROR) {
-        warnx("status: DATA_ERROR");
+    FILE *fp = fopen(pfile, "r");
+    if (fp == nullptr) {
+        err(1, "ERROR: %s", pfile);
     }
 
-    if (status & RQ_STATUS_AWAKE) {
-        warnx("status: AWAKE");
-    }
+    for (auto n : Node::nodes()) {
+        auto pset = n->params();
 
-    if (status & RQ_STATUS_WAITING) {
-        warnx("status: WAITING");
+        pset->read(fp);
+        pset->sync();
     }
-
-    if (status & RQ_STATUS_MASTER) {
-        warnx("status: MASTER");
-    }
-
-    warnx("Errors:");
-    warnx("  line:            %u", Link::get_status(RQ_STATUS_LINERR, 0));
-    warnx("  checksum:        %u", Link::get_status(RQ_STATUS_LINERR, 1));
-    warnx("  parity:          %u", Link::get_status(RQ_STATUS_LINERR, 2));
-    warnx("  framing:         %u", Link::get_status(RQ_STATUS_LINERR, 3));
-    warnx("  synchronisation: %u", Link::get_status(RQ_STATUS_LINERR, 4));
-    warnx("  protocol:        %u", Link::get_status(RQ_STATUS_LINERR, 5));
+    fclose(fp);
 }
 
 void
@@ -123,11 +114,12 @@ bl_dump_memory(unsigned node)
     Log::print();
 }
 
+
 void
 usage()
 {
     warnx("Usage:");
-    fprintf(stderr, "Common options:")
+    fprintf(stderr, "Common options:");
     fprintf(stderr, "        -l  enable logging");
     fprintf(stderr, "        -n  set specific node address");
     fprintf(stderr, "        -p  specify a parameter file");
@@ -154,13 +146,13 @@ usage()
     fprintf(stderr, "    Load parameters fril file (or stdin if -p not specified).");
     fprintf(stderr, "");
     fprintf(stderr, "lintool [-l][-n <node>] -f <file> [-f <file> ...] update");
-    fprintf(stderr, "    Update node firmware for one or more nodes. Only nodes for which firmware")
-    fprintf(stderr, "    is loaded can be updated. If -n is not specified, all nodes will be updated.")
+    fprintf(stderr, "    Update node firmware for one or more nodes. Only nodes for which firmware");
+    fprintf(stderr, "    is loaded can be updated. If -n is not specified, all nodes will be updated.");
     fprintf(stderr, "        -f  add a firmware file (may be specified more than once)");
     fprintf(stderr, "");
     fprintf(stderr, "lintool [-l] -f <file> recover");
-    fprintf(stderr, "    Recover a node in bootloader mode. If the node advertises a type, it must")
-    fprintf(stderr, "    match a type in the specified firmware file.")
+    fprintf(stderr, "    Recover a node in bootloader mode. If the node advertises a type, it must");
+    fprintf(stderr, "    match a type in the specified firmware file.");
     fprintf(stderr, "        -f  specify a firmware file");
     fprintf(stderr, "");
     exit(1);
@@ -176,7 +168,11 @@ main(int argc, char *argv[])
     while ((ch = getopt(argc, argv, "f:hln:p:")) != -1) {
         switch (ch) {
         case 'f':
-            new Firmware(optarg);
+            try {
+                new Firmware(optarg);
+            } catch (std::runtime_error &e) {
+                errx(1, "ERROR: loading firmware from %s: %s", optarg, e.what());
+            }
             break;
         case 'l':
             Log::enable = true;
@@ -188,7 +184,7 @@ main(int argc, char *argv[])
             pfile = strdup(optarg);
             break;
         default:
-            warnx("unrecognised argument '-%c'", ch);
+            warnx("ERROR: unrecognised argument '-%c'", ch);
             // FALLTHROUGH
         case 'h':
             usage();
@@ -206,7 +202,7 @@ main(int argc, char *argv[])
     Link::connect();
 
     if (!strcmp(argv[0], "status")) {
-        print_status();
+        Link::print_status();
         exit(0);
     }
 
@@ -217,6 +213,11 @@ main(int argc, char *argv[])
 
     if (!strcmp(argv[0], "dump_params")) {
         dump_params(node, pfile);
+        exit(0);
+    }
+
+    if (!strcmp(argv[0], "load_params")) {
+        load_params(node, pfile);
         exit(0);
     }
 

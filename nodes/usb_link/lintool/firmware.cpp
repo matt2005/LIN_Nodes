@@ -7,16 +7,18 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <stdexcept>
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
 #include <unistd.h> 
 #include <err.h>
 
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <stdexcept>
+
+#include <lin_defs.h>
+
 #include "firmware.h"
 
-#include "../../../common/lin_defs.h"
 
 std::list<Firmware *>   Firmware::_firmwares;
 
@@ -27,11 +29,11 @@ Firmware::Firmware(const char *fromFile)
 
     FILE *fp = fopen(fromFile, "r");
     if (fp == nullptr) {
-        throw (std::runtime_error("firmware: can't open file"));
+        throw (std::runtime_error("can't open file"));
     }
 
     if (fscanf(fp, "Node: %64s %64s\n", functionName, revision) != 2) {
-        throw (std::runtime_error("firmware: invalid format"));
+        throw (std::runtime_error("invalid format"));
     }
 
     _functionName = strdup(functionName);
@@ -58,7 +60,7 @@ Firmware::Firmware(const char *fromFile)
             unsigned byte;
             while (count--) {
                 if (sscanf(line + pos, "%2x", &byte) != 1) {
-                    throw (std::runtime_error("firmware: malformed intelhex"));
+                    throw (std::runtime_error("malformed intelhex"));
                 }
                 sum += byte;
                 _bytes[address] = byte;
@@ -66,13 +68,17 @@ Firmware::Firmware(const char *fromFile)
                 pos += 2;
             }
             if (sscanf(line + pos, "%2x", &byte) != 1) {
-                throw (std::runtime_error("firmware: malformed intelhex"));
+                throw (std::runtime_error("malformed intelhex"));
             }
             sum = (~sum + 1) & 0xff;
             if (sum != byte) {
-                throw (std::runtime_error("firmware: intelhex checksum error"));
+                throw (std::runtime_error("intelhex checksum error"));
             }
         }
+    }
+
+    if (_bytes.empty()) {
+        throw (std::runtime_error("no data in file"));
     }
 
     // add ourselves to the list

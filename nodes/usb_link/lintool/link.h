@@ -40,4 +40,7 @@ extern void     write_data(uint16_t index, uint16_t value);
 extern uint16_t read_data(uint16_t index);
 extern void     bulk_data(uint8_t *bytes);
 
+// diagnostics
+extern void     print_status();
+
 } // namespace Link

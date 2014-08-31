@@ -9,10 +9,11 @@
 #pragma once
 
 #include <stdint.h>
+
 #include <list>
 #include <cstdio>
 
-#include "../../../common/lin_defs.h"
+#include <lin_defs.h>
 
 class Param
 {
@@ -32,6 +33,7 @@ public:
     bool                exists() const;
 
     unsigned            get() const { return _value; }
+    unsigned            address() const { return _address; }
     bool                is_valid() const { return _valid; }
     bool                is_dirty() const { return _dirty; }
 
@@ -52,11 +54,14 @@ private:
 class ParamSet
 {
 public:
+    typedef std::list<ParamSet *>   List;
+
     ParamSet(unsigned node);
     ~ParamSet();
 
     char                *identity() const;
-    void                print(FILE *fp = stdout) const;
+    void                write(FILE *fp = stdout) const;
+    void                read(FILE *fp);
 
     void                sync();
     bool                is_dirty() const;

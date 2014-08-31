@@ -1,13 +1,14 @@
 USBFLAGS	:= $(shell pkg-config --cflags libusb-1.0)
 USBLIBS		:= $(shell pkg-config --libs libusb-1.0)
+COMMON		:= ../../../common
 
 SRCS		 = $(wildcard *.cpp)		\
-		   ../../../common/lin_defs.cpp
+		   $(COMMON)/lin_defs.cpp
 
 HDRS		 = $(wildcard *.h)
 
 CXX		 = c++
-FLAGS		 = -std=gnu++11 $(USBFLAGS) -O0 -g -Wall
+FLAGS		 = -std=gnu++11 $(USBFLAGS) -O0 -g -Wall -I$(COMMON)
 
 PROG		 = lintool
 

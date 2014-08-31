@@ -56,7 +56,7 @@ ParamSet::identity() const
 }
 
 void
-ParamSet::print(FILE *fp) const
+ParamSet::write(FILE *fp) const
 {
     char *str = identity(); 
     fprintf(fp, "%s", str);
@@ -67,6 +67,44 @@ ParamSet::print(FILE *fp) const
             auto str = p->format();
             fprintf(fp, "%s\n", str);
             delete str;
+        }
+    }
+}
+
+void
+ParamSet::read(FILE *fp)
+{
+    // rewind the file
+    fseek(fp, 0, SEEK_SET);
+
+    // scan the file looking for our parameters
+    char line[100];
+    bool reading = false;
+    while (!feof(fp)) {
+        line[0] = '\0';
+        fgets(line, sizeof(line), fp);
+
+        unsigned node, address, function, value;
+        char name[100];
+        char info[100];
+
+        // is this an address line?
+        if (sscanf(line, "[%u:%u:%s]", &node, &function, name) == 3) {
+            if (reading) {
+                break;
+            } else if ((node == _node) && (function == _function)) {
+                reading = true;
+            }
+        } else if (sscanf(line, "%u %s %u %s", &address, name, &value, info) != 4) {
+            if (reading) {
+                // XXX here is where we would do parameter conversions...
+                for (auto p : _params) {
+                    if (p->address() == address) {
+                        p->set(value);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -96,7 +134,7 @@ Param::format() const
     char *str;
     const char *info = Encoding::info(encoding(), _value);
     if (info == nullptr) {
-        info = "";
+        info = "-";
     }
 
     asprintf(&str, "%u %s %u %s", _address, name(), _value, info);

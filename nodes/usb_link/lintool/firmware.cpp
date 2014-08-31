@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <unistd.h> 
+#include <unistd.h>
 #include <err.h>
 
 #include <cstdio>
@@ -28,6 +28,7 @@ Firmware::Firmware(const char *fromFile)
     char revision[64];
 
     FILE *fp = fopen(fromFile, "r");
+
     if (fp == nullptr) {
         throw (std::runtime_error("can't open file"));
     }
@@ -48,29 +49,38 @@ Firmware::Firmware(const char *fromFile)
         unsigned count;
         unsigned address;
         unsigned type;
+
         if (sscanf(line, ":%2x%4x%2x", &count, &address, &type) != 3) {
             continue;
         }
+
         unsigned sum = count + (address >> 8) + (address & 0xff) + type;
         unsigned pos = 9;
+
         if (type == 1) {
             break;
         }
+
         if (type == 0) {
             unsigned byte;
+
             while (count--) {
                 if (sscanf(line + pos, "%2x", &byte) != 1) {
                     throw (std::runtime_error("malformed intelhex"));
                 }
+
                 sum += byte;
                 _bytes[address] = byte;
                 address++;
                 pos += 2;
             }
+
             if (sscanf(line + pos, "%2x", &byte) != 1) {
                 throw (std::runtime_error("malformed intelhex"));
             }
+
             sum = (~sum + 1) & 0xff;
+
             if (sum != byte) {
                 throw (std::runtime_error("intelhex checksum error"));
             }
@@ -102,6 +112,7 @@ Firmware::for_function(unsigned function)
             return p;
         }
     }
+
     return nullptr;
 }
 
@@ -115,12 +126,15 @@ Firmware::get_bytes(unsigned base, unsigned count, uint8_t *buf) const
 
         if (it == _bytes.end()) {
             *buf = 0xff;
+
         } else {
             *buf = it->second;
             result = true;
         }
+
         base++;
         buf++;
     }
+
     return result;
 }

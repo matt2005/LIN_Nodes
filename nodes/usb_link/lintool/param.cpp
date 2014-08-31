@@ -28,18 +28,20 @@ Param::sync()
 {
     if (!_valid) {
         fetch();
+
     } else if (_dirty) {
         store();
     }
 }
 
 void
-Param::set(unsigned value) 
+Param::set(unsigned value)
 {
     if (encoding() != kEncoding_none) {
         if (Encoding::invalid(encoding(), value)) {
             throw (std::runtime_error("bad value"));
         }
+
         _value = value;
         _dirty = true;
         _valid = true;
@@ -56,15 +58,20 @@ Param::exists() const
     switch (_function) {
     case board_function::kMaster:
         return Master::param_exists(_address);
+
     case board_function::kPowerV1:
         return PowerV1::param_exists(_address);
+
     case board_function::kPowerV3:
         return PowerV3::param_exists(_address);
+
     case board_function::kUnconfigured:
         return Bootloader::param_exists(_address);
+
     default:
         break;
     }
+
     return false;
 }
 
@@ -73,10 +80,13 @@ Param::fetch()
 {
     _dirty = false;
     _valid = true;
+
     try {
         _value = Link::read_data(_address);
+
     } catch (Link::NoParam) {
         _valid = false;
+
     } catch (...) {
         _valid = false;
         throw;
@@ -102,12 +112,15 @@ Param::encoding() const
     case board_function::kMaster:
         value = Master::param_encoding(_address);
         break;
+
     case board_function::kPowerV1:
         value = PowerV1::param_encoding(_address);
         break;
+
     case board_function::kPowerV3:
         value = PowerV3::param_encoding(_address);
         break;
+
     case board_function::kUnconfigured:
         value = Bootloader::param_encoding(_address);
         break;
@@ -125,12 +138,15 @@ Param::name() const
     case board_function::kMaster:
         str = Master::param_name(_address);
         break;
+
     case board_function::kPowerV1:
         str = PowerV1::param_name(_address);
         break;
+
     case board_function::kPowerV3:
         str = PowerV3::param_name(_address);
         break;
+
     case board_function::kUnconfigured:
         str = Bootloader::param_name(_address);
         break;
@@ -140,16 +156,18 @@ Param::name() const
         str = Generic::param_name(_address);
     }
 
-    return str;    
+    return str;
 }
 
 const char *
 Param::info() const
 {
     const char *str = Encoding::info(encoding(), _value);
+
     if (str == nullptr) {
         str = "-";
     }
+
     return str;
 }
 
@@ -161,7 +179,7 @@ ParamSet::ParamSet(unsigned node) :
     Link::set_node(_node);
     Link::enable_master(true);
 
-    _function = Link::read_data(Generic::kParamBoardFunction);    
+    _function = Link::read_data(Generic::kParamBoardFunction);
 
     // XXX magic numbers
     for (auto address = 0; address < 0x10000U; address++) {
@@ -177,9 +195,11 @@ ParamSet::~ParamSet()
 {
     for (;;) {
         auto p = _params.front();
+
         if (p == nullptr) {
             break;
         }
+
         _params.pop_front();
         delete p;
     }
@@ -201,6 +221,7 @@ ParamSet::is_dirty() const
             return true;
         }
     }
+
     return false;
 }
 
@@ -224,6 +245,7 @@ ParamSet::set(Jzon::Node &fromNode)
             return;
         }
     }
+
     throw (std::runtime_error("parameter does not exist"));
 }
 
@@ -244,6 +266,7 @@ ParamDB::read(const char *path)
     Jzon::Parser parser;
 
     _rootNode = parser.parseFile(path);
+
     if (!_rootNode.isValid()) {
         throw (std::runtime_error("JSON parse error"));
     }
@@ -268,6 +291,7 @@ ParamDB::store(ParamSet &pset)
     node.add("function", (int)pset.function());
 
     auto params = Jzon::array();
+
     for (auto p : pset.list()) {
 
         if (p->is_valid()) {
@@ -281,6 +305,7 @@ ParamDB::store(ParamSet &pset)
             params.add(param);
         }
     }
+
     node.add("parameters", params);
     _rootNode.add(node);
 }

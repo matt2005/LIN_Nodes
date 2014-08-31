@@ -5,6 +5,8 @@ COMMON		:= ../../../common
 SRCS		 = $(wildcard *.cpp)		\
 		   $(COMMON)/lin_defs.cpp
 
+NO_FORMAT_SRCS	 = Jzon% $(COMMON)%
+
 HDRS		 = $(wildcard *.h)
 
 CXX		 = c++
@@ -21,4 +23,6 @@ clean:
 
 .PHONY: reformat
 reformat:
-	../../../etc/reformat.sh $(SRCS)
+	../../../etc/reformat.sh \
+		$(filter-out $(NO_FORMAT_SRCS),$(SRCS)) \
+		$(filter-out $(NO_FORMAT_SRCS),$(HDRS))

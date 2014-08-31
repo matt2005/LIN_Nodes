@@ -41,9 +41,11 @@ Node::scan(unsigned address)
 
     if (address == kNoNode) {
         _list.clear();
+
         for (auto addr : knownAddresses) {
             Node::scan(addr);
         }
+
     } else {
         Link::set_node(address);
         Link::enable_master(true);
@@ -51,6 +53,7 @@ Node::scan(unsigned address)
         try {
             Link::read_data(Generic::kParamProtocolVersion);
             new Node(address);
+
         } catch (...) {
         }
     }
@@ -64,6 +67,7 @@ Node::exists(unsigned address)
             return true;
         }
     }
+
     return false;
 }
 
@@ -75,6 +79,7 @@ Node::matching(unsigned address, unsigned function)
             return n;
         }
     }
+
     return nullptr;
 }
 

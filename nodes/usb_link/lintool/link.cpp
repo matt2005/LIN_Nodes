@@ -189,6 +189,7 @@ read_data(uint16_t index)
     if (status & RQ_STATUS_DATA_ERROR) {
         throw (std::runtime_error("read_data: LIN error"));
     }
+
     if (status & RQ_STATUS_DATA_REJECTED) {
         throw (NoParam());
     }

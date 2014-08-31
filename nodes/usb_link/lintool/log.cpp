@@ -29,16 +29,16 @@ public:
         _time(hist.time),
         _fid(hist.frame[0] & RQ_HISTORY_FID_MASK),
         _responseValid(hist.frame[0] & RQ_HISTORY_RESPONSE_VALID)
-        {
-            _resp._bytes[0] = hist.frame[1];
-            _resp._bytes[1] = hist.frame[2];
-            _resp._bytes[2] = hist.frame[3];
-            _resp._bytes[3] = hist.frame[4];
-            _resp._bytes[4] = hist.frame[5];
-            _resp._bytes[5] = hist.frame[6];
-            _resp._bytes[6] = hist.frame[7];
-            _resp._bytes[7] = hist.frame[8];
-        }
+    {
+        _resp._bytes[0] = hist.frame[1];
+        _resp._bytes[1] = hist.frame[2];
+        _resp._bytes[2] = hist.frame[3];
+        _resp._bytes[3] = hist.frame[4];
+        _resp._bytes[4] = hist.frame[5];
+        _resp._bytes[5] = hist.frame[6];
+        _resp._bytes[6] = hist.frame[7];
+        _resp._bytes[7] = hist.frame[8];
+    }
 
     void            print();
 
@@ -61,6 +61,7 @@ acquire()
     if (!enable) {
         return;
     }
+
     for (;;) {
         struct RQHistory hist;
 
@@ -92,6 +93,7 @@ print()
         if (ent == nullptr) {
             break;
         }
+
         history.pop_front();
         ent->print();
         delete ent;
@@ -102,12 +104,14 @@ void
 clear()
 {
     acquire();
+
     for (;;) {
         auto ent = history.front();
 
         if (ent == nullptr) {
             break;
         }
+
         history.pop_front();
         delete ent;
     }
@@ -117,6 +121,7 @@ void
 trace()
 {
     enable = true;
+
     for (;;) {
         acquire();
         print();

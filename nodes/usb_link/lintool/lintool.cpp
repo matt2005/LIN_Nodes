@@ -60,6 +60,7 @@ dump_params(unsigned node, const char *pfile)
         pset.sync();
         pdb.store(pset);
     }
+
     pdb.write(pfile);
 }
 
@@ -71,13 +72,16 @@ load_params(unsigned node, const char *pfile)
     if (Node::exists(Bootloader::kNodeAddress) && (node == Node::kNoNode)) {
         errx(1, "ERROR: cannot load all parameters, there is a node that needs recovery");
     }
+
     if (pfile == nullptr) {
-        errx(1, "ERROR: missing parameter filename");
+        pfile = "/dev/stdin";
     }
 
     ParamDB pdb;
+
     try {
         pdb.read(pfile);
+
     } catch (std::runtime_error e) {
         errx(1, "ERROR: reading %s: %s", pfile, e.what());
     }
@@ -87,41 +91,31 @@ load_params(unsigned node, const char *pfile)
         unsigned nodeFunction = dbnode.second.get("function").toInt();
 
         auto node = Node::matching(nodeAddress, nodeFunction);
+
         if (node == nullptr) {
             if (Node::exists(nodeAddress)) {
                 warnx("WARNING: node at %u does not match function %u.", nodeAddress, nodeFunction);
+
             } else {
                 warnx("WARNING: node at %u is not responding.", nodeAddress);
             }
+
             continue;
         }
 
         auto pset = node->params();
         auto dbparams = dbnode.second.get("parameters");
+
         for (auto dbparam : dbparams) {
             try {
                 pset.set(dbparam.second);
+
             } catch (std::runtime_error e) {
-                warnx("WARNING: node %u does not support parameter %s.", 
-                    nodeAddress, dbparam.second.get("name").toString().c_str());
+                warnx("WARNING: node %u does not support parameter %s.",
+                      nodeAddress, dbparam.second.get("name").toString().c_str());
             }
         }
     }
-
-#if 0
-    FILE *fp = fopen(pfile, "r");
-    if (fp == nullptr) {
-        err(1, "ERROR: %s", pfile);
-    }
-
-    for (auto n : Node::nodes()) {
-        auto pset = n->params();
-
-        pset.read(fp);
-        pset.sync();
-    }
-    fclose(fp);
-#endif
 }
 
 void
@@ -135,13 +129,16 @@ bl_dump_memory(unsigned node)
         Link::write_data(Bootloader::kParamDebugPointer, address);
         unsigned readback = Link::read_data(Bootloader::kParamDebugPointer);
         Log::acquire();
+
         if (readback != address) {
             Log::print();
             errx(1, "address pointer readback error, got %u expected %u", readback, address);
         }
+
         uint8_t value = Link::read_data(Bootloader::kParamMemory);
         warnx("%d: %02x", address, value);
     }
+
     Log::print();
 }
 
@@ -201,22 +198,29 @@ main(int argc, char *argv[])
         case 'f':
             try {
                 new Firmware(optarg);
+
             } catch (std::runtime_error &e) {
                 errx(1, "ERROR: loading firmware from %s: %s", optarg, e.what());
             }
+
             break;
+
         case 'l':
             Log::enable = true;
             break;
+
         case 'n':
             node = strtoul(optarg, 0, 0);
             break;
+
         case 'p':
             pfile = strdup(optarg);
             break;
+
         default:
             warnx("ERROR: unrecognised argument '-%c'", ch);
-            // FALLTHROUGH
+
+        // FALLTHROUGH
         case 'h':
             usage();
         }

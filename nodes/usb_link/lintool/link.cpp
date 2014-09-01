@@ -109,7 +109,8 @@ enable_master(bool enable)
     int result = request(kUSBRequestEnableMaster, enable ? 1 : 0, 0);
 
     if (result < 0) {
-        RAISE(ExUSBFailed, "USB error " << result);
+        warnx("master failed");
+        RAISE(ExUSBFailed, "master: USB error " << result);
     }
 
     for (unsigned tries = 0; tries < 20; tries++) {
@@ -132,7 +133,7 @@ get_status(unsigned which, unsigned index)
     int result = request_in(kUSBRequestStatus, index, which, &status, sizeof(status));
 
     if (result < 0) {
-        RAISE(ExUSBFailed, "USB error " << result);
+        RAISE(ExUSBFailed, "status: USB error " << result);
     }
 
     return status;
@@ -144,7 +145,7 @@ set_node(uint8_t node)
     int result = request(kUSBRequestSelectNode, node, 0);
 
     if (result < 0) {
-        RAISE(ExUSBFailed, "USB error " << result);
+        RAISE(ExUSBFailed, "set node: USB error " << result);
     }
 }
 
@@ -156,7 +157,7 @@ write_param(uint16_t index, uint16_t value)
     int result = request(kUSBRequestWriteData, value, index);
 
     if (result < 0) {
-        RAISE(ExUSBFailed, "USB error " << result);
+        RAISE(ExUSBFailed, "write: USB error " << result);
     }
 }
 
@@ -173,7 +174,7 @@ bulk_data(uint8_t *bytes)
     int result = request(kUSBRequestSendBulk, value, index);
 
     if (result < 0) {
-        RAISE(ExUSBFailed, "USB error " << result);
+        RAISE(ExUSBFailed, "bulk: USB error " << result);
     }
 
 }
@@ -192,7 +193,7 @@ read_param(uint16_t index)
         result = request(kUSBRequestReadData, 0, index);
 
         if (result < 0) {
-            RAISE(ExUSBFailed, "USB error " << result);
+            RAISE(ExUSBFailed, "read1: USB error " << result);
         }
 
         status = get_status();
@@ -216,7 +217,7 @@ read_param(uint16_t index)
         result = request_in(kUSBRequestReadResult, 0, 0, (uint8_t *)&value, sizeof(value));
 
         if (result < 0) {
-            RAISE(ExUSBFailed, "USB error " << result);
+            RAISE(ExUSBFailed, "read2: USB error " << result);
         }
 
         if (result != 2) {

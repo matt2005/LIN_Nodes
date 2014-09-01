@@ -68,7 +68,7 @@ acquire()
         auto result = Link::request_in(kUSBRequestGetHistory, 0, 0, (unsigned char *)&hist, sizeof(hist));
 
         if (result < 0) {
-            RAISE(Link::ExUSBFailed, "USB error " << result);
+            RAISE(Link::ExUSBFailed, "acquire: USB error " << result);
         }
 
         if (result == 0) {

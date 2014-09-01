@@ -250,8 +250,6 @@ BLSlave::run_program()
         : "z" (pgm_read_word(kInfoResetVector) >> 1)
         :
     );
-
-    Board::panic(Board::kPanicCodeAssert);
 }
 
 void

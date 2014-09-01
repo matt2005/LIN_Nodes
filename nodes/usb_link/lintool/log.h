@@ -19,7 +19,14 @@ extern void trace();
 class LogWrapper
 {
 public:
-    ~LogWrapper() { Log::acquire(); }
+    ~LogWrapper() 
+    {
+        try {
+            Log::acquire();
+        } catch (...) {
+            // eat any exception here...
+        }
+    }
 };
 
 #define LIN_LOG_BLOCK    Log::LogWrapper _lw_##__LINE__;

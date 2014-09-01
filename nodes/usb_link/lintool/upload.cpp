@@ -294,11 +294,10 @@ upload(Firmware *fw, bool readback)
     }
 
 //    dump_page(0, pagesize);
-    dump_page(0x4000 - pagesize, 16);
-    dump_eeprom(508, 4);
+//    dump_page(0x4000 - pagesize, 16);
+//    dump_eeprom(508, 4);
 
     leave_bootloader();
-
 }
 
 } // namespace Upload

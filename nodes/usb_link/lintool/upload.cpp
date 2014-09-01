@@ -305,6 +305,12 @@ upload(Firmware *fw, bool readback)
 //    dump_page(0x4000 - pagesize, 16);
 //    dump_eeprom(508, 4);
 
+    // clear the EEPROM
+    warnx("erasing EEPROM");
+    for (unsigned address = Generic::kParamConfigBase; address <= Generic::kParamConfigTop; address++) {
+        Link::write_param(address, 0xffff);
+    }
+
     leave_bootloader();
 }
 

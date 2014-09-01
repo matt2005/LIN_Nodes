@@ -236,27 +236,13 @@ print_status()
 {
     warnx("free memory: %u", Link::get_status(RQ_STATUS_FREEMEM));
     uint8_t status = Link::get_status();
-
-    if (status & RQ_STATUS_DATA_READY) {
-        warnx("status: DATA_READY");
-    }
-
-    if (status & RQ_STATUS_DATA_ERROR) {
-        warnx("status: DATA_ERROR");
-    }
-
-    if (status & RQ_STATUS_AWAKE) {
-        warnx("status: AWAKE");
-    }
-
-    if (status & RQ_STATUS_WAITING) {
-        warnx("status: WAITING");
-    }
-
-    if (status & RQ_STATUS_MASTER) {
-        warnx("status: MASTER");
-    }
-
+    warnx("status: %02x%s%s%s%s%s",
+          status,
+          ((status & RQ_STATUS_DATA_READY) ? " DATA_READY" : ""),
+          ((status & RQ_STATUS_DATA_ERROR) ? " DATA_ERROR" : ""),
+          ((status & RQ_STATUS_AWAKE) ? " AWAKE" : ""),
+          ((status & RQ_STATUS_WAITING) ? " WAITING" : ""),
+          ((status & RQ_STATUS_MASTER) ? " MASTER" : ""));
     warnx("Errors:");
     warnx("  line:            %u", Link::get_status(RQ_STATUS_LINERR, 0));
     warnx("  checksum:        %u", Link::get_status(RQ_STATUS_LINERR, 1));

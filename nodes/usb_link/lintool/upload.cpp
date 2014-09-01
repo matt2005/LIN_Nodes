@@ -103,12 +103,13 @@ enter_bootloader()
 {
     try {
         if (Link::read_param(Generic::kParamBootloaderMode) > 0) {
+            warnx("node already in bootloader");
             return;
         }
 
         warnx("rebooting node into bootloader");
         Link::write_param(Generic::kParamBootloaderMode, bootloader_magic::kEnterBootloader);
-        usleep(50000);
+        usleep(1000000);
 
         if (Link::read_param(Generic::kParamBootloaderMode) == 0) {
             RAISE(ExProtocol, "node failed to enter bootloader");
@@ -128,15 +129,22 @@ leave_bootloader()
     try {
 
         if (Link::read_param(Generic::kParamBootloaderMode) == 0) {
+            // already left, nothing to do here
             return;
         }
 
-        Link::write_param(Generic::kParamBootloaderMode, 0);
-        usleep(500000);     // XXX should poll more aggressively...
+        for (unsigned tries = 0; tries < 50; tries++) {
+            Link::write_param(Generic::kParamBootloaderMode, 0);
+            usleep(20000);     // XXX should poll more aggressively...
 
-        if (Link::read_param(Generic::kParamBootloaderMode) != 0) {
-            RAISE(ExProtocol, "bootloader reboot failed: " 
-                << Encoding::info(kEncoding_bl_reason, Link::read_param(Bootloader::kParamReason)));
+            try {
+                if (Link::read_param(Generic::kParamBootloaderMode) == 0) {
+                    return;
+                }
+            } catch (Link::ExLINError &e) {
+                // transfer failed; node is probably still rebooting
+                continue;
+            }
         }
 
     } catch (ExProtocol &e) {

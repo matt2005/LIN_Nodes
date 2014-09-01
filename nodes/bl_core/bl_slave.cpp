@@ -70,6 +70,9 @@ BLSlave::st_response_received(Response &resp)
                     _pageStatus = bl_status::kWaitingForProgrammer;
                     _programEnd = 0;
                     _resetVector = 0;
+                } else if (resp.DataByID.value == 0) {
+                    // reboot (may just come right back...)
+                    Board::reset();
                 }
                 break;
 
@@ -263,8 +266,10 @@ BLSlave::add_page_byte(uint8_t byte)
 void
 BLSlave::program_page()
 {
+    bool pageZero = _pageAddress == 0;
+
     // patch our reset vector into the buffer
-    if (_pageAddress == 0) {
+    if (pageZero) {
         if (_pageBuffer[0] == 0x940c) {
             // copy jmp argument
             _resetVector = _pageBuffer[1];
@@ -296,12 +301,16 @@ BLSlave::program_page()
     if (_pageAddress > _programEnd) {
         _programEnd = _pageAddress;
     }
+
+    // update the program info page
+    if (pageZero) {
+        update_program_info();
+    }
 }
 
 void
 BLSlave::update_program_info()
 {
-
     boot_page_erase(kInfoPage);
     boot_spm_busy_wait();
 

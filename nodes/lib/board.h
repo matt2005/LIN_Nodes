@@ -79,6 +79,10 @@ uint16_t freemem();
 ///
 void enter_bootloader(uint8_t nad, uint8_t function = 0);
 
+/// Reset
+///
+void reset();
+
 /// Set the LIN CS state
 ///
 static inline void

@@ -26,6 +26,7 @@ public:
 
     unsigned        max_address() const { return _bytes.rbegin()->first; }
     bool            get_bytes(unsigned base, unsigned count, uint8_t *buf) const;
+    const char     *function_name() const { return _functionName; }
 
     static Firmware *for_function(unsigned function);
     static Firmware *implied_firmware();

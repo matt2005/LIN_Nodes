@@ -204,7 +204,14 @@ enter_bootloader(uint8_t nad, uint8_t function)
     eeprom_update_byte((uint8_t *)E2END - 2, function);
     eeprom_update_word((uint16_t *)(E2END - 1), 0x4f42);
 
-    // and wait for the watchdog to reset us
+    reset();
+}
+
+void
+reset()
+{
+    // start the watchdog (it may be off)
+    wdt_enable(WDTO_500MS);
     for (;;)
         ;
 }

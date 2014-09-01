@@ -185,17 +185,27 @@ read_param(uint16_t index)
 
     int result;
     uint16_t value;
+    unsigned tries = 0;
+    uint8_t status;
 
-    result = request(kUSBRequestReadData, 0, index);
+    for (;;) {
+        result = request(kUSBRequestReadData, 0, index);
 
-    if (result < 0) {
-        RAISE(ExUSBFailed, "USB error " << result);
-    }
+        if (result < 0) {
+            RAISE(ExUSBFailed, "USB error " << result);
+        }
 
-    uint8_t status = get_status();
+        status = get_status();
 
-    if (status & RQ_STATUS_DATA_ERROR) {
-        RAISE(ExLINError, "error in LIN data phase");
+        if (status & RQ_STATUS_DATA_ERROR) {
+            if (tries++ < 3) {
+                continue;
+            }
+
+            RAISE(ExLINError, "persistent error in LIN data phase, status " << unsigned(status));
+        }
+
+        break;
     }
 
     if (status & RQ_STATUS_DATA_REJECTED) {
@@ -216,7 +226,7 @@ read_param(uint16_t index)
         return value;
     }
 
-    RAISE(ExLINError, "data phase error");
+    RAISE(ExLINError, "transfer status error, status " << unsigned(status));
 
 }
 

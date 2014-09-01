@@ -60,9 +60,11 @@ Node::scan(unsigned address)
         for (auto addr : knownAddresses) {
             Node::_scan(addr);
         }
+
     } else {
         Node::_scan(address);
     }
+
     if (nodes().empty()) {
         RAISE(ExScanFailed, "no nodes found");
     }
@@ -114,7 +116,7 @@ Node::matching(unsigned address, unsigned function)
 }
 
 void
-Node::update()
+Node::update(bool verify)
 {
     // get the firmware
     Firmware *fw;
@@ -135,11 +137,13 @@ Node::update()
         RAISE(ExUpdateFailed, "no firmware available");
     }
 
+    warnx("updating %s @ %u", fw->function_name(), address());
+
     // select the node
     Link::set_node(address());
     Link::enable_master();
 
     // upload firmware to the selected node
-    Upload::upload(fw);
+    Upload::upload(fw, verify);
 }
 

@@ -20,7 +20,7 @@
 namespace Log
 {
 
-bool enable;
+unsigned enable;
 
 class Entry
 {
@@ -131,10 +131,14 @@ trace()
 void
 Entry::print()
 {
+    if ((enable < 2) && (!_responseValid)) {
+        return;
+    }
+
     printf("%05d:%02x: ", _time, _fid);
 
     if (_responseValid) {
-        printf("%02x %02x %02x %02x %02x %02x %02x %02x : <%s>",
+        printf("%02x %02x %02x %02x %02x %02x %02x %02x : %s",
                _resp._bytes[0],
                _resp._bytes[1],
                _resp._bytes[2],
@@ -155,43 +159,46 @@ Entry::print()
 
             if (_resp.MasterRequest.length >= 2) {
                 printf(" d1: %u", _resp.MasterRequest.d1);
+
+                if (_resp.MasterRequest.length >= 3) {
+                    printf(" d2: %u", _resp.MasterRequest.d2);
+
+                    if (_resp.MasterRequest.length >= 4) {
+                        printf(" d3: %u", _resp.MasterRequest.d3);
+
+                        if (_resp.MasterRequest.length >= 5) {
+                            printf(" d4: %u", _resp.MasterRequest.d4);
+
+                            if (_resp.MasterRequest.length >= 6) {
+                                printf(" d5: %u", _resp.MasterRequest.d5);
+                            }
+                        }
+                    }
+                }
             }
 
-            if (_resp.MasterRequest.length >= 3) {
-                printf(" d2: %u", _resp.MasterRequest.d2);
-            }
-
-            if (_resp.MasterRequest.length >= 4) {
-                printf(" d3: %u", _resp.MasterRequest.d3);
-            }
-
-            if (_resp.MasterRequest.length >= 5) {
-                printf(" d4: %u", _resp.MasterRequest.d4);
-            }
-
-            if (_resp.MasterRequest.length >= 6) {
-                printf(" d5: %u", _resp.MasterRequest.d5);
-            }
-
-            printf("\n%s <%s>",
+            printf("\n%s %s",
                    pad,
                    Encoding::info(kEncoding_service_id, _resp.MasterRequest.sid) ? : "unknown");
 
-            switch (_resp.MasterRequest.sid & ~service_id::kResponseOffset) {
+            switch (_resp.MasterRequest.sid) {
             case service_id::kReadDataByID:
                 printf(" index: 0x%04x", _resp.DataByID.index);
                 break;
+
             case service_id::kWriteDataByID:
                 printf(" index: 0x%04x value: 0x%04x", _resp.DataByID.index, _resp.DataByID.value);
                 break;
+
             case service_id::kDataDump:
                 printf(" {%02x,%02x,%02x,%02x}",
-                    _resp.MasterRequest.d1, 
-                    _resp.MasterRequest.d2, 
-                    _resp.MasterRequest.d3, 
-                    _resp.MasterRequest.d4);
+                       _resp.MasterRequest.d1,
+                       _resp.MasterRequest.d2,
+                       _resp.MasterRequest.d3,
+                       _resp.MasterRequest.d4);
                 break;
             }
+
             printf("\n");
 
             break;
@@ -203,7 +210,7 @@ Entry::print()
                    _resp.SlaveResponse.length);
 
             if (_resp.SlaveResponse.sid == service_id::kErrorResponse) {
-                printf(" sid: 0x%02x <%s> error: 0x%02x <%s>\n",
+                printf(" sid: 0x%02x %s error: 0x%02x %s\n",
                        _resp.ServiceError.original_sid,
                        Encoding::info(kEncoding_service_id, _resp.ServiceError.original_sid) ? : "unknown",
                        _resp.ServiceError.error,
@@ -215,25 +222,25 @@ Entry::print()
 
                 if (_resp.SlaveResponse.length >= 2) {
                     printf(" d1: %u", _resp.SlaveResponse.d1);
+
+                    if (_resp.SlaveResponse.length >= 3) {
+                        printf(" d2: %u", _resp.SlaveResponse.d2);
+
+                        if (_resp.SlaveResponse.length >= 4) {
+                            printf(" d3: %u", _resp.SlaveResponse.d3);
+
+                            if (_resp.SlaveResponse.length >= 5) {
+                                printf(" d4: %u", _resp.SlaveResponse.d4);
+
+                                if (_resp.SlaveResponse.length >= 6) {
+                                    printf(" d5: %u", _resp.SlaveResponse.d5);
+                                }
+                            }
+                        }
+                    }
                 }
 
-                if (_resp.SlaveResponse.length >= 3) {
-                    printf(" d2: %u", _resp.SlaveResponse.d2);
-                }
-
-                if (_resp.SlaveResponse.length >= 4) {
-                    printf(" d3: %u", _resp.SlaveResponse.d3);
-                }
-
-                if (_resp.SlaveResponse.length >= 5) {
-                    printf(" d4: %u", _resp.SlaveResponse.d4);
-                }
-
-                if (_resp.SlaveResponse.length >= 6) {
-                    printf(" d5: %u", _resp.SlaveResponse.d5);
-                }
-
-                printf("\n%s <%s>",
+                printf("\n%s %s",
                        pad,
                        Encoding::info(kEncoding_service_id, sid) ? : "unknown");
 
@@ -242,7 +249,9 @@ Entry::print()
                     printf(" index: 0x%04x value: 0x%04x", _resp.DataByID.index, _resp.DataByID.value);
                     break;
                 }
+
                 printf("\n");
+
             } else {
                 printf(" sid 0x%02x <malformed>\n", _resp.SlaveResponse.sid);
             }
@@ -251,7 +260,7 @@ Entry::print()
         }
 
     } else {
-        printf("                          <%s>\n", frame_name());
+        printf("                          %s\n", frame_name());
     }
 }
 

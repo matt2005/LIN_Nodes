@@ -76,6 +76,7 @@ scan(int argc, char *argv[])
         printf("%s", str);
         free(str);
     }
+
     Log::print();
 }
 
@@ -191,17 +192,17 @@ void
 update(int argc, char *argv[])
 {
     unsigned node = Node::kNoNode;
+    bool verify = false;
     int ch;
 
-    for (unsigned i = 0; i < argc; i++) {
-        warnx("%u: %s", i, argv[i]);
-    }
-
-    while ((ch = getopt(argc, argv, "n:")) != -1) {
+    while ((ch = getopt(argc, argv, "n:v")) != -1) {
         switch (ch) {
         case 'n':
             node = strtoul(optarg, nullptr, 0);
-            warnx("node %u", node);
+            break;
+
+        case 'v':
+            verify = true;
             break;
 
         default:
@@ -217,7 +218,6 @@ update(int argc, char *argv[])
 
     for (unsigned arg = 0; arg < argc; arg++) {
         try {
-            warnx("fw: %u %s", arg, argv[arg]);
             new Firmware(argv[arg]);
 
         } catch (std::runtime_error &e) {
@@ -227,7 +227,7 @@ update(int argc, char *argv[])
 
     for (auto n : Node::nodes()) {
         try {
-            n->update();
+            n->update(verify);
 
         } catch (Exception &e) {
             warnx("WARNING: failed updating node@%u: %s", n->address(), e.what());
@@ -278,8 +278,9 @@ struct {
     },
     {
         "update",
-        "lintool [-l] update [-n <node>] <file> [<file>]\n"
+        "lintool [-l] update [-v][-n <node>] <file> [<file> ...]\n"
         "    Update node firmware for one or more nodes from one or more firmware files.\n"
+        "        -v    Perform read-after-write verification.\n"
         "    Only nodes for which firmware is loaded can be updated. If -n is not specified,\n"
         "    all nodes will be updated.\n"
         "    To update a node in recovery mode that has lost its type, pass -n 32 and supply\n"
@@ -293,7 +294,7 @@ usage()
 {
     warnx("Usage:");
     fprintf(stderr, "Common options:\n");
-    fprintf(stderr, "        -l  enable logging\n");
+    fprintf(stderr, "        -l  enable logging (specify twice to print empty frames).\n");
 
     for (auto cmd : commands) {
         fprintf(stderr, "%s", cmd.help);
@@ -310,7 +311,7 @@ main(int argc, char *argv[])
     while ((ch = getopt(argc, argv, "l")) != -1) {
         switch (ch) {
         case 'l':
-            Log::enable = true;
+            Log::enable++;
             break;
 
         default:

@@ -17,9 +17,9 @@
 namespace Upload
 {
 EXCEPTION(Exception, ExProtocol);
-EXCEPTION(Exception, ExBadFirmware);
+EXCEPTION(Exception, ExBadAddress);
 EXCEPTION(Exception, ExLink);
 EXCEPTION(Exception, ExCRCError);
 
-extern void upload(Firmware *fw);
+extern void upload(Firmware *fw, bool readback = false);
 } // namespace Upload

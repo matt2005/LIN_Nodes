@@ -58,7 +58,12 @@ unsigned
 status()
 {
     // this should block until the link can get a value from the bootloader
-    return Link::read_param(Bootloader::kParamStatus);
+    try {
+        return Link::read_param(Bootloader::kParamStatus);
+
+    } catch (Exception &e) {
+        RAISE(ExLink, "error reading bootloader status: " << e.what());
+    }
 }
 
 void
@@ -71,8 +76,9 @@ check_ready()
         return;
     }
 
+    // XXX we can remove this, check at end of page should catch it
     if (s == bl_status::kPageAddressError) {
-        RAISE(ExBadFirmware, "bootloader not ready: address error");
+        RAISE(ExBadAddress, "bootloader not ready: address error");
     }
 
     if (s == bl_status::kPageCRCError) {
@@ -144,21 +150,29 @@ set_address(unsigned address)
 {
     Link::write_param(Bootloader::kParamPageAddress, address);
 
+    // XXX we can remove this, check at end of page should catch it
     if (status() == bl_status::kPageAddressError) {
-        RAISE(ExBadFirmware, "bootloader rejected firmware due to address error");
+        RAISE(ExBadAddress, "bootloader rejected firmware due to address error");
     }
 }
 
+unsigned
+read_bl_memory(unsigned address)
+{
+    Link::write_param(Bootloader::kParamDebugPointer, address);
+    return Link::read_param(Bootloader::kParamMemory);
+}
+
 void
-program_page(unsigned address, uint8_t *bytes)
+program_page(unsigned address, uint8_t *bytes, bool readback)
 {
     unsigned crc = page_crc(bytes);
 
     check_ready();
 
-    for (unsigned tries = 0; tries < 3; tries++) {
+    warnx("program: 0x%04x", address);
 
-        uint16_t running_crc = 0xffff;
+    for (unsigned tries = 0; tries < 3; tries++) {
 
         // set the page address
         set_address(address);
@@ -166,19 +180,6 @@ program_page(unsigned address, uint8_t *bytes)
         // upload data to the page buffer
         for (unsigned offset = 0; offset < pagesize; offset += 4) {
             Link::bulk_data(bytes + offset);
-            running_crc = crc_ccitt_update(running_crc, bytes[offset + 0]);
-            running_crc = crc_ccitt_update(running_crc, bytes[offset + 1]);
-            running_crc = crc_ccitt_update(running_crc, bytes[offset + 2]);
-            running_crc = crc_ccitt_update(running_crc, bytes[offset + 3]);
-            unsigned bl_crc = Link::read_param(Bootloader::kParamPageCRC);
-            if (bl_crc != running_crc) {
-                Log::print();
-                errx(1, "%u: crc bl %04x ours %04x", offset, bl_crc, running_crc);
-            }
-        }
-
-        if (running_crc != crc) {
-            warnx("crc weird, running %04x, static %04x", running_crc, crc);
         }
 
         // send our CRC to the bootloader; it will either program the
@@ -195,6 +196,24 @@ program_page(unsigned address, uint8_t *bytes)
                   tries, crc, Link::read_param(Bootloader::kParamPageCRC));
             reset_bootloader();
             continue;
+        } catch (ExProtocol &e) {
+            // write may have been dropped - page still thinks it wants more data
+            warnx("page write failed (%u)", tries);
+            continue;
+        } catch (ExBadAddress &e) {
+            // address write may have been corrupted
+            warnx("page address failed (%u)", tries);
+            continue;
+        }
+
+        if (readback) {
+            for (unsigned offset = 0; offset < pagesize; offset++) {
+                uint8_t is = read_bl_memory(address + offset);
+
+                if (is != bytes[offset]) {
+                    warnx("VERIFY: 0x%04x is 0x%02x should 0x%02x", address + offset, is, bytes[offset]);
+                }
+            }
         }
 
         return;
@@ -204,7 +223,24 @@ program_page(unsigned address, uint8_t *bytes)
 }
 
 void
-upload(Firmware *fw)
+dump_page(unsigned address)
+{
+    for (unsigned offset = 0; offset < 128; offset += 8) {
+        warnx("%04x: %02x %02x %02x %02x %02x %02x %02x %02x",
+              address + offset,
+              read_bl_memory(address + offset + 0),
+              read_bl_memory(address + offset + 1),
+              read_bl_memory(address + offset + 2),
+              read_bl_memory(address + offset + 3),
+              read_bl_memory(address + offset + 4),
+              read_bl_memory(address + offset + 5),
+              read_bl_memory(address + offset + 6),
+              read_bl_memory(address + offset + 7));
+    }
+}
+
+void
+upload(Firmware *fw, bool readback)
 {
     pagesize = Link::read_param(Generic::kParamFirmwarePageSize);
 
@@ -222,20 +258,21 @@ upload(Firmware *fw)
     while (address < fw->max_address()) {
 
         if (fw->get_bytes(address, pagesize, &bytes[0])) {
-            warnx("program: 0x%04x", address);
-            program_page(address, &bytes[0]);
+            program_page(address, &bytes[0], readback);
         }
 
         address += pagesize;
     }
 
-//    if (fw->get_bytes(0, pagesize, &bytes[0])) {
-//        program_page(0, &bytes[0]);
-//    }
+    if (fw->get_bytes(0, pagesize, &bytes[0])) {
+        program_page(0, &bytes[0], readback);
+    }
 
-    // XXX verify upload?
+    dump_page(0);
+    dump_page(0x4000 - pagesize);
 
-    leave_bootloader();
+
+//    leave_bootloader();
 
 }
 

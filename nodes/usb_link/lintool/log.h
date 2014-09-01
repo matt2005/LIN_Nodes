@@ -10,7 +10,7 @@
 
 namespace Log
 {
-extern bool enable;
+extern unsigned enable;
 extern void acquire();
 extern void print();
 extern void clear();

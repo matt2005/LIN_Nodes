@@ -36,8 +36,8 @@ main(void)
     Board::init();
     wdt_disable();
 
-    // if the program is invalid, or we are explicitly here...
-    if (!BLSlave::is_program_valid() || (eeprom_read_word((uint16_t *)(E2END - 1)) == 0x4f42)) {
+    // check and clear force, or check for program invalid
+    if (BLSlave::is_bootloader_forced() || !BLSlave::is_program_valid()) {
 
         // init the LIN universe
         slave.init();
@@ -49,6 +49,5 @@ main(void)
     }
 
     // jump to the application
-    Board::panic(Board::kPanicCodeAssert);
     BLSlave::run_program();
 }

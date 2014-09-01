@@ -31,6 +31,11 @@ invalid(uint8_t encoding, uint16_t value)
             return false;
         }
     }
+    if (encoding == kEncoding_bl_reason) {
+        if ((value >= 0) && (value <= 2)) {
+            return false;
+        }
+    }
     if (encoding == kEncoding_input_assignment) {
         if ((value >= 0) && (value <= 23)) {
             return false;
@@ -135,6 +140,10 @@ static const PROGMEM char _encoding_info_bl_status_1[] = "ReadyForPage";
 static const PROGMEM char _encoding_info_bl_status_2[] = "PageInProgress";
 static const PROGMEM char _encoding_info_bl_status_3[] = "PageCRCError";
 static const PROGMEM char _encoding_info_bl_status_4[] = "PageAddressError";
+static const PROGMEM char _encoding_name_bl_reason[] = "bl_reason";
+static const PROGMEM char _encoding_info_bl_reason_0[] = "Unspecified";
+static const PROGMEM char _encoding_info_bl_reason_1[] = "CRCMismatch";
+static const PROGMEM char _encoding_info_bl_reason_2[] = "Forced";
 static const PROGMEM char _encoding_name_input_assignment[] = "input_assignment";
 static const PROGMEM char _encoding_info_input_assignment_0[] = "Unassigned";
 static const PROGMEM char _encoding_info_input_assignment_1[] = "Ignition";
@@ -284,6 +293,9 @@ name(uint8_t encoding)
     if (encoding == kEncoding_bl_status) {
         return &_encoding_name_bl_status[0];
     }
+    if (encoding == kEncoding_bl_reason) {
+        return &_encoding_name_bl_reason[0];
+    }
     if (encoding == kEncoding_input_assignment) {
         return &_encoding_name_input_assignment[0];
     }
@@ -425,6 +437,17 @@ info(uint8_t encoding, uint16_t value)
         }
         if (value == 4) {
             return &_encoding_info_bl_status_4[0];
+        }
+    }
+    if (encoding == kEncoding_bl_reason) {
+        if (value == 0) {
+            return &_encoding_info_bl_reason_0[0];
+        }
+        if (value == 1) {
+            return &_encoding_info_bl_reason_1[0];
+        }
+        if (value == 2) {
+            return &_encoding_info_bl_reason_2[0];
         }
     }
     if (encoding == kEncoding_input_assignment) {
@@ -1005,6 +1028,9 @@ param_exists(Parameter::Address address)
     if (address == kParamDebugPointer) {
         return true;
     }
+    if (address == kParamReason) {
+        return true;
+    }
     if (address == kParamMemory) {
         return true;
     }
@@ -1026,6 +1052,9 @@ param_encoding(Parameter::Address address)
     if (address == kParamStatus) {
         return kEncoding_bl_status;
     }
+    if (address == kParamReason) {
+        return kEncoding_bl_reason;
+    }
     return kEncoding_none;
 }
 
@@ -1034,6 +1063,7 @@ static const PROGMEM char _param_name_PageAddress[] = "PageAddress";
 static const PROGMEM char _param_name_PageOffset[] = "PageOffset";
 static const PROGMEM char _param_name_PageCRC[] = "PageCRC";
 static const PROGMEM char _param_name_DebugPointer[] = "DebugPointer";
+static const PROGMEM char _param_name_Reason[] = "Reason";
 static const PROGMEM char _param_name_Memory[] = "Memory";
 static const PROGMEM char _param_name_EEPROM[] = "EEPROM";
 
@@ -1054,6 +1084,9 @@ param_name(Parameter::Address address)
     }
     if (address == kParamDebugPointer) {
         return &_param_name_DebugPointer[0];
+    }
+    if (address == kParamReason) {
+        return &_param_name_Reason[0];
     }
     if (address == kParamMemory) {
         return &_param_name_Memory[0];

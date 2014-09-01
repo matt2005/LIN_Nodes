@@ -23,6 +23,7 @@ uint16_t        BLSlave::_programEnd = 0;
 uint16_t        BLSlave::_resetVector = 0;
 uint16_t        BLSlave::_pageBuffer[SPM_PAGESIZE / 2];
 uint16_t        BLSlave::_memoryPointer = 0;
+uint8_t         BLSlave::_reason = bl_reason::kUnspecified;
 
 void
 BLSlave::st_header_received()
@@ -169,6 +170,10 @@ BLSlave::send_response()
         value = _memoryPointer;
         break;
 
+    case Bootloader::kParamReason:
+        value = _reason;
+        break;
+
     case Bootloader::kParamStatus:
         value = _pageStatus;
         break;
@@ -217,17 +222,35 @@ BLSlave::send_response()
 bool
 BLSlave::is_program_valid()
 {
-    return get_program_crc(pgm_read_word(kInfoPage + 4)) == pgm_read_word(kInfoPage + 0);
+    if (get_program_crc(pgm_read_word(kInfoProgramEnd)) != pgm_read_word(kInfoProgramCRC)) {
+        _reason = bl_reason::kCRCMismatch;
+        return false;
+    }
+    return true;
+}
+
+bool
+BLSlave::is_bootloader_forced()
+{
+    if ((eeprom_read_byte((uint8_t *)kConfigMagic) == 'B') &&
+        (eeprom_read_byte((uint8_t *)kConfigMagic + 1) == 'O')) {
+        _reason = bl_reason::kForced;
+        eeprom_update_word((uint16_t *)kConfigMagic, 0xffff);
+        return true;
+    }
+    return false;
 }
 
 void
 BLSlave::run_program()
 {
-    typedef void (*Func)();
+    __asm__ volatile(
+        "ijmp"
+        :
+        : "z" (pgm_read_word(kInfoResetVector) >> 1)
+        :
+    );
 
-    Func entrypoint = (Func)pgm_read_word(kInfoPage + 2);
-
-    entrypoint();
     Board::panic(Board::kPanicCodeAssert);
 }
 
@@ -314,13 +337,9 @@ BLSlave::update_program_info()
     boot_page_erase(kInfoPage);
     boot_spm_busy_wait();
 
-    boot_page_fill(kInfoPage + 0, get_program_crc(_programEnd));
-    boot_page_fill(kInfoPage + 2, _resetVector);
-    boot_page_fill(kInfoPage + 4, _programEnd);
-
-    for (uint8_t offset = 6; offset < SPM_PAGESIZE; offset += 2) {
-        boot_page_fill(kInfoPage + offset, 0xffff);
-    }
+    boot_page_fill(kInfoProgramCRC, get_program_crc(_programEnd));
+    boot_page_fill(kInfoResetVector, _resetVector);
+    boot_page_fill(kInfoProgramEnd, _programEnd);
 
     boot_page_write(kInfoPage);
     boot_spm_busy_wait();
@@ -341,7 +360,7 @@ BLSlave::get_program_crc(uint16_t length)
 uint8_t
 BLSlave::nad()
 {
-    uint8_t value = eeprom_read_byte((uint8_t *)(E2END - 3));
+    uint8_t value = eeprom_read_byte((uint8_t *)kConfigNodeAddress);
 
     if (value == 0xff) {
         value = Bootloader::kNodeAddress;
@@ -352,7 +371,7 @@ BLSlave::nad()
 uint8_t
 BLSlave::function()
 {
-    uint8_t value = eeprom_read_byte((uint8_t *)(E2END - 2));    
+    uint8_t value = eeprom_read_byte((uint8_t *)kConfigFunction);    
 
     return value;
 }

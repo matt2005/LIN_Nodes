@@ -19,27 +19,28 @@ static const uint8_t kEncoding_board_function = 0;
 static const uint8_t kEncoding_bootloader_magic = 1;
 static const uint8_t kEncoding_service_error = 2;
 static const uint8_t kEncoding_bl_status = 3;
-static const uint8_t kEncoding_input_assignment = 4;
-static const uint8_t kEncoding_sp_input_mode = 5;
-static const uint8_t kEncoding_sg_input_mode = 6;
-static const uint8_t kEncoding_msec = 7;
-static const uint8_t kEncoding_sec = 8;
-static const uint8_t kEncoding_up_to_10 = 9;
-static const uint8_t kEncoding_node_address = 10;
-static const uint8_t kEncoding_pci = 11;
-static const uint8_t kEncoding_service_id = 12;
-static const uint8_t kEncoding_v1_output_status = 13;
-static const uint8_t kEncoding_v1_output_assignment = 14;
-static const uint8_t kEncoding_v3_output_status = 15;
-static const uint8_t kEncoding_v3_output_type = 16;
-static const uint8_t kEncoding_v3_output_assignment = 17;
-static const uint8_t kEncoding_pwm_duty_cycle = 18;
-static const uint8_t kEncoding_RPM = 19;
-static const uint8_t kEncoding_PSI = 20;
-static const uint8_t kEncoding_F = 21;
-static const uint8_t kEncoding_V = 22;
-static const uint8_t kEncoding_lambda = 23;
-static const uint8_t kEncoding_MPH = 24;
+static const uint8_t kEncoding_bl_reason = 4;
+static const uint8_t kEncoding_input_assignment = 5;
+static const uint8_t kEncoding_sp_input_mode = 6;
+static const uint8_t kEncoding_sg_input_mode = 7;
+static const uint8_t kEncoding_msec = 8;
+static const uint8_t kEncoding_sec = 9;
+static const uint8_t kEncoding_up_to_10 = 10;
+static const uint8_t kEncoding_node_address = 11;
+static const uint8_t kEncoding_pci = 12;
+static const uint8_t kEncoding_service_id = 13;
+static const uint8_t kEncoding_v1_output_status = 14;
+static const uint8_t kEncoding_v1_output_assignment = 15;
+static const uint8_t kEncoding_v3_output_status = 16;
+static const uint8_t kEncoding_v3_output_type = 17;
+static const uint8_t kEncoding_v3_output_assignment = 18;
+static const uint8_t kEncoding_pwm_duty_cycle = 19;
+static const uint8_t kEncoding_RPM = 20;
+static const uint8_t kEncoding_PSI = 21;
+static const uint8_t kEncoding_F = 22;
+static const uint8_t kEncoding_V = 23;
+static const uint8_t kEncoding_lambda = 24;
+static const uint8_t kEncoding_MPH = 25;
 static const uint8_t kEncoding_none = 0xff;
 
 namespace board_function
@@ -83,6 +84,14 @@ static const uint16_t kPageCRCError = 3;
 static const uint16_t kPageAddressError = 4;
 static const uint16_t kNumEncodings = 5;
 } // namespace bl_status
+
+namespace bl_reason
+{
+static const uint16_t kUnspecified = 0;
+static const uint16_t kCRCMismatch = 1;
+static const uint16_t kForced = 2;
+static const uint16_t kNumEncodings = 3;
+} // namespace bl_reason
 
 namespace input_assignment
 {
@@ -467,8 +476,9 @@ static const uint16_t kParamPageAddress = 0x0301;
 static const uint16_t kParamPageOffset = 0x0302;
 static const uint16_t kParamPageCRC = 0x0303;
 static const uint16_t kParamDebugPointer = 0x0304;
-static const uint16_t kParamMemory = 0x0305;
-static const uint16_t kParamEEPROM = 0x0306;
+static const uint16_t kParamReason = 0x0305;
+static const uint16_t kParamMemory = 0x0306;
+static const uint16_t kParamEEPROM = 0x0307;
 
 } // namespace Bootloader
 

@@ -237,6 +237,17 @@ ParamSet::is_dirty() const
     return false;
 }
 
+Param *
+ParamSet::find(unsigned address)
+{
+    for (auto p : _params) {
+        if (p->address() == address) {
+            return p;
+        }
+    }
+    return nullptr;
+}
+
 void
 ParamSet::sync()
 {

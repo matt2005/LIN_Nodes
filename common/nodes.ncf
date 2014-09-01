@@ -154,6 +154,7 @@ node Bootloader {
         PageOffset          {                   }
         PageCRC             {                   }
         DebugPointer        {                   }
+        Reason              {                   bl_reason; }
         Memory              {                   }
         EEPROM              {                   }
     }
@@ -164,6 +165,11 @@ node Bootloader {
             logical_value, 2, "PageInProgress";
             logical_value, 3, "PageCRCError";
             logical_value, 4, "PageAddressError";
+        }
+        bl_reason {
+            logical_value, 0, "Unspecified";
+            logical_value, 1, "CRCMismatch";
+            logical_value, 2, "Forced";
         }
     }
 }

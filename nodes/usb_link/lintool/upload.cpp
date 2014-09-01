@@ -106,11 +106,12 @@ enter_bootloader()
             return;
         }
 
+        warnx("rebooting node into bootloader");
         Link::write_param(Generic::kParamBootloaderMode, bootloader_magic::kEnterBootloader);
         usleep(50000);
 
         if (Link::read_param(Generic::kParamBootloaderMode) == 0) {
-            RAISE(ExProtocol, "app failed to enter bootloader");
+            RAISE(ExProtocol, "node failed to enter bootloader");
         }
 
     } catch (ExProtocol &e) {
@@ -131,10 +132,11 @@ leave_bootloader()
         }
 
         Link::write_param(Generic::kParamBootloaderMode, 0);
-        usleep(50000);
+        usleep(500000);     // XXX should poll more aggressively...
 
         if (Link::read_param(Generic::kParamBootloaderMode) != 0) {
-            RAISE(ExProtocol, "bootloader reboot failed");
+            RAISE(ExProtocol, "bootloader reboot failed: " 
+                << Encoding::info(kEncoding_bl_reason, Link::read_param(Bootloader::kParamReason)));
         }
 
     } catch (ExProtocol &e) {
@@ -161,6 +163,13 @@ read_bl_memory(unsigned address)
 {
     Link::write_param(Bootloader::kParamDebugPointer, address);
     return Link::read_param(Bootloader::kParamMemory);
+}
+
+unsigned
+read_bl_eeprom(unsigned address)
+{
+    Link::write_param(Bootloader::kParamDebugPointer, address);
+    return Link::read_param(Bootloader::kParamEEPROM);    
 }
 
 void
@@ -223,9 +232,9 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
 }
 
 void
-dump_page(unsigned address)
+dump_page(unsigned address, unsigned size)
 {
-    for (unsigned offset = 0; offset < 128; offset += 8) {
+    for (unsigned offset = 0; offset < size; offset += 8) {
         warnx("%04x: %02x %02x %02x %02x %02x %02x %02x %02x",
               address + offset,
               read_bl_memory(address + offset + 0),
@@ -240,12 +249,28 @@ dump_page(unsigned address)
 }
 
 void
+dump_eeprom(unsigned address, unsigned size)
+{
+    for (unsigned offset = 0; offset < size; offset += 4) {
+        warnx("%03x: %02x %02x %02x %02x",
+              address + offset,
+              read_bl_eeprom(address + offset + 0),
+              read_bl_eeprom(address + offset + 1),
+              read_bl_eeprom(address + offset + 2),
+              read_bl_eeprom(address + offset + 3));
+    }
+}
+
+void
 upload(Firmware *fw, bool readback)
 {
     pagesize = Link::read_param(Generic::kParamFirmwarePageSize);
 
     enter_bootloader();
     reset_bootloader();
+
+    warnx("bl_reason: %s",
+        Encoding::info(kEncoding_bl_reason, Link::read_param(Bootloader::kParamReason)));
 
     if (status() != bl_status::kWaitingForProgrammer) {
         RAISE(ExProtocol, "bootloader in unexpected state");
@@ -268,11 +293,11 @@ upload(Firmware *fw, bool readback)
         program_page(0, &bytes[0], readback);
     }
 
-    dump_page(0);
-    dump_page(0x4000 - pagesize);
+//    dump_page(0, pagesize);
+    dump_page(0x4000 - pagesize, 16);
+    dump_eeprom(508, 4);
 
-
-//    leave_bootloader();
+    leave_bootloader();
 
 }
 

@@ -73,6 +73,8 @@ public:
     void                sync();
     bool                is_dirty() const;
 
+    Param               *find(unsigned address);
+
     void                set(Jzon::Node &fromNode);
 
     unsigned            node() const { return _node; }

@@ -56,9 +56,11 @@ ToolSlave::tick()
         _lastFrameStart.update();
 
         if (_masterState == kMSRequest) {
-            // XXX optimisation - defer this until we send a response that
-            // needs a SlaveResponse
-            _masterState = kMSResponse;
+            // Don't waste time with slave response frames unless we are doing something
+            // that needs them.
+            if (_state >= kStateGetData) {
+                _masterState = kMSResponse;
+            }
             mt_send_header(kFrameIDMasterRequest);
 
         } else {

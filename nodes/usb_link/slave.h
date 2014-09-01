@@ -97,15 +97,18 @@ protected:
 
 private:
     enum State : uint8_t {
+        // idle states (ready for a new transaction)
         kStateIdle,
         kStateError,
         kStateRejected,
-
         kStateMaxIdle,
 
+        // master-only states
         kStateSetData,
-        kStateGetData,
         kStateBulkData,
+
+        // master/slave states
+        kStateGetData,
         kStateWaitData
     };
 

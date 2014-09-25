@@ -84,6 +84,10 @@ public:
     {
         return ((_state < kStateMaxIdle) && (is_awake() || is_master()));
     }
+    bool            is_data_idle() const 
+    {
+        return (_state < kStateMaxIdle);
+    }
     bool            is_data_error() const { return _state == kStateError; }
     bool            is_data_rejected() const { return _state == kStateRejected; }
     bool            is_waiting() const { return _masterState == kMSWaiting; }

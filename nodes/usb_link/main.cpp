@@ -179,7 +179,7 @@ main(void)
         slave.tick();
 
         // busy period has ended, we are ready for the next request
-        if (usbAllRequestsAreDisabled() && slave.is_data_ready()) {
+        if (usbAllRequestsAreDisabled() && slave.is_data_idle()) {
             usbEnableAllRequests();
         }
 

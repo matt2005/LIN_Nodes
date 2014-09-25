@@ -44,6 +44,9 @@ ToolSlave::tick()
         // if we haven't been re-armed for a while, drop out of master mode
         if (_masterTimeout.is_older_than(1000U)) {
             _masterState = kMSDisabled;
+            // kill any in-flight transaction that might otherwise wedge; we can't
+            // complete it now
+            _state = kStateIdle;
             break;
         }
 
@@ -77,36 +80,48 @@ ToolSlave::tick()
 void
 ToolSlave::set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t value)
 {
-    refresh_master();
-    
-    _nodeAddress = nad;
-    _dataAddress = address;
-    _dataValue = value;
-    _state = kStateSetData;
+    if (is_data_idle()) {
+        refresh_master();
+        
+        _nodeAddress = nad;
+        _dataAddress = address;
+        _dataValue = value;
+        _state = kStateSetData;
+    } else {
+        _state = kStateError;
+    }
 }
 
 void
 ToolSlave::get_data_by_id(uint8_t nad, Parameter::Address address)
 {
-    refresh_master();
-    
-    _nodeAddress = nad;
-    _dataAddress = address;
-    _dataValue = 0;
-    _state = kStateGetData;
+    if (is_data_idle()) {
+        refresh_master();
+        
+        _nodeAddress = nad;
+        _dataAddress = address;
+        _dataValue = 0;
+        _state = kStateGetData;
+    } else {
+        _state = kStateError;
+    }
 }
 
 void
 ToolSlave::send_bulk(uint8_t nad, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3)
 {
-    refresh_master();
-    
-    _nodeAddress = nad;
-    _dataBytes[0] = d0;
-    _dataBytes[1] = d1;
-    _dataBytes[2] = d2;
-    _dataBytes[3] = d3;
-    _state = kStateBulkData;
+    if (is_data_idle()) {
+        refresh_master();
+        
+        _nodeAddress = nad;
+        _dataBytes[0] = d0;
+        _dataBytes[1] = d1;
+        _dataBytes[2] = d2;
+        _dataBytes[3] = d3;
+        _state = kStateBulkData;
+    } else {
+        _state = kStateError;
+    }
 }
 
 void

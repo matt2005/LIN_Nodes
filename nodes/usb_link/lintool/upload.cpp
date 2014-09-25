@@ -69,7 +69,7 @@ status()
 void
 check_ready()
 {
-    unsigned s = status();
+    auto s = status();
 
     if ((s == bl_status::kWaitingForProgrammer) ||
         (s == bl_status::kReadyForPage)) {
@@ -99,48 +99,45 @@ reset_bootloader()
 }
 
 void
-enter_bootloader()
+set_bootloader(bool wantBootloader)
 {
+    auto desired = (wantBootloader ? 1U : 0U);
+    auto command = (wantBootloader ? bootloader_magic::kEnterBootloader : 0U);
+
     try {
-        if (Link::read_param(Generic::kParamBootloaderMode) > 0) {
-            warnx("node already in bootloader");
+
+        if (Link::read_param(Generic::kParamBootloaderMode) == desired) {
+            // already in the desired state, nothing to do here
             return;
         }
 
-        warnx("rebooting node into bootloader");
-        Link::write_param(Generic::kParamBootloaderMode, bootloader_magic::kEnterBootloader);
-        usleep(1000000);
+        Link::write_param(Generic::kParamBootloaderMode, command);
 
-        if (Link::read_param(Generic::kParamBootloaderMode) == 0) {
-            RAISE(ExProtocol, "node failed to enter bootloader");
+        // We might have just tried to reboot the master node, and it might not have
+        // taken, so go through the master setup process again just in case we need to
+        // kick it off the bus once more. This will let us report the error more accurately,
+        // rather than giving a cryptic link error due to two masters trying to talk...
+        //
+        Link::enable_master(false);
+        usleep(100000);             // give the master time to reboot & start the schedule again
+        Link::enable_master(true);
+        if (!(Link::get_status() & RQ_STATUS_MASTER)) {
+            RAISE(ExProtocol, "could not re-acquire bus master status");
         }
 
-    } catch (ExProtocol &e) {
-        throw;
-
-    } catch (Exception &e) {
-        RAISE(ExLink, "trying to enter bootloader mode: " << e.what());
-    }
-}
-
-void
-leave_bootloader()
-{
-    try {
-
-        if (Link::read_param(Generic::kParamBootloaderMode) == 0) {
-            // already left, nothing to do here
-            return;
-        }
-
-        for (unsigned tries = 0; tries < 50; tries++) {
-            Link::write_param(Generic::kParamBootloaderMode, 0);
-            usleep(20000);     // XXX should poll more aggressively...
+        // wait for the node to come back up in bootloader mode
+        for (auto tries = 0; tries < 50; tries++) {
+            usleep(20000);
 
             try {
-                if (Link::read_param(Generic::kParamBootloaderMode) == 0) {
+                auto state = Link::read_param(Generic::kParamBootloaderMode);
+
+                if (state == desired) {
                     return;
+                } else {
+                    RAISE(ExProtocol, "node refused to enter bootloader");
                 }
+
             } catch (Link::ExLINError &e) {
                 // transfer failed; node is probably still rebooting
                 continue;
@@ -151,8 +148,21 @@ leave_bootloader()
         throw;
 
     } catch (Exception &e) {
-        RAISE(ExLink, "trying to leave bootloader mode: " << e.what());
+        RAISE(ExLink, "trying to " << (wantBootloader ? "enter" : "leave") << " bootloader mode: " << e.what());
     }
+
+}
+
+void
+enter_bootloader()
+{
+    set_bootloader(true);
+}
+
+void
+leave_bootloader()
+{
+    set_bootloader(false);
 }
 
 void
@@ -189,7 +199,7 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
 
     warnx("program: 0x%04x", address);
 
-    for (unsigned tries = 0; tries < 3; tries++) {
+    for (auto tries = 0; tries < 3; tries++) {
 
         // set the page address
         set_address(address);
@@ -242,7 +252,7 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
 void
 dump_page(unsigned address, unsigned size)
 {
-    for (unsigned offset = 0; offset < size; offset += 8) {
+    for (auto offset = 0U; offset < size; offset += 8) {
         warnx("%04x: %02x %02x %02x %02x %02x %02x %02x %02x",
               address + offset,
               read_bl_memory(address + offset + 0),
@@ -259,7 +269,7 @@ dump_page(unsigned address, unsigned size)
 void
 dump_eeprom(unsigned address, unsigned size)
 {
-    for (unsigned offset = 0; offset < size; offset += 4) {
+    for (auto offset = 0U; offset < size; offset += 4) {
         warnx("%03x: %02x %02x %02x %02x",
               address + offset,
               read_bl_eeprom(address + offset + 0),

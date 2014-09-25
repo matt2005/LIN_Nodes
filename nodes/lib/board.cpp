@@ -210,8 +210,8 @@ enter_bootloader(uint8_t nad, uint8_t function)
 void
 reset()
 {
-    // start the watchdog (it may be off)
-    wdt_enable(WDTO_500MS);
+    // start the watchdog (it may be off) with a short timeout
+    wdt_enable(WDTO_30MS);
     for (;;)
         ;
 }

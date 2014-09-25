@@ -118,6 +118,8 @@ set_bootloader(bool wantBootloader)
         // kick it off the bus once more. This will let us report the error more accurately,
         // rather than giving a cryptic link error due to two masters trying to talk...
         //
+        // XXX should only do this dance when we are talking to the master node...
+        //
         Link::enable_master(false);
         usleep(100000);             // give the master time to reboot & start the schedule again
         Link::enable_master(true);
@@ -127,7 +129,6 @@ set_bootloader(bool wantBootloader)
 
         // wait for the node to come back up in bootloader mode
         for (auto tries = 0; tries < 50; tries++) {
-            usleep(20000);
 
             try {
                 auto state = Link::read_param(Generic::kParamBootloaderMode);
@@ -135,8 +136,9 @@ set_bootloader(bool wantBootloader)
                 if (state == desired) {
                     return;
                 } else {
-                    RAISE(ExProtocol, "node refused to enter bootloader");
+                    RAISE(ExProtocol, "node refused to enter bootloader (" << tries << " tries)");
                 }
+                usleep(20000);
 
             } catch (Link::ExLINError &e) {
                 // transfer failed; node is probably still rebooting

@@ -232,8 +232,7 @@ BLSlave::is_program_valid()
 bool
 BLSlave::is_bootloader_forced()
 {
-    if ((eeprom_read_byte((uint8_t *)kConfigMagic) == 'B') &&
-        (eeprom_read_byte((uint8_t *)kConfigMagic + 1) == 'O')) {
+    if (eeprom_read_word((uint16_t *)kConfigMagic) == 0x4f42) {
         _reason = bl_reason::kForced;
         eeprom_update_word((uint16_t *)kConfigMagic, 0xffff);
         return true;
@@ -250,6 +249,8 @@ BLSlave::run_program()
         : "z" (pgm_read_word(kInfoResetVector) >> 1)
         :
     );
+    for (;;)
+        ;
 }
 
 void

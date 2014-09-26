@@ -122,10 +122,6 @@ set_bootloader(bool wantBootloader)
         //
         Link::enable_master(false);
         usleep(100000);             // give the master time to reboot & start the schedule again
-        Link::enable_master(true);
-        if (!(Link::get_status() & RQ_STATUS_MASTER)) {
-            RAISE(ExProtocol, "could not re-acquire bus master status");
-        }
 
         // wait for the node to come back up in bootloader mode
         for (auto tries = 0; tries < 50; tries++) {

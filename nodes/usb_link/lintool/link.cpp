@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <err.h>
+#include <sys/time.h>
 
 #include "link.h"
 #include "log.h"
@@ -18,8 +19,9 @@ namespace Link
 {
 libusb_context              *_usb_ctx = nullptr;
 struct libusb_device_handle *_usb_handle = nullptr;
+struct timeval              master_timeout;
 
-constexpr uint16_t bytes_to_short(uint8_t low, uint8_t high) { return ((uint16_t)high << 8) + low; }
+constexpr uint16_t  bytes_to_short(uint8_t low, uint8_t high) { return ((uint16_t)high << 8) + low; }
 
 void
 connect()
@@ -113,16 +115,36 @@ enable_master(bool enable)
         RAISE(ExUSBFailed, "master: USB error " << result);
     }
 
-    for (unsigned tries = 0; tries < 20; tries++) {
-        usleep(50000);
+    if (enable) {
+        for (unsigned tries = 0; tries < 20; tries++) {
+            usleep(50000);
 
-        // check for bus no longer awake
-        if (!(get_status() & RQ_STATUS_AWAKE)) {
-            return;
+            // check for bus no longer awake
+            if (!(get_status() & RQ_STATUS_AWAKE)) {
+                return;
+            }
         }
+
+        RAISE(ExLinkFailed, "cannot claim the bus");
+    } else {
+        timerclear(&master_timeout);
+    }
+}
+
+void
+refresh_master()
+{
+    struct timeval now;
+    gettimeofday(&now, nullptr);
+    if (timercmp(&now, &master_timeout, >)) {
+        // poke the link back into master mode
+        enable_master(true);
     }
 
-    RAISE(ExLinkFailed, "cannot claim the bus");
+    // The link drops master mode after ~1s of inactivity; if we have been idle for
+    // more than half that, we want to re-enable it...
+    struct timeval delta = {0, 500000U};
+    timeradd(&now, &delta, &master_timeout);
 }
 
 uint8_t
@@ -153,6 +175,7 @@ void
 write_param(uint16_t index, uint16_t value)
 {
     LIN_LOG_BLOCK;
+    refresh_master();
 
     int result = request(kUSBRequestWriteData, value, index);
 
@@ -165,6 +188,7 @@ void
 bulk_data(uint8_t *bytes)
 {
     LIN_LOG_BLOCK;
+    refresh_master();
 
     uint16_t value, index;
 
@@ -183,6 +207,7 @@ uint16_t
 read_param(uint16_t index)
 {
     LIN_LOG_BLOCK;
+    refresh_master();
 
     int result;
     uint16_t value;

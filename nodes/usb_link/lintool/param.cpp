@@ -189,7 +189,6 @@ ParamSet::ParamSet(unsigned node) :
     _node(node)
 {
     Link::set_node(_node);
-    Link::enable_master();
 
     _function = Link::read_param(Generic::kParamBoardFunction);
 

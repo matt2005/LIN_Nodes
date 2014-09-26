@@ -25,6 +25,7 @@ EXCEPTION(Exception, ExUSBFailed);
 EXCEPTION(Exception, ExLinkFailed);
 EXCEPTION(Exception, ExLINError);
 EXCEPTION(Exception, ExNoParam);
+EXCEPTION(Exception, ExUsageError);
 
 // connect to the USB link
 extern void     connect();
@@ -35,7 +36,7 @@ extern int      request_in(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, u
 extern int      request_out(uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength);
 
 // link primitives
-extern void     enable_master(bool enable = true);
+extern void     enable_master(bool enable);
 extern uint8_t  get_status(unsigned which = RQ_STATUS_FLAGS, unsigned index = 0);
 extern void     set_node(uint8_t node);
 extern void     write_param(uint16_t index, uint16_t value);

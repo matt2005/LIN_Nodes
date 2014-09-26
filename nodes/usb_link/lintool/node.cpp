@@ -74,7 +74,6 @@ void
 Node::_scan(unsigned address)
 {
     Link::set_node(address);
-    Link::enable_master();
 
     try {
         Link::read_param(Generic::kParamProtocolVersion);
@@ -141,7 +140,6 @@ Node::update(bool verify)
 
     // select the node
     Link::set_node(address());
-    Link::enable_master();
 
     // upload firmware to the selected node
     Upload::upload(fw, verify);

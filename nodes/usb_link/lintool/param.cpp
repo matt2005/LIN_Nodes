@@ -250,6 +250,7 @@ ParamSet::find(unsigned address)
 void
 ParamSet::sync()
 {
+    Link::set_node(_node);
     for (auto p : _params) {
         p->sync();
     }
@@ -260,6 +261,8 @@ ParamSet::set(Jzon::Node &fromNode)
 {
     const char *name = fromNode.get("name").toString().c_str();
     unsigned value = fromNode.get("value").toInt();
+
+    Link::set_node(_node);
 
     for (auto p : _params) {
         if (!strcmp(p->name(), name)) {

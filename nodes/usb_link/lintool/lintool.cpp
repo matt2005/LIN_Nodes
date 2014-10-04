@@ -325,6 +325,10 @@ main(int argc, char *argv[])
     optreset = 1;
     optind = 1;
 
+    if (argc < 1) {
+        usage();
+    }
+
     try {
         Link::connect();
 

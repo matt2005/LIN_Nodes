@@ -14,7 +14,7 @@ EXTRA_LDFLAGS	 = -nostartfiles				\
 		   -Wl,--section-start=.text=$(BL_ADDR)
 
 # Required for <board.h>
-BOARD		 = MASTER_V1
+BOARD		 = BOOTLOADER
 
 build: header
 

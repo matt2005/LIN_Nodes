@@ -18,22 +18,19 @@
 #include "pin.h"
 #include "softserial.h"
 
-#if defined(BOARD_POWER_V1)
+#if defined (BOARD_BOOTLOADER)
+# include "config_bootloader.h"
+#elif defined(BOARD_POWER_V1)
 # include "config_power_v1.h"
-#endif
-#if defined(BOARD_POWER_V3)
+#elif defined(BOARD_POWER_V3)
 # include "config_power_v3.h"
-#endif
-#if defined(BOARD_MASTER_V1)
+#elif defined(BOARD_MASTER_V1)
 # include "config_master_v1.h"
-#endif
-#if defined(BOARD_PROGRAMMER_V1)
+#elif defined(BOARD_PROGRAMMER_V1)
 # include "config_programmer_v1.h"
-#endif
-#if defined(BOARD_USB_LINK)
+#elif defined(BOARD_USB_LINK)
 # include "config_usb_link.h"
-#endif
-#ifndef pinLINRX
+#else
 # error Need to define a board type
 #endif
 

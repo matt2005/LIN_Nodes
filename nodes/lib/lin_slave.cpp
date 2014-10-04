@@ -17,7 +17,8 @@
 
 Slave::Slave(uint8_t nad, bool polled) :
     LINDev(polled),
-    _nad(nad)
+    _nad(nad),
+    _sendSlaveResponse(false)
 {
 }
 

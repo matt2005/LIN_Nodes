@@ -179,7 +179,7 @@ namespace pci
 {
 static const uint16_t kSingleFrame = 0;
 static const uint16_t kFirstFrame = 1;
-static const uint16_t kContiuationFrame = 2;
+static const uint16_t kContinuationFrame = 2;
 static const uint16_t kNumEncodings = 3;
 } // namespace pci
 
@@ -638,6 +638,7 @@ namespace Master
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0001;
     static const uint8_t kNodeVariant = 0x01;
+    static const uint16_t kNodeProtocolVersion = ((uint16_t)1 << 8) | 0;
 } // namespace Master
 
 namespace PowerV1
@@ -678,6 +679,7 @@ namespace Tester
     static const uint16_t kNodeSupplier = 0xb007;
     static const uint16_t kNodeFunction = 0x0006;
     static const uint8_t kNodeVariant = 0x01;
+    static const uint16_t kNodeProtocolVersion = ((uint16_t)1 << 8) | 0;
 } // namespace Tester
 
 static const uint8_t kNodeAddressMax = 32;

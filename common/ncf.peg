@@ -24,7 +24,7 @@ node_capability_file    <- SPACE 'node_capability_file' SEMICOLON
                             node_definition*
                             EOF ;
 
-    language_version        <- 'LIN_language_version' EQUALS String SEMICOLON ;
+    language_version        <- 'LIN_language_version' EQUALS version_string SEMICOLON ;
 
 
 node_definition         <- 'node' SPACE Name OPEN_BRACE
@@ -40,7 +40,7 @@ node_definition         <- 'node' SPACE Name OPEN_BRACE
 ###################################################################################################
     
 general_definition      <- 'general' OPEN_BRACE
-                            protocol_version
+                            protocol_version?
                             supplier
                             function
                             variant
@@ -48,7 +48,7 @@ general_definition      <- 'general' OPEN_BRACE
                             sends_wakeup
                             CLOSE_BRACE ;
 
-    protocol_version    <- 'LIN_protocol_version' EQUALS String SEMICOLON ;
+    protocol_version    <- 'LIN_protocol_version' EQUALS version_string SEMICOLON ;
     supplier            <- 'supplier' EQUALS Integer SEMICOLON ;
     function            <- 'function' EQUALS Integer SEMICOLON ;
     variant             <- 'variant' EQUALS Integer SEMICOLON ;
@@ -193,6 +193,12 @@ free_text_definition    <- 'free_text' OPEN_BRACE
 
 ###################################################################################################
 
+version_string          <- QUOTE version_major DOT version_minor QUOTE ;
+version_major               <- Integer ;
+version_minor               <- Integer ;
+
+###################################################################################################
+
 # terminals
         Name            <- SPACE name_value SPACE               ;
 leaf:   name_value      <- <alpha> ([_] / <alnum>)*             ;
@@ -203,13 +209,13 @@ leaf:   real_value      <- <ddigit> ('.' / <ddigit>)*           ;
         String          <- OPEN_QUOTE string_value CLOSE_QUOTE  ;
 leaf:   string_value    <- (!QUOTE .)*                          ;
 
-
 # tokens
 void:   OPEN_BRACE      <- SPACE '{' SPACE              ;
 void:   CLOSE_BRACE     <- SPACE '}' SPACE              ;
 void:   OPEN_QUOTE      <- SPACE QUOTE                  ;
 void:   CLOSE_QUOTE     <- QUOTE SPACE                  ;
 void:   QUOTE           <- '"'                          ;
+void:   DOT             <- '.'                          ;
 void:   SPACE           <- (<space> / EOL / COMMENT)*   ;
 void:   EQUALS          <- SPACE '=' SPACE              ;
 void:   COMMENT         <- '//' (!EOL .)* EOL           ;   # XXX no support for /* */

@@ -6,7 +6,7 @@
 // ----------------------------------------------------------------------------
 
 node_capability_file;
-LIN_language_version = "2.1+";
+LIN_language_version = "2.1";
 
 //
 // Generic node definition that can be used when talking to an arbitrary
@@ -15,7 +15,6 @@ LIN_language_version = "2.1+";
 //
 node Generic {
     general {
-        LIN_protocol_version = "2.1";
         supplier = 0xb007;
         function = 0x0000;
         variant = 0x00;
@@ -133,7 +132,6 @@ node Generic {
 
 node Bootloader {
     general {
-        LIN_protocol_version = "2.1";
         supplier = 0xb007;
         function = 0x0000;
         variant = 0x00;
@@ -176,7 +174,7 @@ node Bootloader {
 
 node Master {
     general {
-        LIN_protocol_version = "2.1";
+        LIN_protocol_version = "1.0";
         supplier = 0xb007;
         function = 0x0001;  // board_function::kMaster
         variant = 0x01;
@@ -350,7 +348,7 @@ node Master {
         pci {
             logical_value, 0, "SingleFrame";
             logical_value, 1, "FirstFrame";
-            logical_value, 2, "ContiuationFrame";
+            logical_value, 2, "ContinuationFrame";
         }
         service_id {
             logical_value, 0x22, "ReadDataByID";
@@ -366,7 +364,6 @@ node Master {
 
 node PowerV1 {
     general {
-        LIN_protocol_version = "2.1";
         supplier = 0xb007;
         function = 0x0002;  // board_function::kPowerV1
         variant = 0x10;
@@ -428,7 +425,6 @@ node PowerV1 {
 
 node PowerV3 {
     general {
-        LIN_protocol_version = "2.1";
         supplier = 0xb007;
         function = 0x0003;  // board_function::kPowerV1
         variant = 0x01;
@@ -551,7 +547,6 @@ node PowerV3 {
 
 node ECUBridge {
     general {
-        LIN_protocol_version = "2.1";
         supplier = 0xb007;
         function = 0x0004;  // board_function::kECUBridge
         variant = 0x10;
@@ -593,7 +588,6 @@ node ECUBridge {
 
 node Dashboard {
     general {
-        LIN_protocol_version = "2.1";
         supplier = 0xb007;
         function = 0x0005;  // board_function::kDashboard
         variant = 0x01;
@@ -614,7 +608,7 @@ node Dashboard {
 
 node Tester {
     general {
-        LIN_protocol_version = "2.1";
+        LIN_protocol_version = "1.0";
         supplier = 0xb007;
         function = 0x0006;
         variant = 0x01;

@@ -99,7 +99,7 @@ Parameter::get() const
 {
     switch (address()) {
     case Generic::kParamProtocolVersion:
-        return 1;
+        return Master::kNodeProtocolVersion;
 
     case Generic::kParamBoardFunction:
         return board_function::kMaster;

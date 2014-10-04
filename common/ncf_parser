@@ -122,9 +122,27 @@ namespace eval util {
         foreach child $children {
             print_ast [expr $depth + 2] $child
         }
-
     }
 
+    # Decode a version string
+    #
+    proc decode_version {ast} {
+
+        lassign $ast kind junk maj_comp min_comp
+
+        if {$kind != "version_string"} {
+            util::throw "not a version string: $ast"
+        }
+        lassign $maj_comp kind junk major
+        if {$kind != "version_major"} {
+            util::throw "bad major version string: $maj_comp"
+        }
+        lassign $min_comp kind junk minor
+        if {$kind != "version_minor"} {
+            util::throw "bad minor version string: $min_comp"
+        }
+        return [list $major $minor]
+    }
 }
 
 namespace eval encoding {
@@ -856,6 +874,9 @@ namespace eval node {
             foreach property $ast {
                 lassign $property pkind pname pvalue
                 switch -- $pkind {
+                    "protocol_version" {
+                        set pvalue [util::decode_version $pvalue]
+                    }
                     "bitrate" {
                         set brvalue [lassign $pvalue brkind brname]
                         switch -- $brkind {
@@ -1017,6 +1038,10 @@ namespace eval node {
             puts $fh "    static const uint16_t kNodeFunction = [dict get ${properties} function];"
             puts $fh "    static const uint8_t kNodeVariant = [dict get ${properties} variant];"            
 
+            if {[dict exists $properties protocol_version]} {
+                lassign [dict get $properties protocol_version] major minor
+                puts $fh "    static const uint16_t kNodeProtocolVersion = ((uint16_t)${major} << 8) | ${minor};"
+            }
 
             puts $fh "} // namespace ${name}"
 

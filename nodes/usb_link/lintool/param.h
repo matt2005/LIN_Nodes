@@ -42,10 +42,12 @@ public:
     bool                exists() const;
 
     unsigned            address() const { return _address; }
+    unsigned            encoding() const;
     const char          *name() const;
     const char          *info() const;
     bool                is_valid() const { return _valid; }
     bool                is_dirty() const { return _dirty; }
+    bool                is_settable() const { return encoding() != kEncoding_none; }
 
 private:
     bool                _valid = false;
@@ -57,7 +59,6 @@ private:
 
     void                fetch();
     void                store();
-    unsigned            encoding() const;
 };
 
 class ParamSet

@@ -37,7 +37,7 @@ Param::sync()
 void
 Param::set(unsigned value)
 {
-    if (encoding() != kEncoding_none) {
+    if (is_settable()) {
         if (Encoding::invalid(encoding(), value)) {
             RAISE(ExBadValue, "invalid value " << value << " for " << name());
         }
@@ -45,6 +45,7 @@ Param::set(unsigned value)
         _value = value;
         _dirty = true;
         _valid = true;
+        return;
     }
 
     RAISE(ExNotSettable, "cannot set " << name());

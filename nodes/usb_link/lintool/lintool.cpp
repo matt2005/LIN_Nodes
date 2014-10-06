@@ -189,20 +189,114 @@ load_params(int argc, char *argv[])
 }
 
 void
+edit_param(int argc, char *argv[])
+{
+    unsigned node = Node::kNoNode;
+    bool show_readonly = false;
+    bool want_info = false;
+    int ch;
+
+    while ((ch = getopt(argc, argv, "ain:")) != -1) {
+        switch (ch) {
+        case 'a':
+            show_readonly = true;
+            break;
+        case 'i':
+            want_info = true;
+            break;
+        case 'n':
+            node = strtoul(optarg, nullptr, 0);
+            break;
+        default:
+            warnx("ERROR: unrecognised option '-%c'", ch);
+            usage();
+        }
+    }
+
+    argc -= optind;
+    argv += optind;
+
+    const char *newvalue = nullptr;
+    const char *paramname = nullptr;
+
+    switch (argc) {
+    case 2:
+        newvalue = argv[1];
+        // FALLTHROUGH
+    case 1:
+        paramname = argv[0];
+        // FALLTHROUGH
+    case 0:
+        break;
+
+    default:
+        warnx("ERROR: too many arguments");
+        usage();
+    }
+
+    if (node == Node::kNoNode) {
+        errx(1, "missing node address");
+    }
+    Node::scan(node);
+
+    auto np = Node::nodes().front();
+    auto pset = np->params();
+
+    for (auto param : pset.list()) {
+        if ((paramname != nullptr) && (strcmp(param->name(), paramname))) {
+            continue;
+        }
+        param->sync();
+        auto encoding = param->encoding();
+        auto encoding_name = Encoding::name(encoding) ? : "-";
+        auto info = Encoding::info(encoding, param->get()) ? : "-";
+
+        if (newvalue == nullptr) {
+            if ((paramname != nullptr) || show_readonly || param->is_settable()) {
+                printf("%s %s %u %s\n", param->name(), encoding_name, param->get(), info);
+            }
+            if (want_info && param->is_settable()) {
+                for (uint16_t value = 0; value < 0xffff; value++) {
+                    auto value_info = Encoding::info(encoding, value);
+                    if (value_info != nullptr) {
+                        printf("        %.5u / 0x%04x / %s\n", value, value, value_info);
+                    }
+                }
+            }
+            continue;
+        }
+        if (!param->is_settable()) {
+            errx(1, "%s cannot be set", param->name());
+        }
+        uint16_t value;
+        if (!Encoding::value(encoding, newvalue, value)) {
+            char *cp;
+            value = strtoul(newvalue, &cp, 0);
+            if (*cp != '\0') {
+                errx(1, "bad parameter value '%s'", newvalue);
+            }
+        }
+        param->set(value);
+        param->sync();
+    }
+
+}
+
+void
 update(int argc, char *argv[])
 {
     unsigned node = Node::kNoNode;
-    bool verify = false;
+    bool verify = true;
     int ch;
 
-    while ((ch = getopt(argc, argv, "n:v")) != -1) {
+    while ((ch = getopt(argc, argv, "n:q")) != -1) {
         switch (ch) {
         case 'n':
             node = strtoul(optarg, nullptr, 0);
             break;
 
-        case 'v':
-            verify = true;
+        case 'q':
+            verify = false;
             break;
 
         default:
@@ -273,14 +367,28 @@ struct {
     {
         "load_params",
         "lintool [-l] load_params [-n <node>] [<file>]\n"
-        "    Load parameters fril file (or stdin if <file> not specified).\n",
+        "    Load parameters from file (or stdin if <file> not specified).\n",
         load_params
     },
     {
+        "param",
+        "lintool [-l] param -n <node> [-a][-h] [<param> [<value>]]\n"
+        "    Read or write or more parameters from <node>.\n"
+        "        -a    When printing all node parameters, include read-only parameters.\n"
+        "        -i    When printing a parameter that accepts named values, also print\n"
+        "              a list of the allowed named values.\n"
+        "    If <param> and <value> are supplied, sets the named parameter to the given value.\n"
+        "    The <value> parameter may either be a number, or a named value.\n"
+        "    If only <param> is supplied, prints the value of the named parameter.\n"
+        "    If neither are supplied, all parameters from <node> are printed.\n"
+        "    Parameters are printed in the format <param> <encoding> <value> <info>.\n",
+        edit_param
+    },
+    {
         "update",
-        "lintool [-l] update [-v][-n <node>] <file> [<file> ...]\n"
+        "lintool [-l] update [-q][-n <node>] <file> [<file> ...]\n"
         "    Update node firmware for one or more nodes from one or more firmware files.\n"
-        "        -v    Perform read-after-write verification.\n"
+        "        -q    Don't perform read-after-write verification.\n"
         "    Only nodes for which firmware is loaded can be updated. If -n is not specified,\n"
         "    all nodes will be updated.\n"
         "    To update a node in recovery mode that has lost its type, pass -n 32 and supply\n"

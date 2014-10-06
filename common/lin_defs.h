@@ -11,8 +11,11 @@
 namespace Encoding
 {
 extern bool                 invalid(uint8_t encoding, uint16_t value);
+#ifdef LIN_DEFS_WITH_STRINGS
 extern const PROGMEM char   *name(uint8_t encoding);
 extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);
+extern bool                 value(uint8_t encoding, const char *info, uint16_t &value);
+#endif // LIN_DEFS_WITH_STRINGS
 } // namespace Encoding
 
 static const uint8_t kEncoding_board_function = 0;
@@ -334,7 +337,9 @@ static const uint16_t kNumEncodings = 1;
 
 namespace Frame
 {
+#ifdef LIN_DEFS_WITH_STRINGS
 extern const PROGMEM char *name(uint8_t fid);
+#endif
 }
 
 static const uint8_t kFrameIDSlaveResponse = 0x3d;
@@ -443,7 +448,9 @@ namespace Generic
 extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
+#ifdef LIN_DEFS_WITH_STRINGS
 extern const PROGMEM char *param_name(Parameter::Address address);
+#endif // LIN_DEFS_WITH_STRINGS
 
 static const uint16_t kParamProtocolVersion = 0x0000;
 static const uint16_t kParamBoardFunction = 0x0001;
@@ -469,7 +476,9 @@ namespace Bootloader
 extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
+#ifdef LIN_DEFS_WITH_STRINGS
 extern const PROGMEM char *param_name(Parameter::Address address);
+#endif // LIN_DEFS_WITH_STRINGS
 
 static const uint16_t kParamStatus = 0x0300;
 static const uint16_t kParamPageAddress = 0x0301;
@@ -487,7 +496,9 @@ namespace Master
 extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
+#ifdef LIN_DEFS_WITH_STRINGS
 extern const PROGMEM char *param_name(Parameter::Address address);
+#endif // LIN_DEFS_WITH_STRINGS
 
 static const uint16_t kParamSP1Assign = 0x0400;
 static const uint16_t kParamSP1Mode = 0x0401;
@@ -543,7 +554,9 @@ namespace PowerV1
 extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
+#ifdef LIN_DEFS_WITH_STRINGS
 extern const PROGMEM char *param_name(Parameter::Address address);
+#endif // LIN_DEFS_WITH_STRINGS
 
 static const uint16_t kParamRelay1Status = 0x0300;
 static const uint16_t kParamRelay2Status = 0x0301;
@@ -561,7 +574,9 @@ namespace PowerV3
 extern bool param_exists(Parameter::Address address);
 extern uint16_t param_default(Parameter::Address address);
 extern uint8_t param_encoding(Parameter::Address address);
+#ifdef LIN_DEFS_WITH_STRINGS
 extern const PROGMEM char *param_name(Parameter::Address address);
+#endif // LIN_DEFS_WITH_STRINGS
 
 static const uint16_t kParamCH1Status = 0x0300;
 static const uint16_t kParamCH2Status = 0x0301;

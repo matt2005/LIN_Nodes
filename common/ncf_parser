@@ -248,8 +248,11 @@ namespace eval encoding {
         puts $fh "namespace Encoding"
         puts $fh "{"
         puts $fh "extern bool                 invalid(uint8_t encoding, uint16_t value);"
+        puts $fh "#ifdef LIN_DEFS_WITH_STRINGS"
         puts $fh "extern const PROGMEM char   *name(uint8_t encoding);"
         puts $fh "extern const PROGMEM char   *info(uint8_t encoding, uint16_t value);"
+        puts $fh "extern bool                 value(uint8_t encoding, const char *info, uint16_t &value);"
+        puts $fh "#endif // LIN_DEFS_WITH_STRINGS"
         puts $fh "} // namespace Encoding"
 
         # Constants for all encoding types
@@ -371,6 +374,7 @@ namespace eval encoding {
         # String tables for encoding names, info strings, etc.
         #
         puts $fh ""
+        puts $fh "#ifdef LIN_DEFS_WITH_STRINGS"
         dict for {name encinfo} $by_name {
             # encoding name
             puts $fh "static const PROGMEM char _encoding_name_${name}\[\] = \"${name}\";"
@@ -431,6 +435,39 @@ namespace eval encoding {
 
         puts $fh "    return nullptr;"
         puts $fh "}"
+
+        # Lookup function that converts encoding index and info string into a
+        # possible value.
+        #
+        puts $fh ""
+        puts $fh "bool"
+        puts $fh "value(uint8_t encoding, const char *info, uint16_t &value)"
+        puts $fh "{"
+
+        dict for {name encinfo} $by_name {
+            puts $fh "    if (encoding == kEncoding_${name}) {"
+            set index 0
+            foreach subencoding $encinfo {
+                dict with subencoding {
+                    switch -- $kind {
+                        "value" {
+                            puts $fh "        if (!strcmp(&_encoding_info_${name}_${index}\[0\], info)) {"
+                            puts $fh "            value = ${value};"
+                            puts $fh "            return true;"
+                            puts $fh "        }"
+                        }
+                    }
+                }
+                incr index
+            }
+            puts $fh "    }"
+        }
+
+        puts $fh "  return false;"
+        puts $fh "}"
+        puts $fh "#endif // LIN_DEFS_WITH_STRINGS"
+
+
         puts $fh "} // namespace Encoding"
 
     }
@@ -589,7 +626,9 @@ namespace eval frame {
         puts $fh ""
         puts $fh "namespace Frame"
         puts $fh "{"
+        puts $fh "#ifdef LIN_DEFS_WITH_STRINGS"
         puts $fh "extern const PROGMEM char *name(uint8_t fid);"
+        puts $fh "#endif"
         puts $fh "}"
 
         puts $fh ""
@@ -646,6 +685,8 @@ namespace eval frame {
         puts $fh ""
         puts $fh "namespace Frame"
         puts $fh "{"
+
+        puts $fh "#ifdef LIN_DEFS_WITH_STRINGS"
         foreach name [dict keys $by_name] {
             if {[dict exists $by_name $name properties frame_id]} {
                 puts $fh "static const PROGMEM char _frame_name_${name}\[\] = \"${name}\";"
@@ -664,6 +705,8 @@ namespace eval frame {
         }
         puts $fh "    return nullptr;"
         puts $fh "}"
+        puts $fh "#endif // LIN_DEFS_WITH_STRINGS"
+
         puts $fh "} // namespace Frame"
 
 
@@ -761,7 +804,9 @@ namespace eval parameter {
             puts $fh "extern bool param_exists(Parameter::Address address);"
             puts $fh "extern uint16_t param_default(Parameter::Address address);"
             puts $fh "extern uint8_t param_encoding(Parameter::Address address);"
+            puts $fh "#ifdef LIN_DEFS_WITH_STRINGS"
             puts $fh "extern const PROGMEM char *param_name(Parameter::Address address);"
+            puts $fh "#endif // LIN_DEFS_WITH_STRINGS"
 
             puts $fh ""
             dict for {pkey pattr} [for_node $node] {
@@ -834,6 +879,7 @@ namespace eval parameter {
             # String table for parameter names
             #
             puts $fh ""
+            puts $fh "#ifdef LIN_DEFS_WITH_STRINGS"
             dict for {pkey pattr} [for_node $node] {
                 lassign [split $pkey "~"] pnode pname
                 puts $fh "static const PROGMEM char _param_name_${pname}\[\] = \"${pname}\";"
@@ -851,6 +897,7 @@ namespace eval parameter {
             }
             puts $fh "    return nullptr;"
             puts $fh "}"
+            puts $fh "#endif // LIN_DEFS_WITH_STRINGS"
             puts $fh ""
 
             puts $fh ""
@@ -1214,6 +1261,10 @@ util::wrap {set fh [open "lin_defs.h" "w"]
 util::wrap {set fh [open "lin_defs.cpp" "w"]
     puts $fh "// AUTOMATICALLY GENERATED - DO NOT EDIT"
     puts $fh "#include \"lin_defs.h\""
+    puts $fh "#ifdef LIN_DEFS_WITH_STRINGS"
+    puts $fh "#include <string.h>"
+    puts $fh "#endif // LIN_DEFS_WITH_STRINGS"
+
     puts $fh ""
 
     foreach ns {encoding signal frame parameter node} {

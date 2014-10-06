@@ -1,5 +1,8 @@
 // AUTOMATICALLY GENERATED - DO NOT EDIT
 #include "lin_defs.h"
+#ifdef LIN_DEFS_WITH_STRINGS
+#include <string.h>
+#endif // LIN_DEFS_WITH_STRINGS
 
 
 namespace Encoding
@@ -114,6 +117,7 @@ invalid(uint8_t encoding, uint16_t value)
     return true;
 }
 
+#ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _encoding_name_board_function[] = "board_function";
 static const PROGMEM char _encoding_info_board_function_0[] = "Unknown";
 static const PROGMEM char _encoding_info_board_function_1[] = "Master";
@@ -830,10 +834,618 @@ info(uint8_t encoding, uint16_t value)
     }
     return nullptr;
 }
+
+bool
+value(uint8_t encoding, const char *info, uint16_t &value)
+{
+    if (encoding == kEncoding_board_function) {
+        if (!strcmp(&_encoding_info_board_function_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_board_function_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_board_function_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_board_function_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_board_function_4[0], info)) {
+            value = 4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_board_function_5[0], info)) {
+            value = 5;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_board_function_6[0], info)) {
+            value = 6;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_board_function_7[0], info)) {
+            value = 255;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_bootloader_magic) {
+        if (!strcmp(&_encoding_info_bootloader_magic_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bootloader_magic_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bootloader_magic_2[0], info)) {
+            value = 0x4f42;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_service_error) {
+        if (!strcmp(&_encoding_info_service_error_0[0], info)) {
+            value = 0x12;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_error_1[0], info)) {
+            value = 0x13;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_error_2[0], info)) {
+            value = 0x22;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_error_3[0], info)) {
+            value = 0x31;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_error_4[0], info)) {
+            value = 0x33;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_error_5[0], info)) {
+            value = 0x72;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_bl_status) {
+        if (!strcmp(&_encoding_info_bl_status_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bl_status_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bl_status_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bl_status_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bl_status_4[0], info)) {
+            value = 4;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_bl_reason) {
+        if (!strcmp(&_encoding_info_bl_reason_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bl_reason_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_bl_reason_2[0], info)) {
+            value = 2;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_input_assignment) {
+        if (!strcmp(&_encoding_info_input_assignment_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_4[0], info)) {
+            value = 4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_5[0], info)) {
+            value = 5;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_6[0], info)) {
+            value = 6;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_7[0], info)) {
+            value = 7;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_8[0], info)) {
+            value = 8;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_9[0], info)) {
+            value = 9;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_10[0], info)) {
+            value = 10;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_11[0], info)) {
+            value = 11;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_12[0], info)) {
+            value = 12;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_13[0], info)) {
+            value = 13;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_14[0], info)) {
+            value = 14;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_15[0], info)) {
+            value = 15;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_16[0], info)) {
+            value = 16;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_17[0], info)) {
+            value = 17;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_18[0], info)) {
+            value = 18;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_19[0], info)) {
+            value = 19;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_20[0], info)) {
+            value = 20;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_21[0], info)) {
+            value = 21;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_22[0], info)) {
+            value = 22;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_input_assignment_23[0], info)) {
+            value = 23;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_sp_input_mode) {
+        if (!strcmp(&_encoding_info_sp_input_mode_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sp_input_mode_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sp_input_mode_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sp_input_mode_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sp_input_mode_4[0], info)) {
+            value = 4;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_sg_input_mode) {
+        if (!strcmp(&_encoding_info_sg_input_mode_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sg_input_mode_1[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sg_input_mode_2[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sg_input_mode_3[0], info)) {
+            value = 4;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_msec) {
+        if (!strcmp(&_encoding_info_msec_0[0], info)) {
+            value = 0;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_sec) {
+        if (!strcmp(&_encoding_info_sec_0[0], info)) {
+            value = 0;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_up_to_10) {
+        if (!strcmp(&_encoding_info_up_to_10_0[0], info)) {
+            value = 0;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_node_address) {
+        if (!strcmp(&_encoding_info_node_address_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_node_address_2[0], info)) {
+            value = 126;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_node_address_3[0], info)) {
+            value = 127;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_pci) {
+        if (!strcmp(&_encoding_info_pci_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_pci_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_pci_2[0], info)) {
+            value = 2;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_service_id) {
+        if (!strcmp(&_encoding_info_service_id_0[0], info)) {
+            value = 0x22;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_id_1[0], info)) {
+            value = 0x2e;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_id_2[0], info)) {
+            value = 0x3e;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_id_3[0], info)) {
+            value = 0xb2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_id_4[0], info)) {
+            value = 0xb4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_id_5[0], info)) {
+            value = 0x7f;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_service_id_6[0], info)) {
+            value = 0x40;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_v1_output_status) {
+        if (!strcmp(&_encoding_info_v1_output_status_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_status_1[0], info)) {
+            value = 1;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_v1_output_assignment) {
+        if (!strcmp(&_encoding_info_v1_output_assignment_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_4[0], info)) {
+            value = 4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_5[0], info)) {
+            value = 5;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_6[0], info)) {
+            value = 6;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_7[0], info)) {
+            value = 7;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_8[0], info)) {
+            value = 8;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_9[0], info)) {
+            value = 9;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_10[0], info)) {
+            value = 10;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_11[0], info)) {
+            value = 11;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_12[0], info)) {
+            value = 12;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_13[0], info)) {
+            value = 13;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_14[0], info)) {
+            value = 14;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_15[0], info)) {
+            value = 15;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_16[0], info)) {
+            value = 16;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_17[0], info)) {
+            value = 17;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_18[0], info)) {
+            value = 18;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_19[0], info)) {
+            value = 19;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_20[0], info)) {
+            value = 20;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_21[0], info)) {
+            value = 21;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_22[0], info)) {
+            value = 22;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v1_output_assignment_23[0], info)) {
+            value = 23;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_v3_output_status) {
+        if (!strcmp(&_encoding_info_v3_output_status_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_status_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_status_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_status_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_status_4[0], info)) {
+            value = 4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_status_5[0], info)) {
+            value = 5;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_v3_output_type) {
+        if (!strcmp(&_encoding_info_v3_output_type_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_type_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_type_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_type_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_type_4[0], info)) {
+            value = 4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_type_5[0], info)) {
+            value = 5;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_type_6[0], info)) {
+            value = 6;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_v3_output_assignment) {
+        if (!strcmp(&_encoding_info_v3_output_assignment_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_1[0], info)) {
+            value = 1;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_3[0], info)) {
+            value = 3;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_4[0], info)) {
+            value = 4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_5[0], info)) {
+            value = 5;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_6[0], info)) {
+            value = 6;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_7[0], info)) {
+            value = 7;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_8[0], info)) {
+            value = 8;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_9[0], info)) {
+            value = 9;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_10[0], info)) {
+            value = 10;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_11[0], info)) {
+            value = 11;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_12[0], info)) {
+            value = 12;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_13[0], info)) {
+            value = 13;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_14[0], info)) {
+            value = 14;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_15[0], info)) {
+            value = 15;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_16[0], info)) {
+            value = 16;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_17[0], info)) {
+            value = 17;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_18[0], info)) {
+            value = 18;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_19[0], info)) {
+            value = 19;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_20[0], info)) {
+            value = 20;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_21[0], info)) {
+            value = 21;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_22[0], info)) {
+            value = 22;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_v3_output_assignment_23[0], info)) {
+            value = 23;
+            return true;
+        }
+    }
+    if (encoding == kEncoding_pwm_duty_cycle) {
+    }
+    if (encoding == kEncoding_RPM) {
+    }
+    if (encoding == kEncoding_PSI) {
+    }
+    if (encoding == kEncoding_F) {
+    }
+    if (encoding == kEncoding_V) {
+    }
+    if (encoding == kEncoding_lambda) {
+    }
+    if (encoding == kEncoding_MPH) {
+    }
+  return false;
+}
+#endif // LIN_DEFS_WITH_STRINGS
 } // namespace Encoding
 
 namespace Frame
 {
+#ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _frame_name_SlaveResponse[] = "SlaveResponse";
 static const PROGMEM char _frame_name_Relays[] = "Relays";
 static const PROGMEM char _frame_name_MasterRequest[] = "MasterRequest";
@@ -856,6 +1468,7 @@ name(uint8_t fid)
     }
     return nullptr;
 }
+#endif // LIN_DEFS_WITH_STRINGS
 } // namespace Frame
 
 namespace Generic
@@ -933,6 +1546,7 @@ param_encoding(Parameter::Address address)
     return kEncoding_none;
 }
 
+#ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _param_name_ProtocolVersion[] = "ProtocolVersion";
 static const PROGMEM char _param_name_BoardFunction[] = "BoardFunction";
 static const PROGMEM char _param_name_BootloaderMode[] = "BootloaderMode";
@@ -1003,6 +1617,7 @@ param_name(Parameter::Address address)
     }
     return nullptr;
 }
+#endif // LIN_DEFS_WITH_STRINGS
 
 
 } // namespace Generic
@@ -1058,6 +1673,7 @@ param_encoding(Parameter::Address address)
     return kEncoding_none;
 }
 
+#ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _param_name_Status[] = "Status";
 static const PROGMEM char _param_name_PageAddress[] = "PageAddress";
 static const PROGMEM char _param_name_PageOffset[] = "PageOffset";
@@ -1096,6 +1712,7 @@ param_name(Parameter::Address address)
     }
     return nullptr;
 }
+#endif // LIN_DEFS_WITH_STRINGS
 
 
 } // namespace Bootloader
@@ -1535,6 +2152,7 @@ param_encoding(Parameter::Address address)
     return kEncoding_none;
 }
 
+#ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _param_name_SP1Assign[] = "SP1Assign";
 static const PROGMEM char _param_name_SP1Mode[] = "SP1Mode";
 static const PROGMEM char _param_name_SP2Assign[] = "SP2Assign";
@@ -1725,6 +2343,7 @@ param_name(Parameter::Address address)
     }
     return nullptr;
 }
+#endif // LIN_DEFS_WITH_STRINGS
 
 
 } // namespace Master
@@ -1822,6 +2441,7 @@ param_encoding(Parameter::Address address)
     return kEncoding_none;
 }
 
+#ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _param_name_Relay1Status[] = "Relay1Status";
 static const PROGMEM char _param_name_Relay2Status[] = "Relay2Status";
 static const PROGMEM char _param_name_Relay3Status[] = "Relay3Status";
@@ -1860,6 +2480,7 @@ param_name(Parameter::Address address)
     }
     return nullptr;
 }
+#endif // LIN_DEFS_WITH_STRINGS
 
 
 } // namespace PowerV1
@@ -2335,6 +2956,7 @@ param_encoding(Parameter::Address address)
     return kEncoding_none;
 }
 
+#ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _param_name_CH1Status[] = "CH1Status";
 static const PROGMEM char _param_name_CH2Status[] = "CH2Status";
 static const PROGMEM char _param_name_CH3Status[] = "CH3Status";
@@ -2541,6 +3163,7 @@ param_name(Parameter::Address address)
     }
     return nullptr;
 }
+#endif // LIN_DEFS_WITH_STRINGS
 
 
 } // namespace PowerV3

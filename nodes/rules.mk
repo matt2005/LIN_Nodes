@@ -144,7 +144,7 @@ $(FW): $(HEX)
 	$q echo "Node: $(PROG) $(GIT_IDENTITY)" > $@
 	$q cat $(HEX) >> $@
 
-$(ELF):	$(OBJS) $(MAKEFILE_LIST)
+$(ELF):	$(OBJS)
 	@echo LINK $(notdir $@)
 	$q $(CXX) -o $@ $(LDFLAGS) $(OBJS) -Wl,-Map,$@.map
 	$q $(SIZE) $@

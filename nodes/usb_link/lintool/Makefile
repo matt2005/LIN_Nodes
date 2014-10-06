@@ -1,25 +1,63 @@
+PROG		 = lintool
+
+SRCROOT		:= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+TOPDIR		:= $(abspath $(SRCROOT)/../../..)
+BUILDDIR	:= $(TOPDIR)/build/$(PROG)
+COMMON		:= $(TOPDIR)/common
+
+CXX		 = c++
+
 USBFLAGS	:= $(shell pkg-config --cflags libusb-1.0)
 USBLIBS		:= $(shell pkg-config --libs libusb-1.0)
-COMMON		:= ../../../common
+
+DEFINES		 = -DLIN_DEFS_WITH_STRINGS
+INCLUDES	 = $(SRCROOT)/.. $(COMMON)
+
+CXXFLAGS	 = -std=gnu++11			\
+		   $(USBFLAGS)			\
+		   -O0				\
+		   -g				\
+		   -Wall			\
+		   -I$(COMMON)			\
+		   -I..				\
+		   $(DEFINES)
+
+vpath %.cpp	$(SRCROOT) $(COMMON)
+vpath %.h	$(SRCROOT) $(SRCROOT/..) $(COMMON)
 
 SRCS		 = $(wildcard *.cpp)		\
-		   $(COMMON)/lin_defs.cpp
+		   lin_defs.cpp
+
+HDRS		 = $(shell $(CXX) -E -H $(DEFINES) $(INCLUDES) $(SRCS))
+
+OBJS		 = $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
+DEPS		 = $(OBJS:.o=.d)
 
 NO_FORMAT_SRCS	 = Jzon% $(COMMON)%
 
-HDRS		 = $(wildcard *.h)
+ifeq ($(VERBOSE),)
+q		= @
+endif
 
-CXX		 = c++
-FLAGS		 = -std=gnu++11 $(USBFLAGS) -O0 -g -Wall -I$(COMMON)
+.SUFFIXES:
 
-PROG		 = lintool
+build:	$(PROG)
 
-$(PROG):	$(SRCS) $(HDRS)
-	$(CXX) -o $@ $(FLAGS) $(SRCS) $(USBLIBS)
+$(PROG) $(OBJS): $(MAKEFILE_LIST)
+
+$(PROG):	$(OBJS)
+	$(CXX) -g -o $@ $(OBJS) $(USBLIBS)
+
+$(filter %.cpp.o,$(OBJS)): $(BUILDDIR)/%.o: %
+	@mkdir -p $(dir $@)
+	@echo CXX $(notdir $<)
+	$q $(CXX) -c -o $@ $(CXXFLAGS) $(abspath $<)
+
 
 .PHONY: clean
 clean:
-	rm -rf $(PROG) $(PROG).dSYM
+	@echo clean $(BUILDDIR)
+	$q rm -f $(PROG) $(OBJS) $(DEPS)
 
 .PHONY: reformat
 reformat:

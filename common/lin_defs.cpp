@@ -2678,16 +2678,16 @@ param_default(Parameter::Address address)
         return 0;
     }
     if (address == kParamCH1Assign1) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH1Assign2) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH1Assign3) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH1Assign4) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH1PWM1) {
         return 0;
@@ -2702,16 +2702,16 @@ param_default(Parameter::Address address)
         return 0;
     }
     if (address == kParamCH2Assign1) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH2Assign2) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH2Assign3) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH2Assign4) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH2PWM1) {
         return 0;
@@ -2726,16 +2726,16 @@ param_default(Parameter::Address address)
         return 0;
     }
     if (address == kParamCH3Assign1) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH3Assign2) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH3Assign3) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH3Assign4) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH3PWM1) {
         return 0;
@@ -2750,16 +2750,16 @@ param_default(Parameter::Address address)
         return 0;
     }
     if (address == kParamCH4Assign1) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH4Assign2) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH4Assign3) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH4Assign4) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH4PWM1) {
         return 0;
@@ -2774,16 +2774,16 @@ param_default(Parameter::Address address)
         return 0;
     }
     if (address == kParamCH5Assign1) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH5Assign2) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH5Assign3) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH5Assign4) {
-        return 255;
+        return 0;
     }
     if (address == kParamCH5PWM1) {
         return 0;

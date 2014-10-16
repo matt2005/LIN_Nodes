@@ -452,46 +452,46 @@ node PowerV3 {
         CH4Type     { init_value = 0;                     v3_output_type; }
         CH5Type     { init_value = 0;                     v3_output_type; }
 
-        CH1Assign1  { init_value = 255;                   v3_output_assignment; }
-        CH1Assign2  { init_value = 255;                   v3_output_assignment; }
-        CH1Assign3  { init_value = 255;                   v3_output_assignment; }
-        CH1Assign4  { init_value = 255;                   v3_output_assignment; }
+        CH1Assign1  { init_value = 0;                     v3_output_assignment; }
+        CH1Assign2  { init_value = 0;                     v3_output_assignment; }
+        CH1Assign3  { init_value = 0;                     v3_output_assignment; }
+        CH1Assign4  { init_value = 0;                     v3_output_assignment; }
         CH1PWM1     { init_value = 0;                     pwm_duty_cycle; }
         CH1PWM2     { init_value = 0;                     pwm_duty_cycle; }
         CH1PWM3     { init_value = 0;                     pwm_duty_cycle; }
         CH1PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH2Assign1  { init_value = 255;                   v3_output_assignment; }
-        CH2Assign2  { init_value = 255;                   v3_output_assignment; }
-        CH2Assign3  { init_value = 255;                   v3_output_assignment; }
-        CH2Assign4  { init_value = 255;                   v3_output_assignment; }
+        CH2Assign1  { init_value = 0;                     v3_output_assignment; }
+        CH2Assign2  { init_value = 0;                     v3_output_assignment; }
+        CH2Assign3  { init_value = 0;                     v3_output_assignment; }
+        CH2Assign4  { init_value = 0;                     v3_output_assignment; }
         CH2PWM1     { init_value = 0;                     pwm_duty_cycle; }
         CH2PWM2     { init_value = 0;                     pwm_duty_cycle; }
         CH2PWM3     { init_value = 0;                     pwm_duty_cycle; }
         CH2PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH3Assign1  { init_value = 255;                   v3_output_assignment; }
-        CH3Assign2  { init_value = 255;                   v3_output_assignment; }
-        CH3Assign3  { init_value = 255;                   v3_output_assignment; }
-        CH3Assign4  { init_value = 255;                   v3_output_assignment; }
+        CH3Assign1  { init_value = 0;                     v3_output_assignment; }
+        CH3Assign2  { init_value = 0;                     v3_output_assignment; }
+        CH3Assign3  { init_value = 0;                     v3_output_assignment; }
+        CH3Assign4  { init_value = 0;                     v3_output_assignment; }
         CH3PWM1     { init_value = 0;                     pwm_duty_cycle; }
         CH3PWM2     { init_value = 0;                     pwm_duty_cycle; }
         CH3PWM3     { init_value = 0;                     pwm_duty_cycle; }
         CH3PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH4Assign1  { init_value = 255;                   v3_output_assignment; }
-        CH4Assign2  { init_value = 255;                   v3_output_assignment; }
-        CH4Assign3  { init_value = 255;                   v3_output_assignment; }
-        CH4Assign4  { init_value = 255;                   v3_output_assignment; }
+        CH4Assign1  { init_value = 0;                     v3_output_assignment; }
+        CH4Assign2  { init_value = 0;                     v3_output_assignment; }
+        CH4Assign3  { init_value = 0;                     v3_output_assignment; }
+        CH4Assign4  { init_value = 0;                     v3_output_assignment; }
         CH4PWM1     { init_value = 0;                     pwm_duty_cycle; }
         CH4PWM2     { init_value = 0;                     pwm_duty_cycle; }
         CH4PWM3     { init_value = 0;                     pwm_duty_cycle; }
         CH4PWM4     { init_value = 0;                     pwm_duty_cycle; }
 
-        CH5Assign1  { init_value = 255;                   v3_output_assignment; }
-        CH5Assign2  { init_value = 255;                   v3_output_assignment; }
-        CH5Assign3  { init_value = 255;                   v3_output_assignment; }
-        CH5Assign4  { init_value = 255;                   v3_output_assignment; }
+        CH5Assign1  { init_value = 0;                     v3_output_assignment; }
+        CH5Assign2  { init_value = 0;                     v3_output_assignment; }
+        CH5Assign3  { init_value = 0;                     v3_output_assignment; }
+        CH5Assign4  { init_value = 0;                     v3_output_assignment; }
         CH5PWM1     { init_value = 0;                     pwm_duty_cycle; }
         CH5PWM2     { init_value = 0;                     pwm_duty_cycle; }
         CH5PWM3     { init_value = 0;                     pwm_duty_cycle; }

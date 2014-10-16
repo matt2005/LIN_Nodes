@@ -31,7 +31,7 @@ main(void)
     }
 
     // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
+    for (Parameter::Address addr = Generic::kParamConfigBase; addr < Generic::kParamConfigTop; addr++) {
         Parameter p(addr);
         uint8_t encoding = param_encoding(addr);
 

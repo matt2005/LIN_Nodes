@@ -74,13 +74,15 @@ public:
     void                sync();
     bool                is_dirty() const;
 
-    Param               *find(unsigned address);
+    Param               *find(unsigned address) const;
 
     void                set(Jzon::Node &fromNode);
 
     unsigned            node() const { return _node; }
     unsigned            function() const { return _function; }
     Param::List         &list() { return _params; }
+
+    Param               *param_for_name(const char *name);
 
 private:
     unsigned            _node;

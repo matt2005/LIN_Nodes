@@ -221,7 +221,15 @@ char *
 ParamSet::identity() const
 {
     char *str;
-    asprintf(&str, "[%u:%u:%s]\n", _node, _function, Encoding::info(kEncoding_board_function, _function));
+
+    auto blp = find(Generic::kParamBootloaderMode);
+    bool bl = (blp != nullptr) && (blp->get() != 0);
+
+    asprintf(&str, "[%u:%u:%s%s]\n", 
+        _node,
+        _function,
+        Encoding::info(kEncoding_board_function, _function),
+        bl ? "(bootloader)" : "");
     return str;
 }
 
@@ -238,7 +246,7 @@ ParamSet::is_dirty() const
 }
 
 Param *
-ParamSet::find(unsigned address)
+ParamSet::find(unsigned address) const
 {
     for (auto p : _params) {
         if (p->address() == address) {
@@ -260,19 +268,39 @@ ParamSet::sync()
 void
 ParamSet::set(Jzon::Node &fromNode)
 {
+    // Find the parameter and make sure we want to set it
     const char *name = fromNode.get("name").toString().c_str();
-    unsigned value = fromNode.get("value").toInt();
+    auto p = param_for_name(name);
+    if (p == nullptr) {
+        RAISE(Param::ExNonexistent, "parameter " << name << "does not exist in this context");
+    }
+    if (!p->is_settable()) {
+        return;
+    }
 
-    Link::set_node(_node);
-
-    for (auto p : _params) {
-        if (!strcmp(p->name(), name)) {
-            p->set(value);
-            return;
+    // Work out the value we are going to set
+    uint16_t value = fromNode.get("value").toInt();
+    const char *info = fromNode.get("info").toString().c_str();
+    if (!strcmp(info, "")) {
+        // prefer a named value (since encodings may change)
+        if (!Encoding::value(p->encoding(), info, value)) {
+            RAISE(Param::ExNotValid, "parameter " << name << "cannot be set to '" << info << "'.");
         }
     }
 
-    RAISE(Param::ExNonexistent, "parameter " << name << "does not exist in this context");
+    Link::set_node(_node);
+    p->set(value);
+}
+
+Param *
+ParamSet::param_for_name(const char *name)
+{
+    for (auto p : _params) {
+        if (!strcmp(p->name(), name)) {
+            return p;
+        }
+    }
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -291,6 +319,7 @@ ParamDB::read(const char *path)
 {
     Jzon::Parser parser;
 
+    _rootNode.clear();
     _rootNode = parser.parseFile(path);
 
     if (!_rootNode.isValid()) {
@@ -334,10 +363,4 @@ ParamDB::store(ParamSet &pset)
 
     node.add("parameters", params);
     _rootNode.add(node);
-}
-
-void
-ParamDB::fetch(ParamSet &pset)
-{
-
 }

@@ -178,6 +178,10 @@ unsigned
 read_bl_memory(unsigned address)
 {
     Link::write_param(Bootloader::kParamDebugPointer, address);
+    auto set_address = Link::read_param(Bootloader::kParamDebugPointer);
+    if (set_address != address) {
+        RAISE(ExBadAddress, "bootloader set wrong readback address");
+    }
     return Link::read_param(Bootloader::kParamMemory);
 }
 
@@ -195,9 +199,9 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
 
     check_ready();
 
-    warnx("program: 0x%04x", address);
-
     for (auto tries = 0; tries < 3; tries++) {
+
+        warnx("program: 0x%04x%s", address, (tries > 0) ? " (retry)" : "");
 
         // set the page address
         set_address(address);
@@ -233,14 +237,22 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
 
         if (readback) {
             for (unsigned offset = 0; offset < pagesize; offset++) {
-                uint8_t is = read_bl_memory(address + offset);
+                    // readback for reset vector will never compare, so ignore it
+                    if ((address + offset) <= 3) {
+                        continue;
+                    }
 
-                if (is != bytes[offset]) {
-                    warnx("VERIFY: 0x%04x is 0x%02x should 0x%02x", address + offset, is, bytes[offset]);
+                for (unsigned readback_tries = 0;; readback_tries++) {
+
+                    if (read_bl_memory(address + offset) == bytes[offset]) {
+                        break;
+                    }
+                    if (readback_tries > 3) {
+                        RAISE(ExVerifyError, "address " << address + offset << " persistent readback miscompare");
+                    }
                 }
             }
         }
-
         return;
     }
 

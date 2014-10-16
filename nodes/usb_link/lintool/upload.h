@@ -20,6 +20,7 @@ EXCEPTION(Exception, ExProtocol);
 EXCEPTION(Exception, ExBadAddress);
 EXCEPTION(Exception, ExLink);
 EXCEPTION(Exception, ExCRCError);
+EXCEPTION(Exception, ExVerifyError);
 
 extern void upload(Firmware *fw, bool readback = false);
 } // namespace Upload

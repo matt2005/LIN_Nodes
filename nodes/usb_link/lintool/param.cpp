@@ -222,14 +222,10 @@ ParamSet::identity() const
 {
     char *str;
 
-    auto blp = find(Generic::kParamBootloaderMode);
-    bool bl = (blp != nullptr) && (blp->get() != 0);
-
-    asprintf(&str, "[%u:%u:%s%s]\n", 
+    asprintf(&str, "[%u:%u:%s]\n", 
         _node,
         _function,
-        Encoding::info(kEncoding_board_function, _function),
-        bl ? "(bootloader)" : "");
+        Encoding::info(kEncoding_board_function, _function));
     return str;
 }
 

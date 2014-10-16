@@ -409,12 +409,11 @@ struct {
 void
 usage()
 {
-    warnx("Usage:");
-    fprintf(stderr, "Common options:\n");
-    fprintf(stderr, "        -l  enable logging (specify twice to print empty frames).\n");
+    fprintf(stderr, "\nCommon options:\n");
+    fprintf(stderr, "        -l  enable logging (specify twice to print empty frames).\n\n");
 
     for (auto cmd : commands) {
-        fprintf(stderr, "%s", cmd.help);
+        fprintf(stderr, "%s\n", cmd.help);
     }
 
     exit(1);
@@ -433,6 +432,8 @@ main(int argc, char *argv[])
 
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
+            // FALLTHROUGH
+        case '?':
             usage();
         }
     }

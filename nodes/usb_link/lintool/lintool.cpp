@@ -169,7 +169,7 @@ load_params(int argc, char *argv[])
             } else {
                 warnx("WARNING: node at %u is not responding.", nodeAddress);
             }
-
+            warnx("WARNING: Skipping parameter load for node at %u.", nodeAddress);
             continue;
         }
 
@@ -180,11 +180,11 @@ load_params(int argc, char *argv[])
             try {
                 pset.set(dbparam.second);
 
-            } catch (std::runtime_error &e) {
-                warnx("WARNING: node %u does not support parameter %s.",
-                      nodeAddress, dbparam.second.get("name").toString().c_str());
+            } catch (Exception &e) {
+                warnx("WARNING: %s.", e.what());
             }
         }
+        pset.sync();
     }
 }
 
@@ -248,18 +248,27 @@ edit_param(int argc, char *argv[])
         }
         param->sync();
         auto encoding = param->encoding();
-        auto encoding_name = Encoding::name(encoding) ? : "-";
-        auto info = Encoding::info(encoding, param->get()) ? : "-";
 
         if (newvalue == nullptr) {
             if ((paramname != nullptr) || show_readonly || param->is_settable()) {
-                printf("%s %s %u %s\n", param->name(), encoding_name, param->get(), info);
+                printf("%s %u", param->name(), param->get());
+
+                auto encoding_name = Encoding::name(encoding);
+                if (encoding_name != nullptr) {
+                    printf(" %s", encoding_name);
+
+                    auto info = Encoding::info(encoding, param->get());
+                    if (info != nullptr) {
+                        printf(" %s", info);
+                    }
+                }
+                printf("\n");
             }
             if (want_info && param->is_settable()) {
                 for (uint16_t value = 0; value < 0xffff; value++) {
-                    auto value_info = Encoding::info(encoding, value);
-                    if (value_info != nullptr) {
-                        printf("        %.5u / 0x%04x / %s\n", value, value, value_info);
+                    auto info = Encoding::info(encoding, value);
+                    if (info != nullptr) {
+                        printf("        %.5u / 0x%04x / %s\n", value, value, info);
                     }
                 }
             }
@@ -381,7 +390,7 @@ struct {
         "    The <value> parameter may either be a number, or a named value.\n"
         "    If only <param> is supplied, prints the value of the named parameter.\n"
         "    If neither are supplied, all parameters from <node> are printed.\n"
-        "    Parameters are printed in the format <param> <encoding> <value> <info>.\n",
+        "    Parameters are printed in the format <param> <value> [<encoding> <info>].\n",
         edit_param
     },
     {

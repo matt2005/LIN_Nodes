@@ -42,10 +42,13 @@ crc_ccitt_update(uint16_t crc, uint8_t data)
 }
 
 unsigned
-page_crc(uint8_t *bytes)
+page_crc(uint8_t *bytes, uint16_t address)
 {
     uint16_t crc = 0xffff;
     unsigned count = pagesize;
+
+    crc = crc_ccitt_update(crc, address & 0xff);
+    crc = crc_ccitt_update(crc, address >> 8);
 
     while (count--) {
         crc = crc_ccitt_update(crc, *bytes++);
@@ -180,7 +183,7 @@ read_bl_memory(unsigned address)
     Link::write_param(Bootloader::kParamDebugPointer, address);
     auto set_address = Link::read_param(Bootloader::kParamDebugPointer);
     if (set_address != address) {
-        RAISE(ExBadAddress, "bootloader set wrong readback address");
+        RAISE(ExBadAddress, "bootloader set wrong readback address (wanted " << address << " got " << set_address << ")");
     }
     return Link::read_param(Bootloader::kParamMemory);
 }
@@ -195,7 +198,7 @@ read_bl_eeprom(unsigned address)
 void
 program_page(unsigned address, uint8_t *bytes, bool readback)
 {
-    unsigned crc = page_crc(bytes);
+    unsigned crc = page_crc(bytes, address);
 
     check_ready();
 

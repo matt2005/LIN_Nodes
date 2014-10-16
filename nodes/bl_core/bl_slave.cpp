@@ -266,6 +266,8 @@ BLSlave::set_page_address(uint16_t address)
         _pageAddress = address;
         _pageOffset = 0;
         _runningCrc = 0xffff;
+        _runningCrc = _crc_ccitt_update(_runningCrc, address & 0xff);
+        _runningCrc = _crc_ccitt_update(_runningCrc, address >> 8);
         _pageStatus = bl_status::kPageInProgress;
     } else {
         _pageStatus = bl_status::kPageAddressError;

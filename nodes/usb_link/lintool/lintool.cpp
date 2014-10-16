@@ -453,7 +453,7 @@ main(int argc, char *argv[])
                 errx(1, "%s failed: %s", cmd.cmd, e.what());
                 Log::print();
             }
-
+            Log::print();
             exit(0);
         }
     }

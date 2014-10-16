@@ -34,19 +34,48 @@ public:
     EXCEPTION(Exception, ExNotValid);
     EXCEPTION(Exception, ExNonexistent);
 
+    /// @return             A formatted description of the parameter and
+    ///                     the local copy of the value. Must be freed by 
+    ///                     the caller.
     char                *format() const;
 
+    /// Synchronise the current value with the node
+    ///
     void                sync();
+
+    /// Update the local copy of the value
+    ///
+    /// @param value        New value to set.
+    ///
     void                set(unsigned value);
+
+    /// @return             The local copy of the value.
     unsigned            get();
+
+    /// @return             True if this parameter exists.
     bool                exists() const;
 
+    /// @return             The address of this parameter
     unsigned            address() const { return _address; }
+
+    /// @return             The encoding applicable to this parameter.
     unsigned            encoding() const;
+
+    /// @return             The name of this parameter.
     const char          *name() const;
+
+    /// @return             The info string applicable to the local copy
+    ///                     of the value.
     const char          *info() const;
+
+    /// @return             True if the local copy of the value is valid.
     bool                is_valid() const { return _valid; }
+
+    /// @return             True if the local copy of the value has been
+    ///                     writen and not yet synced to the node.
     bool                is_dirty() const { return _dirty; }
+
+    /// @return             True if the parameter can be set.
     bool                is_settable() const { return encoding() != kEncoding_none; }
 
 private:
@@ -69,20 +98,46 @@ public:
     ParamSet(unsigned node);
     ~ParamSet();
 
+    /// @return             A formatted description of the node that this
+    ///                     parameter set applies to.
     char                *identity() const;
 
+    /// Synchronises all parameters in the set with the node.
+    ///
     void                sync();
+
+    /// @return             True if any parameter in the set has been written
+    ///                     and not yet synced to the node.
     bool                is_dirty() const;
 
+    /// Locate a parameter for a specific parameter address.
+    ///
+    /// @param address      The parameter address being sought.
+    /// @return             The parameter.
+    ///
     Param               *find(unsigned address) const;
 
+    /// Locate a parameter by name
+    ///
+    /// @param name         The name of the parameter being sought.
+    /// @return             The parameter.
+    ///
+    Param               *param_for_name(const char *name);
+
+    /// Populate the parameter set from a de-serialised JSON representation.
+    ///
+    /// @param fromNode     The Jzon root node to populate from.
+    ///
     void                set(Jzon::Node &fromNode);
 
+    /// @return             The node address this parameter set applies to.
     unsigned            node() const { return _node; }
-    unsigned            function() const { return _function; }
-    Param::List         &list() { return _params; }
 
-    Param               *param_for_name(const char *name);
+    /// @return             The function this parameter set applies to.
+    unsigned            function() const { return _function; }
+
+    /// @return             A list of all parameter sets currently loaded.
+    Param::List         &list() { return _params; }
 
 private:
     unsigned            _node;
@@ -98,12 +153,30 @@ public:
 
     EXCEPTION(Exception, ExJSONInvalid);
 
+    /// Populate the DB from a file
+    ///
+    /// @param              The file to read from.
+    ///
     void                read(const char *path);
+
+    /// Write the DB to a file
+    ///
+    /// @param              The file to write.
+    ///
     void                write(const char *path);
 
+    /// Store a parameter set into the DB.
+    ///
+    /// @param pset         The parameter set to store.
+    ///
     void                store(ParamSet &pset);
+
+    /// Fetch a parameter set from the DB.
+    ///
+    /// @param pset         The parameter set to fetch.
     void                fetch(ParamSet &pset);
 
+    /// @return             The root node of the DB.
     Jzon::Node          &nodes() { return _rootNode; }
 
 private:

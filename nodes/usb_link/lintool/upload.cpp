@@ -180,12 +180,15 @@ set_address(unsigned address)
 unsigned
 read_bl_memory(unsigned address)
 {
-    Link::write_param(Bootloader::kParamDebugPointer, address);
-    auto set_address = Link::read_param(Bootloader::kParamDebugPointer);
-    if (set_address != address) {
-        RAISE(ExBadAddress, "bootloader set wrong readback address (wanted " << address << " got " << set_address << ")");
+    for (auto tries = 0; tries < 3; tries++) {
+        auto value = Link::read_param(Bootloader::kParamMemory);
+        auto set_address = Link::read_param(Bootloader::kParamDebugPointer);
+        if (set_address == (address + 1)) {
+            return value;
+        }
+        Link::write_param(Bootloader::kParamDebugPointer, address);
     }
-    return Link::read_param(Bootloader::kParamMemory);
+    RAISE(ExBadAddress, "can't set bootloader readback address");
 }
 
 unsigned
@@ -239,6 +242,8 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
         }
 
         if (readback) {
+            warnx("verify: 0x%04x", address);
+
             for (unsigned offset = 0; offset < pagesize; offset++) {
                     // readback for reset vector will never compare, so ignore it
                     if ((address + offset) <= 3) {

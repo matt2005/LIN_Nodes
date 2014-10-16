@@ -179,11 +179,11 @@ BLSlave::send_response()
         break;
 
     case Bootloader::kParamMemory:
-        value = pgm_read_byte((const uint8_t *)_memoryPointer);
+        value = pgm_read_byte((const uint8_t *)_memoryPointer++);
         break;
 
     case Bootloader::kParamEEPROM:
-        value = eeprom_read_byte((const uint8_t *)_memoryPointer);
+        value = eeprom_read_byte((const uint8_t *)_memoryPointer++);
         break;
 
     case Generic::kParamLine ... Generic::kParamProtocol:

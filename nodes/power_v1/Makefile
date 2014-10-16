@@ -1,6 +1,6 @@
 DEBUG		 = YES
 
-PROG		 = power_v1
+PROG		 = PowerV1
 SRCS		 = main.cpp \
 		   slave.cpp
 

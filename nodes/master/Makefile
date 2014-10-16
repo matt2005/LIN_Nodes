@@ -1,6 +1,6 @@
 DEBUG		 = YES
 
-PROG		 = master
+PROG		 = Master
 SRCS		 = main.cpp \
 		   master.cpp \
 		   relays.cpp \

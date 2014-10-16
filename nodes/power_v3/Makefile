@@ -1,6 +1,6 @@
 DEBUG		 = YES
 
-PROG		 = power_v3
+PROG		 = PowerV3
 SRCS		 = main.cpp \
 		   mc17xsf500.cpp \
 		   slave.cpp

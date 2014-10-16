@@ -133,7 +133,8 @@ Node::update(bool verify)
     }
 
     if (fw == nullptr) {
-        RAISE(ExUpdateFailed, "no firmware available");
+        auto name = Encoding::info(kEncoding_board_function, function()) ? : "<unknown>";
+        RAISE(ExUpdateFailed, "no firmware available for function " << name << "/" << function());
     }
 
     warnx("updating %s @ %u", fw->function_name(), address());

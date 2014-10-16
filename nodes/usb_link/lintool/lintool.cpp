@@ -286,7 +286,7 @@ void
 update(int argc, char *argv[])
 {
     unsigned node = Node::kNoNode;
-    bool verify = true;
+    bool verify = false;
     int ch;
 
     while ((ch = getopt(argc, argv, "n:q")) != -1) {
@@ -295,8 +295,8 @@ update(int argc, char *argv[])
             node = strtoul(optarg, nullptr, 0);
             break;
 
-        case 'q':
-            verify = false;
+        case 'v':
+            verify = true;
             break;
 
         default:
@@ -386,9 +386,9 @@ struct {
     },
     {
         "update",
-        "lintool [-l] update [-q][-n <node>] <file> [<file> ...]\n"
+        "lintool [-l] update [-v][-n <node>] <file> [<file> ...]\n"
         "    Update node firmware for one or more nodes from one or more firmware files.\n"
-        "        -q    Don't perform read-after-write verification.\n"
+        "        -v    Perform read-after-write verification (slow).\n"
         "    Only nodes for which firmware is loaded can be updated. If -n is not specified,\n"
         "    all nodes will be updated.\n"
         "    To update a node in recovery mode that has lost its type, pass -n 32 and supply\n"

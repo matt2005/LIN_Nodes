@@ -169,6 +169,7 @@ load_params(int argc, char *argv[])
             } else {
                 warnx("WARNING: node at %u is not responding.", nodeAddress);
             }
+
             warnx("WARNING: Skipping parameter load for node at %u.", nodeAddress);
             continue;
         }
@@ -184,6 +185,7 @@ load_params(int argc, char *argv[])
                 warnx("WARNING: %s.", e.what());
             }
         }
+
         pset.sync();
     }
 }
@@ -201,12 +203,15 @@ edit_param(int argc, char *argv[])
         case 'a':
             show_readonly = true;
             break;
+
         case 'i':
             want_info = true;
             break;
+
         case 'n':
             node = strtoul(optarg, nullptr, 0);
             break;
+
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
             usage();
@@ -222,10 +227,12 @@ edit_param(int argc, char *argv[])
     switch (argc) {
     case 2:
         newvalue = argv[1];
-        // FALLTHROUGH
+
+    // FALLTHROUGH
     case 1:
         paramname = argv[0];
-        // FALLTHROUGH
+
+    // FALLTHROUGH
     case 0:
         break;
 
@@ -237,6 +244,7 @@ edit_param(int argc, char *argv[])
     if (node == Node::kNoNode) {
         errx(1, "missing node address");
     }
+
     Node::scan(node);
 
     auto np = Node::nodes().front();
@@ -246,6 +254,7 @@ edit_param(int argc, char *argv[])
         if ((paramname != nullptr) && (strcmp(param->name(), paramname))) {
             continue;
         }
+
         param->sync();
         auto encoding = param->encoding();
 
@@ -254,37 +263,48 @@ edit_param(int argc, char *argv[])
                 printf("%s %u", param->name(), param->get());
 
                 auto encoding_name = Encoding::name(encoding);
+
                 if (encoding_name != nullptr) {
                     printf(" %s", encoding_name);
 
                     auto info = Encoding::info(encoding, param->get());
+
                     if (info != nullptr) {
                         printf(" %s", info);
                     }
                 }
+
                 printf("\n");
             }
+
             if (want_info && param->is_settable()) {
                 for (uint16_t value = 0; value < 0xffff; value++) {
                     auto info = Encoding::info(encoding, value);
+
                     if (info != nullptr) {
                         printf("        %.5u / 0x%04x / %s\n", value, value, info);
                     }
                 }
             }
+
             continue;
         }
+
         if (!param->is_settable()) {
             errx(1, "%s cannot be set", param->name());
         }
+
         uint16_t value;
+
         if (!Encoding::value(encoding, newvalue, value)) {
             char *cp;
             value = strtoul(newvalue, &cp, 0);
+
             if (*cp != '\0') {
                 errx(1, "bad parameter value '%s'", newvalue);
             }
         }
+
         param->set(value);
         param->sync();
     }
@@ -432,7 +452,8 @@ main(int argc, char *argv[])
 
         default:
             warnx("ERROR: unrecognised option '-%c'", ch);
-            // FALLTHROUGH
+
+        // FALLTHROUGH
         case '?':
             usage();
         }
@@ -463,6 +484,7 @@ main(int argc, char *argv[])
                 errx(1, "%s failed: %s", cmd.cmd, e.what());
                 Log::print();
             }
+
             Log::print();
             exit(0);
         }

@@ -19,10 +19,11 @@ extern void trace();
 class LogWrapper
 {
 public:
-    ~LogWrapper() 
+    ~LogWrapper()
     {
         try {
             Log::acquire();
+
         } catch (...) {
             // eat any exception here...
         }

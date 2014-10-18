@@ -134,9 +134,11 @@ set_bootloader(bool wantBootloader)
 
                 if (state == desired) {
                     return;
+
                 } else {
                     RAISE(ExProtocol, "node refused to enter bootloader (" << tries << " tries)");
                 }
+
                 usleep(20000);
 
             } catch (Link::ExLINError &e) {
@@ -183,11 +185,14 @@ read_bl_memory(unsigned address)
     for (auto tries = 0; tries < 3; tries++) {
         auto value = Link::read_param(Bootloader::kParamMemory);
         auto set_address = Link::read_param(Bootloader::kParamDebugPointer);
+
         if (set_address == (address + 1)) {
             return value;
         }
+
         Link::write_param(Bootloader::kParamDebugPointer, address);
     }
+
     RAISE(ExBadAddress, "can't set bootloader readback address");
 }
 
@@ -195,7 +200,7 @@ unsigned
 read_bl_eeprom(unsigned address)
 {
     Link::write_param(Bootloader::kParamDebugPointer, address);
-    return Link::read_param(Bootloader::kParamEEPROM);    
+    return Link::read_param(Bootloader::kParamEEPROM);
 }
 
 void
@@ -231,10 +236,12 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
                   tries, crc, Link::read_param(Bootloader::kParamPageCRC));
             reset_bootloader();
             continue;
+
         } catch (ExProtocol &e) {
             // write may have been dropped - page still thinks it wants more data
             warnx("page write failed (%u)", tries);
             continue;
+
         } catch (ExBadAddress &e) {
             // address write may have been corrupted
             warnx("page address failed (%u)", tries);
@@ -245,22 +252,24 @@ program_page(unsigned address, uint8_t *bytes, bool readback)
             warnx("verify: 0x%04x", address);
 
             for (unsigned offset = 0; offset < pagesize; offset++) {
-                    // readback for reset vector will never compare, so ignore it
-                    if ((address + offset) <= 3) {
-                        continue;
-                    }
+                // readback for reset vector will never compare, so ignore it
+                if ((address + offset) <= 3) {
+                    continue;
+                }
 
                 for (unsigned readback_tries = 0;; readback_tries++) {
 
                     if (read_bl_memory(address + offset) == bytes[offset]) {
                         break;
                     }
+
                     if (readback_tries > 3) {
                         RAISE(ExVerifyError, "address " << address + offset << " persistent readback miscompare");
                     }
                 }
             }
         }
+
         return;
     }
 
@@ -306,7 +315,7 @@ upload(Firmware *fw, bool readback)
     reset_bootloader();
 
     warnx("bl_reason: %s",
-        Encoding::info(kEncoding_bl_reason, Link::read_param(Bootloader::kParamReason)));
+          Encoding::info(kEncoding_bl_reason, Link::read_param(Bootloader::kParamReason)));
 
     if (status() != bl_status::kWaitingForProgrammer) {
         RAISE(ExProtocol, "bootloader in unexpected state");

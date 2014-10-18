@@ -9,7 +9,7 @@
 
 #pragma once
 
-// v1 usb link module using the generic node board
+// v1 usb link module using the v1 generic node board
 //
 
 #define pinLINRX        portA[0]

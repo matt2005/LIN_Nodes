@@ -21,6 +21,13 @@ public:
     static const bool   kLINDevInterrupts = false;
     static const bool   kLINDevPolled = true;
 
+    /// Constructor.
+    ///
+    /// @param polled       If kLINDevPolled, tick() must be called
+    ///                     periodically to check for activity. In order to meet
+    ///                     LIN timing, the poll interval should be on the order
+    ///                     of 1ms.
+    ///
     LINDev(bool polled = kLINDevInterrupts);
 
     /// Do one-time block initialisation
@@ -33,6 +40,7 @@ public:
 
     /// Perform periodic actions; polls for new activity in polled
     /// mode.
+    /// Should not be called in interrupt mode.
     ///
     virtual void    tick();
 
@@ -45,12 +53,12 @@ public:
     void            isr_error();
 
     enum Error : uint8_t {
-        kErrorLine,                       //< readback error when transmitting
-        kErrorChecksum,                   //< received data checksum mismatch
-        kErrorParity,                     //< header parity error
-        kErrorFraming,                    //< framing error
-        kErrorSynchronisation,            //< bitrate synchronisation error
-        kErrorProtocol,                   //< slave protocol error
+        kErrorLine,                         //< readback error when transmitting
+        kErrorChecksum,                     //< received data checksum mismatch
+        kErrorParity,                       //< header parity error
+        kErrorFraming,                      //< framing error
+        kErrorSynchronisation,              //< bitrate synchronisation error
+        kErrorProtocol,                     //< slave protocol error
         kErrorMax
     };
 

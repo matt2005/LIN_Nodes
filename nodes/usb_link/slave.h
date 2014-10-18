@@ -80,11 +80,11 @@ public:
 
     uint16_t        *get_data() { return &_dataValue; }
 
-    bool            is_data_ready() const 
+    bool            is_data_ready() const
     {
         return ((_state < kStateMaxIdle) && (is_awake() || is_master()));
     }
-    bool            is_data_idle() const 
+    bool            is_data_idle() const
     {
         return (_state < kStateMaxIdle);
     }

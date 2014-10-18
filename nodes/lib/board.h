@@ -36,6 +36,8 @@
 
 namespace Board
 {
+/// Generic 'board' initialisation; clock/power setup, watchdog init, etc.
+///
 void init();
 
 enum PanicCode : uint8_t {

@@ -135,9 +135,11 @@ usbFunctionSetup(uchar data[8])
         if (rq->wValue.bytes[0] != 0) {
             slave.enable_master(true);
             usbDisableAllRequests();
+
         } else {
             slave.enable_master(false);
         }
+
         break;
 
     default:

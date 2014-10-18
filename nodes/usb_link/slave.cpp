@@ -64,6 +64,7 @@ ToolSlave::tick()
             if (_state >= kStateGetData) {
                 _masterState = kMSResponse;
             }
+
             mt_send_header(kFrameIDMasterRequest);
 
         } else {
@@ -82,11 +83,12 @@ ToolSlave::set_data_by_id(uint8_t nad, Parameter::Address address, uint16_t valu
 {
     if (is_data_idle()) {
         refresh_master();
-        
+
         _nodeAddress = nad;
         _dataAddress = address;
         _dataValue = value;
         _state = kStateSetData;
+
     } else {
         _state = kStateError;
     }
@@ -97,11 +99,12 @@ ToolSlave::get_data_by_id(uint8_t nad, Parameter::Address address)
 {
     if (is_data_idle()) {
         refresh_master();
-        
+
         _nodeAddress = nad;
         _dataAddress = address;
         _dataValue = 0;
         _state = kStateGetData;
+
     } else {
         _state = kStateError;
     }
@@ -112,13 +115,14 @@ ToolSlave::send_bulk(uint8_t nad, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3
 {
     if (is_data_idle()) {
         refresh_master();
-        
+
         _nodeAddress = nad;
         _dataBytes[0] = d0;
         _dataBytes[1] = d1;
         _dataBytes[2] = d2;
         _dataBytes[3] = d3;
         _state = kStateBulkData;
+
     } else {
         _state = kStateError;
     }
@@ -245,6 +249,7 @@ ToolSlave::st_response_received(Response &resp)
                        (resp.ServiceError.original_sid == service_id::kReadDataByID) &&
                        (resp.ServiceError.error == service_error::kFunctionNotSupported)) {
                 _state = kStateRejected;
+
             } else {
                 _state = kStateError;
             }

@@ -126,6 +126,7 @@ enable_master(bool enable)
         }
 
         RAISE(ExLinkFailed, "cannot claim the bus");
+
     } else {
         timerclear(&master_timeout);
     }
@@ -136,6 +137,7 @@ refresh_master()
 {
     struct timeval now;
     gettimeofday(&now, nullptr);
+
     if (timercmp(&now, &master_timeout, >)) {
         // poke the link back into master mode
         enable_master(true);

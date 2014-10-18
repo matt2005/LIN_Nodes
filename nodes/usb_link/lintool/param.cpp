@@ -222,10 +222,10 @@ ParamSet::identity() const
 {
     char *str;
 
-    asprintf(&str, "[%u:%u:%s]\n", 
-        _node,
-        _function,
-        Encoding::info(kEncoding_board_function, _function));
+    asprintf(&str, "[%u:%u:%s]\n",
+             _node,
+             _function,
+             Encoding::info(kEncoding_board_function, _function));
     return str;
 }
 
@@ -249,6 +249,7 @@ ParamSet::find(unsigned address) const
             return p;
         }
     }
+
     return nullptr;
 }
 
@@ -256,6 +257,7 @@ void
 ParamSet::sync()
 {
     Link::set_node(_node);
+
     for (auto p : _params) {
         p->sync();
     }
@@ -267,9 +269,11 @@ ParamSet::set(Jzon::Node &fromNode)
     // Find the parameter and make sure we want to set it
     const char *name = fromNode.get("name").toString().c_str();
     auto p = param_for_name(name);
+
     if (p == nullptr) {
         RAISE(Param::ExNonexistent, "parameter " << name << "does not exist in this context");
     }
+
     if (!p->is_settable()) {
         return;
     }
@@ -277,6 +281,7 @@ ParamSet::set(Jzon::Node &fromNode)
     // Work out the value we are going to set
     uint16_t value = fromNode.get("value").toInt();
     const char *info = fromNode.get("info").toString().c_str();
+
     if (!strcmp(info, "")) {
         // prefer a named value (since encodings may change)
         if (!Encoding::value(p->encoding(), info, value)) {
@@ -296,6 +301,7 @@ ParamSet::param_for_name(const char *name)
             return p;
         }
     }
+
     return nullptr;
 }
 

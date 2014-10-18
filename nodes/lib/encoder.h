@@ -8,6 +8,10 @@
  */
 
 ///@file encoder.h
+///
+/// Generic three-wire rotary encoder driver. Assumes that pins ENCA, ENCB
+/// and Button have been defined.
+///
 
 #pragma once
 
@@ -23,8 +27,13 @@ enum Event : uint8_t {
     kEventActivate      // meta-event for mode entry
 };
 
+/// Initialise the encoder.
 void init();
+
+/// Get an event from the encoder queue.
 Event event();
+
+/// Discard any queued events.
 void discard();
 
 } // namespace Encoder

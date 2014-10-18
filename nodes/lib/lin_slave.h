@@ -22,9 +22,16 @@
 class Slave : public LINDev
 {
 public:
+    /// Constructor
+    ///
+    /// @param nad          Node address this slave will take.
+    /// @param polled       Passed to LINDev.
+    ///
     Slave(uint8_t nad = 0xff, bool polled = kLINDevInterrupts);
 
     virtual void    tick() override;
+
+    /// @return True if the network is considered 'awake'
     bool            is_awake() const { return !_lastActivity.is_older_than(100); }
 
 protected:

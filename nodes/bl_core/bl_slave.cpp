@@ -66,15 +66,18 @@ BLSlave::st_response_received(Response &resp)
         case service_id::kWriteDataByID:
             switch (resp.DataByID.index) {
             case Generic::kParamBootloaderMode:
+
                 // reset the bootloader state
                 if (resp.DataByID.value == 1) {
                     _pageStatus = bl_status::kWaitingForProgrammer;
                     _programEnd = 0;
                     _resetVector = 0;
+
                 } else if (resp.DataByID.value == 0) {
                     // reboot (may just come right back...)
                     Board::reset();
                 }
+
                 break;
 
             case Bootloader::kParamPageAddress:
@@ -95,6 +98,7 @@ BLSlave::st_response_received(Response &resp)
                 } else {
                     _pageStatus = bl_status::kPageCRCError;
                 }
+
                 break;
 
             case Bootloader::kParamDebugPointer:
@@ -106,6 +110,7 @@ BLSlave::st_response_received(Response &resp)
                 break;
 
             }
+
             break;
 
         case service_id::kDataDump:
@@ -202,11 +207,13 @@ BLSlave::send_response()
     Response resp;
     resp.DataByID.nad = nad();
     resp.DataByID.pci = pci::kSingleFrame;
+
     if (!invalid) {
         resp.DataByID.length = 5;
         resp.DataByID.sid = (service_id::kReadDataByID | service_id::kResponseOffset);
         resp.DataByID.index = _sendIndex;
         resp.DataByID.value = value;
+
     } else {
         resp.ServiceError.length = 3;
         resp.ServiceError.sid = service_id::kErrorResponse;
@@ -226,6 +233,7 @@ BLSlave::is_program_valid()
         _reason = bl_reason::kCRCMismatch;
         return false;
     }
+
     return true;
 }
 
@@ -237,6 +245,7 @@ BLSlave::is_bootloader_forced()
         eeprom_update_word((uint16_t *)kConfigMagic, 0xffff);
         return true;
     }
+
     return false;
 }
 
@@ -246,9 +255,10 @@ BLSlave::run_program()
     __asm__ volatile(
         "ijmp"
         :
-        : "z" (pgm_read_word(kInfoResetVector) >> 1)
+        : "z"(pgm_read_word(kInfoResetVector) >> 1)
         :
     );
+
     for (;;)
         ;
 }
@@ -269,6 +279,7 @@ BLSlave::set_page_address(uint16_t address)
         _runningCrc = _crc_ccitt_update(_runningCrc, address & 0xff);
         _runningCrc = _crc_ccitt_update(_runningCrc, address >> 8);
         _pageStatus = bl_status::kPageInProgress;
+
     } else {
         _pageStatus = bl_status::kPageAddressError;
     }
@@ -366,13 +377,14 @@ BLSlave::nad()
     if (value == 0xff) {
         value = Bootloader::kNodeAddress;
     }
+
     return value;
 }
 
 uint8_t
 BLSlave::function()
 {
-    uint8_t value = eeprom_read_byte((uint8_t *)kConfigFunction);    
+    uint8_t value = eeprom_read_byte((uint8_t *)kConfigFunction);
 
     return value;
 }

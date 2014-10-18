@@ -35,7 +35,7 @@ public:
     EXCEPTION(Exception, ExNonexistent);
 
     /// @return             A formatted description of the parameter and
-    ///                     the local copy of the value. Must be freed by 
+    ///                     the local copy of the value. Must be freed by
     ///                     the caller.
     char                *format() const;
 

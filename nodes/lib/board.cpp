@@ -212,6 +212,7 @@ reset()
 {
     // start the watchdog (it may be off) with a short timeout
     wdt_enable(WDTO_30MS);
+
     for (;;)
         ;
 }

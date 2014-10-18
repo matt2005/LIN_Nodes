@@ -21,9 +21,11 @@ EXTRADIRS	 = $(SRCROOT)/usb_link/lintool/ \
 		   $(SRCROOT)/lib/
 ALLSRC		 = $(foreach dir,$(DIRS) $(EXTRADIRS),$(wildcard $(dir)*.c $(dir)*.cpp $(dir)*.h))
 
+NO_FORMAT_SRCS	 = %Jzon.cpp %Jzon.h
+
 .PHONY: reformat
 reformat:
-	@$(SRCROOT)/../etc/reformat.sh $(ALLSRC)
+	@$(SRCROOT)/../etc/reformat.sh $(filter-out $(NO_FORMAT_SRCS),$(ALLSRC))
 
 .PHONY: bundle
 bundle:

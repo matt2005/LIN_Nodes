@@ -26,7 +26,7 @@ main(void)
     uint8_t     id = Board::get_mode();
 
     // check for recovery mode before constructing anything else
-    if (Board::get_mode() == 0) {
+    if (id == 0) {
         Board::panic(Board::kPanicCodeRecovery);
     }
 
@@ -55,8 +55,7 @@ main(void)
         wdt_reset();
         slave.tick();
 
-        // sort out parameter layout - assumes parameters are packed, with all CH1 parameters
-        // followed by all CH2 parameters
+        // sort out parameter layout - assumes layout of parameters is regular for all channels
         const uint8_t channelStride = PowerV3::kParamCH2Assign1 - PowerV3::kParamCH1Assign1;
         const uint8_t assignStride = PowerV3::kParamCH1Assign2 - PowerV3::kParamCH1Assign1;
         const uint16_t assignBase = PowerV3::kParamCH1Assign1;

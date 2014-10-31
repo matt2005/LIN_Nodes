@@ -16,20 +16,27 @@ Documentation/
 nodes/
     All of the nodes in this part of the tree are based on the Atmel ATTiny167.
 
+    bl_core/
+        LIN bootloader core, incorporated into bl_installer below.
+
+    bl_installer/
+        Bootloader installer; flashed onto a fresh board, installs the bootloader.
+
     lib/
         Shared code.
+
     master/
         Network master node.
 
-    power_v1/
+    power_v1/ (deprecated)
         Simple 4-output power switching node using an ST driver. Low current due to
-        high Rdson FETs in the ST family.
+        high Rdson FETs in the ST family. 
 
     power_v3/
         5-output power switching node using Freescale smart high-side switches.
         Board limited to 5.5A, but code should work with the 10A device as well.
 
-    programmer/
+    programmer/ (deprecated)
         Hand-held configuration tool with 20x4 LCD. Simple field configuration only.
 
     usb_link/

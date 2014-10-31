@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <avr/io.h>
+
 #include "pin.h"
 #include "softserial.h"
 
@@ -46,6 +48,20 @@ enum PanicCode : uint8_t {
     kPanicCodeLIN       = 4,
     kPanicCodeAssert    = 5,
     kPanicCodeLowMemory = 6
+};
+
+enum EEPROMInfo : uint16_t {
+    kInfoPage           = FLASHEND - (SPM_PAGESIZE - 1),
+
+    kInfoProgramCRC     = kInfoPage + 0,
+    kInfoResetVector    = kInfoPage + 2,
+    kInfoProgramEnd     = kInfoPage + 4,
+
+    kConfigNodeAddress  = (E2END - 3),
+    kConfigFunction     = (E2END - 2),
+    kConfigMagic        = (E2END - 1),
+
+    kBLMagic            = 0x4f42
 };
 
 /// Panic with a status code

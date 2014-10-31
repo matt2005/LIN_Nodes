@@ -24,18 +24,7 @@ protected:
     virtual void        st_response_received(Response &frame) override;
 
 private:
-    static const uint16_t kInfoPage = FLASHEND - (SPM_PAGESIZE - 1);
     static const uint16_t kNoSendResponse = 0xffff;
-
-    enum : uint16_t {
-        kInfoProgramCRC     = kInfoPage + 0,
-        kInfoResetVector    = kInfoPage + 2,
-        kInfoProgramEnd     = kInfoPage + 4,
-
-        kConfigNodeAddress  = (E2END - 3),
-        kConfigFunction     = (E2END - 2),
-        kConfigMagic        = (E2END - 1),
-    };
 
     static uint8_t      _nad;
     static uint16_t     _sendIndex;

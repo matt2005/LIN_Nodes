@@ -229,7 +229,7 @@ BLSlave::send_response()
 bool
 BLSlave::is_program_valid()
 {
-    if (get_program_crc(pgm_read_word(kInfoProgramEnd)) != pgm_read_word(kInfoProgramCRC)) {
+    if (get_program_crc(pgm_read_word(Board::kInfoProgramEnd)) != pgm_read_word(Board::kInfoProgramCRC)) {
         _reason = bl_reason::kCRCMismatch;
         return false;
     }
@@ -240,9 +240,9 @@ BLSlave::is_program_valid()
 bool
 BLSlave::is_bootloader_forced()
 {
-    if (eeprom_read_word((uint16_t *)kConfigMagic) == 0x4f42) {
+    if (eeprom_read_word((uint16_t *)Board::kConfigMagic) == Board::kBLMagic) {
         _reason = bl_reason::kForced;
-        eeprom_update_word((uint16_t *)kConfigMagic, 0xffff);
+        eeprom_update_word((uint16_t *)Board::kConfigMagic, 0xffff);
         return true;
     }
 
@@ -255,7 +255,7 @@ BLSlave::run_program()
     __asm__ volatile(
         "ijmp"
         :
-        : "z"(pgm_read_word(kInfoResetVector) >> 1)
+        : "z"(pgm_read_word(Board::kInfoResetVector) >> 1)
         :
     );
 
@@ -346,14 +346,14 @@ BLSlave::program_page()
 void
 BLSlave::update_program_info()
 {
-    boot_page_erase(kInfoPage);
+    boot_page_erase(Board::kInfoPage);
     boot_spm_busy_wait();
 
-    boot_page_fill(kInfoProgramCRC, get_program_crc(_programEnd));
-    boot_page_fill(kInfoResetVector, _resetVector);
-    boot_page_fill(kInfoProgramEnd, _programEnd);
+    boot_page_fill(Board::kInfoProgramCRC, get_program_crc(_programEnd));
+    boot_page_fill(Board::kInfoResetVector, _resetVector);
+    boot_page_fill(Board::kInfoProgramEnd, _programEnd);
 
-    boot_page_write(kInfoPage);
+    boot_page_write(Board::kInfoPage);
     boot_spm_busy_wait();
 }
 
@@ -372,7 +372,7 @@ BLSlave::get_program_crc(uint16_t length)
 uint8_t
 BLSlave::nad()
 {
-    uint8_t value = eeprom_read_byte((uint8_t *)kConfigNodeAddress);
+    uint8_t value = eeprom_read_byte((uint8_t *)Board::kConfigNodeAddress);
 
     if (value == 0xff) {
         value = Bootloader::kNodeAddress;
@@ -384,7 +384,7 @@ BLSlave::nad()
 uint8_t
 BLSlave::function()
 {
-    uint8_t value = eeprom_read_byte((uint8_t *)kConfigFunction);
+    uint8_t value = eeprom_read_byte((uint8_t *)Board::kConfigFunction);
 
     return value;
 }

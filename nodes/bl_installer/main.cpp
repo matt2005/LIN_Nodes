@@ -24,7 +24,7 @@ const PROGMEM
 
 extern "C" void main();
 
-static_assert(((BL_ADDR + sizeof(bl_core_bin)) < (FLASHEND - SPM_PAGESIZE)), "bootloader core too large");
+static_assert(((BL_ADDR + sizeof(bl_core_bin)) < Board::kInfoPage), "bootloader core too large");
 
 void
 main()
@@ -81,9 +81,9 @@ main()
     /*
      * Set up the EEPROM for forced bootloader entry and unknown board ID/function
      */
-    eeprom_update_byte((uint8_t *)E2END - 3, 0xff);
-    eeprom_update_byte((uint8_t *)E2END - 2, 0xff);
-    eeprom_update_word((uint16_t *)(E2END - 1), 0x4f42);
+    eeprom_update_byte((uint8_t *)Board::kConfigNodeAddress, 0xff);
+    eeprom_update_byte((uint8_t *)Board::kConfigFunction, 0xff);
+    eeprom_update_word((uint16_t *)Board::kConfigMagic, Board::kBLMagic);
 
     /*
      * Redirect the reset vector back to the bootloader.

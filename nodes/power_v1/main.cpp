@@ -18,10 +18,31 @@
 
 using namespace PowerV1;
 
+static void
+param_init()
+{
+    uint8_t options = eeprom_read_byte((uint8_t *)Board::kConfigOptions);
+    bool should_default = (options & Board::kOptResetConfig);
+
+    // init parameters (set to defaults if requested or not valid
+    for (Parameter::Address addr = Generic::kParamConfigBase; addr < Generic::kParamConfigTop; addr++) {
+        Parameter p(addr);
+        uint8_t encoding = param_encoding(addr);
+
+        if (should_default || ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get()))) {
+            p.set(param_default(addr));
+        }
+    }
+
+    if (should_default) {
+        eeprom_update_byte((uint8_t *)Board::kConfigOptions, (options & ~Board::kOptResetConfig));
+    }
+}
+
 void
 main(void)
 {
-    Board::init();
+    Board::early_init();
     uint8_t     id = Board::get_mode();
 
     // check for recovery mode before constructing anything else
@@ -55,17 +76,8 @@ main(void)
     pinSTATUS4.cfg_input_no_pull();
 # endif
 
-    // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
-        Parameter p(addr);
-        uint8_t encoding = param_encoding(addr);
-
-        if ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get())) {
-            p.set(param_default(addr));
-        }
-    }
-
     // construct the slave
+    param_init();
     RelaySlave  slave(id);
     slave.init();
 

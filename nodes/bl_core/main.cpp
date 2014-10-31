@@ -33,7 +33,7 @@ main(void)
     cli();
 
     // board init, watchdog disabled
-    Board::init();
+    Board::early_init();
     wdt_disable();
 
     // check and clear force, or check for program invalid

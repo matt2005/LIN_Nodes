@@ -28,27 +28,39 @@ using namespace Master;
 
 MasterNode  gMaster;
 
+static void
+param_init()
+{
+    uint8_t options = eeprom_read_byte((uint8_t *)Board::kConfigOptions);
+    bool should_default = (options & Board::kOptResetConfig);
+
+    // init parameters (set to defaults if requested or not valid
+    for (Parameter::Address addr = Generic::kParamConfigBase; addr < Generic::kParamConfigTop; addr++) {
+        Parameter p(addr);
+        uint8_t encoding = param_encoding(addr);
+
+        if (should_default || ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get()))) {
+            p.set(param_default(addr));
+        }
+    }
+
+    if (should_default) {
+        eeprom_update_byte((uint8_t *)Board::kConfigOptions, (options & ~Board::kOptResetConfig));
+    }
+}
+
 void
 main(void)
 {
-    Board::init();
+    Board::early_init();
 
     // check for recovery mode before doing anything else
     if (Board::get_mode() != 0) {
         Board::panic(Board::kPanicCodeRecovery);
     }
 
-    // init parameters (set to defaults if not valid)
-    for (Parameter::Address addr = 0x0400; addr < 0x04ff; addr++) {
-        Parameter p(addr);
-        uint8_t encoding = param_encoding(addr);
-
-        if ((encoding != kEncoding_none) && Encoding::invalid(encoding, p.get())) {
-            p.set(param_default(addr));
-        }
-    }
-
     // initialisation
+    param_init();
     gMaster.init();         // on v1 boards, must do this before SPI due to !SS being LINCS
     Switches::init();
 

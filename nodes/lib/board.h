@@ -40,7 +40,7 @@ namespace Board
 {
 /// Generic 'board' initialisation; clock/power setup, watchdog init, etc.
 ///
-void init();
+void early_init();
 
 enum PanicCode : uint8_t {
     kPanicCodeRecovery  = 2,
@@ -57,11 +57,16 @@ enum EEPROMInfo : uint16_t {
     kInfoResetVector    = kInfoPage + 2,
     kInfoProgramEnd     = kInfoPage + 4,
 
+    kConfigOptions      = (E2END - 4),
     kConfigNodeAddress  = (E2END - 3),
     kConfigFunction     = (E2END - 2),
     kConfigMagic        = (E2END - 1),
 
     kBLMagic            = 0x4f42
+};
+
+enum EEPROMOptions : uint8_t {
+    kOptResetConfig     = (1 << 0)
 };
 
 /// Panic with a status code

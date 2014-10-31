@@ -33,7 +33,7 @@ main()
     cli();
 
     /* board init, but no watchdog */
-    Board::init();
+    Board::early_init();
     wdt_disable();
 
     /* make sure the eeprom isn't still programming... */

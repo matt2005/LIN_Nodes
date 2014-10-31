@@ -355,6 +355,9 @@ BLSlave::update_program_info()
 
     boot_page_write(Board::kInfoPage);
     boot_spm_busy_wait();
+
+    // force a parameter reset on restart
+    eeprom_update_word((uint16_t *)Board::kConfigOptions, Board::kOptResetConfig);
 }
 
 uint16_t

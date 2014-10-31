@@ -153,7 +153,7 @@ usbFunctionSetup(uchar data[8])
 void
 main(void)
 {
-    Board::init();
+    Board::early_init();
     debug("USB Link starting");
 
     pinLINCS.cfg_output();

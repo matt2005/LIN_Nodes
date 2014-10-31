@@ -29,7 +29,8 @@ namespace Board
 Serial       debugPort;
 #endif
 
-void init()
+void
+early_init()
 {
     // clear the reset status register and disable the watchdog (as it may be running)
     // XXX save reset cause for later use?
@@ -52,6 +53,7 @@ void init()
         *p++ = 0xff;
     }
 }
+
 
 void
 panic(uint8_t code)

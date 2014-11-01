@@ -32,18 +32,16 @@ static const uint8_t kEncoding_up_to_10 = 10;
 static const uint8_t kEncoding_node_address = 11;
 static const uint8_t kEncoding_pci = 12;
 static const uint8_t kEncoding_service_id = 13;
-static const uint8_t kEncoding_v1_output_status = 14;
-static const uint8_t kEncoding_v1_output_assignment = 15;
-static const uint8_t kEncoding_v3_output_status = 16;
-static const uint8_t kEncoding_v3_output_type = 17;
-static const uint8_t kEncoding_v3_output_assignment = 18;
-static const uint8_t kEncoding_pwm_duty_cycle = 19;
-static const uint8_t kEncoding_RPM = 20;
-static const uint8_t kEncoding_PSI = 21;
-static const uint8_t kEncoding_F = 22;
-static const uint8_t kEncoding_V = 23;
-static const uint8_t kEncoding_lambda = 24;
-static const uint8_t kEncoding_MPH = 25;
+static const uint8_t kEncoding_v3_output_status = 14;
+static const uint8_t kEncoding_v3_output_type = 15;
+static const uint8_t kEncoding_v3_output_assignment = 16;
+static const uint8_t kEncoding_pwm_duty_cycle = 17;
+static const uint8_t kEncoding_RPM = 18;
+static const uint8_t kEncoding_PSI = 19;
+static const uint8_t kEncoding_F = 20;
+static const uint8_t kEncoding_V = 21;
+static const uint8_t kEncoding_lambda = 22;
+static const uint8_t kEncoding_MPH = 23;
 static const uint8_t kEncoding_none = 0xff;
 
 namespace board_function
@@ -197,42 +195,6 @@ static const uint16_t kErrorResponse = 0x7f;
 static const uint16_t kResponseOffset = 0x40;
 static const uint16_t kNumEncodings = 7;
 } // namespace service_id
-
-namespace v1_output_status
-{
-static const uint16_t kOK = 0;
-static const uint16_t kFault = 1;
-static const uint16_t kNumEncodings = 2;
-} // namespace v1_output_status
-
-namespace v1_output_assignment
-{
-static const uint16_t kUnassigned = 0;
-static const uint16_t kIgnition = 1;
-static const uint16_t kStart = 2;
-static const uint16_t kLightsUp = 3;
-static const uint16_t kLightsDown = 4;
-static const uint16_t kHeadLights = 5;
-static const uint16_t kLowBeam = 6;
-static const uint16_t kHighBeam = 7;
-static const uint16_t kFogLights = 8;
-static const uint16_t kMarkerLights = 9;
-static const uint16_t kLeftTurn = 10;
-static const uint16_t kLeftTurnMarker = 11;
-static const uint16_t kRightTurn = 12;
-static const uint16_t kRightTurnMarker = 13;
-static const uint16_t kBrake = 14;
-static const uint16_t kReverse = 15;
-static const uint16_t kInteriorLight = 16;
-static const uint16_t kCabinFan1 = 17;
-static const uint16_t kCabinFan2 = 18;
-static const uint16_t kCabinFan3 = 19;
-static const uint16_t kCabinFan4 = 20;
-static const uint16_t kWiperLow = 21;
-static const uint16_t kWiperHigh = 22;
-static const uint16_t kRearDefrost = 23;
-static const uint16_t kNumEncodings = 24;
-} // namespace v1_output_assignment
 
 namespace v3_output_status
 {
@@ -549,26 +511,6 @@ static const uint16_t kParamWiperInterval = 0x0431;
 
 } // namespace Master
 
-namespace PowerV1
-{
-extern bool param_exists(Parameter::Address address);
-extern uint16_t param_default(Parameter::Address address);
-extern uint8_t param_encoding(Parameter::Address address);
-#ifdef LIN_DEFS_WITH_STRINGS
-extern const PROGMEM char *param_name(Parameter::Address address);
-#endif // LIN_DEFS_WITH_STRINGS
-
-static const uint16_t kParamRelay1Status = 0x0300;
-static const uint16_t kParamRelay2Status = 0x0301;
-static const uint16_t kParamRelay3Status = 0x0302;
-static const uint16_t kParamRelay4Status = 0x0303;
-static const uint16_t kParamRelay1Assign = 0x0400;
-static const uint16_t kParamRelay2Assign = 0x0401;
-static const uint16_t kParamRelay3Assign = 0x0402;
-static const uint16_t kParamRelay4Assign = 0x0403;
-
-} // namespace PowerV1
-
 namespace PowerV3
 {
 extern bool param_exists(Parameter::Address address);
@@ -655,14 +597,6 @@ namespace Master
     static const uint8_t kNodeVariant = 0x01;
     static const uint16_t kNodeProtocolVersion = ((uint16_t)1 << 8) | 0;
 } // namespace Master
-
-namespace PowerV1
-{
-    static const uint8_t kNodeAddress = 2;
-    static const uint16_t kNodeSupplier = 0xb007;
-    static const uint16_t kNodeFunction = 0x0002;
-    static const uint8_t kNodeVariant = 0x10;
-} // namespace PowerV1
 
 namespace PowerV3
 {

@@ -362,67 +362,6 @@ node Master {
     }
 }
 
-node PowerV1 {
-    general {
-        supplier = 0xb007;
-        function = 0x0002;  // board_function::kPowerV1
-        variant = 0x10;
-        bitrate = 19.2 kbps;
-        sends_wake_up_signal = "no";
-    }
-    diagnostic {
-        NAD = 2 to 16;
-        diagnostic_class = 1;
-        support_sid { 0x22, 0x2e, 0xb2 };
-    }
-    frames {
-        subscribe Relays {}
-    }
-    parameters {
-        Relay1Status    { init_value = 0; address = 0x0300; v1_output_status; }
-        Relay2Status    { init_value = 0;                   v1_output_status; }
-        Relay3Status    { init_value = 0;                   v1_output_status; }
-        Relay4Status    { init_value = 0;                   v1_output_status; }
-
-        Relay1Assign    { init_value = 0; address = 0x0400; v1_output_assignment; }
-        Relay2Assign    { init_value = 0;                   v1_output_assignment; }
-        Relay3Assign    { init_value = 0;                   v1_output_assignment; }
-        Relay4Assign    { init_value = 0;                   v1_output_assignment; }
-    }
-    encoding {
-        v1_output_status {
-            logical_value, 0, "OK";
-            logical_value, 1, "Fault";
-        }
-        v1_output_assignment {
-            logical_value, 0, "Unassigned";
-            logical_value, 1, "Ignition";
-            logical_value, 2, "Start";
-            logical_value, 3, "LightsUp";
-            logical_value, 4, "LightsDown";
-            logical_value, 5, "HeadLights";
-            logical_value, 6, "LowBeam";
-            logical_value, 7, "HighBeam";
-            logical_value, 8, "FogLights";
-            logical_value, 9, "MarkerLights";
-            logical_value, 10, "LeftTurn";
-            logical_value, 11, "LeftTurnMarker";
-            logical_value, 12, "RightTurn";
-            logical_value, 13, "RightTurnMarker";
-            logical_value, 14, "Brake";
-            logical_value, 15, "Reverse";
-            logical_value, 16, "InteriorLight";
-            logical_value, 17, "CabinFan1";
-            logical_value, 18, "CabinFan2";
-            logical_value, 19, "CabinFan3";
-            logical_value, 20, "CabinFan4";
-            logical_value, 21, "WiperLow";
-            logical_value, 22, "WiperHigh";
-            logical_value, 23, "RearDefrost";
-        }
-    }
-}
-
 node PowerV3 {
     general {
         supplier = 0xb007;

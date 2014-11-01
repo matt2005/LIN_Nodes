@@ -81,19 +81,6 @@ invalid(uint8_t encoding, uint16_t value)
             return false;
         }
     }
-    if (encoding == kEncoding_v1_output_status) {
-        if (value == 0) {
-            return false;
-        }
-        if (value == 1) {
-            return false;
-        }
-    }
-    if (encoding == kEncoding_v1_output_assignment) {
-        if ((value >= 0) && (value <= 23)) {
-            return false;
-        }
-    }
     if (encoding == kEncoding_v3_output_status) {
         if ((value >= 0) && (value <= 5)) {
             return false;
@@ -206,34 +193,6 @@ static const PROGMEM char _encoding_info_service_id_3[] = "ReadByID";
 static const PROGMEM char _encoding_info_service_id_4[] = "DataDump";
 static const PROGMEM char _encoding_info_service_id_5[] = "ErrorResponse";
 static const PROGMEM char _encoding_info_service_id_6[] = "ResponseOffset";
-static const PROGMEM char _encoding_name_v1_output_status[] = "v1_output_status";
-static const PROGMEM char _encoding_info_v1_output_status_0[] = "OK";
-static const PROGMEM char _encoding_info_v1_output_status_1[] = "Fault";
-static const PROGMEM char _encoding_name_v1_output_assignment[] = "v1_output_assignment";
-static const PROGMEM char _encoding_info_v1_output_assignment_0[] = "Unassigned";
-static const PROGMEM char _encoding_info_v1_output_assignment_1[] = "Ignition";
-static const PROGMEM char _encoding_info_v1_output_assignment_2[] = "Start";
-static const PROGMEM char _encoding_info_v1_output_assignment_3[] = "LightsUp";
-static const PROGMEM char _encoding_info_v1_output_assignment_4[] = "LightsDown";
-static const PROGMEM char _encoding_info_v1_output_assignment_5[] = "HeadLights";
-static const PROGMEM char _encoding_info_v1_output_assignment_6[] = "LowBeam";
-static const PROGMEM char _encoding_info_v1_output_assignment_7[] = "HighBeam";
-static const PROGMEM char _encoding_info_v1_output_assignment_8[] = "FogLights";
-static const PROGMEM char _encoding_info_v1_output_assignment_9[] = "MarkerLights";
-static const PROGMEM char _encoding_info_v1_output_assignment_10[] = "LeftTurn";
-static const PROGMEM char _encoding_info_v1_output_assignment_11[] = "LeftTurnMarker";
-static const PROGMEM char _encoding_info_v1_output_assignment_12[] = "RightTurn";
-static const PROGMEM char _encoding_info_v1_output_assignment_13[] = "RightTurnMarker";
-static const PROGMEM char _encoding_info_v1_output_assignment_14[] = "Brake";
-static const PROGMEM char _encoding_info_v1_output_assignment_15[] = "Reverse";
-static const PROGMEM char _encoding_info_v1_output_assignment_16[] = "InteriorLight";
-static const PROGMEM char _encoding_info_v1_output_assignment_17[] = "CabinFan1";
-static const PROGMEM char _encoding_info_v1_output_assignment_18[] = "CabinFan2";
-static const PROGMEM char _encoding_info_v1_output_assignment_19[] = "CabinFan3";
-static const PROGMEM char _encoding_info_v1_output_assignment_20[] = "CabinFan4";
-static const PROGMEM char _encoding_info_v1_output_assignment_21[] = "WiperLow";
-static const PROGMEM char _encoding_info_v1_output_assignment_22[] = "WiperHigh";
-static const PROGMEM char _encoding_info_v1_output_assignment_23[] = "RearDefrost";
 static const PROGMEM char _encoding_name_v3_output_status[] = "v3_output_status";
 static const PROGMEM char _encoding_info_v3_output_status_0[] = "OK";
 static const PROGMEM char _encoding_info_v3_output_status_1[] = "OpenCircuit";
@@ -326,12 +285,6 @@ name(uint8_t encoding)
     }
     if (encoding == kEncoding_service_id) {
         return &_encoding_name_service_id[0];
-    }
-    if (encoding == kEncoding_v1_output_status) {
-        return &_encoding_name_v1_output_status[0];
-    }
-    if (encoding == kEncoding_v1_output_assignment) {
-        return &_encoding_name_v1_output_assignment[0];
     }
     if (encoding == kEncoding_v3_output_status) {
         return &_encoding_name_v3_output_status[0];
@@ -617,88 +570,6 @@ info(uint8_t encoding, uint16_t value)
         }
         if (value == 0x40) {
             return &_encoding_info_service_id_6[0];
-        }
-    }
-    if (encoding == kEncoding_v1_output_status) {
-        if (value == 0) {
-            return &_encoding_info_v1_output_status_0[0];
-        }
-        if (value == 1) {
-            return &_encoding_info_v1_output_status_1[0];
-        }
-    }
-    if (encoding == kEncoding_v1_output_assignment) {
-        if (value == 0) {
-            return &_encoding_info_v1_output_assignment_0[0];
-        }
-        if (value == 1) {
-            return &_encoding_info_v1_output_assignment_1[0];
-        }
-        if (value == 2) {
-            return &_encoding_info_v1_output_assignment_2[0];
-        }
-        if (value == 3) {
-            return &_encoding_info_v1_output_assignment_3[0];
-        }
-        if (value == 4) {
-            return &_encoding_info_v1_output_assignment_4[0];
-        }
-        if (value == 5) {
-            return &_encoding_info_v1_output_assignment_5[0];
-        }
-        if (value == 6) {
-            return &_encoding_info_v1_output_assignment_6[0];
-        }
-        if (value == 7) {
-            return &_encoding_info_v1_output_assignment_7[0];
-        }
-        if (value == 8) {
-            return &_encoding_info_v1_output_assignment_8[0];
-        }
-        if (value == 9) {
-            return &_encoding_info_v1_output_assignment_9[0];
-        }
-        if (value == 10) {
-            return &_encoding_info_v1_output_assignment_10[0];
-        }
-        if (value == 11) {
-            return &_encoding_info_v1_output_assignment_11[0];
-        }
-        if (value == 12) {
-            return &_encoding_info_v1_output_assignment_12[0];
-        }
-        if (value == 13) {
-            return &_encoding_info_v1_output_assignment_13[0];
-        }
-        if (value == 14) {
-            return &_encoding_info_v1_output_assignment_14[0];
-        }
-        if (value == 15) {
-            return &_encoding_info_v1_output_assignment_15[0];
-        }
-        if (value == 16) {
-            return &_encoding_info_v1_output_assignment_16[0];
-        }
-        if (value == 17) {
-            return &_encoding_info_v1_output_assignment_17[0];
-        }
-        if (value == 18) {
-            return &_encoding_info_v1_output_assignment_18[0];
-        }
-        if (value == 19) {
-            return &_encoding_info_v1_output_assignment_19[0];
-        }
-        if (value == 20) {
-            return &_encoding_info_v1_output_assignment_20[0];
-        }
-        if (value == 21) {
-            return &_encoding_info_v1_output_assignment_21[0];
-        }
-        if (value == 22) {
-            return &_encoding_info_v1_output_assignment_22[0];
-        }
-        if (value == 23) {
-            return &_encoding_info_v1_output_assignment_23[0];
         }
     }
     if (encoding == kEncoding_v3_output_status) {
@@ -1159,114 +1030,6 @@ value(uint8_t encoding, const char *info, uint16_t &value)
         }
         if (!strcmp(&_encoding_info_service_id_6[0], info)) {
             value = 0x40;
-            return true;
-        }
-    }
-    if (encoding == kEncoding_v1_output_status) {
-        if (!strcmp(&_encoding_info_v1_output_status_0[0], info)) {
-            value = 0;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_status_1[0], info)) {
-            value = 1;
-            return true;
-        }
-    }
-    if (encoding == kEncoding_v1_output_assignment) {
-        if (!strcmp(&_encoding_info_v1_output_assignment_0[0], info)) {
-            value = 0;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_1[0], info)) {
-            value = 1;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_2[0], info)) {
-            value = 2;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_3[0], info)) {
-            value = 3;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_4[0], info)) {
-            value = 4;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_5[0], info)) {
-            value = 5;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_6[0], info)) {
-            value = 6;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_7[0], info)) {
-            value = 7;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_8[0], info)) {
-            value = 8;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_9[0], info)) {
-            value = 9;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_10[0], info)) {
-            value = 10;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_11[0], info)) {
-            value = 11;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_12[0], info)) {
-            value = 12;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_13[0], info)) {
-            value = 13;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_14[0], info)) {
-            value = 14;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_15[0], info)) {
-            value = 15;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_16[0], info)) {
-            value = 16;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_17[0], info)) {
-            value = 17;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_18[0], info)) {
-            value = 18;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_19[0], info)) {
-            value = 19;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_20[0], info)) {
-            value = 20;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_21[0], info)) {
-            value = 21;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_22[0], info)) {
-            value = 22;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_v1_output_assignment_23[0], info)) {
-            value = 23;
             return true;
         }
     }
@@ -2347,143 +2110,6 @@ param_name(Parameter::Address address)
 
 
 } // namespace Master
-
-namespace PowerV1
-{
-
-bool
-param_exists(Parameter::Address address)
-{
-    if (address == kParamRelay1Status) {
-        return true;
-    }
-    if (address == kParamRelay2Status) {
-        return true;
-    }
-    if (address == kParamRelay3Status) {
-        return true;
-    }
-    if (address == kParamRelay4Status) {
-        return true;
-    }
-    if (address == kParamRelay1Assign) {
-        return true;
-    }
-    if (address == kParamRelay2Assign) {
-        return true;
-    }
-    if (address == kParamRelay3Assign) {
-        return true;
-    }
-    if (address == kParamRelay4Assign) {
-        return true;
-    }
-    return false;
-}
-
-uint16_t
-param_default(Parameter::Address address)
-{
-    if (address == kParamRelay1Status) {
-        return 0;
-    }
-    if (address == kParamRelay2Status) {
-        return 0;
-    }
-    if (address == kParamRelay3Status) {
-        return 0;
-    }
-    if (address == kParamRelay4Status) {
-        return 0;
-    }
-    if (address == kParamRelay1Assign) {
-        return 0;
-    }
-    if (address == kParamRelay2Assign) {
-        return 0;
-    }
-    if (address == kParamRelay3Assign) {
-        return 0;
-    }
-    if (address == kParamRelay4Assign) {
-        return 0;
-    }
-    return 0;
-}
-
-uint8_t
-param_encoding(Parameter::Address address)
-{
-    if (address == kParamRelay1Status) {
-        return kEncoding_v1_output_status;
-    }
-    if (address == kParamRelay2Status) {
-        return kEncoding_v1_output_status;
-    }
-    if (address == kParamRelay3Status) {
-        return kEncoding_v1_output_status;
-    }
-    if (address == kParamRelay4Status) {
-        return kEncoding_v1_output_status;
-    }
-    if (address == kParamRelay1Assign) {
-        return kEncoding_v1_output_assignment;
-    }
-    if (address == kParamRelay2Assign) {
-        return kEncoding_v1_output_assignment;
-    }
-    if (address == kParamRelay3Assign) {
-        return kEncoding_v1_output_assignment;
-    }
-    if (address == kParamRelay4Assign) {
-        return kEncoding_v1_output_assignment;
-    }
-    return kEncoding_none;
-}
-
-#ifdef LIN_DEFS_WITH_STRINGS
-static const PROGMEM char _param_name_Relay1Status[] = "Relay1Status";
-static const PROGMEM char _param_name_Relay2Status[] = "Relay2Status";
-static const PROGMEM char _param_name_Relay3Status[] = "Relay3Status";
-static const PROGMEM char _param_name_Relay4Status[] = "Relay4Status";
-static const PROGMEM char _param_name_Relay1Assign[] = "Relay1Assign";
-static const PROGMEM char _param_name_Relay2Assign[] = "Relay2Assign";
-static const PROGMEM char _param_name_Relay3Assign[] = "Relay3Assign";
-static const PROGMEM char _param_name_Relay4Assign[] = "Relay4Assign";
-
-const PROGMEM char *
-param_name(Parameter::Address address)
-{
-    if (address == kParamRelay1Status) {
-        return &_param_name_Relay1Status[0];
-    }
-    if (address == kParamRelay2Status) {
-        return &_param_name_Relay2Status[0];
-    }
-    if (address == kParamRelay3Status) {
-        return &_param_name_Relay3Status[0];
-    }
-    if (address == kParamRelay4Status) {
-        return &_param_name_Relay4Status[0];
-    }
-    if (address == kParamRelay1Assign) {
-        return &_param_name_Relay1Assign[0];
-    }
-    if (address == kParamRelay2Assign) {
-        return &_param_name_Relay2Assign[0];
-    }
-    if (address == kParamRelay3Assign) {
-        return &_param_name_Relay3Assign[0];
-    }
-    if (address == kParamRelay4Assign) {
-        return &_param_name_Relay4Assign[0];
-    }
-    return nullptr;
-}
-#endif // LIN_DEFS_WITH_STRINGS
-
-
-} // namespace PowerV1
 
 namespace PowerV3
 {

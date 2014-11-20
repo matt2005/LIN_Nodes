@@ -24,24 +24,25 @@ static const uint8_t kEncoding_service_error = 2;
 static const uint8_t kEncoding_bl_status = 3;
 static const uint8_t kEncoding_bl_reason = 4;
 static const uint8_t kEncoding_input_assignment = 5;
-static const uint8_t kEncoding_sp_input_mode = 6;
-static const uint8_t kEncoding_sg_input_mode = 7;
-static const uint8_t kEncoding_msec = 8;
-static const uint8_t kEncoding_sec = 9;
-static const uint8_t kEncoding_up_to_10 = 10;
-static const uint8_t kEncoding_node_address = 11;
-static const uint8_t kEncoding_pci = 12;
-static const uint8_t kEncoding_service_id = 13;
-static const uint8_t kEncoding_v3_output_status = 14;
-static const uint8_t kEncoding_v3_output_type = 15;
-static const uint8_t kEncoding_v3_output_assignment = 16;
-static const uint8_t kEncoding_pwm_duty_cycle = 17;
-static const uint8_t kEncoding_RPM = 18;
-static const uint8_t kEncoding_PSI = 19;
-static const uint8_t kEncoding_F = 20;
-static const uint8_t kEncoding_V = 21;
-static const uint8_t kEncoding_lambda = 22;
-static const uint8_t kEncoding_MPH = 23;
+static const uint8_t kEncoding_sp_input_type = 6;
+static const uint8_t kEncoding_sg_switch_input_type = 7;
+static const uint8_t kEncoding_sg_mixed_input_type = 8;
+static const uint8_t kEncoding_msec = 9;
+static const uint8_t kEncoding_sec = 10;
+static const uint8_t kEncoding_up_to_10 = 11;
+static const uint8_t kEncoding_node_address = 12;
+static const uint8_t kEncoding_pci = 13;
+static const uint8_t kEncoding_service_id = 14;
+static const uint8_t kEncoding_v3_output_status = 15;
+static const uint8_t kEncoding_v3_output_type = 16;
+static const uint8_t kEncoding_v3_output_assignment = 17;
+static const uint8_t kEncoding_pwm_duty_cycle = 18;
+static const uint8_t kEncoding_RPM = 19;
+static const uint8_t kEncoding_PSI = 20;
+static const uint8_t kEncoding_F = 21;
+static const uint8_t kEncoding_V = 22;
+static const uint8_t kEncoding_lambda = 23;
+static const uint8_t kEncoding_MPH = 24;
 static const uint8_t kEncoding_none = 0xff;
 
 namespace board_function
@@ -123,24 +124,32 @@ static const uint16_t kRearDefrost = 23;
 static const uint16_t kNumEncodings = 24;
 } // namespace input_assignment
 
-namespace sp_input_mode
+namespace sp_input_type
 {
-static const uint16_t kActiveLow = 0;
-static const uint16_t kActiveHigh = 1;
-static const uint16_t k2mASense = 2;
-static const uint16_t k16mASense = 3;
-static const uint16_t k5VSense = 4;
-static const uint16_t kNumEncodings = 5;
-} // namespace sp_input_mode
-
-namespace sg_input_mode
-{
-static const uint16_t kActiveLow = 0;
-static const uint16_t k2mASense = 2;
-static const uint16_t k16mASense = 3;
-static const uint16_t k5VSense = 4;
+static const uint16_t kSwitchToGround = 0;
+static const uint16_t kSwitchToBattery = 1;
+static const uint16_t kLogic = 2;
+static const uint16_t kInvertedLogic = 3;
 static const uint16_t kNumEncodings = 4;
-} // namespace sg_input_mode
+} // namespace sp_input_type
+
+namespace sg_switch_input_type
+{
+static const uint16_t kSwitchToGround = 0;
+static const uint16_t kLogic = 2;
+static const uint16_t kInvertedLogic = 3;
+static const uint16_t kNumEncodings = 3;
+} // namespace sg_switch_input_type
+
+namespace sg_mixed_input_type
+{
+static const uint16_t kSwitchToGround = 0;
+static const uint16_t kLogic = 2;
+static const uint16_t kAnalogNoBias = 4;
+static const uint16_t kAnalog2mABias = 5;
+static const uint16_t kAnalog16mABias = 6;
+static const uint16_t kNumEncodings = 5;
+} // namespace sg_mixed_input_type
 
 namespace msec
 {
@@ -479,7 +488,7 @@ static const uint16_t kParamSP7Mode = 0x040d;
 static const uint16_t kParamSG0Assign = 0x040e;
 static const uint16_t kParamSG0Mode = 0x040f;
 static const uint16_t kParamSG1Assign = 0x0410;
-static const uint16_t kParamSG1Mode = 0x0429;
+static const uint16_t kParamSG1Mode = 0x0411;
 static const uint16_t kParamSG2Assign = 0x0412;
 static const uint16_t kParamSG2Mode = 0x0413;
 static const uint16_t kParamSG3Assign = 0x0414;
@@ -497,9 +506,13 @@ static const uint16_t kParamSG8Mode = 0x041f;
 static const uint16_t kParamSG9Assign = 0x0420;
 static const uint16_t kParamSG9Mode = 0x0421;
 static const uint16_t kParamSG10Assign = 0x0422;
+static const uint16_t kParamSG10Mode = 0x0423;
 static const uint16_t kParamSG11Assign = 0x0424;
+static const uint16_t kParamSG11Mode = 0x0425;
 static const uint16_t kParamSG12Assign = 0x0426;
+static const uint16_t kParamSG12Mode = 0x0427;
 static const uint16_t kParamSG13Assign = 0x0428;
+static const uint16_t kParamSG13Mode = 0x0429;
 static const uint16_t kParamTurnBlinkPeriod = 0x042a;
 static const uint16_t kParamPassingBlinkCount = 0x042b;
 static const uint16_t kParamPathLightTime = 0x042c;

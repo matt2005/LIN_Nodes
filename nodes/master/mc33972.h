@@ -41,9 +41,11 @@ enum Input : uint8_t {
     kInputMax
 };
 
-void configure();
-void scan();
-bool test(uint8_t inp);
+extern void configure();
+extern void scan();
+extern bool test(uint8_t inp);
+extern void analog_select(uint8_t inp);
+extern void analog_deselect(uint8_t inp);
 
 extern bool changed;
 

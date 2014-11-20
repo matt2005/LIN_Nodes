@@ -3,6 +3,7 @@ DEBUG		 = YES
 PROG		 = Master
 SRCS		 = main.cpp \
 		   master.cpp \
+		   mc33972.cpp \
 		   relays.cpp \
 		   switches.cpp
 
@@ -11,7 +12,6 @@ SRCS		+= lin_defs.cpp
 SRCS		+= board.cpp \
 		   lin_dev.cpp \
 		   lin_slave.cpp \
-		   mc33972.cpp \
 		   print.cpp \
 		   softserial.cpp \
 		   timer.cpp \

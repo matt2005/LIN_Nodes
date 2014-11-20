@@ -44,16 +44,30 @@ invalid(uint8_t encoding, uint16_t value)
             return false;
         }
     }
-    if (encoding == kEncoding_sp_input_mode) {
-        if ((value >= 0) && (value <= 4)) {
+    if (encoding == kEncoding_sp_input_type) {
+        if ((value >= 0) && (value <= 3)) {
             return false;
         }
     }
-    if (encoding == kEncoding_sg_input_mode) {
-        if ((value >= 2) && (value <= 4)) {
+    if (encoding == kEncoding_sg_switch_input_type) {
+        if (value == 0) {
+            return false;
+        }
+        if (value == 2) {
+            return false;
+        }
+        if (value == 3) {
+            return false;
+        }
+    }
+    if (encoding == kEncoding_sg_mixed_input_type) {
+        if ((value >= 4) && (value <= 6)) {
             return false;
         }
         if (value == 0) {
+            return false;
+        }
+        if (value == 2) {
             return false;
         }
     }
@@ -160,17 +174,21 @@ static const PROGMEM char _encoding_info_input_assignment_20[] = "WiperInt";
 static const PROGMEM char _encoding_info_input_assignment_21[] = "WiperLow";
 static const PROGMEM char _encoding_info_input_assignment_22[] = "WiperHigh";
 static const PROGMEM char _encoding_info_input_assignment_23[] = "RearDefrost";
-static const PROGMEM char _encoding_name_sp_input_mode[] = "sp_input_mode";
-static const PROGMEM char _encoding_info_sp_input_mode_0[] = "ActiveLow";
-static const PROGMEM char _encoding_info_sp_input_mode_1[] = "ActiveHigh";
-static const PROGMEM char _encoding_info_sp_input_mode_2[] = "2mASense";
-static const PROGMEM char _encoding_info_sp_input_mode_3[] = "16mASense";
-static const PROGMEM char _encoding_info_sp_input_mode_4[] = "5VSense";
-static const PROGMEM char _encoding_name_sg_input_mode[] = "sg_input_mode";
-static const PROGMEM char _encoding_info_sg_input_mode_0[] = "ActiveLow";
-static const PROGMEM char _encoding_info_sg_input_mode_1[] = "2mASense";
-static const PROGMEM char _encoding_info_sg_input_mode_2[] = "16mASense";
-static const PROGMEM char _encoding_info_sg_input_mode_3[] = "5VSense";
+static const PROGMEM char _encoding_name_sp_input_type[] = "sp_input_type";
+static const PROGMEM char _encoding_info_sp_input_type_0[] = "SwitchToGround";
+static const PROGMEM char _encoding_info_sp_input_type_1[] = "SwitchToBattery";
+static const PROGMEM char _encoding_info_sp_input_type_2[] = "Logic";
+static const PROGMEM char _encoding_info_sp_input_type_3[] = "InvertedLogic";
+static const PROGMEM char _encoding_name_sg_switch_input_type[] = "sg_switch_input_type";
+static const PROGMEM char _encoding_info_sg_switch_input_type_0[] = "SwitchToGround";
+static const PROGMEM char _encoding_info_sg_switch_input_type_1[] = "Logic";
+static const PROGMEM char _encoding_info_sg_switch_input_type_2[] = "InvertedLogic";
+static const PROGMEM char _encoding_name_sg_mixed_input_type[] = "sg_mixed_input_type";
+static const PROGMEM char _encoding_info_sg_mixed_input_type_0[] = "SwitchToGround";
+static const PROGMEM char _encoding_info_sg_mixed_input_type_1[] = "Logic";
+static const PROGMEM char _encoding_info_sg_mixed_input_type_2[] = "AnalogNoBias";
+static const PROGMEM char _encoding_info_sg_mixed_input_type_3[] = "Analog2mABias";
+static const PROGMEM char _encoding_info_sg_mixed_input_type_4[] = "Analog16mABias";
 static const PROGMEM char _encoding_name_msec[] = "msec";
 static const PROGMEM char _encoding_info_msec_0[] = "Disabled";
 static const PROGMEM char _encoding_name_sec[] = "sec";
@@ -262,11 +280,14 @@ name(uint8_t encoding)
     if (encoding == kEncoding_input_assignment) {
         return &_encoding_name_input_assignment[0];
     }
-    if (encoding == kEncoding_sp_input_mode) {
-        return &_encoding_name_sp_input_mode[0];
+    if (encoding == kEncoding_sp_input_type) {
+        return &_encoding_name_sp_input_type[0];
     }
-    if (encoding == kEncoding_sg_input_mode) {
-        return &_encoding_name_sg_input_mode[0];
+    if (encoding == kEncoding_sg_switch_input_type) {
+        return &_encoding_name_sg_switch_input_type[0];
+    }
+    if (encoding == kEncoding_sg_mixed_input_type) {
+        return &_encoding_name_sg_mixed_input_type[0];
     }
     if (encoding == kEncoding_msec) {
         return &_encoding_name_msec[0];
@@ -481,35 +502,46 @@ info(uint8_t encoding, uint16_t value)
             return &_encoding_info_input_assignment_23[0];
         }
     }
-    if (encoding == kEncoding_sp_input_mode) {
+    if (encoding == kEncoding_sp_input_type) {
         if (value == 0) {
-            return &_encoding_info_sp_input_mode_0[0];
+            return &_encoding_info_sp_input_type_0[0];
         }
         if (value == 1) {
-            return &_encoding_info_sp_input_mode_1[0];
+            return &_encoding_info_sp_input_type_1[0];
         }
         if (value == 2) {
-            return &_encoding_info_sp_input_mode_2[0];
+            return &_encoding_info_sp_input_type_2[0];
         }
         if (value == 3) {
-            return &_encoding_info_sp_input_mode_3[0];
-        }
-        if (value == 4) {
-            return &_encoding_info_sp_input_mode_4[0];
+            return &_encoding_info_sp_input_type_3[0];
         }
     }
-    if (encoding == kEncoding_sg_input_mode) {
+    if (encoding == kEncoding_sg_switch_input_type) {
         if (value == 0) {
-            return &_encoding_info_sg_input_mode_0[0];
+            return &_encoding_info_sg_switch_input_type_0[0];
         }
         if (value == 2) {
-            return &_encoding_info_sg_input_mode_1[0];
+            return &_encoding_info_sg_switch_input_type_1[0];
         }
         if (value == 3) {
-            return &_encoding_info_sg_input_mode_2[0];
+            return &_encoding_info_sg_switch_input_type_2[0];
+        }
+    }
+    if (encoding == kEncoding_sg_mixed_input_type) {
+        if (value == 0) {
+            return &_encoding_info_sg_mixed_input_type_0[0];
+        }
+        if (value == 2) {
+            return &_encoding_info_sg_mixed_input_type_1[0];
         }
         if (value == 4) {
-            return &_encoding_info_sg_input_mode_3[0];
+            return &_encoding_info_sg_mixed_input_type_2[0];
+        }
+        if (value == 5) {
+            return &_encoding_info_sg_mixed_input_type_3[0];
+        }
+        if (value == 6) {
+            return &_encoding_info_sg_mixed_input_type_4[0];
         }
     }
     if (encoding == kEncoding_msec) {
@@ -917,43 +949,57 @@ value(uint8_t encoding, const char *info, uint16_t &value)
             return true;
         }
     }
-    if (encoding == kEncoding_sp_input_mode) {
-        if (!strcmp(&_encoding_info_sp_input_mode_0[0], info)) {
+    if (encoding == kEncoding_sp_input_type) {
+        if (!strcmp(&_encoding_info_sp_input_type_0[0], info)) {
             value = 0;
             return true;
         }
-        if (!strcmp(&_encoding_info_sp_input_mode_1[0], info)) {
+        if (!strcmp(&_encoding_info_sp_input_type_1[0], info)) {
             value = 1;
             return true;
         }
-        if (!strcmp(&_encoding_info_sp_input_mode_2[0], info)) {
+        if (!strcmp(&_encoding_info_sp_input_type_2[0], info)) {
             value = 2;
             return true;
         }
-        if (!strcmp(&_encoding_info_sp_input_mode_3[0], info)) {
+        if (!strcmp(&_encoding_info_sp_input_type_3[0], info)) {
             value = 3;
-            return true;
-        }
-        if (!strcmp(&_encoding_info_sp_input_mode_4[0], info)) {
-            value = 4;
             return true;
         }
     }
-    if (encoding == kEncoding_sg_input_mode) {
-        if (!strcmp(&_encoding_info_sg_input_mode_0[0], info)) {
+    if (encoding == kEncoding_sg_switch_input_type) {
+        if (!strcmp(&_encoding_info_sg_switch_input_type_0[0], info)) {
             value = 0;
             return true;
         }
-        if (!strcmp(&_encoding_info_sg_input_mode_1[0], info)) {
+        if (!strcmp(&_encoding_info_sg_switch_input_type_1[0], info)) {
             value = 2;
             return true;
         }
-        if (!strcmp(&_encoding_info_sg_input_mode_2[0], info)) {
+        if (!strcmp(&_encoding_info_sg_switch_input_type_2[0], info)) {
             value = 3;
             return true;
         }
-        if (!strcmp(&_encoding_info_sg_input_mode_3[0], info)) {
+    }
+    if (encoding == kEncoding_sg_mixed_input_type) {
+        if (!strcmp(&_encoding_info_sg_mixed_input_type_0[0], info)) {
+            value = 0;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sg_mixed_input_type_1[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sg_mixed_input_type_2[0], info)) {
             value = 4;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sg_mixed_input_type_3[0], info)) {
+            value = 5;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_sg_mixed_input_type_4[0], info)) {
+            value = 6;
             return true;
         }
     }
@@ -1591,13 +1637,25 @@ param_exists(Parameter::Address address)
     if (address == kParamSG10Assign) {
         return true;
     }
+    if (address == kParamSG10Mode) {
+        return true;
+    }
     if (address == kParamSG11Assign) {
+        return true;
+    }
+    if (address == kParamSG11Mode) {
         return true;
     }
     if (address == kParamSG12Assign) {
         return true;
     }
+    if (address == kParamSG12Mode) {
+        return true;
+    }
     if (address == kParamSG13Assign) {
+        return true;
+    }
+    if (address == kParamSG13Mode) {
         return true;
     }
     if (address == kParamTurnBlinkPeriod) {
@@ -1735,13 +1793,25 @@ param_default(Parameter::Address address)
     if (address == kParamSG10Assign) {
         return 0;
     }
+    if (address == kParamSG10Mode) {
+        return 0;
+    }
     if (address == kParamSG11Assign) {
+        return 0;
+    }
+    if (address == kParamSG11Mode) {
         return 0;
     }
     if (address == kParamSG12Assign) {
         return 0;
     }
+    if (address == kParamSG12Mode) {
+        return 0;
+    }
     if (address == kParamSG13Assign) {
+        return 0;
+    }
+    if (address == kParamSG13Mode) {
         return 0;
     }
     if (address == kParamTurnBlinkPeriod) {
@@ -1778,115 +1848,127 @@ param_encoding(Parameter::Address address)
         return kEncoding_input_assignment;
     }
     if (address == kParamSP1Mode) {
-        return kEncoding_sp_input_mode;
+        return kEncoding_sp_input_type;
     }
     if (address == kParamSP2Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSP2Mode) {
-        return kEncoding_sp_input_mode;
+        return kEncoding_sp_input_type;
     }
     if (address == kParamSP3Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSP3Mode) {
-        return kEncoding_sp_input_mode;
+        return kEncoding_sp_input_type;
     }
     if (address == kParamSP4Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSP4Mode) {
-        return kEncoding_sp_input_mode;
+        return kEncoding_sp_input_type;
     }
     if (address == kParamSP5Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSP5Mode) {
-        return kEncoding_sp_input_mode;
+        return kEncoding_sp_input_type;
     }
     if (address == kParamSP6Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSP6Mode) {
-        return kEncoding_sp_input_mode;
+        return kEncoding_sp_input_type;
     }
     if (address == kParamSP7Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSP7Mode) {
-        return kEncoding_sp_input_mode;
+        return kEncoding_sp_input_type;
     }
     if (address == kParamSG0Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG0Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG1Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG1Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG2Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG2Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG3Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG3Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG4Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG4Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG5Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG5Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG6Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG6Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG7Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG7Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG8Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG8Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG9Assign) {
         return kEncoding_input_assignment;
     }
     if (address == kParamSG9Mode) {
-        return kEncoding_sg_input_mode;
+        return kEncoding_sg_switch_input_type;
     }
     if (address == kParamSG10Assign) {
         return kEncoding_input_assignment;
     }
+    if (address == kParamSG10Mode) {
+        return kEncoding_sg_mixed_input_type;
+    }
     if (address == kParamSG11Assign) {
         return kEncoding_input_assignment;
+    }
+    if (address == kParamSG11Mode) {
+        return kEncoding_sg_mixed_input_type;
     }
     if (address == kParamSG12Assign) {
         return kEncoding_input_assignment;
     }
+    if (address == kParamSG12Mode) {
+        return kEncoding_sg_mixed_input_type;
+    }
     if (address == kParamSG13Assign) {
         return kEncoding_input_assignment;
+    }
+    if (address == kParamSG13Mode) {
+        return kEncoding_sg_mixed_input_type;
     }
     if (address == kParamTurnBlinkPeriod) {
         return kEncoding_msec;
@@ -1951,9 +2033,13 @@ static const PROGMEM char _param_name_SG8Mode[] = "SG8Mode";
 static const PROGMEM char _param_name_SG9Assign[] = "SG9Assign";
 static const PROGMEM char _param_name_SG9Mode[] = "SG9Mode";
 static const PROGMEM char _param_name_SG10Assign[] = "SG10Assign";
+static const PROGMEM char _param_name_SG10Mode[] = "SG10Mode";
 static const PROGMEM char _param_name_SG11Assign[] = "SG11Assign";
+static const PROGMEM char _param_name_SG11Mode[] = "SG11Mode";
 static const PROGMEM char _param_name_SG12Assign[] = "SG12Assign";
+static const PROGMEM char _param_name_SG12Mode[] = "SG12Mode";
 static const PROGMEM char _param_name_SG13Assign[] = "SG13Assign";
+static const PROGMEM char _param_name_SG13Mode[] = "SG13Mode";
 static const PROGMEM char _param_name_TurnBlinkPeriod[] = "TurnBlinkPeriod";
 static const PROGMEM char _param_name_PassingBlinkCount[] = "PassingBlinkCount";
 static const PROGMEM char _param_name_PathLightTime[] = "PathLightTime";
@@ -2071,14 +2157,26 @@ param_name(Parameter::Address address)
     if (address == kParamSG10Assign) {
         return &_param_name_SG10Assign[0];
     }
+    if (address == kParamSG10Mode) {
+        return &_param_name_SG10Mode[0];
+    }
     if (address == kParamSG11Assign) {
         return &_param_name_SG11Assign[0];
+    }
+    if (address == kParamSG11Mode) {
+        return &_param_name_SG11Mode[0];
     }
     if (address == kParamSG12Assign) {
         return &_param_name_SG12Assign[0];
     }
+    if (address == kParamSG12Mode) {
+        return &_param_name_SG12Mode[0];
+    }
     if (address == kParamSG13Assign) {
         return &_param_name_SG13Assign[0];
+    }
+    if (address == kParamSG13Mode) {
+        return &_param_name_SG13Mode[0];
     }
     if (address == kParamTurnBlinkPeriod) {
         return &_param_name_TurnBlinkPeriod[0];

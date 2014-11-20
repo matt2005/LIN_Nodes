@@ -237,47 +237,50 @@ node Master {
     }
     parameters {
         SP1Assign               { init_value = 0;   address = 0x0400; input_assignment; }
-        SP1Mode                 { init_value = 1;                     sp_input_mode;  }
+        SP1Mode                 { init_value = 1;                     sp_input_type;  }
         SP2Assign               { init_value = 0;                     input_assignment; }
-        SP2Mode                 { init_value = 1;                     sp_input_mode;  }
+        SP2Mode                 { init_value = 1;                     sp_input_type;  }
         SP3Assign               { init_value = 0;                     input_assignment; }
-        SP3Mode                 { init_value = 1;                     sp_input_mode;  }
+        SP3Mode                 { init_value = 1;                     sp_input_type;  }
         SP4Assign               { init_value = 0;                     input_assignment; }
-        SP4Mode                 { init_value = 1;                     sp_input_mode;  }
+        SP4Mode                 { init_value = 1;                     sp_input_type;  }
         SP5Assign               { init_value = 0;                     input_assignment; }
-        SP5Mode                 { init_value = 1;                     sp_input_mode;  }
+        SP5Mode                 { init_value = 1;                     sp_input_type;  }
         SP6Assign               { init_value = 0;                     input_assignment; }
-        SP6Mode                 { init_value = 1;                     sp_input_mode;  }
+        SP6Mode                 { init_value = 1;                     sp_input_type;  }
         SP7Assign               { init_value = 0;                     input_assignment; }
-        SP7Mode                 { init_value = 1;                     sp_input_mode;  }
+        SP7Mode                 { init_value = 1;                     sp_input_type;  }
+
         SG0Assign               { init_value = 0;                     input_assignment; }
-        SG0Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG0Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG1Assign               { init_value = 0;                     input_assignment; }
-        SG1Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG1Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG2Assign               { init_value = 0;                     input_assignment; }
-        SG2Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG2Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG3Assign               { init_value = 0;                     input_assignment; }
-        SG3Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG3Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG4Assign               { init_value = 0;                     input_assignment; }
-        SG4Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG4Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG5Assign               { init_value = 0;                     input_assignment; }
-        SG5Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG5Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG6Assign               { init_value = 0;                     input_assignment; }
-        SG6Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG6Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG7Assign               { init_value = 0;                     input_assignment; }
-        SG7Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG7Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG8Assign               { init_value = 0;                     input_assignment; }
-        SG8Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG8Mode                 { init_value = 0;                     sg_switch_input_type; }
         SG9Assign               { init_value = 0;                     input_assignment; }
-        SG9Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG9Mode                 { init_value = 0;                     sg_switch_input_type; }
+
         SG10Assign              { init_value = 0;                     input_assignment; }
-        SG1Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG10Mode                { init_value = 0;                     sg_mixed_input_type; }
         SG11Assign              { init_value = 0;                     input_assignment; }
-        SG1Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG11Mode                { init_value = 0;                     sg_mixed_input_type; }
         SG12Assign              { init_value = 0;                     input_assignment; }
-        SG1Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG12Mode                { init_value = 0;                     sg_mixed_input_type; }
         SG13Assign              { init_value = 0;                     input_assignment; }
-        SG1Mode                 { init_value = 0;                     sg_input_mode;    }
+        SG13Mode                { init_value = 0;                     sg_mixed_input_type; }
+
         TurnBlinkPeriod         { init_value = 500;                   msec; }
         PassingBlinkCount       { init_value = 0;                     up_to_10; }
         PathLightTime           { init_value = 30;                    sec; }
@@ -314,19 +317,42 @@ node Master {
             logical_value, 22, "WiperHigh";
             logical_value, 23, "RearDefrost";
         }
-        sp_input_mode {
-            logical_value, 0, "ActiveLow";
-            logical_value, 1, "ActiveHigh";
-            logical_value, 2, "2mASense";
-            logical_value, 3, "16mASense";
-            logical_value, 4, "5VSense";
+        // SP inputs are always logic inputs or switches configurable active-high
+        // or active-low with a 2mA pull in the opposite direction.
+        //
+        sp_input_type {
+            logical_value, 0, "SwitchToGround";
+            logical_value, 1, "SwitchToBattery";
+            logical_value, 2, "Logic";
+            logical_value, 3, "InvertedLogic";
         }
-        sg_input_mode {                     // subset of sp_input_mode
-            logical_value, 0, "ActiveLow";
-            logical_value, 2, "2mASense";
-            logical_value, 3, "16mASense";
-            logical_value, 4, "5VSense";
+
+        // The first 10 SG inputs are always logic inputs or switches always
+        // pulled-high active-low with a 2mA pull.
+        //
+        sg_switch_input_type {
+            logical_value, 0, "SwitchToGround";
+            logical_value, 2, "Logic";
         }
+
+        // The last 4 SG inputs can be switches active-low, or analog inputs
+        // with no, 2mA or 16mA source current.
+        // The constraint on the number of inputs is thermally derived; 4 x 16mA
+        // input, when shorted to ground, dissipates 4 * 0.016 * 14 = ~1W @ 14V. 
+        // All other inputs are run @ 2mA bias, when all are pulled to ground @ 14V
+        // the total dissipation is 18 * 0.002 * 14 = ~0.5W.
+        // Maximum package dissipation at 25C is 1.7W.
+        // Note that TJmax will be exceeded at ~38C ambient in current hardware,
+        // #76 tracks improving this.
+        //
+        sg_mixed_input_type {
+            logical_value, 0, "SwitchToGround";
+            logical_value, 2, "Logic";
+            logical_value, 4, "AnalogNoBias";
+            logical_value, 5, "Analog2mABias";
+            logical_value, 6, "Analog16mABias";
+        }
+
         msec {
             logical_value, 0, "Disabled";
             physical_value, 100, 65000, 1, 0, "Milliseconds";

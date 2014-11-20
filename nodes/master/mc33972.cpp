@@ -75,20 +75,24 @@ configure()
                 settings |= 0 << i;
                 tristate |= 0 << i;
                 break;
+
             case sp_input_type::kSwitchToBattery:
                 settings |= 1 << i;
                 tristate |= 0 << i;
                 break;
+
             case sp_input_type::kLogic:
                 settings |= 1 << i;
                 tristate |= 1 << i;
                 break;
+
             case sp_input_type::kInvertedLogic:
                 settings |= 0 << i;
                 tristate |= 1 << i;
                 break;
             }
         }
+
         cmd(kCMDSettings, 0, settings);
         cmd(kCMDTristate1, 0, tristate);
     }
@@ -119,6 +123,7 @@ configure()
                 break;
             }
         }
+
         cmd(kCMDTristate2, tristate >> 8, tristate & 0xff);
     }
 }
@@ -149,16 +154,19 @@ analog_select(uint8_t inp)
     if (inp <= kInputMax) {
 
         uint8_t select = inp + 1;
-        
+
         Parameter p(base + (stride * inp));
+
         switch (p.get()) {
         case sg_mixed_input_type::kAnalog2mABias:
             select |= (1 << 5);
             break;
-        case sg_mixed_input_type::kAnalog16mABias:    
+
+        case sg_mixed_input_type::kAnalog16mABias:
             select |= (1 << 6);
             break;
         }
+
         cmd(kCMDAnalog, 0, select);
     }
 }

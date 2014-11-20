@@ -74,8 +74,29 @@ class StaticBitarray : public Bitarray
 {
 public:
     StaticBitarray() : Bitarray(_buffer) {}
+    StaticBitarray(StaticBitarray<N> &orig) : Bitarray(_buffer) 
+    {
+        for (auto i = 0; i < kNumBytes; i++) {
+            _buffer[i] = orig._buffer[i];
+        }
+    }
 
     void            reset() { for (uint8_t i = 0; i < kNumBytes; i++) _buffer[i] = 0; }
+
+    bool operator == (const StaticBitarray<N> &other) const
+    {
+        for (auto i = 0; i < kNumBytes; i++) {
+            if (_buffer[i] != other._buffer[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator != (const StaticBitarray<N> &other) const
+    {
+        return !(*this == other);
+    }
 
 private:
     static const uint8_t    kNumBytes = (N + 7) / 8;

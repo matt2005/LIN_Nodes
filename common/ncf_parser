@@ -17,8 +17,8 @@
 #
 # <parameter> :=
 #   <name> { 
-#       init_value = <initial_value> ;
-#       address = <parameter_address>;
+#       (init_value = <initial_value> ;)
+#       (address = <parameter_address>;)
 #       (<encoding_name> ;)
 #   } 
 #
@@ -27,6 +27,9 @@
 #
 # Legal values for parameters are taken from the encoding, otherwise they are
 # the full range of the parameter data type (uint16_t).
+#
+# If not specified, the address value is the address of the previously defined
+# parameter plus one.
 #
 # Note: the scope of signal definitions is not clear from the specification.
 #       Since it suits this application best, the tool scopes them to the 
@@ -967,7 +970,7 @@ namespace eval node {
                 }
                 dict set by_name $name properties $pkind $pvalue
             }
-        } "handling properties for node '$name'"
+        } "adding properties for node '$name'"
     }
 
     # Import a node definition
@@ -1236,9 +1239,9 @@ namespace eval parser {
 
 util::wrap {parser::load_defs $argv} "parsing $argv"
 
-foreach ns {encoding signal frame parameter node} {
-    util::wrap {${ns}::report} "reporting ${ns}"
-}
+#foreach ns {encoding signal frame parameter node} {
+#    util::wrap {${ns}::report} "reporting ${ns}"
+#}
 
 util::wrap {set fh [open "lin_defs.h" "w"]
     puts $fh "// AUTOMATICALLY GENERATED - DO NOT EDIT"

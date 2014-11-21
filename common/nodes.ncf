@@ -485,7 +485,7 @@ node PowerV3 {
     encoding {
         v3_device_status {
             logical_value, 0, "OK";
-            logical_value, 1, "ChargePump";
+            logical_value, 1, "DeviceFailure";
             logical_value, 2, "Overvoltage";
             logical_value, 3, "Undervoltage";
             logical_value, 4, "Overload";

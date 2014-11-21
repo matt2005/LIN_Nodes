@@ -63,6 +63,7 @@ namespace operation_magic
 {
 static const uint16_t kProgram = 0;
 static const uint16_t kBootloader = 1;
+static const uint16_t kTest = 2;
 static const uint16_t kEnterBootloader = 0x4f42;
 static const uint16_t kEnterTest = 0x4d54;
 static const uint16_t kNumEncodings = 5;
@@ -209,7 +210,7 @@ static const uint16_t kNumEncodings = 7;
 namespace v3_device_status
 {
 static const uint16_t kOK = 0;
-static const uint16_t kChargePump = 1;
+static const uint16_t kDeviceFailure = 1;
 static const uint16_t kOvervoltage = 2;
 static const uint16_t kUndervoltage = 3;
 static const uint16_t kOverload = 4;

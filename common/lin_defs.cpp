@@ -18,11 +18,11 @@ invalid(uint8_t encoding, uint16_t value)
             return false;
         }
     }
-    if (encoding == kEncoding_bootloader_magic) {
-        if (value == 0) {
+    if (encoding == kEncoding_operation_magic) {
+        if ((value >= 0) && (value <= 2)) {
             return false;
         }
-        if (value == 1) {
+        if (value == 0x4d54) {
             return false;
         }
         if (value == 0x4f42) {
@@ -130,10 +130,12 @@ static const PROGMEM char _encoding_info_board_function_4[] = "ECUBridge";
 static const PROGMEM char _encoding_info_board_function_5[] = "Dashboard";
 static const PROGMEM char _encoding_info_board_function_6[] = "Tester";
 static const PROGMEM char _encoding_info_board_function_7[] = "Unconfigured";
-static const PROGMEM char _encoding_name_bootloader_magic[] = "bootloader_magic";
-static const PROGMEM char _encoding_info_bootloader_magic_0[] = "Program";
-static const PROGMEM char _encoding_info_bootloader_magic_1[] = "Bootloader";
-static const PROGMEM char _encoding_info_bootloader_magic_2[] = "EnterBootloader";
+static const PROGMEM char _encoding_name_operation_magic[] = "operation_magic";
+static const PROGMEM char _encoding_info_operation_magic_0[] = "Program";
+static const PROGMEM char _encoding_info_operation_magic_1[] = "Bootloader";
+static const PROGMEM char _encoding_info_operation_magic_2[] = "Test";
+static const PROGMEM char _encoding_info_operation_magic_3[] = "EnterBootloader";
+static const PROGMEM char _encoding_info_operation_magic_4[] = "EnterTest";
 static const PROGMEM char _encoding_name_service_error[] = "service_error";
 static const PROGMEM char _encoding_info_service_error_0[] = "FunctionNotSupported";
 static const PROGMEM char _encoding_info_service_error_1[] = "IncorrectLength";
@@ -271,8 +273,8 @@ name(uint8_t encoding)
     if (encoding == kEncoding_board_function) {
         return &_encoding_name_board_function[0];
     }
-    if (encoding == kEncoding_bootloader_magic) {
-        return &_encoding_name_bootloader_magic[0];
+    if (encoding == kEncoding_operation_magic) {
+        return &_encoding_name_operation_magic[0];
     }
     if (encoding == kEncoding_service_error) {
         return &_encoding_name_service_error[0];
@@ -378,15 +380,21 @@ info(uint8_t encoding, uint16_t value)
             return &_encoding_info_board_function_7[0];
         }
     }
-    if (encoding == kEncoding_bootloader_magic) {
+    if (encoding == kEncoding_operation_magic) {
         if (value == 0) {
-            return &_encoding_info_bootloader_magic_0[0];
+            return &_encoding_info_operation_magic_0[0];
         }
         if (value == 1) {
-            return &_encoding_info_bootloader_magic_1[0];
+            return &_encoding_info_operation_magic_1[0];
+        }
+        if (value == 2) {
+            return &_encoding_info_operation_magic_2[0];
         }
         if (value == 0x4f42) {
-            return &_encoding_info_bootloader_magic_2[0];
+            return &_encoding_info_operation_magic_3[0];
+        }
+        if (value == 0x4d54) {
+            return &_encoding_info_operation_magic_4[0];
         }
     }
     if (encoding == kEncoding_service_error) {
@@ -795,17 +803,25 @@ value(uint8_t encoding, const char *info, uint16_t &value)
             return true;
         }
     }
-    if (encoding == kEncoding_bootloader_magic) {
-        if (!strcmp(&_encoding_info_bootloader_magic_0[0], info)) {
+    if (encoding == kEncoding_operation_magic) {
+        if (!strcmp(&_encoding_info_operation_magic_0[0], info)) {
             value = 0;
             return true;
         }
-        if (!strcmp(&_encoding_info_bootloader_magic_1[0], info)) {
+        if (!strcmp(&_encoding_info_operation_magic_1[0], info)) {
             value = 1;
             return true;
         }
-        if (!strcmp(&_encoding_info_bootloader_magic_2[0], info)) {
+        if (!strcmp(&_encoding_info_operation_magic_2[0], info)) {
+            value = 2;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_operation_magic_3[0], info)) {
             value = 0x4f42;
+            return true;
+        }
+        if (!strcmp(&_encoding_info_operation_magic_4[0], info)) {
+            value = 0x4d54;
             return true;
         }
     }
@@ -1326,7 +1342,7 @@ param_exists(Parameter::Address address)
     if (address == kParamBoardFunction) {
         return true;
     }
-    if (address == kParamBootloaderMode) {
+    if (address == kParamOperationMode) {
         return true;
     }
     if (address == kParamFirmwareVersion) {
@@ -1386,8 +1402,8 @@ param_encoding(Parameter::Address address)
     if (address == kParamBoardFunction) {
         return kEncoding_board_function;
     }
-    if (address == kParamBootloaderMode) {
-        return kEncoding_bootloader_magic;
+    if (address == kParamOperationMode) {
+        return kEncoding_operation_magic;
     }
     return kEncoding_none;
 }
@@ -1395,7 +1411,7 @@ param_encoding(Parameter::Address address)
 #ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _param_name_ProtocolVersion[] = "ProtocolVersion";
 static const PROGMEM char _param_name_BoardFunction[] = "BoardFunction";
-static const PROGMEM char _param_name_BootloaderMode[] = "BootloaderMode";
+static const PROGMEM char _param_name_OperationMode[] = "OperationMode";
 static const PROGMEM char _param_name_FirmwareVersion[] = "FirmwareVersion";
 static const PROGMEM char _param_name_FirmwarePageSize[] = "FirmwarePageSize";
 static const PROGMEM char _param_name_WatchdogResets[] = "WatchdogResets";
@@ -1420,8 +1436,8 @@ param_name(Parameter::Address address)
     if (address == kParamBoardFunction) {
         return &_param_name_BoardFunction[0];
     }
-    if (address == kParamBootloaderMode) {
-        return &_param_name_BootloaderMode[0];
+    if (address == kParamOperationMode) {
+        return &_param_name_OperationMode[0];
     }
     if (address == kParamFirmwareVersion) {
         return &_param_name_FirmwareVersion[0];

@@ -98,23 +98,23 @@ check_ready()
 void
 reset_bootloader()
 {
-    Link::write_param(Generic::kParamBootloaderMode, 1);
+    Link::write_param(Generic::kParamOperationMode, 1);
 }
 
 void
 set_bootloader(bool wantBootloader)
 {
-    auto desired = (wantBootloader ? 1U : 0U);
-    auto command = (wantBootloader ? bootloader_magic::kEnterBootloader : 0U);
+    auto desired = (wantBootloader ? operation_magic::kBootloader : operation_magic::kProgram);
+    auto command = (wantBootloader ? operation_magic::kEnterBootloader : operation_magic::kProgram);
 
     try {
 
-        if (Link::read_param(Generic::kParamBootloaderMode) == desired) {
+        if (Link::read_param(Generic::kParamOperationMode) == desired) {
             // already in the desired state, nothing to do here
             return;
         }
 
-        Link::write_param(Generic::kParamBootloaderMode, command);
+        Link::write_param(Generic::kParamOperationMode, command);
 
         // We might have just tried to reboot the master node, and it might not have
         // taken, so go through the master setup process again just in case we need to
@@ -130,13 +130,10 @@ set_bootloader(bool wantBootloader)
         for (auto tries = 0; tries < 50; tries++) {
 
             try {
-                auto state = Link::read_param(Generic::kParamBootloaderMode);
+                auto state = Link::read_param(Generic::kParamOperationMode);
 
                 if (state == desired) {
                     return;
-
-                } else {
-                    RAISE(ExProtocol, "node refused to enter bootloader (" << tries << " tries)");
                 }
 
                 usleep(20000);
@@ -146,6 +143,7 @@ set_bootloader(bool wantBootloader)
                 continue;
             }
         }
+        RAISE(ExProtocol, "trying to " << (wantBootloader ? "enter" : "leave") << " bootloader mode");
 
     } catch (ExProtocol &e) {
         throw;

@@ -86,7 +86,7 @@ node Generic {
         // 0x000-0x0ff firmware properties
         ProtocolVersion     { address = 0x0000; }
         BoardFunction       {                   board_function; }
-        BootloaderMode      {                   bootloader_magic; }
+        OperationMode       {                   operation_magic; }
         FirmwareVersion     {                   }
         FirmwarePageSize    {                   }
 
@@ -121,10 +121,12 @@ node Generic {
             logical_value, 6, "Tester";
             logical_value, 255, "Unconfigured";
         }
-        bootloader_magic {
+        operation_magic {
             logical_value, 0, "Program";
             logical_value, 1, "Bootloader";
+            logical_value, 2, "Test";
             logical_value, 0x4f42, "EnterBootloader";
+            logical_value, 0x4d54, "EnterTest";
         }
         service_error {
             logical_value, 0x12, "FunctionNotSupported";

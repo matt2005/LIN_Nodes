@@ -322,6 +322,9 @@ update(int argc, char *argv[])
         switch (ch) {
         case 'n':
             node = strtoul(optarg, nullptr, 0);
+            if (node == 0) {
+                errx(1, "bad node address '%s'", optarg);
+            }
             break;
 
         case 'v':

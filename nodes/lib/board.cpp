@@ -204,9 +204,19 @@ enter_bootloader(uint8_t nad, uint8_t function)
     // write magic to the EEPROM to cause us to wait in the bootloader
     eeprom_update_byte((uint8_t *)kConfigNodeAddress, nad);
     eeprom_update_byte((uint8_t *)kConfigFunction, function);
-    eeprom_update_word((uint16_t *)kConfigMagic, kBLMagic); // bootloader_magic::kEnterBootloader
+    eeprom_update_word((uint16_t *)kConfigMagic, kBLMagic); // operation_magic::kEnterBootloader
 
+    wdt_reset();
     reset();
+}
+
+bool
+was_bootloader_requested()
+{
+    bool requested = (eeprom_read_word((uint16_t *)Board::kConfigMagic) == Board::kBLMagic);
+    eeprom_update_word((uint16_t *)Board::kConfigMagic, 0xffff);
+
+    return requested;
 }
 
 void

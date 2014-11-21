@@ -17,6 +17,10 @@
 
 #include "lin_defs.h"
 
+static uint8_t  duty_cycles[MC17XSF500::num_channels];
+static uint16_t output_status[MC17XSF500::num_channels];    // XXX inefficient use of memory
+static uint16_t current[MC17XSF500::num_channels];
+
 using namespace PowerV3;
 
 static void
@@ -62,6 +66,8 @@ main(void)
     // enable interrupts
     sei();
 
+    // XXX should set up ADC trigger & collection here
+
     // run the output logic forever
     for (;;) {
         wdt_reset();
@@ -74,14 +80,20 @@ main(void)
         const uint16_t pwmBase = PowerV3::kParamCH1PWM1;
         const uint8_t assigns = channelStride / 2;
 
-        // update outputs
+        // update outputs - always do this to ensure that any lost update is fixed on
+        // the next loop iteration
         for (unsigned output = 0; output < MC17XSF500::num_channels; output++) {
 
             uint8_t duty_cycle = 0;
+            bool unassigned = true;
 
             for (uint8_t assign = 0; assign < assigns; assign++) {
                 uint8_t offset = (output * channelStride) + (assign * assignStride);
                 uint16_t assigned = Parameter(assignBase + offset).get();
+
+                if (assigned != v3_output_assignment::kUnassigned) {
+                    unassigned = false;
+                }
 
                 if (slave.test_relay(assigned)) {
                     uint16_t pwm = Parameter(pwmBase + offset).get();
@@ -92,7 +104,30 @@ main(void)
                 }
             }
 
-            MC17XSF500::set(output, duty_cycle);
+            if (unassigned) {
+                duty_cycles[output] = false;
+                output_status[output] = v3_output_status::kOK;
+            } else {
+                MC17XSF500::set(output, duty_cycle);
+                duty_cycles[output] = duty_cycle;
+
+                // XXX need to use time & knowledge of output type here to be more
+                //     intelligent about the state of the load...
+
+                auto status = MC17XSF500::get_status(MC17XSF500::kStatusCH1 + output);
+
+                if (status.chX_status.ots != 0) {
+                    output_status[output] = v3_output_status::kTemperatureShutdown;
+                } else if (status.chX_status.otw != 0) {
+                    output_status[output] = v3_output_status::kTemperatureWarning;
+                } else if (status.chX_status.oc_status != 0) {
+                    output_status[output] = v3_output_status::kOverCurrent;
+                } else if (status.chX_status.olf != 0) {
+                    output_status[output] = v3_output_status::kOpenLoad;
+                } else {
+                    output_status[output] = v3_output_status::kOK;
+                }
+            }
         }
     }
 }
@@ -101,16 +136,16 @@ void
 Parameter::set(uint16_t value) const
 {
     switch (address()) {
-    case Generic::kParamBootloaderMode:
-        if (value == bootloader_magic::kEnterBootloader) {
+    case Generic::kParamOperationMode:
+        if (value == operation_magic::kEnterBootloader) {
             Board::enter_bootloader(RelaySlave::node_address(Board::get_mode()),
                                     board_function::kPowerV3);
         }
-    }
+        break;
 
-    if ((address() >> 8) == 0x04) {
-        uint8_t index = address() & 0xff;
-        eeprom_update_word((uint16_t *)(index * 2), value);
+    case Generic::kParamConfigBase ... Generic::kParamConfigTop:
+        eeprom_update_word((uint16_t *)((address() - Generic::kParamConfigBase) * 2), value);
+        break;
     }
 }
 
@@ -124,7 +159,7 @@ Parameter::get() const
     case Generic::kParamBoardFunction:
         return board_function::kPowerV3;
 
-    case Generic::kParamBootloaderMode:
+    case Generic::kParamOperationMode:
         return 0;
 
     case Generic::kParamFirmwareVersion:
@@ -132,11 +167,66 @@ Parameter::get() const
 
     case Generic::kParamFirmwarePageSize:
         return SPM_PAGESIZE;
-    }
 
-    if ((address() >> 8) == 0x04) {
-        uint8_t index = address() & 0xff;
-        return eeprom_read_word((const uint16_t *)(index * 2));
+    case kParamDeviceStatus:
+        {
+            auto status = MC17XSF500::get_status(MC17XSF500::kStatusQuick);
+
+            if (status.quick_status.qsf != 0) {
+                // prioritise output overload reporting
+                return v3_device_status::kOverload;
+            }
+            if (status.quick_status.dsf != 0) {
+                status = MC17XSF500::get_status(MC17XSF500::kStatusDevice);
+
+                if (status.device_status.uvf != 0) {
+                    return v3_device_status::kUndervoltage;
+                }
+                if (status.device_status.ovf != 0) {
+                    return v3_device_status::kOvervoltage;
+                }
+                // may be over-enthusiastic, will report RCF and CLKF which may
+                // not be "failure"
+                return v3_device_status::kDeviceFailure;
+            }
+        }
+        return v3_device_status::kOK;
+
+    case kParamCH1Status:
+        return output_status[0];
+    case kParamCH2Status:
+        return output_status[1];
+    case kParamCH3Status:
+        return output_status[2];
+    case kParamCH4Status:
+        return output_status[3];
+    case kParamCH5Status:
+        return output_status[4];
+
+    case kParamCH1DutyCycle:
+        return duty_cycles[0];
+    case kParamCH2DutyCycle:
+        return duty_cycles[1];
+    case kParamCH3DutyCycle:
+        return duty_cycles[2];
+    case kParamCH4DutyCycle:
+        return duty_cycles[3];
+    case kParamCH5DutyCycle:
+        return duty_cycles[4];
+
+    case kParamCH1Current:
+        return current[0];
+    case kParamCH2Current:
+        return current[1];
+    case kParamCH3Current:
+        return current[2];
+    case kParamCH4Current:
+        return current[3];
+    case kParamCH5Current:
+        return current[4];
+
+    case Generic::kParamConfigBase ... Generic::kParamConfigTop:
+        return eeprom_read_word((const uint16_t *)((address() - Generic::kParamConfigBase) * 2));
     }
 
     return 0;

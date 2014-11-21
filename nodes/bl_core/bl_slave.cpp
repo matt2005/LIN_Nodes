@@ -65,15 +65,15 @@ BLSlave::st_response_received(Response &resp)
 
         case service_id::kWriteDataByID:
             switch (resp.DataByID.index) {
-            case Generic::kParamBootloaderMode:
+            case Generic::kParamOperationMode:
 
                 // reset the bootloader state
-                if (resp.DataByID.value == 1) {
+                if (resp.DataByID.value == operation_magic::kBootloader) {
                     _pageStatus = bl_status::kWaitingForProgrammer;
                     _programEnd = 0;
                     _resetVector = 0;
 
-                } else if (resp.DataByID.value == 0) {
+                } else if (resp.DataByID.value == operation_magic::kProgram) {
                     // reboot (may just come right back...)
                     Board::reset();
                 }
@@ -151,8 +151,8 @@ BLSlave::send_response()
         value = function();
         break;
 
-    case Generic::kParamBootloaderMode:
-        value = 1;
+    case Generic::kParamOperationMode:
+        value = operation_magic::kBootloader;
         break;
 
     case Generic::kParamFirmwarePageSize:
@@ -240,9 +240,8 @@ BLSlave::is_program_valid()
 bool
 BLSlave::is_bootloader_forced()
 {
-    if (eeprom_read_word((uint16_t *)Board::kConfigMagic) == Board::kBLMagic) {
+    if (Board::was_bootloader_requested()) {
         _reason = bl_reason::kForced;
-        eeprom_update_word((uint16_t *)Board::kConfigMagic, 0xffff);
         return true;
     }
 
@@ -357,7 +356,7 @@ BLSlave::update_program_info()
     boot_spm_busy_wait();
 
     // force a parameter reset on restart
-    eeprom_update_word((uint16_t *)Board::kConfigOptions, Board::kOptResetConfig);
+    eeprom_update_byte((uint8_t *)Board::kConfigOptions, Board::kOptResetConfig);
 }
 
 uint16_t

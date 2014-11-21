@@ -19,7 +19,7 @@ extern bool                 value(uint8_t encoding, const char *info, uint16_t &
 } // namespace Encoding
 
 static const uint8_t kEncoding_board_function = 0;
-static const uint8_t kEncoding_bootloader_magic = 1;
+static const uint8_t kEncoding_operation_magic = 1;
 static const uint8_t kEncoding_service_error = 2;
 static const uint8_t kEncoding_bl_status = 3;
 static const uint8_t kEncoding_bl_reason = 4;
@@ -59,13 +59,14 @@ static const uint16_t kUnconfigured = 255;
 static const uint16_t kNumEncodings = 8;
 } // namespace board_function
 
-namespace bootloader_magic
+namespace operation_magic
 {
 static const uint16_t kProgram = 0;
 static const uint16_t kBootloader = 1;
 static const uint16_t kEnterBootloader = 0x4f42;
-static const uint16_t kNumEncodings = 3;
-} // namespace bootloader_magic
+static const uint16_t kEnterTest = 0x4d54;
+static const uint16_t kNumEncodings = 5;
+} // namespace operation_magic
 
 namespace service_error
 {
@@ -434,7 +435,7 @@ extern const PROGMEM char *param_name(Parameter::Address address);
 
 static const uint16_t kParamProtocolVersion = 0x0000;
 static const uint16_t kParamBoardFunction = 0x0001;
-static const uint16_t kParamBootloaderMode = 0x0002;
+static const uint16_t kParamOperationMode = 0x0002;
 static const uint16_t kParamFirmwareVersion = 0x0003;
 static const uint16_t kParamFirmwarePageSize = 0x0004;
 static const uint16_t kParamWatchdogResets = 0x0100;

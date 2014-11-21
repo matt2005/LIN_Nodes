@@ -18,7 +18,7 @@
 Node::List  Node::_list;
 static std::list<unsigned> knownAddresses = {
     Master::kNodeAddress,
-    PowerV3::kNodeAddress + 0,  // range shared with PowerV1
+    PowerV3::kNodeAddress + 0,
     PowerV3::kNodeAddress + 1,
     PowerV3::kNodeAddress + 2,
     PowerV3::kNodeAddress + 3,

@@ -95,6 +95,10 @@ uint16_t freemem();
 ///
 void enter_bootloader(uint8_t nad, uint8_t function = 0);
 
+/// Test whether the bootloader was requested
+///
+bool was_bootloader_requested();
+
 /// Reset
 ///
 void reset();

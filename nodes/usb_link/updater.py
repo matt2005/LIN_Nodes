@@ -40,7 +40,7 @@ USB_CFG_DEVICE_ID = 0x05dc
 # parameters - must match lin_defs.h
 kParamProtocolVersion   = 0x0000
 kParamBoardFunction     = 0x0001
-kParamBootloaderMode    = 0x0002
+kParamOperationMode     = 0x0002
 kParamFirmwareVersion   = 0x0003
 kParamFirmwarePageSize  = 0x0004
 

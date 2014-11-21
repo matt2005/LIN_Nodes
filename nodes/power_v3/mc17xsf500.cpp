@@ -18,7 +18,6 @@ namespace MC17XSF500
 {
 
 static Status transfer(Command cmd);
-static Status get_status(StatusRegister reg);
 static void wait();
 
 // PWM reference clock frequency, can be 25.6 - 102.4kHz, divided by 256 internally
@@ -58,6 +57,18 @@ public:
         init_2.no_hid = 0;          // smart HID ballast detection always enabled
         init_2.ochi_transient = 1;  // improved short-circuit protection XXX TESTME
         init_2.ochi_thermal = 0;    // default thermal limits
+    }
+};
+
+class CmdOutputControl : public Command
+{
+public:
+    CmdOutputControl()
+    {
+        address.address = kCtrlOutputControl;
+        address.data = 0;
+        output_control.on = 0;
+        output_control.psf = 0x1f;
     }
 };
 
@@ -313,6 +324,7 @@ configure()
     // configure device
     transfer(CmdInit1());
     transfer(CmdInit2());
+    transfer(CmdOutputControl());
     transfer(CmdOverCurrentControl1());
     transfer(CmdPrescaler1());
     transfer(CmdOLControl());
@@ -384,7 +396,7 @@ transfer(Command cmd)
 }
 
 Status
-get_status(StatusRegister reg)
+get_status(uint8_t reg)
 {
 
     // send an init_1 command that will cause the *next* command to

@@ -72,9 +72,6 @@ Param::exists() const
     case board_function::kMaster:
         return Master::param_exists(_address);
 
-    case board_function::kPowerV1:
-        return PowerV1::param_exists(_address);
-
     case board_function::kPowerV3:
         return PowerV3::param_exists(_address);
 
@@ -126,10 +123,6 @@ Param::encoding() const
         value = Master::param_encoding(_address);
         break;
 
-    case board_function::kPowerV1:
-        value = PowerV1::param_encoding(_address);
-        break;
-
     case board_function::kPowerV3:
         value = PowerV3::param_encoding(_address);
         break;
@@ -150,10 +143,6 @@ Param::name() const
     switch (_function) {
     case board_function::kMaster:
         str = Master::param_name(_address);
-        break;
-
-    case board_function::kPowerV1:
-        str = PowerV1::param_name(_address);
         break;
 
     case board_function::kPowerV3:

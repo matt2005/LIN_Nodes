@@ -17,9 +17,6 @@ namespace MC17XSF500
 {
 static const uint8_t num_channels = 5;
 
-extern void configure();
-extern void set(uint8_t channel, uint8_t duty_cycle);
-
 enum ControlRegister : uint8_t {
     kCtrlInit1 = 0x00,
     kCtrlInit2 = 0x10,
@@ -320,5 +317,9 @@ union Status {
 
     }           device_id;
 };
+
+extern void configure();
+extern void set(uint8_t channel, uint8_t duty_cycle);
+extern Status get_status(uint8_t reg);
 
 } // namespace MC17XSF500

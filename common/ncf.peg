@@ -119,7 +119,7 @@ frame_definition        <- 'frames' OPEN_BRACE
                                     CLOSE_BRACE ;
 
             signal                  <- Name OPEN_BRACE
-                                        (signal_init_value / signal_init_array)
+                                        (signal_init_value / signal_init_array)?
                                         signal_size
                                         signal_offset
                                         signal_encoding?

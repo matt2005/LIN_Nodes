@@ -31,68 +31,72 @@ node Generic {
             length = 8;
             frame_id = 0x3d;
             signals {
-                nad             { init_value = 0; size = 8; offset = 0; }
-                length          { init_value = 0; size = 4; offset = 8; }
-                pci             { init_value = 0; size = 4; offset = 12; pci; }
-                sid             { init_value = 0; size = 8; offset = 16; service_id; }
-                d1              { init_value = 0; size = 8; offset = 24; }
-                d2              { init_value = 0; size = 8; offset = 32; }
-                d3              { init_value = 0; size = 8; offset = 40; }
-                d4              { init_value = 0; size = 8; offset = 48; }
-                d5              { init_value = 0; size = 8; offset = 56; }
+                nad             { size = 8; offset = 0; }
+                length          { size = 4; offset = 8; }
+                pci             { size = 4; offset = 12; pci; }
+                sid             { size = 8; offset = 16; service_id; }
+                d1              { size = 8; offset = 24; }
+                d2              { size = 8; offset = 32; }
+                d3              { size = 8; offset = 40; }
+                d4              { size = 8; offset = 48; }
+                d5              { size = 8; offset = 56; }
             }
         }
         publish ReadByID {
             length = 0;
             signals {
-                nad             { init_value = 0; size = 8; offset = 0; }
-                length          { init_value = 0; size = 4; offset = 8; }
-                pci             { init_value = 0; size = 4; offset = 12; pci; }
-                sid             { init_value = 0; size = 8; offset = 16; service_id; }
-                vendor          { init_value = 0; size = 16; offset = 24; }
-                function        { init_value = 0; size = 16; offset = 40; }
-                variant         { init_value = 0; size = 8; offset = 56; }
+                nad             { size = 8; offset = 0; }
+                length          { size = 4; offset = 8; }
+                pci             { size = 4; offset = 12; pci; }
+                sid             { size = 8; offset = 16; service_id; }
+                vendor          { size = 16; offset = 24; }
+                function        { size = 16; offset = 40; }
+                variant         { size = 8; offset = 56; }
             }
         }
         publish DataByID {
             length = 8;
             signals {
-                nad             { init_value = 0; size = 8; offset = 0; }
-                length          { init_value = 0; size = 4; offset = 8; }
-                pci             { init_value = 0; size = 4; offset = 12; pci; }
-                sid             { init_value = 0; size = 8; offset = 16; service_id; }
-                index           { init_value = 0; size = 16; offset = 24; }
-                value           { init_value = 0; size = 16; offset = 40; }
-                d5              { init_value = 0; size = 8; offset = 56; }
+                nad             { size = 8; offset = 0; }
+                length          { size = 4; offset = 8; }
+                pci             { size = 4; offset = 12; pci; }
+                sid             { size = 8; offset = 16; service_id; }
+                index           { size = 16; offset = 24; }
+                value           { size = 16; offset = 40; }
+                d5              { size = 8; offset = 56; }
             }
         }
         publish ServiceError {
             length = 8;
             signals {
-                nad             { init_value = 0; size = 8; offset = 0; }
-                length          { init_value = 0; size = 4; offset = 8; }
-                pci             { init_value = 0; size = 4; offset = 12; pci; }
-                sid             { init_value = 0; size = 8; offset = 16; service_id; }
-                original_sid    { init_value = 0; size = 8; offset = 24; service_id; }
-                error           { init_value = 0; size = 8; offset = 32; service_error; }
-                d3              { init_value = 0; size = 8; offset = 40; }
-                d4              { init_value = 0; size = 8; offset = 48; }
-                d5              { init_value = 0; size = 8; offset = 56; }
+                nad             { size = 8; offset = 0; }
+                length          { size = 4; offset = 8; }
+                pci             { size = 4; offset = 12; pci; }
+                sid             { size = 8; offset = 16; service_id; }
+                original_sid    { size = 8; offset = 24; service_id; }
+                error           { size = 8; offset = 32; service_error; }
+                d3              { size = 8; offset = 40; }
+                d4              { size = 8; offset = 48; }
+                d5              { size = 8; offset = 56; }
             }
         }
         subscribe MasterRequest {}
     }
     parameters {
+        // 0x000-0x0ff firmware properties
         ProtocolVersion     { address = 0x0000; }
         BoardFunction       {                   board_function; }
         BootloaderMode      {                   bootloader_magic; }
         FirmwareVersion     {                   }
         FirmwarePageSize    {                   }
 
+        // 0x100-0x1ff operational status
         WatchdogResets      { address = 0x0100; }
         SupplyVoltage       {                   }
         Temperature         {                   }
+        FreeMem             {                   }
 
+        // 0x200-0x2ff link status
         Line                { address = 0x0200; }
         Checksum            {                   }
         Parity              {                   }
@@ -100,6 +104,9 @@ node Generic {
         Synch               {                   }
         Protocol            {                   }
 
+        // 0x300-0x3ff function status (node specfic)
+
+        // 0x400-0x4ff non-volatile parameters
         ConfigBase          { address = 0x0400; }
         ConfigTop           { address = 0x04ef; }
     }
@@ -193,44 +200,44 @@ node Master {
             max_period = 100 ms;
             frame_id = 0x01;
             signals {
-                Ignition        { init_value = 0; size = 1; offset = 0; }
-                Start           { init_value = 0; size = 1; offset = 1; }
-                LightsUp        { init_value = 0; size = 1; offset = 2; }
-                LightsDown      { init_value = 0; size = 1; offset = 3; }
-                HeadLights      { init_value = 0; size = 1; offset = 4; }
-                LowBeam         { init_value = 0; size = 1; offset = 5; }
-                HighBeam        { init_value = 0; size = 1; offset = 6; }
-                FogLights       { init_value = 0; size = 1; offset = 7; }
-                MarkerLights    { init_value = 0; size = 1; offset = 8; }
-                LeftTurn        { init_value = 0; size = 1; offset = 9; }
-                LeftTurnMarker  { init_value = 0; size = 1; offset = 10; }
-                RightTurn       { init_value = 0; size = 1; offset = 11; }
-                RightTurnMarker { init_value = 0; size = 1; offset = 12; }
-                Brake           { init_value = 0; size = 1; offset = 13; }
-                Reverse         { init_value = 0; size = 1; offset = 14; }
-                InteriorLight   { init_value = 0; size = 1; offset = 15; }
-                CabinFan1       { init_value = 0; size = 1; offset = 16; }
-                CabinFan2       { init_value = 0; size = 1; offset = 17; }
-                CabinFan3       { init_value = 0; size = 1; offset = 18; }
-                CabinFan4       { init_value = 0; size = 1; offset = 19; }
-                WiperLow        { init_value = 0; size = 1; offset = 20; }
-                WiperHigh       { init_value = 0; size = 1; offset = 21; }
-                RearDefrost     { init_value = 0; size = 1; offset = 22; }
+                Ignition        { size = 1; offset = 0; }
+                Start           { size = 1; offset = 1; }
+                LightsUp        { size = 1; offset = 2; }
+                LightsDown      { size = 1; offset = 3; }
+                HeadLights      { size = 1; offset = 4; }
+                LowBeam         { size = 1; offset = 5; }
+                HighBeam        { size = 1; offset = 6; }
+                FogLights       { size = 1; offset = 7; }
+                MarkerLights    { size = 1; offset = 8; }
+                LeftTurn        { size = 1; offset = 9; }
+                LeftTurnMarker  { size = 1; offset = 10; }
+                RightTurn       { size = 1; offset = 11; }
+                RightTurnMarker { size = 1; offset = 12; }
+                Brake           { size = 1; offset = 13; }
+                Reverse         { size = 1; offset = 14; }
+                InteriorLight   { size = 1; offset = 15; }
+                CabinFan1       { size = 1; offset = 16; }
+                CabinFan2       { size = 1; offset = 17; }
+                CabinFan3       { size = 1; offset = 18; }
+                CabinFan4       { size = 1; offset = 19; }
+                WiperLow        { size = 1; offset = 20; }
+                WiperHigh       { size = 1; offset = 21; }
+                RearDefrost     { size = 1; offset = 22; }
             }
         }
         publish MasterRequest {
             length = 8;
             frame_id = 0x3c;
             signals {
-                nad             { init_value = 0; size = 8; offset = 0; node_address; }
-                length          { init_value = 0; size = 4; offset = 8; }
-                pci             { init_value = 0; size = 4; offset = 12; pci; }
-                sid             { init_value = 0; size = 8; offset = 16; service_id; }
-                d1              { init_value = 0; size = 8; offset = 24; }
-                d2              { init_value = 0; size = 8; offset = 32; }
-                d3              { init_value = 0; size = 8; offset = 40; }
-                d4              { init_value = 0; size = 8; offset = 48; }
-                d5              { init_value = 0; size = 8; offset = 56; }
+                nad             { size = 8; offset = 0; node_address; }
+                length          { size = 4; offset = 8; }
+                pci             { size = 4; offset = 12; pci; }
+                sid             { size = 8; offset = 16; service_id; }
+                d1              { size = 8; offset = 24; }
+                d2              { size = 8; offset = 32; }
+                d3              { size = 8; offset = 40; }
+                d4              { size = 8; offset = 48; }
+                d5              { size = 8; offset = 56; }
             }
         }
         subscribe SlaveResponse {}
@@ -405,71 +412,88 @@ node PowerV3 {
         subscribe Relays {}
     }
     parameters {
-        CH1Status   { init_value = 0;   address = 0x0300; v3_output_status; }
-        CH2Status   { init_value = 0;                     v3_output_status; }
-        CH3Status   { init_value = 0;                     v3_output_status; }
-        CH4Status   { init_value = 0;                     v3_output_status; }
-        CH5Status   { init_value = 0;                     v3_output_status; }
+        DeviceStatus    { address = 0x0300; v3_device_status; }
+        CH1Status       {                   v3_output_status; }
+        CH1DutyCycle    {                   pwm_duty_cycle; }
+        CH1Current      {                   }
+        CH2Status       {                   v3_output_status; }
+        CH2DutyCycle    {                   pwm_duty_cycle; }
+        CH2Current      {                   }
+        CH3Status       {                   v3_output_status; }
+        CH3DutyCycle    {                   pwm_duty_cycle; }
+        CH3Current      {                   }
+        CH4Status       {                   v3_output_status; }
+        CH4DutyCycle    {                   pwm_duty_cycle; }
+        CH4Current      {                   }
+        CH5Status       {                   v3_output_status; }
+        CH5DutyCycle    {                   pwm_duty_cycle; }
+        CH5Current      {                   }
 
-        CH1Type     { init_value = 0;   address = 0x0400; v3_output_type; }
-        CH2Type     { init_value = 0;                     v3_output_type; }
-        CH3Type     { init_value = 0;                     v3_output_type; }
-        CH4Type     { init_value = 0;                     v3_output_type; }
-        CH5Type     { init_value = 0;                     v3_output_type; }
+        CH1Type         { address = 0x0400; v3_output_type; }
+        CH2Type         {                   v3_output_type; }
+        CH3Type         {                   v3_output_type; }
+        CH4Type         {                   v3_output_type; }
+        CH5Type         {                   v3_output_type; }
 
-        CH1Assign1  { init_value = 0;                     v3_output_assignment; }
-        CH1Assign2  { init_value = 0;                     v3_output_assignment; }
-        CH1Assign3  { init_value = 0;                     v3_output_assignment; }
-        CH1Assign4  { init_value = 0;                     v3_output_assignment; }
-        CH1PWM1     { init_value = 0;                     pwm_duty_cycle; }
-        CH1PWM2     { init_value = 0;                     pwm_duty_cycle; }
-        CH1PWM3     { init_value = 0;                     pwm_duty_cycle; }
-        CH1PWM4     { init_value = 0;                     pwm_duty_cycle; }
+        CH1Assign1      {                   v3_output_assignment; }
+        CH1PWM1         {                   pwm_duty_cycle; }
+        CH1Assign2      {                   v3_output_assignment; }
+        CH1PWM2         {                   pwm_duty_cycle; }
+        CH1Assign3      {                   v3_output_assignment; }
+        CH1PWM3         {                   pwm_duty_cycle; }
+        CH1Assign4      {                   v3_output_assignment; }
+        CH1PWM4         {                   pwm_duty_cycle; }
 
-        CH2Assign1  { init_value = 0;                     v3_output_assignment; }
-        CH2Assign2  { init_value = 0;                     v3_output_assignment; }
-        CH2Assign3  { init_value = 0;                     v3_output_assignment; }
-        CH2Assign4  { init_value = 0;                     v3_output_assignment; }
-        CH2PWM1     { init_value = 0;                     pwm_duty_cycle; }
-        CH2PWM2     { init_value = 0;                     pwm_duty_cycle; }
-        CH2PWM3     { init_value = 0;                     pwm_duty_cycle; }
-        CH2PWM4     { init_value = 0;                     pwm_duty_cycle; }
+        CH2Assign1      {                   v3_output_assignment; }
+        CH2PWM1         {                   pwm_duty_cycle; }
+        CH2Assign2      {                   v3_output_assignment; }
+        CH2PWM2         {                   pwm_duty_cycle; }
+        CH2Assign3      {                   v3_output_assignment; }
+        CH2PWM3         {                   pwm_duty_cycle; }
+        CH2Assign4      {                   v3_output_assignment; }
+        CH2PWM4         {                   pwm_duty_cycle; }
 
-        CH3Assign1  { init_value = 0;                     v3_output_assignment; }
-        CH3Assign2  { init_value = 0;                     v3_output_assignment; }
-        CH3Assign3  { init_value = 0;                     v3_output_assignment; }
-        CH3Assign4  { init_value = 0;                     v3_output_assignment; }
-        CH3PWM1     { init_value = 0;                     pwm_duty_cycle; }
-        CH3PWM2     { init_value = 0;                     pwm_duty_cycle; }
-        CH3PWM3     { init_value = 0;                     pwm_duty_cycle; }
-        CH3PWM4     { init_value = 0;                     pwm_duty_cycle; }
+        CH3Assign1      {                   v3_output_assignment; }
+        CH3PWM1         {                   pwm_duty_cycle; }
+        CH3Assign2      {                   v3_output_assignment; }
+        CH3PWM2         {                   pwm_duty_cycle; }
+        CH3Assign3      {                   v3_output_assignment; }
+        CH3PWM3         {                   pwm_duty_cycle; }
+        CH3Assign4      {                   v3_output_assignment; }
+        CH3PWM4         {                   pwm_duty_cycle; }
 
-        CH4Assign1  { init_value = 0;                     v3_output_assignment; }
-        CH4Assign2  { init_value = 0;                     v3_output_assignment; }
-        CH4Assign3  { init_value = 0;                     v3_output_assignment; }
-        CH4Assign4  { init_value = 0;                     v3_output_assignment; }
-        CH4PWM1     { init_value = 0;                     pwm_duty_cycle; }
-        CH4PWM2     { init_value = 0;                     pwm_duty_cycle; }
-        CH4PWM3     { init_value = 0;                     pwm_duty_cycle; }
-        CH4PWM4     { init_value = 0;                     pwm_duty_cycle; }
+        CH4Assign1      {                   v3_output_assignment; }
+        CH4PWM1         {                   pwm_duty_cycle; }
+        CH4Assign2      {                   v3_output_assignment; }
+        CH4PWM2         {                   pwm_duty_cycle; }
+        CH4Assign3      {                   v3_output_assignment; }
+        CH4PWM3         {                   pwm_duty_cycle; }
+        CH4Assign4      {                   v3_output_assignment; }
+        CH4PWM4         {                   pwm_duty_cycle; }
 
-        CH5Assign1  { init_value = 0;                     v3_output_assignment; }
-        CH5Assign2  { init_value = 0;                     v3_output_assignment; }
-        CH5Assign3  { init_value = 0;                     v3_output_assignment; }
-        CH5Assign4  { init_value = 0;                     v3_output_assignment; }
-        CH5PWM1     { init_value = 0;                     pwm_duty_cycle; }
-        CH5PWM2     { init_value = 0;                     pwm_duty_cycle; }
-        CH5PWM3     { init_value = 0;                     pwm_duty_cycle; }
-        CH5PWM4     { init_value = 0;                     pwm_duty_cycle; }
+        CH5Assign1      {                   v3_output_assignment; }
+        CH5PWM1         {                   pwm_duty_cycle; }
+        CH5Assign2      {                   v3_output_assignment; }
+        CH5PWM2         {                   pwm_duty_cycle; }
+        CH5Assign3      {                   v3_output_assignment; }
+        CH5PWM3         {                   pwm_duty_cycle; }
+        CH5Assign4      {                   v3_output_assignment; }
+        CH5PWM4         {                   pwm_duty_cycle; }
     }
     encoding {
+        v3_device_status {
+            logical_value, 0, "OK";
+            logical_value, 1, "ChargePump";
+            logical_value, 2, "Overvoltage";
+            logical_value, 3, "Undervoltage";
+            logical_value, 4, "Overload";
+        }
         v3_output_status {
             logical_value, 0, "OK";
-            logical_value, 1, "OpenCircuit";
-            logical_value, 2, "OverCurrent";
-            logical_value, 3, "OverTemperature";
-            logical_value, 4, "ShortToGround";
-            logical_value, 5, "ShortToBattery";
+            logical_value, 1, "OpenLoad";
+            logical_value, 2, "TemperatureWarning";
+            logical_value, 3, "TemperatureShutdown";
+            logical_value, 4, "OverCurrent";
         }
         v3_output_type {
             logical_value, 0, "5AGeneric";
@@ -506,7 +530,9 @@ node PowerV3 {
             logical_value, 22, "WiperHigh";
             logical_value, 23, "RearDefrost";
         }
-        pwm_duty_cycle { physical_value, 0, 100, 1, 0, "Percent"; }
+        pwm_duty_cycle {
+            physical_value, 0, 100, 1, 0, "Percent"; 
+        }
     }
 }
 
@@ -530,14 +556,14 @@ node ECUBridge {
             max_period = 100 ms;
             frame_id = 0x02;
             signals {
-                RPM                 { init_value = 0; size = 8; offset = 0;  RPM; }
-                oilPressure         { init_value = 0; size = 8; offset = 8;  PSI; }
-                oilTemperature      { init_value = 0; size = 8; offset = 16; F; }
-                coolantTemperature  { init_value = 0; size = 8; offset = 24; F; }
-                fuelPressure        { init_value = 0; size = 8; offset = 32; PSI; }
-                voltage             { init_value = 0; size = 8; offset = 40; V; }
-                AFR                 { init_value = 0; size = 8; offset = 48; lambda; }
-                roadSpeed           { init_value = 0; size = 8; offset = 56; MPH; }
+                RPM                 { size = 8; offset = 0;  RPM; }
+                oilPressure         { size = 8; offset = 8;  PSI; }
+                oilTemperature      { size = 8; offset = 16; F; }
+                coolantTemperature  { size = 8; offset = 24; F; }
+                fuelPressure        { size = 8; offset = 32; PSI; }
+                voltage             { size = 8; offset = 40; V; }
+                AFR                 { size = 8; offset = 48; lambda; }
+                roadSpeed           { size = 8; offset = 56; MPH; }
             }
         }
     }

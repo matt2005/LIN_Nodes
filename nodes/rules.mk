@@ -7,7 +7,6 @@ TOPDIR		:= $(abspath $(SRCROOT)/..)
 BUILDDIR	:= $(TOPDIR)/build/$(PROG)
 GIT_IDENTITY	:= $(shell git describe --always --dirty)
 
-
 CC		 = avr-gcc
 CXX		 = avr-g++
 CPPCHECK	 = cppcheck

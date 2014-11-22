@@ -12,10 +12,11 @@
 #include <stdexcept>
 #include <libusb-1.0/libusb.h>
 
+#include <usb_link/usbconfig.h>
+#include <usb_link/requests.h>
+
 #include "exceptions.h"
 
-#include "../usbconfig.h"
-#include "../requests.h"
 
 namespace Link
 {

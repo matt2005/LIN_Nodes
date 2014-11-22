@@ -7,6 +7,8 @@ PSEUDOGOALS	 = reformat bundle
 DIR_GOALS	:= $(filter-out $(PSEUDOGOALS),$(MAKECMDGOALS))
 TARGETS		:= $(foreach dir,$(DIRS),$(addsuffix -$(dir),$(DIR_GOALS)))
 
+.NOTPARALLEL:
+
 .PHONY: $(MAKECMDGOALS) $(TARGETS)
 $(MAKECMDGOALS): $(TARGETS)
 $(TARGETS): $(MAKEFILE_LIST)
@@ -17,8 +19,7 @@ $(TARGETS):
 	@echo MAKE $(goal) in $(dir)
 	@$(MAKE) -C $(dir) $(goal)
 
-EXTRADIRS	 = $(SRCROOT)/usb_link/lintool/ \
-		   $(SRCROOT)/lib/
+EXTRADIRS	 = $(SRCROOT)/lib/
 ALLSRC		 = $(foreach dir,$(DIRS) $(EXTRADIRS),$(wildcard $(dir)*.c $(dir)*.cpp $(dir)*.h))
 
 NO_FORMAT_SRCS	 = %Jzon.cpp %Jzon.h

@@ -25,7 +25,6 @@ SRCS		+= board.cpp \
 
 SUBDIRS		 = usbdrv
 BOARD		 = USB_LINK
-DEFINES		+= -DGIT_VERSION=$(shell git log -1 --pretty=format:%h)
 FUSES		:=
 F_CPU		 = 16000000
 

@@ -199,8 +199,6 @@ Entry::print()
                 break;
             }
 
-            printf("\n");
-
             break;
 
         case kFrameIDSlaveResponse:
@@ -250,14 +248,14 @@ Entry::print()
                     break;
                 }
 
-                printf("\n");
 
             } else {
-                printf(" sid 0x%02x <malformed>\n", _resp.SlaveResponse.sid);
+                printf(" sid 0x%02x <malformed>", _resp.SlaveResponse.sid);
             }
 
             break;
         }
+        printf("\n");
 
     } else {
         printf("                          %s\n", frame_name());

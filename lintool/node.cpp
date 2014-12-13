@@ -134,15 +134,16 @@ Node::update(bool verify)
 
     if (fw == nullptr) {
         auto name = Encoding::info(kEncoding_board_function, function()) ? : "<unknown>";
-        RAISE(ExUpdateFailed, "no firmware available for function " << name << "/" << function());
+        warnx("no firmware loaded for function %s @ %u, skipping", name, function());
+    } else {
+
+        warnx("updating %s @ %u", fw->function_name(), address());
+
+        // select the node
+        Link::set_node(address());
+
+        // upload firmware to the selected node
+        Upload::upload(fw, verify);
     }
-
-    warnx("updating %s @ %u", fw->function_name(), address());
-
-    // select the node
-    Link::set_node(address());
-
-    // upload firmware to the selected node
-    Upload::upload(fw, verify);
 }
 

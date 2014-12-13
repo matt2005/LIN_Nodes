@@ -121,10 +121,13 @@ set_bootloader(bool wantBootloader)
         // kick it off the bus once more. This will let us report the error more accurately,
         // rather than giving a cryptic link error due to two masters trying to talk...
         //
+        // Note that it's not necessary to re-enable master mode; it will happen automatically
+        // when we try to read the bootloader mode parameter
+        //
         // XXX should only do this dance when we are talking to the master node...
         //
         Link::enable_master(false);
-        usleep(100000);             // give the master time to reboot & start the schedule again
+        usleep(500000);             // 500ms seems to work OK
 
         // wait for the node to come back up in bootloader mode
         for (auto tries = 0; tries < 50; tries++) {

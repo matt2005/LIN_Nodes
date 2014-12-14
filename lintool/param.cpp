@@ -9,6 +9,8 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
 #include <err.h>
 
 #include "param.h"
@@ -253,14 +255,14 @@ ParamSet::sync()
 }
 
 void
-ParamSet::set(Jzon::Node &fromNode)
+ParamSet::set(const json::Object &fromNode)
 {
     // Find the parameter and make sure we want to set it
-    const char *name = fromNode.get("name").toString().c_str();
+    const char *name = fromNode["name"].ToString().c_str();
     auto p = param_for_name(name);
 
     if (p == nullptr) {
-        RAISE(Param::ExNonexistent, "parameter " << name << "does not exist in this context");
+        RAISE(Param::ExNonexistent, "parameter " << name << " does not exist in this context");
     }
 
     if (!p->is_settable()) {
@@ -268,13 +270,14 @@ ParamSet::set(Jzon::Node &fromNode)
     }
 
     // Work out the value we are going to set
-    uint16_t value = fromNode.get("value").toInt();
-    const char *info = fromNode.get("info").toString().c_str();
+    uint16_t value = fromNode["value"].ToInt();
+    const char *info = fromNode["info"].ToString().c_str();
 
-    if (!strcmp(info, "")) {
+    // Do we have a named value?
+    if (strcmp(info, "")) {
         // prefer a named value (since encodings may change)
         if (!Encoding::value(p->encoding(), info, value)) {
-            RAISE(Param::ExNotValid, "parameter " << name << "cannot be set to '" << info << "'.");
+            RAISE(Param::ExNotValid, "parameter " << name << " cannot be set to '" << info << "' / " << value);
         }
     }
 
@@ -296,8 +299,7 @@ ParamSet::param_for_name(const char *name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ParamDB::ParamDB() :
-    _rootNode(Jzon::array())
+ParamDB::ParamDB()
 {
 }
 
@@ -308,50 +310,47 @@ ParamDB::~ParamDB()
 void
 ParamDB::read(const char *path)
 {
-    Jzon::Parser parser;
-
-    _rootNode.clear();
-    _rootNode = parser.parseFile(path);
-
-    if (!_rootNode.isValid()) {
-        RAISE(ExJSONInvalid, "parse error");
+    std::ifstream in(path);
+    std::string str;
+    in >> str;
+    in.close();
+    try {
+        _db = json::Deserialize(str);
+    } catch (const std::runtime_error &e) {
+        RAISE(ExDBInvalid, "Json parse error: " << e.what());
     }
 }
 
 void
 ParamDB::write(const char *path)
 {
-    const Jzon::Format compactFormat = { true, true, false, 4 };
-    Jzon::Writer writer(compactFormat);
-
-    writer.writeFile(_rootNode, path);
+    std::ofstream out(path);
+    out << json::Serialize(_db).c_str();
+    out.close();
 }
 
 void
 ParamDB::store(ParamSet &pset)
 {
-    auto node = Jzon::object();
-
-    node.add("name", Encoding::info(kEncoding_board_function, pset.function()));
-    node.add("node", (int)pset.node());
-    node.add("function", (int)pset.function());
-
-    auto params = Jzon::array();
+    auto params = json::Array();
 
     for (auto p : pset.list()) {
 
         if (p->is_valid()) {
-            auto param = Jzon::object();
-
-            param.add("name", p->name());
-            param.add("address", (int)p->address());
-            param.add("value", (int)p->get());
-            param.add("info", p->info());
-
-            params.add(param);
+            auto param = json::Object();
+            param["name"]       = p->name();
+            param["address"]    = (int)p->address();
+            param["value"]      = (int)p->get();
+            param["info"]       = p->info();
+            params.push_back(param);
         }
     }
 
-    node.add("parameters", params);
-    _rootNode.add(node);
+    auto node = json::Object();
+    node["name"]        = Encoding::info(kEncoding_board_function, pset.function());
+    node["node"]        = (int)pset.node();
+    node["function"]    = (int)pset.function();
+    node["parameters"]  = params;
+
+    _db.push_back(node);
 }

@@ -15,7 +15,7 @@
 
 #include <lin_defs.h>
 
-#include "Jzon.h"
+#include "json.h"
 #include "exceptions.h"
 
 class Param
@@ -126,9 +126,9 @@ public:
 
     /// Populate the parameter set from a de-serialised JSON representation.
     ///
-    /// @param fromNode     The Jzon root node to populate from.
+    /// @param fromNode     The Json object to populate from.
     ///
-    void                set(Jzon::Node &fromNode);
+    void                set(const json::Object &fromNode);
 
     /// @return             The node address this parameter set applies to.
     unsigned            node() const { return _node; }
@@ -151,7 +151,7 @@ public:
     ParamDB();
     ~ParamDB();
 
-    EXCEPTION(Exception, ExJSONInvalid);
+    EXCEPTION(Exception, ExDBInvalid);
 
     /// Populate the DB from a file
     ///
@@ -176,9 +176,9 @@ public:
     /// @param pset         The parameter set to fetch.
     void                fetch(ParamSet &pset);
 
-    /// @return             The root node of the DB.
-    Jzon::Node          &nodes() { return _rootNode; }
+    /// @return             The collection of nodes in the database
+    json::Array         &nodes() { return _db; }
 
 private:
-    Jzon::Node          _rootNode;
+    json::Array         _db;
 };

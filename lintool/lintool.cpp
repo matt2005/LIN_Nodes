@@ -156,12 +156,17 @@ load_params(int argc, char *argv[])
         errx(1, "ERROR: reading %s: %s", pfile, e.what());
     }
 
+    // iterate nodes within the database
     for (auto dbnode : pdb.nodes()) {
-        unsigned nodeAddress = dbnode.second.get("node").toInt();
-        unsigned nodeFunction = dbnode.second.get("function").toInt();
 
+        // extract node address & function
+        unsigned nodeAddress = dbnode["node"].ToInt();
+        unsigned nodeFunction = dbnode["function"].ToInt();
+
+        // look for a matching node in the scan results
         auto node = Node::matching(nodeAddress, nodeFunction);
 
+        // if we didn't find a node present...
         if (node == nullptr) {
             if (Node::exists(nodeAddress)) {
                 warnx("WARNING: node at %u does not match function %u.", nodeAddress, nodeFunction);
@@ -174,12 +179,11 @@ load_params(int argc, char *argv[])
             continue;
         }
 
+        // update node parameter set from database
         auto pset = node->params();
-        auto dbparams = dbnode.second.get("parameters");
-
-        for (auto dbparam : dbparams) {
+        for (auto dbparam : dbnode["parameters"].ToArray()) {
             try {
-                pset.set(dbparam.second);
+                pset.set(dbparam.ToObject());
 
             } catch (Exception &e) {
                 warnx("WARNING: %s.", e.what());

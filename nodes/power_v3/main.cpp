@@ -21,6 +21,7 @@ static uint8_t node_status;
 static uint8_t output_status[MC17XSF500::num_channels];
 static uint16_t current[MC17XSF500::num_channels];
 static uint16_t info[8];
+static uint16_t free_memory;
 
 using namespace PowerV3;
 
@@ -73,6 +74,11 @@ main(void)
     for (;;) {
         wdt_reset();
         slave.tick();
+
+        // update free memory value each time it's read
+        if (free_memory == 0) {
+            free_memory = Board::freemem();
+        }
 
         // update outputs - always do this to ensure that any lost update is fixed on
         // the next loop iteration
@@ -165,6 +171,13 @@ Parameter::get() const
 
     case Generic::kParamFirmwarePageSize:
         return SPM_PAGESIZE;
+
+    case Generic::kParamFreeMem:
+        {
+            uint16_t temp = free_memory;
+            free_memory = 0;
+            return temp;
+        }
 
     case kParamDeviceStatus:
         return node_status;

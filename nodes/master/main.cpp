@@ -28,6 +28,8 @@ using namespace Master;
 
 MasterNode  gMaster;
 
+static uint16_t free_memory;
+
 static void
 param_init()
 {
@@ -71,6 +73,11 @@ main(void)
     for (;;) {
         wdt_reset();
 
+        // update free memory value each time it's read
+        if (free_memory == 0) {
+            free_memory = Board::freemem();
+        }
+
 #ifdef DEBUG
 
         if (Board::freemem() < 64) {
@@ -98,11 +105,9 @@ Parameter::set(uint16_t value) const
         if (value == operation_magic::kEnterBootloader) {
             Board::enter_bootloader(Master::kNodeAddress, board_function::kMaster);
         }
-    }
-
-    if ((address() >> 8) == 0x04) {
-        uint8_t index = address() & 0xff;
-        eeprom_update_word((uint16_t *)(index * 2), value);
+    case Generic::kParamConfigBase ... Generic::kParamConfigTop:
+        eeprom_update_word((uint16_t *)((address() - Generic::kParamConfigBase) * 2), value);
+        break;
     }
 }
 
@@ -124,12 +129,16 @@ Parameter::get() const
 
     case Generic::kParamFirmwarePageSize:
         return SPM_PAGESIZE;
-    }
 
-    // XXX magic numbers
-    if ((address() >> 8) == 0x04) {
-        uint8_t index = address() & 0xff;
-        return eeprom_read_word((const uint16_t *)(index * 2));
+    case Generic::kParamFreeMem:
+        {
+            uint16_t temp = free_memory;
+            free_memory = 0;
+            return temp;
+        }
+
+    case Generic::kParamConfigBase ... Generic::kParamConfigTop:
+        return eeprom_read_word((const uint16_t *)((address() - Generic::kParamConfigBase) * 2));
     }
 
     return 0;

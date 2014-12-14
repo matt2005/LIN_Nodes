@@ -107,7 +107,7 @@ dump_params(int argc, char *argv[])
         errx(1, "ERROR: cannot save all parameters, there is a node that needs recovery");
     }
 
-    const char *pfile = (argc > 1) ? argv[1] : "/dev/stdout";
+    const char *pfile = (argc > 0) ? argv[0] : "/dev/stdout";
     ParamDB pdb;
 
     for (auto n : Node::nodes()) {
@@ -146,7 +146,7 @@ load_params(int argc, char *argv[])
         errx(1, "ERROR: cannot load all parameters, there is a node that needs recovery");
     }
 
-    const char *pfile = (argc > 1) ? argv[1] : "/dev/stdin";
+    const char *pfile = (argc > 0) ? argv[0] : "/dev/stdin";
     ParamDB pdb;
 
     try {

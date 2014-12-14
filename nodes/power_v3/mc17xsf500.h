@@ -249,6 +249,12 @@ union Status {
     uint16_t    val;
 
     struct {
+        uint16_t    data:12;
+        uint16_t    reg:4;
+        
+    }           address;
+
+    struct {
         uint16_t    qsf: 5;
         uint16_t    clkf: 1;
         uint16_t    rcf: 1;
@@ -258,7 +264,7 @@ union Status {
         uint16_t    dsf: 1;
         uint16_t    fm: 1;
 
-        uint16_t    pad: 4;
+        uint16_t    reg: 4;
 
     }           quick_status;
 
@@ -274,7 +280,7 @@ union Status {
         uint16_t    dsf: 1;
         uint16_t    fm: 1;
 
-        uint16_t    pad: 4;
+        uint16_t    reg: 4;
 
     }           chX_status;
 
@@ -290,7 +296,7 @@ union Status {
         uint16_t    dsf: 1;
         uint16_t    fm: 1;
 
-        uint16_t    pad: 4;
+        uint16_t    reg: 4;
 
     }           device_status;
 
@@ -301,7 +307,7 @@ union Status {
         uint16_t    pad2: 1;
         uint16_t    fm: 1;
 
-        uint16_t    pad: 4;
+        uint16_t    reg: 4;
 
     }           IO_status;
 
@@ -313,7 +319,7 @@ union Status {
         uint16_t    uvf: 1;
         uint16_t    fm: 1;
 
-        uint16_t    pad: 4;
+        uint16_t    reg: 4;
 
     }           device_id;
 };

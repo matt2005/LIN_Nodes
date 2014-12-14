@@ -337,7 +337,7 @@ set(uint8_t channel, uint8_t duty_cycle)
     Status s = transfer(CmdControl(channel, duty_cycle));
 
     if (s.quick_status.dsf != 0) {
-        // XXX device status failures (mostly fatal
+        // XXX device status failures (mostly fatal)
     }
 
     if (s.quick_status.ovlf != 0) {
@@ -406,8 +406,8 @@ get_status(uint8_t reg)
     // send a normal init_1 command and return the status previously selected
     Status s = transfer(CmdInit1());
 
-    if ((s.val >> 12) != reg) {
-        debug("SPI status read %2x got %2x", reg, s.val >> 12);
+    if ((s.address.reg) != reg) {
+        debug("SPI status read %2x got %2x", reg, s.address.reg);
         Board::panic(Board::kPanicCodeSPI);
     }
 

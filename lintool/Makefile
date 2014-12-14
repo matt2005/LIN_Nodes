@@ -51,7 +51,7 @@ $(PROG) $(OBJS): $(MAKEFILE_LIST)
 
 $(MACHO):	$(OBJS)
 	@mkdir -p $(dir $@)
-	@echo LINK $(notdir $<)
+	@echo LINK $(notdir $@)
 	$q $(CXX) -g -o $@ $(OBJS) $(USBLIBS)
 
 $(filter %.cpp.o,$(OBJS)): $(BUILDDIR)/%.o: %

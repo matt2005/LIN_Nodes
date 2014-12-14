@@ -272,7 +272,7 @@ edit_param(int argc, char *argv[])
 
         if (newvalue == nullptr) {
             if ((paramname != nullptr) || show_readonly || param->is_settable()) {
-                printf("%s %u", param->name(), param->get());
+                printf("%s %u 0x%x", param->name(), param->get(), param->get());
 
                 auto encoding_name = Encoding::name(encoding);
 

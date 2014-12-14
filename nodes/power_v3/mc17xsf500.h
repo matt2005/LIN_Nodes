@@ -251,7 +251,7 @@ union Status {
     struct {
         uint16_t    data:12;
         uint16_t    reg:4;
-        
+
     }           address;
 
     struct {
@@ -325,7 +325,7 @@ union Status {
 };
 
 extern void configure();
-extern void set(uint8_t channel, uint8_t duty_cycle);
+extern void set(uint8_t channel, uint8_t state);
 extern Status get_status(uint8_t reg);
 
 } // namespace MC17XSF500

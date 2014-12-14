@@ -37,13 +37,12 @@ static const uint8_t kEncoding_v3_device_status = 15;
 static const uint8_t kEncoding_v3_output_status = 16;
 static const uint8_t kEncoding_v3_output_type = 17;
 static const uint8_t kEncoding_v3_output_assignment = 18;
-static const uint8_t kEncoding_pwm_duty_cycle = 19;
-static const uint8_t kEncoding_RPM = 20;
-static const uint8_t kEncoding_PSI = 21;
-static const uint8_t kEncoding_F = 22;
-static const uint8_t kEncoding_V = 23;
-static const uint8_t kEncoding_lambda = 24;
-static const uint8_t kEncoding_MPH = 25;
+static const uint8_t kEncoding_RPM = 19;
+static const uint8_t kEncoding_PSI = 20;
+static const uint8_t kEncoding_F = 21;
+static const uint8_t kEncoding_V = 22;
+static const uint8_t kEncoding_lambda = 23;
+static const uint8_t kEncoding_MPH = 24;
 static const uint8_t kEncoding_none = 0xff;
 
 namespace board_function
@@ -220,11 +219,12 @@ static const uint16_t kNumEncodings = 5;
 namespace v3_output_status
 {
 static const uint16_t kOK = 0;
-static const uint16_t kOpenLoad = 1;
-static const uint16_t kTemperatureWarning = 2;
-static const uint16_t kTemperatureShutdown = 3;
-static const uint16_t kOverCurrent = 4;
-static const uint16_t kNumEncodings = 5;
+static const uint16_t kUnassigned = 1;
+static const uint16_t kOpenLoad = 2;
+static const uint16_t kTemperatureWarning = 3;
+static const uint16_t kTemperatureShutdown = 4;
+static const uint16_t kOverCurrent = 5;
+static const uint16_t kNumEncodings = 6;
 } // namespace v3_output_status
 
 namespace v3_output_type
@@ -267,13 +267,6 @@ static const uint16_t kWiperHigh = 22;
 static const uint16_t kRearDefrost = 23;
 static const uint16_t kNumEncodings = 24;
 } // namespace v3_output_assignment
-
-namespace pwm_duty_cycle
-{
-static const uint16_t kPercentMin = 0;
-static const uint16_t kPercentMax = 100;
-static const uint16_t kNumEncodings = 1;
-} // namespace pwm_duty_cycle
 
 namespace RPM
 {
@@ -547,65 +540,33 @@ extern const PROGMEM char *param_name(Parameter::Address address);
 
 static const uint16_t kParamDeviceStatus = 0x0300;
 static const uint16_t kParamCH1Status = 0x0301;
-static const uint16_t kParamCH1DutyCycle = 0x0302;
-static const uint16_t kParamCH1Current = 0x0303;
-static const uint16_t kParamCH2Status = 0x0304;
-static const uint16_t kParamCH2DutyCycle = 0x0305;
-static const uint16_t kParamCH2Current = 0x0306;
-static const uint16_t kParamCH3Status = 0x0307;
-static const uint16_t kParamCH3DutyCycle = 0x0308;
-static const uint16_t kParamCH3Current = 0x0309;
-static const uint16_t kParamCH4Status = 0x030a;
-static const uint16_t kParamCH4DutyCycle = 0x030b;
-static const uint16_t kParamCH4Current = 0x030c;
-static const uint16_t kParamCH5Status = 0x030d;
-static const uint16_t kParamCH5DutyCycle = 0x030e;
-static const uint16_t kParamCH5Current = 0x030f;
+static const uint16_t kParamCH1Current = 0x0302;
+static const uint16_t kParamCH2Status = 0x0303;
+static const uint16_t kParamCH2Current = 0x0304;
+static const uint16_t kParamCH3Status = 0x0305;
+static const uint16_t kParamCH3Current = 0x0306;
+static const uint16_t kParamCH4Status = 0x0307;
+static const uint16_t kParamCH4Current = 0x0308;
+static const uint16_t kParamCH5Status = 0x0309;
+static const uint16_t kParamCH5Current = 0x030a;
+static const uint16_t kParamInfo0 = 0x030b;
+static const uint16_t kParamInfo1 = 0x030c;
+static const uint16_t kParamInfo2 = 0x030d;
+static const uint16_t kParamInfo3 = 0x030e;
+static const uint16_t kParamInfo4 = 0x030f;
+static const uint16_t kParamInfo5 = 0x0310;
+static const uint16_t kParamInfo6 = 0x0311;
+static const uint16_t kParamInfo7 = 0x0312;
 static const uint16_t kParamCH1Type = 0x0400;
 static const uint16_t kParamCH2Type = 0x0401;
 static const uint16_t kParamCH3Type = 0x0402;
 static const uint16_t kParamCH4Type = 0x0403;
 static const uint16_t kParamCH5Type = 0x0404;
-static const uint16_t kParamCH1Assign1 = 0x0405;
-static const uint16_t kParamCH1PWM1 = 0x0406;
-static const uint16_t kParamCH1Assign2 = 0x0407;
-static const uint16_t kParamCH1PWM2 = 0x0408;
-static const uint16_t kParamCH1Assign3 = 0x0409;
-static const uint16_t kParamCH1PWM3 = 0x040a;
-static const uint16_t kParamCH1Assign4 = 0x040b;
-static const uint16_t kParamCH1PWM4 = 0x040c;
-static const uint16_t kParamCH2Assign1 = 0x040d;
-static const uint16_t kParamCH2PWM1 = 0x040e;
-static const uint16_t kParamCH2Assign2 = 0x040f;
-static const uint16_t kParamCH2PWM2 = 0x0410;
-static const uint16_t kParamCH2Assign3 = 0x0411;
-static const uint16_t kParamCH2PWM3 = 0x0412;
-static const uint16_t kParamCH2Assign4 = 0x0413;
-static const uint16_t kParamCH2PWM4 = 0x0414;
-static const uint16_t kParamCH3Assign1 = 0x0415;
-static const uint16_t kParamCH3PWM1 = 0x0416;
-static const uint16_t kParamCH3Assign2 = 0x0417;
-static const uint16_t kParamCH3PWM2 = 0x0418;
-static const uint16_t kParamCH3Assign3 = 0x0419;
-static const uint16_t kParamCH3PWM3 = 0x041a;
-static const uint16_t kParamCH3Assign4 = 0x041b;
-static const uint16_t kParamCH3PWM4 = 0x041c;
-static const uint16_t kParamCH4Assign1 = 0x041d;
-static const uint16_t kParamCH4PWM1 = 0x041e;
-static const uint16_t kParamCH4Assign2 = 0x041f;
-static const uint16_t kParamCH4PWM2 = 0x0420;
-static const uint16_t kParamCH4Assign3 = 0x0421;
-static const uint16_t kParamCH4PWM3 = 0x0422;
-static const uint16_t kParamCH4Assign4 = 0x0423;
-static const uint16_t kParamCH4PWM4 = 0x0424;
-static const uint16_t kParamCH5Assign1 = 0x0425;
-static const uint16_t kParamCH5PWM1 = 0x0426;
-static const uint16_t kParamCH5Assign2 = 0x0427;
-static const uint16_t kParamCH5PWM2 = 0x0428;
-static const uint16_t kParamCH5Assign3 = 0x0429;
-static const uint16_t kParamCH5PWM3 = 0x042a;
-static const uint16_t kParamCH5Assign4 = 0x042b;
-static const uint16_t kParamCH5PWM4 = 0x042c;
+static const uint16_t kParamCH1Assign = 0x0405;
+static const uint16_t kParamCH2Assign = 0x0406;
+static const uint16_t kParamCH3Assign = 0x0407;
+static const uint16_t kParamCH4Assign = 0x0408;
+static const uint16_t kParamCH5Assign = 0x0409;
 
 } // namespace PowerV3
 

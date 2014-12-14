@@ -98,12 +98,7 @@ invalid(uint8_t encoding, uint16_t value)
         }
     }
     if (encoding == kEncoding_v3_output_status) {
-        if ((value >= 0) && (value <= 4)) {
-            return false;
-        }
-    }
-    if (encoding == kEncoding_pwm_duty_cycle) {
-        if ((value >= 0) && (value <= 100)) {
+        if ((value >= 0) && (value <= 5)) {
             return false;
         }
     }
@@ -222,10 +217,11 @@ static const PROGMEM char _encoding_info_v3_device_status_3[] = "Undervoltage";
 static const PROGMEM char _encoding_info_v3_device_status_4[] = "Overload";
 static const PROGMEM char _encoding_name_v3_output_status[] = "v3_output_status";
 static const PROGMEM char _encoding_info_v3_output_status_0[] = "OK";
-static const PROGMEM char _encoding_info_v3_output_status_1[] = "OpenLoad";
-static const PROGMEM char _encoding_info_v3_output_status_2[] = "TemperatureWarning";
-static const PROGMEM char _encoding_info_v3_output_status_3[] = "TemperatureShutdown";
-static const PROGMEM char _encoding_info_v3_output_status_4[] = "OverCurrent";
+static const PROGMEM char _encoding_info_v3_output_status_1[] = "Unassigned";
+static const PROGMEM char _encoding_info_v3_output_status_2[] = "OpenLoad";
+static const PROGMEM char _encoding_info_v3_output_status_3[] = "TemperatureWarning";
+static const PROGMEM char _encoding_info_v3_output_status_4[] = "TemperatureShutdown";
+static const PROGMEM char _encoding_info_v3_output_status_5[] = "OverCurrent";
 static const PROGMEM char _encoding_name_v3_output_type[] = "v3_output_type";
 static const PROGMEM char _encoding_info_v3_output_type_0[] = "5AGeneric";
 static const PROGMEM char _encoding_info_v3_output_type_1[] = "10AGeneric";
@@ -259,7 +255,6 @@ static const PROGMEM char _encoding_info_v3_output_assignment_20[] = "CabinFan4"
 static const PROGMEM char _encoding_info_v3_output_assignment_21[] = "WiperLow";
 static const PROGMEM char _encoding_info_v3_output_assignment_22[] = "WiperHigh";
 static const PROGMEM char _encoding_info_v3_output_assignment_23[] = "RearDefrost";
-static const PROGMEM char _encoding_name_pwm_duty_cycle[] = "pwm_duty_cycle";
 static const PROGMEM char _encoding_name_RPM[] = "RPM";
 static const PROGMEM char _encoding_name_PSI[] = "PSI";
 static const PROGMEM char _encoding_name_F[] = "F";
@@ -326,9 +321,6 @@ name(uint8_t encoding)
     }
     if (encoding == kEncoding_v3_output_assignment) {
         return &_encoding_name_v3_output_assignment[0];
-    }
-    if (encoding == kEncoding_pwm_duty_cycle) {
-        return &_encoding_name_pwm_duty_cycle[0];
     }
     if (encoding == kEncoding_RPM) {
         return &_encoding_name_RPM[0];
@@ -651,6 +643,9 @@ info(uint8_t encoding, uint16_t value)
         if (value == 4) {
             return &_encoding_info_v3_output_status_4[0];
         }
+        if (value == 5) {
+            return &_encoding_info_v3_output_status_5[0];
+        }
     }
     if (encoding == kEncoding_v3_output_type) {
         if (value == 0) {
@@ -748,8 +743,6 @@ info(uint8_t encoding, uint16_t value)
         if (value == 23) {
             return &_encoding_info_v3_output_assignment_23[0];
         }
-    }
-    if (encoding == kEncoding_pwm_duty_cycle) {
     }
     if (encoding == kEncoding_RPM) {
     }
@@ -1154,6 +1147,10 @@ value(uint8_t encoding, const char *info, uint16_t &value)
             value = 4;
             return true;
         }
+        if (!strcmp(&_encoding_info_v3_output_status_5[0], info)) {
+            value = 5;
+            return true;
+        }
     }
     if (encoding == kEncoding_v3_output_type) {
         if (!strcmp(&_encoding_info_v3_output_type_0[0], info)) {
@@ -1282,8 +1279,6 @@ value(uint8_t encoding, const char *info, uint16_t &value)
             value = 23;
             return true;
         }
-    }
-    if (encoding == kEncoding_pwm_duty_cycle) {
     }
     if (encoding == kEncoding_RPM) {
     }
@@ -2278,16 +2273,10 @@ param_exists(Parameter::Address address)
     if (address == kParamCH1Status) {
         return true;
     }
-    if (address == kParamCH1DutyCycle) {
-        return true;
-    }
     if (address == kParamCH1Current) {
         return true;
     }
     if (address == kParamCH2Status) {
-        return true;
-    }
-    if (address == kParamCH2DutyCycle) {
         return true;
     }
     if (address == kParamCH2Current) {
@@ -2296,16 +2285,10 @@ param_exists(Parameter::Address address)
     if (address == kParamCH3Status) {
         return true;
     }
-    if (address == kParamCH3DutyCycle) {
-        return true;
-    }
     if (address == kParamCH3Current) {
         return true;
     }
     if (address == kParamCH4Status) {
-        return true;
-    }
-    if (address == kParamCH4DutyCycle) {
         return true;
     }
     if (address == kParamCH4Current) {
@@ -2314,10 +2297,31 @@ param_exists(Parameter::Address address)
     if (address == kParamCH5Status) {
         return true;
     }
-    if (address == kParamCH5DutyCycle) {
+    if (address == kParamCH5Current) {
         return true;
     }
-    if (address == kParamCH5Current) {
+    if (address == kParamInfo0) {
+        return true;
+    }
+    if (address == kParamInfo1) {
+        return true;
+    }
+    if (address == kParamInfo2) {
+        return true;
+    }
+    if (address == kParamInfo3) {
+        return true;
+    }
+    if (address == kParamInfo4) {
+        return true;
+    }
+    if (address == kParamInfo5) {
+        return true;
+    }
+    if (address == kParamInfo6) {
+        return true;
+    }
+    if (address == kParamInfo7) {
         return true;
     }
     if (address == kParamCH1Type) {
@@ -2335,124 +2339,19 @@ param_exists(Parameter::Address address)
     if (address == kParamCH5Type) {
         return true;
     }
-    if (address == kParamCH1Assign1) {
+    if (address == kParamCH1Assign) {
         return true;
     }
-    if (address == kParamCH1PWM1) {
+    if (address == kParamCH2Assign) {
         return true;
     }
-    if (address == kParamCH1Assign2) {
+    if (address == kParamCH3Assign) {
         return true;
     }
-    if (address == kParamCH1PWM2) {
+    if (address == kParamCH4Assign) {
         return true;
     }
-    if (address == kParamCH1Assign3) {
-        return true;
-    }
-    if (address == kParamCH1PWM3) {
-        return true;
-    }
-    if (address == kParamCH1Assign4) {
-        return true;
-    }
-    if (address == kParamCH1PWM4) {
-        return true;
-    }
-    if (address == kParamCH2Assign1) {
-        return true;
-    }
-    if (address == kParamCH2PWM1) {
-        return true;
-    }
-    if (address == kParamCH2Assign2) {
-        return true;
-    }
-    if (address == kParamCH2PWM2) {
-        return true;
-    }
-    if (address == kParamCH2Assign3) {
-        return true;
-    }
-    if (address == kParamCH2PWM3) {
-        return true;
-    }
-    if (address == kParamCH2Assign4) {
-        return true;
-    }
-    if (address == kParamCH2PWM4) {
-        return true;
-    }
-    if (address == kParamCH3Assign1) {
-        return true;
-    }
-    if (address == kParamCH3PWM1) {
-        return true;
-    }
-    if (address == kParamCH3Assign2) {
-        return true;
-    }
-    if (address == kParamCH3PWM2) {
-        return true;
-    }
-    if (address == kParamCH3Assign3) {
-        return true;
-    }
-    if (address == kParamCH3PWM3) {
-        return true;
-    }
-    if (address == kParamCH3Assign4) {
-        return true;
-    }
-    if (address == kParamCH3PWM4) {
-        return true;
-    }
-    if (address == kParamCH4Assign1) {
-        return true;
-    }
-    if (address == kParamCH4PWM1) {
-        return true;
-    }
-    if (address == kParamCH4Assign2) {
-        return true;
-    }
-    if (address == kParamCH4PWM2) {
-        return true;
-    }
-    if (address == kParamCH4Assign3) {
-        return true;
-    }
-    if (address == kParamCH4PWM3) {
-        return true;
-    }
-    if (address == kParamCH4Assign4) {
-        return true;
-    }
-    if (address == kParamCH4PWM4) {
-        return true;
-    }
-    if (address == kParamCH5Assign1) {
-        return true;
-    }
-    if (address == kParamCH5PWM1) {
-        return true;
-    }
-    if (address == kParamCH5Assign2) {
-        return true;
-    }
-    if (address == kParamCH5PWM2) {
-        return true;
-    }
-    if (address == kParamCH5Assign3) {
-        return true;
-    }
-    if (address == kParamCH5PWM3) {
-        return true;
-    }
-    if (address == kParamCH5Assign4) {
-        return true;
-    }
-    if (address == kParamCH5PWM4) {
+    if (address == kParamCH5Assign) {
         return true;
     }
     return false;
@@ -2473,32 +2372,17 @@ param_encoding(Parameter::Address address)
     if (address == kParamCH1Status) {
         return kEncoding_v3_output_status;
     }
-    if (address == kParamCH1DutyCycle) {
-        return kEncoding_pwm_duty_cycle;
-    }
     if (address == kParamCH2Status) {
         return kEncoding_v3_output_status;
-    }
-    if (address == kParamCH2DutyCycle) {
-        return kEncoding_pwm_duty_cycle;
     }
     if (address == kParamCH3Status) {
         return kEncoding_v3_output_status;
     }
-    if (address == kParamCH3DutyCycle) {
-        return kEncoding_pwm_duty_cycle;
-    }
     if (address == kParamCH4Status) {
         return kEncoding_v3_output_status;
     }
-    if (address == kParamCH4DutyCycle) {
-        return kEncoding_pwm_duty_cycle;
-    }
     if (address == kParamCH5Status) {
         return kEncoding_v3_output_status;
-    }
-    if (address == kParamCH5DutyCycle) {
-        return kEncoding_pwm_duty_cycle;
     }
     if (address == kParamCH1Type) {
         return kEncoding_v3_output_type;
@@ -2515,125 +2399,20 @@ param_encoding(Parameter::Address address)
     if (address == kParamCH5Type) {
         return kEncoding_v3_output_type;
     }
-    if (address == kParamCH1Assign1) {
+    if (address == kParamCH1Assign) {
         return kEncoding_v3_output_assignment;
     }
-    if (address == kParamCH1PWM1) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH1Assign2) {
+    if (address == kParamCH2Assign) {
         return kEncoding_v3_output_assignment;
     }
-    if (address == kParamCH1PWM2) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH1Assign3) {
+    if (address == kParamCH3Assign) {
         return kEncoding_v3_output_assignment;
     }
-    if (address == kParamCH1PWM3) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH1Assign4) {
+    if (address == kParamCH4Assign) {
         return kEncoding_v3_output_assignment;
     }
-    if (address == kParamCH1PWM4) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH2Assign1) {
+    if (address == kParamCH5Assign) {
         return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH2PWM1) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH2Assign2) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH2PWM2) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH2Assign3) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH2PWM3) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH2Assign4) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH2PWM4) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH3Assign1) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH3PWM1) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH3Assign2) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH3PWM2) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH3Assign3) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH3PWM3) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH3Assign4) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH3PWM4) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH4Assign1) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH4PWM1) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH4Assign2) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH4PWM2) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH4Assign3) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH4PWM3) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH4Assign4) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH4PWM4) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH5Assign1) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH5PWM1) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH5Assign2) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH5PWM2) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH5Assign3) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH5PWM3) {
-        return kEncoding_pwm_duty_cycle;
-    }
-    if (address == kParamCH5Assign4) {
-        return kEncoding_v3_output_assignment;
-    }
-    if (address == kParamCH5PWM4) {
-        return kEncoding_pwm_duty_cycle;
     }
     return kEncoding_none;
 }
@@ -2641,65 +2420,33 @@ param_encoding(Parameter::Address address)
 #ifdef LIN_DEFS_WITH_STRINGS
 static const PROGMEM char _param_name_DeviceStatus[] = "DeviceStatus";
 static const PROGMEM char _param_name_CH1Status[] = "CH1Status";
-static const PROGMEM char _param_name_CH1DutyCycle[] = "CH1DutyCycle";
 static const PROGMEM char _param_name_CH1Current[] = "CH1Current";
 static const PROGMEM char _param_name_CH2Status[] = "CH2Status";
-static const PROGMEM char _param_name_CH2DutyCycle[] = "CH2DutyCycle";
 static const PROGMEM char _param_name_CH2Current[] = "CH2Current";
 static const PROGMEM char _param_name_CH3Status[] = "CH3Status";
-static const PROGMEM char _param_name_CH3DutyCycle[] = "CH3DutyCycle";
 static const PROGMEM char _param_name_CH3Current[] = "CH3Current";
 static const PROGMEM char _param_name_CH4Status[] = "CH4Status";
-static const PROGMEM char _param_name_CH4DutyCycle[] = "CH4DutyCycle";
 static const PROGMEM char _param_name_CH4Current[] = "CH4Current";
 static const PROGMEM char _param_name_CH5Status[] = "CH5Status";
-static const PROGMEM char _param_name_CH5DutyCycle[] = "CH5DutyCycle";
 static const PROGMEM char _param_name_CH5Current[] = "CH5Current";
+static const PROGMEM char _param_name_Info0[] = "Info0";
+static const PROGMEM char _param_name_Info1[] = "Info1";
+static const PROGMEM char _param_name_Info2[] = "Info2";
+static const PROGMEM char _param_name_Info3[] = "Info3";
+static const PROGMEM char _param_name_Info4[] = "Info4";
+static const PROGMEM char _param_name_Info5[] = "Info5";
+static const PROGMEM char _param_name_Info6[] = "Info6";
+static const PROGMEM char _param_name_Info7[] = "Info7";
 static const PROGMEM char _param_name_CH1Type[] = "CH1Type";
 static const PROGMEM char _param_name_CH2Type[] = "CH2Type";
 static const PROGMEM char _param_name_CH3Type[] = "CH3Type";
 static const PROGMEM char _param_name_CH4Type[] = "CH4Type";
 static const PROGMEM char _param_name_CH5Type[] = "CH5Type";
-static const PROGMEM char _param_name_CH1Assign1[] = "CH1Assign1";
-static const PROGMEM char _param_name_CH1PWM1[] = "CH1PWM1";
-static const PROGMEM char _param_name_CH1Assign2[] = "CH1Assign2";
-static const PROGMEM char _param_name_CH1PWM2[] = "CH1PWM2";
-static const PROGMEM char _param_name_CH1Assign3[] = "CH1Assign3";
-static const PROGMEM char _param_name_CH1PWM3[] = "CH1PWM3";
-static const PROGMEM char _param_name_CH1Assign4[] = "CH1Assign4";
-static const PROGMEM char _param_name_CH1PWM4[] = "CH1PWM4";
-static const PROGMEM char _param_name_CH2Assign1[] = "CH2Assign1";
-static const PROGMEM char _param_name_CH2PWM1[] = "CH2PWM1";
-static const PROGMEM char _param_name_CH2Assign2[] = "CH2Assign2";
-static const PROGMEM char _param_name_CH2PWM2[] = "CH2PWM2";
-static const PROGMEM char _param_name_CH2Assign3[] = "CH2Assign3";
-static const PROGMEM char _param_name_CH2PWM3[] = "CH2PWM3";
-static const PROGMEM char _param_name_CH2Assign4[] = "CH2Assign4";
-static const PROGMEM char _param_name_CH2PWM4[] = "CH2PWM4";
-static const PROGMEM char _param_name_CH3Assign1[] = "CH3Assign1";
-static const PROGMEM char _param_name_CH3PWM1[] = "CH3PWM1";
-static const PROGMEM char _param_name_CH3Assign2[] = "CH3Assign2";
-static const PROGMEM char _param_name_CH3PWM2[] = "CH3PWM2";
-static const PROGMEM char _param_name_CH3Assign3[] = "CH3Assign3";
-static const PROGMEM char _param_name_CH3PWM3[] = "CH3PWM3";
-static const PROGMEM char _param_name_CH3Assign4[] = "CH3Assign4";
-static const PROGMEM char _param_name_CH3PWM4[] = "CH3PWM4";
-static const PROGMEM char _param_name_CH4Assign1[] = "CH4Assign1";
-static const PROGMEM char _param_name_CH4PWM1[] = "CH4PWM1";
-static const PROGMEM char _param_name_CH4Assign2[] = "CH4Assign2";
-static const PROGMEM char _param_name_CH4PWM2[] = "CH4PWM2";
-static const PROGMEM char _param_name_CH4Assign3[] = "CH4Assign3";
-static const PROGMEM char _param_name_CH4PWM3[] = "CH4PWM3";
-static const PROGMEM char _param_name_CH4Assign4[] = "CH4Assign4";
-static const PROGMEM char _param_name_CH4PWM4[] = "CH4PWM4";
-static const PROGMEM char _param_name_CH5Assign1[] = "CH5Assign1";
-static const PROGMEM char _param_name_CH5PWM1[] = "CH5PWM1";
-static const PROGMEM char _param_name_CH5Assign2[] = "CH5Assign2";
-static const PROGMEM char _param_name_CH5PWM2[] = "CH5PWM2";
-static const PROGMEM char _param_name_CH5Assign3[] = "CH5Assign3";
-static const PROGMEM char _param_name_CH5PWM3[] = "CH5PWM3";
-static const PROGMEM char _param_name_CH5Assign4[] = "CH5Assign4";
-static const PROGMEM char _param_name_CH5PWM4[] = "CH5PWM4";
+static const PROGMEM char _param_name_CH1Assign[] = "CH1Assign";
+static const PROGMEM char _param_name_CH2Assign[] = "CH2Assign";
+static const PROGMEM char _param_name_CH3Assign[] = "CH3Assign";
+static const PROGMEM char _param_name_CH4Assign[] = "CH4Assign";
+static const PROGMEM char _param_name_CH5Assign[] = "CH5Assign";
 
 const PROGMEM char *
 param_name(Parameter::Address address)
@@ -2710,17 +2457,11 @@ param_name(Parameter::Address address)
     if (address == kParamCH1Status) {
         return &_param_name_CH1Status[0];
     }
-    if (address == kParamCH1DutyCycle) {
-        return &_param_name_CH1DutyCycle[0];
-    }
     if (address == kParamCH1Current) {
         return &_param_name_CH1Current[0];
     }
     if (address == kParamCH2Status) {
         return &_param_name_CH2Status[0];
-    }
-    if (address == kParamCH2DutyCycle) {
-        return &_param_name_CH2DutyCycle[0];
     }
     if (address == kParamCH2Current) {
         return &_param_name_CH2Current[0];
@@ -2728,17 +2469,11 @@ param_name(Parameter::Address address)
     if (address == kParamCH3Status) {
         return &_param_name_CH3Status[0];
     }
-    if (address == kParamCH3DutyCycle) {
-        return &_param_name_CH3DutyCycle[0];
-    }
     if (address == kParamCH3Current) {
         return &_param_name_CH3Current[0];
     }
     if (address == kParamCH4Status) {
         return &_param_name_CH4Status[0];
-    }
-    if (address == kParamCH4DutyCycle) {
-        return &_param_name_CH4DutyCycle[0];
     }
     if (address == kParamCH4Current) {
         return &_param_name_CH4Current[0];
@@ -2746,11 +2481,32 @@ param_name(Parameter::Address address)
     if (address == kParamCH5Status) {
         return &_param_name_CH5Status[0];
     }
-    if (address == kParamCH5DutyCycle) {
-        return &_param_name_CH5DutyCycle[0];
-    }
     if (address == kParamCH5Current) {
         return &_param_name_CH5Current[0];
+    }
+    if (address == kParamInfo0) {
+        return &_param_name_Info0[0];
+    }
+    if (address == kParamInfo1) {
+        return &_param_name_Info1[0];
+    }
+    if (address == kParamInfo2) {
+        return &_param_name_Info2[0];
+    }
+    if (address == kParamInfo3) {
+        return &_param_name_Info3[0];
+    }
+    if (address == kParamInfo4) {
+        return &_param_name_Info4[0];
+    }
+    if (address == kParamInfo5) {
+        return &_param_name_Info5[0];
+    }
+    if (address == kParamInfo6) {
+        return &_param_name_Info6[0];
+    }
+    if (address == kParamInfo7) {
+        return &_param_name_Info7[0];
     }
     if (address == kParamCH1Type) {
         return &_param_name_CH1Type[0];
@@ -2767,125 +2523,20 @@ param_name(Parameter::Address address)
     if (address == kParamCH5Type) {
         return &_param_name_CH5Type[0];
     }
-    if (address == kParamCH1Assign1) {
-        return &_param_name_CH1Assign1[0];
+    if (address == kParamCH1Assign) {
+        return &_param_name_CH1Assign[0];
     }
-    if (address == kParamCH1PWM1) {
-        return &_param_name_CH1PWM1[0];
+    if (address == kParamCH2Assign) {
+        return &_param_name_CH2Assign[0];
     }
-    if (address == kParamCH1Assign2) {
-        return &_param_name_CH1Assign2[0];
+    if (address == kParamCH3Assign) {
+        return &_param_name_CH3Assign[0];
     }
-    if (address == kParamCH1PWM2) {
-        return &_param_name_CH1PWM2[0];
+    if (address == kParamCH4Assign) {
+        return &_param_name_CH4Assign[0];
     }
-    if (address == kParamCH1Assign3) {
-        return &_param_name_CH1Assign3[0];
-    }
-    if (address == kParamCH1PWM3) {
-        return &_param_name_CH1PWM3[0];
-    }
-    if (address == kParamCH1Assign4) {
-        return &_param_name_CH1Assign4[0];
-    }
-    if (address == kParamCH1PWM4) {
-        return &_param_name_CH1PWM4[0];
-    }
-    if (address == kParamCH2Assign1) {
-        return &_param_name_CH2Assign1[0];
-    }
-    if (address == kParamCH2PWM1) {
-        return &_param_name_CH2PWM1[0];
-    }
-    if (address == kParamCH2Assign2) {
-        return &_param_name_CH2Assign2[0];
-    }
-    if (address == kParamCH2PWM2) {
-        return &_param_name_CH2PWM2[0];
-    }
-    if (address == kParamCH2Assign3) {
-        return &_param_name_CH2Assign3[0];
-    }
-    if (address == kParamCH2PWM3) {
-        return &_param_name_CH2PWM3[0];
-    }
-    if (address == kParamCH2Assign4) {
-        return &_param_name_CH2Assign4[0];
-    }
-    if (address == kParamCH2PWM4) {
-        return &_param_name_CH2PWM4[0];
-    }
-    if (address == kParamCH3Assign1) {
-        return &_param_name_CH3Assign1[0];
-    }
-    if (address == kParamCH3PWM1) {
-        return &_param_name_CH3PWM1[0];
-    }
-    if (address == kParamCH3Assign2) {
-        return &_param_name_CH3Assign2[0];
-    }
-    if (address == kParamCH3PWM2) {
-        return &_param_name_CH3PWM2[0];
-    }
-    if (address == kParamCH3Assign3) {
-        return &_param_name_CH3Assign3[0];
-    }
-    if (address == kParamCH3PWM3) {
-        return &_param_name_CH3PWM3[0];
-    }
-    if (address == kParamCH3Assign4) {
-        return &_param_name_CH3Assign4[0];
-    }
-    if (address == kParamCH3PWM4) {
-        return &_param_name_CH3PWM4[0];
-    }
-    if (address == kParamCH4Assign1) {
-        return &_param_name_CH4Assign1[0];
-    }
-    if (address == kParamCH4PWM1) {
-        return &_param_name_CH4PWM1[0];
-    }
-    if (address == kParamCH4Assign2) {
-        return &_param_name_CH4Assign2[0];
-    }
-    if (address == kParamCH4PWM2) {
-        return &_param_name_CH4PWM2[0];
-    }
-    if (address == kParamCH4Assign3) {
-        return &_param_name_CH4Assign3[0];
-    }
-    if (address == kParamCH4PWM3) {
-        return &_param_name_CH4PWM3[0];
-    }
-    if (address == kParamCH4Assign4) {
-        return &_param_name_CH4Assign4[0];
-    }
-    if (address == kParamCH4PWM4) {
-        return &_param_name_CH4PWM4[0];
-    }
-    if (address == kParamCH5Assign1) {
-        return &_param_name_CH5Assign1[0];
-    }
-    if (address == kParamCH5PWM1) {
-        return &_param_name_CH5PWM1[0];
-    }
-    if (address == kParamCH5Assign2) {
-        return &_param_name_CH5Assign2[0];
-    }
-    if (address == kParamCH5PWM2) {
-        return &_param_name_CH5PWM2[0];
-    }
-    if (address == kParamCH5Assign3) {
-        return &_param_name_CH5Assign3[0];
-    }
-    if (address == kParamCH5PWM3) {
-        return &_param_name_CH5PWM3[0];
-    }
-    if (address == kParamCH5Assign4) {
-        return &_param_name_CH5Assign4[0];
-    }
-    if (address == kParamCH5PWM4) {
-        return &_param_name_CH5PWM4[0];
+    if (address == kParamCH5Assign) {
+        return &_param_name_CH5Assign[0];
     }
     return nullptr;
 }

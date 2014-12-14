@@ -136,7 +136,7 @@ node Generic {
             logical_value, 0x33, "AccessDenied";
             logical_value, 0x72, "GeneralFailure";
         }
-   }
+    }
 }
 
 node Bootloader {
@@ -416,20 +416,24 @@ node PowerV3 {
     parameters {
         DeviceStatus    { address = 0x0300; v3_device_status; }
         CH1Status       {                   v3_output_status; }
-        CH1DutyCycle    {                   pwm_duty_cycle; }
         CH1Current      {                   }
         CH2Status       {                   v3_output_status; }
-        CH2DutyCycle    {                   pwm_duty_cycle; }
         CH2Current      {                   }
         CH3Status       {                   v3_output_status; }
-        CH3DutyCycle    {                   pwm_duty_cycle; }
         CH3Current      {                   }
         CH4Status       {                   v3_output_status; }
-        CH4DutyCycle    {                   pwm_duty_cycle; }
         CH4Current      {                   }
         CH5Status       {                   v3_output_status; }
-        CH5DutyCycle    {                   pwm_duty_cycle; }
         CH5Current      {                   }
+
+        Info0           {                   }
+        Info1           {                   }
+        Info2           {                   }
+        Info3           {                   }
+        Info4           {                   }
+        Info5           {                   }
+        Info6           {                   }
+        Info7           {                   }
 
         CH1Type         { address = 0x0400; v3_output_type; }
         CH2Type         {                   v3_output_type; }
@@ -437,50 +441,11 @@ node PowerV3 {
         CH4Type         {                   v3_output_type; }
         CH5Type         {                   v3_output_type; }
 
-        CH1Assign1      {                   v3_output_assignment; }
-        CH1PWM1         {                   pwm_duty_cycle; }
-        CH1Assign2      {                   v3_output_assignment; }
-        CH1PWM2         {                   pwm_duty_cycle; }
-        CH1Assign3      {                   v3_output_assignment; }
-        CH1PWM3         {                   pwm_duty_cycle; }
-        CH1Assign4      {                   v3_output_assignment; }
-        CH1PWM4         {                   pwm_duty_cycle; }
-
-        CH2Assign1      {                   v3_output_assignment; }
-        CH2PWM1         {                   pwm_duty_cycle; }
-        CH2Assign2      {                   v3_output_assignment; }
-        CH2PWM2         {                   pwm_duty_cycle; }
-        CH2Assign3      {                   v3_output_assignment; }
-        CH2PWM3         {                   pwm_duty_cycle; }
-        CH2Assign4      {                   v3_output_assignment; }
-        CH2PWM4         {                   pwm_duty_cycle; }
-
-        CH3Assign1      {                   v3_output_assignment; }
-        CH3PWM1         {                   pwm_duty_cycle; }
-        CH3Assign2      {                   v3_output_assignment; }
-        CH3PWM2         {                   pwm_duty_cycle; }
-        CH3Assign3      {                   v3_output_assignment; }
-        CH3PWM3         {                   pwm_duty_cycle; }
-        CH3Assign4      {                   v3_output_assignment; }
-        CH3PWM4         {                   pwm_duty_cycle; }
-
-        CH4Assign1      {                   v3_output_assignment; }
-        CH4PWM1         {                   pwm_duty_cycle; }
-        CH4Assign2      {                   v3_output_assignment; }
-        CH4PWM2         {                   pwm_duty_cycle; }
-        CH4Assign3      {                   v3_output_assignment; }
-        CH4PWM3         {                   pwm_duty_cycle; }
-        CH4Assign4      {                   v3_output_assignment; }
-        CH4PWM4         {                   pwm_duty_cycle; }
-
-        CH5Assign1      {                   v3_output_assignment; }
-        CH5PWM1         {                   pwm_duty_cycle; }
-        CH5Assign2      {                   v3_output_assignment; }
-        CH5PWM2         {                   pwm_duty_cycle; }
-        CH5Assign3      {                   v3_output_assignment; }
-        CH5PWM3         {                   pwm_duty_cycle; }
-        CH5Assign4      {                   v3_output_assignment; }
-        CH5PWM4         {                   pwm_duty_cycle; }
+        CH1Assign       {                   v3_output_assignment; }
+        CH2Assign       {                   v3_output_assignment; }
+        CH3Assign       {                   v3_output_assignment; }
+        CH4Assign       {                   v3_output_assignment; }
+        CH5Assign       {                   v3_output_assignment; }
     }
     encoding {
         v3_device_status {
@@ -492,10 +457,11 @@ node PowerV3 {
         }
         v3_output_status {
             logical_value, 0, "OK";
-            logical_value, 1, "OpenLoad";
-            logical_value, 2, "TemperatureWarning";
-            logical_value, 3, "TemperatureShutdown";
-            logical_value, 4, "OverCurrent";
+            logical_value, 1, "Unassigned";
+            logical_value, 2, "OpenLoad";
+            logical_value, 3, "TemperatureWarning";
+            logical_value, 4, "TemperatureShutdown";
+            logical_value, 5, "OverCurrent";
         }
         v3_output_type {
             logical_value, 0, "5AGeneric";
@@ -531,9 +497,6 @@ node PowerV3 {
             logical_value, 21, "WiperLow";
             logical_value, 22, "WiperHigh";
             logical_value, 23, "RearDefrost";
-        }
-        pwm_duty_cycle {
-            physical_value, 0, 100, 1, 0, "Percent"; 
         }
     }
 }

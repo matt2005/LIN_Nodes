@@ -20,12 +20,6 @@ namespace MC17XSF500
 static Status transfer(Command cmd);
 static void wait();
 
-// PWM reference clock frequency, can be 25.6 - 102.4kHz, divided by 256 internally
-// before selectable /1, /2, /4 per-channel prescaler.
-// 25.6kHz gives PWM clocks 25, 50, 100Hz
-static const uint16_t   PWM_REFCLK = 25600U;
-static const uint16_t   COMPARE_COUNT = (F_CPU / PWM_REFCLK / 2U) - 1U;
-
 class CmdInit1 : public Command
 {
 public:
@@ -75,7 +69,7 @@ public:
 class CmdControl : public Command
 {
 public:
-    CmdControl(uint8_t channel, uint8_t duty_cycle)
+    CmdControl(uint8_t channel, bool state)
     {
         switch (channel) {
         default:
@@ -102,22 +96,11 @@ public:
 
         address.data = 0;
 
-        if (duty_cycle > 0) {
+        if (state) {
             chX_control.on = 1;
-
-            switch (Parameter(kParamCH1Type + channel).get()) {
-            case v3_output_type::kHID:
-                chX_control.pwm = 255;              // HID cannot be PWM controlled
-                break;
-
-            default:
-                chX_control.pwm = duty_cycle;       // XXX add pulse skip support
-                chX_control.phase_sel = kPhase0;    // XXX might be nice to shift phases to reduce current?
-                break;
-            }
-
+            chX_control.pwm = 255;
         } else {
-            chX_control.on = 1;
+            chX_control.on = 0;
             chX_control.pwm = 0;
         }
     }
@@ -276,34 +259,6 @@ configure()
     pinCS.set();
     pinCS.cfg_output();
 
-    // PWM clock GPIO setup
-    pinSWCLK.set();
-    pinSWCLK.cfg_output();
-
-    // PWM clock driven from timer 1
-    // Valid range is 25.6kHz - 102.4kHz.
-    TCCR1B = 0;                                 // timer stop
-    TIMSK1 = 0;                                 // no interrupts
-    TCCR1D = 0;                                 // disable all outputs
-
-    TCCR1C = 0;                                 // clear force compare bits
-    TCNT1H = 0;                                 // reset counter to zero
-    TCNT1L = 0;
-
-    if (ocrSWCLK < 4) {                         // configure desired timer half
-        OCR1AH = COMPARE_COUNT >> 8;
-        OCR1AL = COMPARE_COUNT & 0xff;
-        TCCR1A = _BV(COM1A0);                   // toggle OC output on compare match
-
-    } else {
-        OCR1BH = COMPARE_COUNT >> 8;
-        OCR1BL = COMPARE_COUNT & 0xff;
-        TCCR1A = _BV(COM1B0);                   // toggle OC output on compare match
-    }
-
-    TCCR1D = _BV(ocrSWCLK);                     // enable specific PWM output pin
-    TCCR1B = _BV(WGM12) | _BV(CS10);            // ... CTC mode, no prescaler, timer starts
-
 #ifndef DEBUG
     // configure the SYNCB input
     pinSWSYNCB.cfg_input_pullup();
@@ -332,9 +287,9 @@ configure()
 }
 
 void
-set(uint8_t channel, uint8_t duty_cycle)
+set(uint8_t channel, uint8_t state)
 {
-    Status s = transfer(CmdControl(channel, duty_cycle));
+    Status s = transfer(CmdControl(channel, state));
 
     if (s.quick_status.dsf != 0) {
         // XXX device status failures (mostly fatal)

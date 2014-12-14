@@ -17,9 +17,10 @@
 
 #include "lin_defs.h"
 
-static uint8_t  duty_cycles[MC17XSF500::num_channels];
-static uint16_t output_status[MC17XSF500::num_channels];    // XXX inefficient use of memory
+static uint8_t node_status;
+static uint8_t output_status[MC17XSF500::num_channels];
 static uint16_t current[MC17XSF500::num_channels];
+static uint16_t info[8];
 
 using namespace PowerV3;
 
@@ -44,26 +45,6 @@ param_init()
     }
 }
 
-uint8_t
-get_assignment(uint8_t channel, uint8_t index)
-{
-    const uint16_t assign_base = PowerV3::kParamCH1Assign1;
-    const uint16_t channel_stride = PowerV3::kParamCH2Assign1 - PowerV3::kParamCH1Assign1;
-    const uint16_t assign_stride = PowerV3::kParamCH1Assign2 - PowerV3::kParamCH1Assign1;
-
-    return Parameter(assign_base + channel * channel_stride + index * assign_stride).get();
-}
-
-uint8_t
-get_pwm(uint8_t channel, uint8_t index)
-{
-    const uint16_t pwm_base = PowerV3::kParamCH1PWM1;
-    const uint16_t channel_stride = PowerV3::kParamCH2PWM1 - PowerV3::kParamCH1PWM1;
-    const uint16_t pwm_stride = PowerV3::kParamCH1PWM2 - PowerV3::kParamCH1PWM1;
-
-    return Parameter(pwm_base + channel * channel_stride + index * pwm_stride).get();
-}
-
 void
 main(void)
 {
@@ -86,52 +67,33 @@ main(void)
     // enable interrupts
     sei();
 
-    // XXX should set up ADC trigger & collection here
+    // XXX set up ADC trigger & collection here
 
     // run the output logic forever
     for (;;) {
         wdt_reset();
         slave.tick();
 
-        // XXX note that this is hardcoded and should really come from lin_defs.h
-        const uint8_t assigns = 4;
-        static_assert(kParamCH1Assign4, "mismatched number of per-channel assignments");
-
         // update outputs - always do this to ensure that any lost update is fixed on
         // the next loop iteration
         for (unsigned output = 0; output < MC17XSF500::num_channels; output++) {
 
-            uint8_t duty_cycle = 0;     // highest duty cycle for any active, assigned output
-            bool unassigned = true;     // assume nothing assigned
+            uint8_t assigned = Parameter(PowerV3::kParamCH1Assign).get();
 
-            for (uint8_t assign = 0; assign < assigns; assign++) {
-
-                uint16_t assigned = get_assignment(output, assign);
-
-                if (assigned != v3_output_assignment::kUnassigned) {
-                    unassigned = false;
-
-                    if (slave.test_relay(assigned)) {
-                        uint8_t pwm = get_pwm(output, assign);
-
-                        if (pwm > duty_cycle) {
-                            duty_cycle = pwm;
-                        }
-                    }
-                }
+            if ((assigned != v3_output_assignment::kUnassigned) && slave.test_relay(assigned)) {
+                MC17XSF500::set(output, 1);
+            } else {
+                MC17XSF500::set(output, 0);
             }
 
-            if (unassigned) {
-                duty_cycles[output] = 0;
-                output_status[output] = v3_output_status::kOK;
+            if (!assigned) {
+                output_status[output] = v3_output_status::kUnassigned;
             } else {
-                MC17XSF500::set(output, duty_cycle);
-                duty_cycles[output] = duty_cycle;
-
                 // XXX need to use time & knowledge of output type here to be more
                 //     intelligent about the state of the load...
 
                 auto status = MC17XSF500::get_status(MC17XSF500::kStatusCH1 + output);
+                info[3 + output] = status.val;
 
                 if (status.chX_status.ots != 0) {
                     output_status[output] = v3_output_status::kTemperatureShutdown;
@@ -139,12 +101,31 @@ main(void)
                     output_status[output] = v3_output_status::kTemperatureWarning;
                 } else if (status.chX_status.oc_status != 0) {
                     output_status[output] = v3_output_status::kOverCurrent;
-                } else if (status.chX_status.olf != 0) {
+                } else if ((status.chX_status.olon != 0) || (status.chX_status.oloff != 0)) {
                     output_status[output] = v3_output_status::kOpenLoad;
                 } else {
                     output_status[output] = v3_output_status::kOK;
                 }
             }
+        }
+
+        // check device status
+        auto quick_status = MC17XSF500::get_status(MC17XSF500::kStatusQuick);
+        auto device_status = MC17XSF500::get_status(MC17XSF500::kStatusDevice);
+        node_status = v3_device_status::kOK;
+
+        info[0] = quick_status.val;
+        info[1] = device_status.val;
+        info[2] = MC17XSF500::get_status(MC17XSF500::kStatusIO).val;
+
+        // check overload, undervoltage, overvoltage
+        if (quick_status.quick_status.ovlf != 0) {
+            // prioritise output overload reporting
+            node_status = v3_device_status::kOverload;
+        } else if (device_status.device_status.uvf != 0) {
+            node_status = v3_device_status::kUndervoltage;
+        } else if (device_status.device_status.ovf != 0) {
+            node_status = v3_device_status::kOvervoltage;
         }
     }
 }
@@ -186,28 +167,7 @@ Parameter::get() const
         return SPM_PAGESIZE;
 
     case kParamDeviceStatus:
-        {
-            auto status = MC17XSF500::get_status(MC17XSF500::kStatusQuick);
-
-            if (status.quick_status.qsf != 0) {
-                // prioritise output overload reporting
-                return v3_device_status::kOverload;
-            }
-            if (status.quick_status.dsf != 0) {
-                status = MC17XSF500::get_status(MC17XSF500::kStatusDevice);
-
-                if (status.device_status.uvf != 0) {
-                    return v3_device_status::kUndervoltage;
-                }
-                if (status.device_status.ovf != 0) {
-                    return v3_device_status::kOvervoltage;
-                }
-                // may be over-enthusiastic, will report RCF and CLKF which may
-                // not be "failure"
-                return v3_device_status::kDeviceFailure;
-            }
-        }
-        return v3_device_status::kOK;
+        return node_status;
 
     case kParamCH1Status:
         return output_status[0];
@@ -220,17 +180,6 @@ Parameter::get() const
     case kParamCH5Status:
         return output_status[4];
 
-    case kParamCH1DutyCycle:
-        return duty_cycles[0];
-    case kParamCH2DutyCycle:
-        return duty_cycles[1];
-    case kParamCH3DutyCycle:
-        return duty_cycles[2];
-    case kParamCH4DutyCycle:
-        return duty_cycles[3];
-    case kParamCH5DutyCycle:
-        return duty_cycles[4];
-
     case kParamCH1Current:
         return current[0];
     case kParamCH2Current:
@@ -241,6 +190,9 @@ Parameter::get() const
         return current[3];
     case kParamCH5Current:
         return current[4];
+
+    case kParamInfo0 ... kParamInfo7:
+        return info[address() - kParamInfo0];
 
     case Generic::kParamConfigBase ... Generic::kParamConfigTop:
         return eeprom_read_word((const uint16_t *)((address() - Generic::kParamConfigBase) * 2));

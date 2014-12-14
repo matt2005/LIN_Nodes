@@ -78,7 +78,10 @@ public:
     bool                is_dirty() const { return _dirty; }
 
     /// @return             True if the parameter can be set.
-    bool                is_settable() const { return encoding() != kEncoding_none; }
+    bool                is_settable() const 
+    {
+        return (_address >= Generic::kParamConfigBase) && (_address < Generic::kParamConfigTop);
+    }
 
 private:
     bool                _valid = false;

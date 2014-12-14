@@ -13,7 +13,8 @@
 
 #include "switches.h"
 
-#include "lin_defs.h"
+#include <lin_defs.h>
+#include <bitarray.h>
 
 using namespace Master;
 
@@ -85,36 +86,30 @@ changed()
 void
 scan()
 {
-    // clear raw state
-    uint8_t rawstate[kStateBytes];
-
-    for (uint8_t i = 0; i < kStateBytes; i++) {
-        rawstate[i] = 0;
-    }
-
-    // XXX should use a bitarray
-#define SET(x)  do { if (x < input_assignment::kNumEncodings) rawstate[x / 8] |= (1 << (x & 0x7)); } while(0)
-#define GET(x)  ((rawstate[x / 8] & (1 << (x & 0x7))) ? 1 : 0)
+    StaticBitarray<input_assignment::kNumEncodings> rawstate;
+    rawstate.reset();
 
     // fetch the switch inputs
     MC33972::scan();
 
     // hardcoded ignition input on SP0
     if (MC33972::test(MC33972::kInputSP0)) {
-        SET(input_assignment::kIgnition);
+        rawstate.set(input_assignment::kIgnition);
     }
 
     // SP1-SP7
     for (uint8_t sw = 0; sw <= 6; sw++) {
         if (MC33972::test(MC33972::kInputSP1 + sw)) {
-            SET(Parameter(kParamSP1Assign + sw).get());
+            const uint8_t stride = kParamSP2Assign - kParamSP1Assign;
+            rawstate.set(Parameter(kParamSP1Assign + (sw * stride)).get());
         }
     }
 
     // SG0-SG13
     for (uint8_t sw = 0; sw <= 13; sw++) {
         if (MC33972::test(MC33972::kInputSG0 + sw)) {
-            SET(Parameter(kParamSG0Assign + sw).get());
+            const uint8_t stride = kParamSG1Assign - kParamSG0Assign;
+            rawstate.set(Parameter(kParamSG0Assign + (sw * stride)).get());
         }
     }
 
@@ -123,7 +118,7 @@ scan()
 
         // if no change, reset debounce timer (also clears
         // 'changed' state
-        if (_state[i].state == GET(i)) {
+        if (_state[i].state == rawstate.test(i)) {
             _state[i].count = 0;
             continue;
         }
@@ -141,7 +136,7 @@ scan()
         // if this is the last count, change the 'current' state;
         // last count value will be cleared by reset path above
         if (_state[i].count == 1) {
-            _state[i].state = GET(i);
+            _state[i].state = rawstate.test(i);
         }
     }
 }

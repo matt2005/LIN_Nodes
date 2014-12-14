@@ -338,15 +338,20 @@ update(int argc, char *argv[])
 {
     unsigned node = Node::kNoNode;
     bool verify = false;
+    bool save_params = false;
     int ch;
 
-    while ((ch = getopt(argc, argv, "n:q")) != -1) {
+    while ((ch = getopt(argc, argv, "n:pv")) != -1) {
         switch (ch) {
         case 'n':
             node = strtoul(optarg, nullptr, 0);
             if (node == 0) {
                 errx(1, "bad node address '%s'", optarg);
             }
+            break;
+
+        case 'p':
+            save_params = true;
             break;
 
         case 'v':
@@ -375,7 +380,7 @@ update(int argc, char *argv[])
 
     for (auto n : Node::nodes()) {
         try {
-            n->update(verify);
+            n->update(verify, save_params);
 
         } catch (Exception &e) {
             warnx("WARNING: failed updating node@%u: %s", n->address(), e.what());
@@ -442,8 +447,10 @@ struct {
     },
     {
         "update",
-        "lintool [-l] update [-v][-n <node>] <file> [<file> ...]\n"
+        "lintool [-l] update [-v][-p][-n <node>] <file> [<file> ...]\n"
         "    Update node firmware for one or more nodes from one or more firmware files.\n"
+        "        -p    Preserve node configuration across update. Normally all parameters\n"
+        "              are reset to defaults by the update.\n"
         "        -v    Perform read-after-write verification (slow).\n"
         "    Only nodes for which firmware is loaded can be updated. If -n is not specified,\n"
         "    all nodes will be updated.\n"

@@ -38,7 +38,7 @@ public:
     unsigned        function() { return params().function(); }
     ParamSet        &params() { return _params; }
 
-    void            update(bool verify = false);
+    void            update(bool verify, bool save_params);
 
 private:
     static List     _list;

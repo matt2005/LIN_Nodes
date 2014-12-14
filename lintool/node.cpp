@@ -115,7 +115,7 @@ Node::matching(unsigned address, unsigned function)
 }
 
 void
-Node::update(bool verify)
+Node::update(bool verify, bool save_params)
 {
     // get the firmware
     Firmware *fw;
@@ -137,13 +137,25 @@ Node::update(bool verify)
         warnx("no firmware loaded for function %s @ %u, skipping", name, function());
     } else {
 
-        warnx("updating %s @ %u", fw->function_name(), address());
+        // make a copy of all the node's parameters for later use
+        if (save_params) {
+            params().sync();
+        }
+        char *ident = params().identity();
+        warnx("%s updating firmware", ident);
 
         // select the node
         Link::set_node(address());
 
         // upload firmware to the selected node
         Upload::upload(fw, verify);
+
+        // write parameters back unconditionally
+        if (save_params) {
+            warnx("%s restoring configuration", ident);
+            params().sync(true);
+        }
+        free(ident);
     }
 }
 

@@ -26,12 +26,12 @@ Param::format() const
 }
 
 void
-Param::sync()
+Param::sync(bool force)
 {
     if (!_valid) {
         fetch();
 
-    } else if (_dirty) {
+    } else if (_dirty || force) {
         store();
     }
 }
@@ -245,12 +245,12 @@ ParamSet::find(unsigned address) const
 }
 
 void
-ParamSet::sync()
+ParamSet::sync(bool force)
 {
     Link::set_node(_node);
 
     for (auto p : _params) {
-        p->sync();
+        p->sync(force);
     }
 }
 

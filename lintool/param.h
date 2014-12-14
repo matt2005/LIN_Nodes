@@ -41,7 +41,9 @@ public:
 
     /// Synchronise the current value with the node
     ///
-    void                sync();
+    /// @param force        Forces parameter to be written even if it's not dirty
+    ///
+    void                sync(bool force = false);
 
     /// Update the local copy of the value
     ///
@@ -104,7 +106,9 @@ public:
 
     /// Synchronises all parameters in the set with the node.
     ///
-    void                sync();
+    /// @param force        Forces parameters to be written even if they aren't dirty.
+    ///
+    void                sync(bool force = false);
 
     /// @return             True if any parameter in the set has been written
     ///                     and not yet synced to the node.

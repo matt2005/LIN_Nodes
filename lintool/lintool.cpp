@@ -43,7 +43,15 @@ history(int argc, char *argv[])
 void
 trace(int argc, char *argv[])
 {
-    Log::trace();
+    std::vector<unsigned> filter;
+
+    argv++;
+    argc--;
+    while (argc--) {
+        unsigned fid = strtoul(*(argv++), nullptr, 0);
+        filter.push_back(fid);
+    }
+    Log::trace(filter);
 }
 
 void
@@ -384,8 +392,10 @@ struct {
     },
     {
         "trace",
-        "lintool trace\n"
-        "    Trace LIN traffic (^C to exit).\n",
+        "lintool trace [<fid>...]\n"
+        "    Trace LIN traffic (^C to exit).\n"
+        "    Multiple <fid> parameters identifying frames by ID may be\n"
+        "    supplied, in which case only matching frames will be displayed.\n",
         trace
     },
     {
@@ -408,7 +418,7 @@ struct {
     },
     {
         "param",
-        "lintool [-l] param -n <node> [-a][-h] [<param> [<value>]]\n"
+        "lintool [-l] param -n <node> [-a][-i] [<param_name> [<value>]]\n"
         "    Read or write or more parameters from <node>.\n"
         "        -a    When printing all node parameters, include read-only parameters.\n"
         "        -i    When printing a parameter that accepts named values, also print\n"

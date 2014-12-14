@@ -41,6 +41,7 @@ public:
     }
 
     void            print();
+    bool            matches(std::vector<unsigned> &filter);
 
 private:
     uint16_t        _time;
@@ -85,7 +86,7 @@ acquire()
 }
 
 void
-print()
+print(std::vector<unsigned> &filter)
 {
     for (;;) {
         auto ent = history.front();
@@ -95,9 +96,20 @@ print()
         }
 
         history.pop_front();
-        ent->print();
+
+        if (ent->matches(filter)) {
+            ent->print();
+        }
         delete ent;
     }
+}
+
+void
+print()
+{
+    std::vector<unsigned> filter;
+
+    print(filter);
 }
 
 void
@@ -118,13 +130,13 @@ clear()
 }
 
 void
-trace()
+trace(std::vector<unsigned> &filter)
 {
     enable = true;
 
     for (;;) {
         acquire();
-        print();
+        print(filter);
     }
 }
 
@@ -260,6 +272,21 @@ Entry::print()
     } else {
         printf("                          %s\n", frame_name());
     }
+}
+
+bool
+Entry::matches(std::vector<unsigned> &filter)
+{
+    // always match an empty filter
+    if (filter.size() == 0) {
+        return true;
+    }
+    for (auto fid : filter) {
+        if (fid == _fid) {
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace Log

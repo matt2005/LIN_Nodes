@@ -8,13 +8,15 @@
  */
 #pragma once
 
+#include <vector>
+
 namespace Log
 {
 extern unsigned enable;
 extern void acquire();
 extern void print();
 extern void clear();
-extern void trace();
+extern void trace(std::vector<unsigned> &filter);
 
 class LogWrapper
 {

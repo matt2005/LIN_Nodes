@@ -81,7 +81,7 @@ scan(int argc, char *argv[])
         auto pset = n->params();
         char *str = pset.identity();
 
-        printf("%s", str);
+        printf("%s\n", str);
         free(str);
     }
 
@@ -319,8 +319,18 @@ edit_param(int argc, char *argv[])
 
         param->set(value);
         param->sync();
+
+        // parameter names are unique, so if we have set a parameter we are done here
+        return;
     }
 
+    // failing to find a parameter name when attempting to set a parameter is fatal
+    if ((paramname != nullptr) && (newvalue != nullptr)) {
+        char *str = pset.identity();
+
+        errx(1, "%s parameter '%s' does not exist", str, paramname);
+        free(str);
+    }
 }
 
 void

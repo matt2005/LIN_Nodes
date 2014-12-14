@@ -213,7 +213,7 @@ ParamSet::identity() const
 {
     char *str;
 
-    asprintf(&str, "[%u:%u:%s]\n",
+    asprintf(&str, "[%u:%u:%s]",
              _node,
              _function,
              Encoding::info(kEncoding_board_function, _function));

@@ -44,6 +44,26 @@ param_init()
     }
 }
 
+uint8_t
+get_assignment(uint8_t channel, uint8_t index)
+{
+    const uint16_t assign_base = PowerV3::kParamCH1Assign1;
+    const uint16_t channel_stride = PowerV3::kParamCH2Assign1 - PowerV3::kParamCH1Assign1;
+    const uint16_t assign_stride = PowerV3::kParamCH1Assign2 - PowerV3::kParamCH1Assign1;
+
+    return Parameter(assign_base + channel * channel_stride + index * assign_stride).get();
+}
+
+uint8_t
+get_pwm(uint8_t channel, uint8_t index)
+{
+    const uint16_t pwm_base = PowerV3::kParamCH1PWM1;
+    const uint16_t channel_stride = PowerV3::kParamCH2PWM1 - PowerV3::kParamCH1PWM1;
+    const uint16_t pwm_stride = PowerV3::kParamCH1PWM2 - PowerV3::kParamCH1PWM1;
+
+    return Parameter(pwm_base + channel * channel_stride + index * pwm_stride).get();
+}
+
 void
 main(void)
 {
@@ -73,39 +93,36 @@ main(void)
         wdt_reset();
         slave.tick();
 
-        // sort out parameter layout - assumes layout of parameters is regular for all channels
-        const uint8_t channelStride = PowerV3::kParamCH2Assign1 - PowerV3::kParamCH1Assign1;
-        const uint8_t assignStride = PowerV3::kParamCH1Assign2 - PowerV3::kParamCH1Assign1;
-        const uint16_t assignBase = PowerV3::kParamCH1Assign1;
-        const uint16_t pwmBase = PowerV3::kParamCH1PWM1;
-        const uint8_t assigns = channelStride / 2;
+        // XXX note that this is hardcoded and should really come from lin_defs.h
+        const uint8_t assigns = 4;
+        static_assert(kParamCH1Assign4, "mismatched number of per-channel assignments");
 
         // update outputs - always do this to ensure that any lost update is fixed on
         // the next loop iteration
         for (unsigned output = 0; output < MC17XSF500::num_channels; output++) {
 
-            uint8_t duty_cycle = 0;
-            bool unassigned = true;
+            uint8_t duty_cycle = 0;     // highest duty cycle for any active, assigned output
+            bool unassigned = true;     // assume nothing assigned
 
             for (uint8_t assign = 0; assign < assigns; assign++) {
-                uint8_t offset = (output * channelStride) + (assign * assignStride);
-                uint16_t assigned = Parameter(assignBase + offset).get();
+
+                uint16_t assigned = get_assignment(output, assign);
 
                 if (assigned != v3_output_assignment::kUnassigned) {
                     unassigned = false;
-                }
 
-                if (slave.test_relay(assigned)) {
-                    uint16_t pwm = Parameter(pwmBase + offset).get();
+                    if (slave.test_relay(assigned)) {
+                        uint8_t pwm = get_pwm(output, assign);
 
-                    if (pwm > duty_cycle) {
-                        duty_cycle = pwm;
+                        if (pwm > duty_cycle) {
+                            duty_cycle = pwm;
+                        }
                     }
                 }
             }
 
             if (unassigned) {
-                duty_cycles[output] = false;
+                duty_cycles[output] = 0;
                 output_status[output] = v3_output_status::kOK;
             } else {
                 MC17XSF500::set(output, duty_cycle);

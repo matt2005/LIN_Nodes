@@ -46,6 +46,15 @@ param_init()
     }
 }
 
+uint8_t
+get_assignment(uint8_t output)
+{
+    const uint16_t assign_base = kParamCH1Assign;
+    const uint16_t channel_stride = kParamCH2Assign - kParamCH1Assign;
+
+    return Parameter(assign_base + output * channel_stride).get();
+}
+
 void
 main(void)
 {
@@ -84,7 +93,7 @@ main(void)
         // the next loop iteration
         for (unsigned output = 0; output < MC17XSF500::num_channels; output++) {
 
-            uint8_t assigned = Parameter(PowerV3::kParamCH1Assign).get();
+            uint8_t assigned = get_assignment(output);
 
             if ((assigned != v3_output_assignment::kUnassigned) && slave.test_relay(assigned)) {
                 MC17XSF500::set(output, 1);
@@ -99,7 +108,6 @@ main(void)
                 //     intelligent about the state of the load...
 
                 auto status = MC17XSF500::get_status(MC17XSF500::kStatusCH1 + output);
-                info[3 + output] = status.val;
 
                 if (status.chX_status.ots != 0) {
                     output_status[output] = v3_output_status::kTemperatureShutdown;

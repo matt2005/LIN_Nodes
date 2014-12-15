@@ -18,8 +18,8 @@ public:
 
     bool            test_relay(uint8_t relay_id)
     {
-        // we know the relay frame is just an array of bits with relay 0 as the first bit
-        return (_relayFrame._raw >> relay_id) & 1;
+        // we know the relay frame is just an array of bits with relay 1 as the first bit
+        return (_relayFrame._raw >> (relay_id - 1)) & 1;
     }
 
     static uint8_t  node_address(uint8_t boardID) { return PowerV3::kNodeAddress + boardID - 1; }

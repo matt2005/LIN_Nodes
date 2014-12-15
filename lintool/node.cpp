@@ -132,16 +132,16 @@ Node::update(bool verify, bool save_params)
         RAISE(ExUpdateFailed, e.what());
     }
 
+    char *ident = params().identity();  // XXX leaks on exception...
+
     if (fw == nullptr) {
-        auto name = Encoding::info(kEncoding_board_function, function()) ? : "<unknown>";
-        warnx("no firmware loaded for function %s @ %u, skipping", name, function());
+        warnx("%s no firmware loaded, skipping", ident);
     } else {
 
         // make a copy of all the node's parameters for later use
         if (save_params) {
             params().sync();
         }
-        char *ident = params().identity();
         warnx("%s updating firmware", ident);
 
         // select the node
@@ -155,7 +155,7 @@ Node::update(bool verify, bool save_params)
             warnx("%s restoring configuration", ident);
             params().sync(true);
         }
-        free(ident);
     }
+    free(ident);
 }
 

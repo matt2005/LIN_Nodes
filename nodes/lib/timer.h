@@ -121,10 +121,12 @@ private:
 class Timestamp
 {
 public:
-    Timestamp() : _taken(Timer::time_now()) {}
+    Timestamp();
 
     Timer::Timeval  time_since() const { return Timer::time_since(_taken); }
+    Timer::Timeval  time() const { return _taken; }
     bool            is_older_than(Timer::Timeval interval) const { return time_since() > interval; }
+
     void            update() { _taken = Timer::time_now(); }
 
 private:

@@ -23,11 +23,8 @@ Timer::Timer(Callback callback, void *arg, uint16_t interval) :
     _interval(interval),
     _next(_first)
 {
-    if (_first == nullptr) {
-        init();
-    }
-
     _first = this;
+    init();
 }
 
 void
@@ -101,6 +98,11 @@ Ticker::tick(void *arg)
     (reinterpret_cast<Ticker *>(arg))->_ticked = true;
 }
 
+Timestamp::Timestamp() : _taken(Timer::time_now()) 
+{
+    Timer::init();
+}
+
 Decrementer *Decrementer::_first;
 
 Decrementer::Decrementer(Timer::Timeval initialCount) :
@@ -108,6 +110,7 @@ Decrementer::Decrementer(Timer::Timeval initialCount) :
     _next(_first)
 {
     _first = this;
+    Timer::init();
 }
 
 void

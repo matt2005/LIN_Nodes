@@ -329,6 +329,10 @@ headLights(Response &resp)
     } else if (!Switches::test(input_assignment::kMarkerLights) &&
                !Switches::test(input_assignment::kHeadLights) &&
                !Switches::test(input_assignment::kHighBeam)) {
+
+        // Note that it's correct to de-assert LightsDown (but not assert
+        // LightsUp) with marker lights on; this allows a mode where the lights
+        // are up but not lit for e.g. cleaning purposes.
         resp.Relays.LightsDown = 1;
     }
 

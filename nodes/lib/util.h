@@ -36,4 +36,21 @@ private:
 typedef Counter<uint8_t, 255>       Counter8;
 typedef Counter<uint16_t, 65535>    Counter16;
 
+template<typename T>
+T
+intsafe_copy(const volatile T *unsafe)
+{
+static_assert(sizeof(T) == 2, "only works for 2-byte types");
+
+    auto bytes = reinterpret_cast<const volatile uint8_t *>(unsafe);
+    uint8_t high, low;
+
+    do {
+        high = bytes[1];
+        low = bytes[0];
+    } while (high != bytes[1]);
+
+    return (static_cast<T>(high) << 8) | low;
+}
+
 } // namespace Util

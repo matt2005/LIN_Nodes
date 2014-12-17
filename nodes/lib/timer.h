@@ -59,10 +59,12 @@ public:
     /// Returns the current time.
     ///
     /// Note that due to the limited range of Timeval, time wraps every ~65 seconds.
+    /// This function cannot be called safely from an interrupt handler that can
+    /// preempt the timer interrupt.
     ///
     /// @return                 The current time in milliseconds
     ///
-    static Timeval      time_now() { return _now; }
+    static Timeval      time_now();
 
     /// Returns the delta beetween some time in the past and now.
     ///
@@ -72,7 +74,7 @@ public:
     /// @param then             The time in the past
     /// @return                 The time difference in milliseconds
     ///
-    static Timeval      time_since(Timeval then) { return _now - then; }
+    static Timeval      time_since(Timeval then);
 
     /// Iterate the set of timers, decrement their remaining counts and
     /// call any applicable callbacks.
@@ -87,11 +89,11 @@ protected:
     volatile Timeval    _interval;  //< reload value for periodic, 0 for one-shot
 
 private:
-
     Timer               *_next;     //< list linkage
 
     static Timer        *_first;    //< list anchor
-    static volatile Timeval _now;
+
+    static volatile Timeval _now;   //< do not access directly, use time_now()
 };
 
 class Ticker : public Timer
@@ -123,9 +125,9 @@ class Timestamp
 public:
     Timestamp();
 
-    Timer::Timeval  time_since() const { return Timer::time_since(_taken); }
-    Timer::Timeval  time() const { return _taken; }
-    bool            is_older_than(Timer::Timeval interval) const { return time_since() > interval; }
+    Timer::Timeval  time() const;
+    Timer::Timeval  time_since() const;
+    bool            is_older_than(Timer::Timeval interval) const;
 
     void            update() { _taken = Timer::time_now(); }
 

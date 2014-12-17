@@ -12,9 +12,10 @@
 
 #include "board.h"
 #include "timer.h"
+#include "util.h"
 
-volatile Timer::Timeval Timer::_now = 0;
-Timer *Timer::_first = nullptr;
+volatile Timer::Timeval Timer::_now;
+Timer *Timer::_first;
 
 Timer::Timer(Callback callback, void *arg, uint16_t interval) :
     _callback(callback),
@@ -57,13 +58,26 @@ ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)
     Timer::tick();
 }
 
+Timer::Timeval
+Timer::time_now()
+{
+    return Util::intsafe_copy(&_now);
+}
+
+Timer::Timeval
+Timer::time_since(Timeval then)
+{
+    return time_now() - then;
+}
+
 void
 Timer::tick()
 {
-    Timer *t = _first;
-
+    // As a special case, it's OK to touch _now here directly because we 
+    // are the only writer.
     _now++;
 
+    Timer *t = _first;
     while (t != nullptr) {
         switch (t->_remaining) {
         case 0:
@@ -101,6 +115,26 @@ Ticker::tick(void *arg)
 Timestamp::Timestamp() : _taken(Timer::time_now()) 
 {
     Timer::init();
+}
+
+Timer::Timeval
+Timestamp::time() const
+{
+    return Util::intsafe_copy(&_taken);
+}
+
+Timer::Timeval
+Timestamp::time_since() const
+{
+    // avoid having _taken updated after the current time
+    auto taken = time();
+    return Timer::time_since(taken);
+}
+
+bool
+Timestamp::is_older_than(Timer::Timeval interval) const
+{
+    return time_since() > interval;
 }
 
 Decrementer *Decrementer::_first;

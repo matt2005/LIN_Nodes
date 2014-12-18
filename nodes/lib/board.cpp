@@ -32,19 +32,16 @@ Serial       debugPort;
 void
 early_init()
 {
-    // clear the reset status register and disable the watchdog (as it may be running)
+    // clear the reset status register and re-init the watchdog (as it may be running)
     // XXX save reset cause for later use?
     MCUSR = 0;
-    wdt_disable();
+    wdt_enable(WDTO_500MS);
 
     // set the prescaler for maximum speed
     clock_prescale_set(clock_div_1);
 
     // turn everything on
     power_all_enable();
-
-    // start the watchdog
-    wdt_enable(WDTO_500MS);
 
     // fill (most of) the stack with 0xff for sniffing purposes
     volatile uint8_t *p = &_end;
@@ -141,11 +138,13 @@ get_mode()
 void
 sleep()
 {
+    LINCR = 0;                  // stop the LIN block
+    ms_delay(20);               // wait for any frame to complete (seems necessary to avoid hangs?)
+    power_all_disable();        // turn off all of the peripherals we can
+
     // Put the board to sleep.
     //
     for (;;) {
-        LINCR = LSWRES;         // stop the LIN block
-        ms_delay(10);           // wait for any frame to complete
         pinLINTX.set();         // make sure TX is 1
         pinLINCS.clear();       // make sure CS is 0
         pinLINCS.cfg_output();  // make sure CS is an output (will be low now)

@@ -170,7 +170,7 @@ public:
     void                reset() { set_milliseconds(kStayAwakeTime); }
 
 private:
-    static const Timer::Timeval kStayAwakeTime = 50000U;
+    static const Timer::Timeval kStayAwakeTime = 20000U;
 };
 
 static TurnBlinker      turnBlinker;

@@ -30,7 +30,7 @@ public:
     T &operator++() { increment(); return _value; }
 
 private:
-    T               _value;
+    T               _value = 0;
 };
 
 typedef Counter<uint8_t, 255>       Counter8;

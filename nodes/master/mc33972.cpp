@@ -140,7 +140,7 @@ scan()
 bool
 test(uint8_t inp)
 {
-    Bitarray b(_buf);
+    Bitarray<sizeof(_buf)> b(_buf);
 
     return (inp < kInputMax) && b.test(inp);
 }

@@ -135,8 +135,6 @@ scan()
 
     cmd(kCMDStatus);
     changed = tbuf != _buf;
-
-    debug("%2x %2x %2x", _buf[0], _buf[1], _buf[2]);
 }
 
 bool

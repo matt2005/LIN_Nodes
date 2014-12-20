@@ -113,8 +113,8 @@ scan()
         }
     }
 
-    // debounce raw state
-    for (uint8_t i = 0; i < input_assignment::kNumEncodings; i++) {
+    // debounce raw state - ignition is always assumed to be lowest input encoding
+    for (uint8_t i = input_assignment::kIgnition; i < input_assignment::kNumEncodings; i++) {
 
         // if no change, reset debounce timer (also clears
         // 'changed' state

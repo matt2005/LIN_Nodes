@@ -18,6 +18,19 @@
 class Print
 {
 public:
+    /// Simple printf
+    ///
+    /// Formats supported:
+    ///
+    /// %[width]s (char *)      - prints at most <width> characters from a progmem string.
+    ///                           Pads with leading spaces.
+    /// %p (void *)             - prints pointer with leading 0x
+    /// %[width]x (unsigned)    - prints least significant <width> hex digits from value, width
+    ///                           defaults to 4. Leading space padded with zeroes.
+    /// %[width]u (unsigned)    - prints least significant <width> decimal digits from value,
+    ///                           width defaults to 5. Leading space padded with spaces.
+    /// %[width]t (char *, unsigned) - as for %s, but the string is looked up in a strtab.
+    /// 
     void            printf(PGM_P fmt, ...);
     void            putc(char c) { write(c); }
 

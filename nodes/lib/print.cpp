@@ -65,12 +65,12 @@ nextfmt:
             write('x');
 
         /* FALLTHROUGH */
-        case 'u':
-            write(va_arg(ap, unsigned), w ? w : 5);
-            break;
-
         case 'x':
             writex(va_arg(ap, unsigned), w ? w : 4);
+            break;
+
+        case 'u':
+            write(va_arg(ap, unsigned), w ? w : 5);
             break;
 
         default:

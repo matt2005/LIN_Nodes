@@ -137,6 +137,9 @@ Parameter::get() const
             return temp;
         }
 
+    case Generic::kParamWatchdogResets:
+        return Board::wdt_reset_count;
+
     case Generic::kParamConfigBase ... Generic::kParamConfigTop:
         return eeprom_read_word((const uint16_t *)((address() - Generic::kParamConfigBase) * 2));
     }

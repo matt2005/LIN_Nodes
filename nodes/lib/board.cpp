@@ -29,10 +29,15 @@ namespace Board
 Serial       debugPort;
 #endif
 
+uint8_t wdt_reset_count;
+
 void
 early_init()
 {
     // XXX save reset cause for later use?
+    if (MCUSR & WDRF) {
+        wdt_reset_count++;
+    }
     MCUSR = 0;
 
     // reset watchdog timer to a more generous value

@@ -34,6 +34,8 @@
 
 namespace Board
 {
+extern uint8_t wdt_reset_count;
+
 /// Generic 'board' initialisation; clock/power setup, watchdog init, etc.
 ///
 void early_init();

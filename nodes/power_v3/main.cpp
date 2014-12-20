@@ -187,6 +187,9 @@ Parameter::get() const
             return temp;
         }
 
+    case Generic::kParamWatchdogResets:
+        return Board::wdt_reset_count;
+
     case kParamDeviceStatus:
         return node_status;
 

@@ -53,7 +53,11 @@ Timer::init()
     TIMSK0 |= 1 << OCIE0A;                  // compare interrupt on
 }
 
+#ifdef WITH_TIMER_PREEMPTION
 ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)
+#else
+ISR(TIMER0_COMPA_vect)
+#endif
 {
     Timer::tick();
 }

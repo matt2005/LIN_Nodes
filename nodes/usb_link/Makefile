@@ -6,6 +6,7 @@
 #
 
 DEBUG		 = YES
+DEFINES		+= -DWITH_TIMER_PREEMPTION
 
 PROG		 = usb_link
 SRCS		 = main.cpp \

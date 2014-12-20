@@ -18,7 +18,7 @@ XXD		 = xxd
 MCU		 = attiny167
 
 # default fusing is for the internal oscillator @ 8MHz
-OSC_FUSES	 = -U hfuse:w:0xd7:m -U efuse:w:0xfe:m -U lfuse:w:0x62:m
+OSC_FUSES	 = -U hfuse:w:0xc7:m -U efuse:w:0xfe:m -U lfuse:w:0x62:m
 FUSES		?= $(OSC_FUSES)
 F_CPU		?= 8000000
 

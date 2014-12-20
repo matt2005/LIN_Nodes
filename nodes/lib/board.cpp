@@ -32,10 +32,12 @@ Serial       debugPort;
 void
 early_init()
 {
-    // clear the reset status register and re-init the watchdog (as it may be running)
     // XXX save reset cause for later use?
     MCUSR = 0;
+
+    // reset watchdog timer to a more generous value
     wdt_enable(WDTO_500MS);
+    wdt_reset();
 
     // set the prescaler for maximum speed
     clock_prescale_set(clock_div_1);
@@ -205,7 +207,6 @@ enter_bootloader(uint8_t nad, uint8_t function)
     eeprom_update_byte((uint8_t *)kConfigFunction, function);
     eeprom_update_word((uint16_t *)kConfigMagic, kBLMagic); // operation_magic::kEnterBootloader
 
-    wdt_reset();
     reset();
 }
 
@@ -221,8 +222,8 @@ was_bootloader_requested()
 void
 reset()
 {
-    // start the watchdog (it may be off) with a short timeout
-    wdt_enable(WDTO_30MS);
+    // shorten the watchdog timer down to the minimum so that we reset ASAP
+    wdt_enable(WDTO_15MS);
 
     for (;;)
         ;

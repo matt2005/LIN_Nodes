@@ -78,15 +78,6 @@ main(void)
             free_memory = Board::freemem();
         }
 
-#ifdef DEBUG
-
-        if (Board::freemem() < 64) {
-            debug("freemem %u", Board::freemem());
-            Board::panic(Board::kPanicCodeLowMemory);
-        }
-
-#endif
-
         // scan the switch array
         Switches::scan();
 

@@ -32,18 +32,18 @@ main(void)
     // definitely no interrupts yet (XXX is this necessary?)
     cli();
 
-    // board init, watchdog disabled
-    Board::early_init();
-    wdt_disable();
-
     // check and clear force, or check for program invalid
     if (BLSlave::is_bootloader_forced() || !BLSlave::is_program_valid()) {
+
+        // board init, watchdog disabled
+        Board::early_init();
 
         // init the LIN universe
         slave.init();
 
         // run the slave
         for (;;) {
+            wdt_reset();
             slave.tick();
         }
     }

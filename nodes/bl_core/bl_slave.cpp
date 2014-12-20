@@ -8,6 +8,7 @@
  */
 
 #include <avr/boot.h>
+#include <avr/wdt.h>
 #include <util/crc16.h>
 
 #include <board.h>
@@ -251,6 +252,7 @@ BLSlave::is_bootloader_forced()
 void
 BLSlave::run_program()
 {
+    wdt_reset();
     __asm__ volatile(
         "ijmp"
         :
@@ -366,6 +368,7 @@ BLSlave::get_program_crc(uint16_t length)
 
     for (uint16_t ptr = 0; ptr < length; ptr++) {
         crc = _crc_ccitt_update(crc, pgm_read_byte(ptr));
+        wdt_reset();
     }
 
     return crc;

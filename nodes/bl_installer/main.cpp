@@ -34,7 +34,6 @@ main()
 
     /* board init, but no watchdog */
     Board::early_init();
-    wdt_disable();
 
     /* make sure the eeprom isn't still programming... */
     eeprom_busy_wait();
@@ -59,6 +58,8 @@ main()
     uint16_t dst = BL_ADDR;
 
     while (dst < FLASHEND) {
+        wdt_reset();
+
         boot_page_erase(dst);
         boot_spm_busy_wait();
 
@@ -98,7 +99,7 @@ main()
     boot_spm_busy_wait();
 
     // re-enable the watchdog and let it reset us
-    wdt_enable(WDTO_60MS);
+    wdt_enable(WDTO_15MS);
 
     for (;;) ;
 }

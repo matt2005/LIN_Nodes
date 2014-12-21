@@ -37,7 +37,7 @@ HDRS		 = $(shell $(CXX) -E -H $(DEFINES) $(INCLUDES) $(SRCS))
 OBJS		 = $(foreach src,$(SRCS),$(BUILDDIR)/$(notdir $(src)).o)
 DEPS		 = $(OBJS:.o=.d)
 
-NO_FORMAT_SRCS	 = Jzon% $(COMMON)%
+NO_FORMAT_SRCS	 = json% lin_defs.cpp
 
 ifeq ($(VERBOSE),)
 q		= @
@@ -67,7 +67,7 @@ clean:
 
 .PHONY: reformat
 reformat:
-	@../../../etc/reformat.sh \
+	../etc/reformat.sh \
 		$(filter-out $(NO_FORMAT_SRCS),$(SRCS)) \
 		$(filter-out $(NO_FORMAT_SRCS),$(HDRS))
 

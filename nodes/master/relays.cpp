@@ -38,7 +38,7 @@ public:
         _state = true;
         _active = true;
         _count = Parameter(kParamPassingBlinkCount).get();
-        _remaining = _interval = Parameter(kParamTurnBlinkPeriod).get() * 10U;
+        _remaining = _interval = Parameter(kParamTurnBlinkPeriod).get();
     }
     void        stop()
     {
@@ -97,7 +97,7 @@ public:
     void        start()
     {
         _state = true;
-        _remaining = _interval = Parameter(kParamBrakeBlinkPeriod).get() * 10U;
+        _remaining = _interval = Parameter(kParamBrakeBlinkPeriod).get();
         _count = Parameter(kParamBrakeBlinkCount).get();
     }
 
@@ -149,13 +149,12 @@ private:
     {
         if (_state) {
             // wiper control signal off for the specified interval
-            // XXX as feature, this should be based on an analog input...
-            _remaining = Parameter(kParamWiperInterval).get() * 100U;
+            _remaining = Parameter(kParamWiperInterval).get();
             _state = false;
 
         } else {
             // wiper control signal on for 1/2 second, motor responsible
-            // for completing wipe & parking
+            // for completing wipe & parking.
             _remaining = 500U;
             _state = true;
         }
@@ -218,8 +217,7 @@ turnSignals(Response &resp)
     // the switches will come and go under its control.
 
     // external blinker mode?
-    if ((Parameter(kParamTurnBlinkPeriod).get() == 0) ||
-        (Parameter(kParamTurnBlinkPeriod).get() > 100U)) {
+    if (Parameter(kParamTurnBlinkPeriod).get() == 0) {
 
         if (Switches::test(input_assignment::kLeftTurn)) {
             resp.Relays.LeftTurn = 1;

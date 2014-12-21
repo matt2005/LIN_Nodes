@@ -22,7 +22,7 @@ public:
     {
     }
 
-    void operator = (const Parameter &p) { _address = p.address(); }
+    Parameter &operator = (const Parameter &p) { _address = p.address(); return *this; }
 
     //operator uint16_t () const { return get(); }
     //const Parameter & operator = (uint16_t value) const { set(value); return *this; }

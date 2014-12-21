@@ -20,13 +20,7 @@ class SlaveHistory
 {
 public:
 
-    SlaveHistory() :
-        _savedFID(0),
-        _FIDValid(false),
-        _nextIn(0),
-        _nextOut(0)
-    {
-    }
+    SlaveHistory() {}
 
     /// Save a received FID into the nextIn entry regardless of whether
     /// we are ready to push the remainder of the frame just yet.
@@ -51,13 +45,13 @@ public:
 
 private:
     static const uint8_t    _size = 16;
-    RQHistory               _entries[_size + 1];
+    RQHistory               _entries[_size + 1] = {};
 
-    uint8_t                 _savedFID;
-    uint16_t                _fidTime;
-    bool                    _FIDValid;
-    uint8_t                 _nextIn;
-    volatile uint8_t        _nextOut;
+    uint8_t                 _savedFID = 0;
+    uint16_t                _fidTime = 0;
+    bool                    _FIDValid = false;
+    uint8_t                 _nextIn = 0;
+    volatile uint8_t        _nextOut = 0;
 
     uint8_t         next(uint8_t index) const { return (index < _size) ? index + 1 : 0; }
     bool            empty() const { return _nextIn == _nextOut; }
@@ -122,7 +116,7 @@ private:
     uint8_t             _nodeAddress = 0;
     Parameter::Address  _dataAddress = 0;
     uint16_t            _dataValue = 0;
-    uint8_t             _dataBytes[4];
+    uint8_t             _dataBytes[4] = {0};
 
     enum MasterState : uint8_t {
         kMSDisabled,            // master mode disabled

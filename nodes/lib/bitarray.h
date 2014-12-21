@@ -94,13 +94,8 @@ template<uint8_t N>
 class StaticBitarray : public Bitarray<N>
 {
 public:
-    StaticBitarray() : Bitarray<N>(_buffer) {}
-    StaticBitarray(Bitarray<N> &orig) : Bitarray<N>(_buffer)
-    {
-        for (auto i = 0; i < kSizeBytes; i++) {
-            _buffer[i] = orig[i];
-        }
-    }
+    StaticBitarray() : Bitarray<N>(_buffer), _buffer{0} {}
+    StaticBitarray(Bitarray<N> &orig) : Bitarray<N>(_buffer), _buffer(orig._buffer) {}
 
 private:
     static const uint8_t    kSizeBytes = (N + 7) / 8;

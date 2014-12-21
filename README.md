@@ -13,14 +13,19 @@ dashboard/
 Documentation/
     Various datasheets relevant to the nodes.
 
+lintool
+    Host-side configuration tool. Talks to the usb_link hardware.
+
 nodes/
     All of the nodes in this part of the tree are based on the Atmel ATTiny167.
 
     bl_core/
-        LIN bootloader core, incorporated into bl_installer below.
+        LIN bootloader core, consumed by bl_installer.
 
     bl_installer/
-        Bootloader installer; flashed onto a fresh board, installs the bootloader.
+        Bootloader installer; flashed onto a fresh board this will the bootloader.
+        The installed bootloader comes up on NAD 32 and can be flashed with lintool
+        by explicitly supplying the node address and firmware file.
 
     lib/
         Shared code.
@@ -28,20 +33,11 @@ nodes/
     master/
         Network master node.
 
-    power_v1/ (deprecated)
-        Simple 4-output power switching node using an ST driver. Low current due to
-        high Rdson FETs in the ST family. 
-
     power_v3/
         5-output power switching node using Freescale smart high-side switches.
         Board limited to 5.5A, but code should work with the 10A device as well.
 
-    programmer/ (deprecated)
-        Hand-held configuration tool with 20x4 LCD. Simple field configuration only.
-
     usb_link/
         USB bridge with support for configuration and node firmware updates.
 
-        lintool/
-            Command-line tool for the USB link.
 ```

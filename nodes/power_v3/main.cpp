@@ -97,12 +97,14 @@ main(void)
 
             if ((assigned != v3_output_assignment::kUnassigned) && slave.test_relay(assigned)) {
                 MC17XSF500::set(output, 1);
+
             } else {
                 MC17XSF500::set(output, 0);
             }
 
             if (!assigned) {
                 output_status[output] = v3_output_status::kUnassigned;
+
             } else {
                 // XXX need to use time & knowledge of output type here to be more
                 //     intelligent about the state of the load...
@@ -111,12 +113,16 @@ main(void)
 
                 if (status.chX_status.ots != 0) {
                     output_status[output] = v3_output_status::kTemperatureShutdown;
+
                 } else if (status.chX_status.otw != 0) {
                     output_status[output] = v3_output_status::kTemperatureWarning;
+
                 } else if (status.chX_status.oc_status != 0) {
                     output_status[output] = v3_output_status::kOverCurrent;
+
                 } else if ((status.chX_status.olon != 0) || (status.chX_status.oloff != 0)) {
                     output_status[output] = v3_output_status::kOpenLoad;
+
                 } else {
                     output_status[output] = v3_output_status::kOK;
                 }
@@ -136,8 +142,10 @@ main(void)
         if (quick_status.quick_status.ovlf != 0) {
             // prioritise output overload reporting
             node_status = v3_device_status::kOverload;
+
         } else if (device_status.device_status.uvf != 0) {
             node_status = v3_device_status::kUndervoltage;
+
         } else if (device_status.device_status.ovf != 0) {
             node_status = v3_device_status::kOvervoltage;
         }
@@ -153,6 +161,7 @@ Parameter::set(uint16_t value) const
             Board::enter_bootloader(RelaySlave::node_address(Board::get_mode()),
                                     board_function::kPowerV3);
         }
+
         break;
 
     case Generic::kParamConfigBase ... Generic::kParamConfigTop:
@@ -180,12 +189,11 @@ Parameter::get() const
     case Generic::kParamFirmwarePageSize:
         return SPM_PAGESIZE;
 
-    case Generic::kParamFreeMem:
-        {
-            uint16_t temp = free_memory;
-            free_memory = 0;
-            return temp;
-        }
+    case Generic::kParamFreeMem: {
+        uint16_t temp = free_memory;
+        free_memory = 0;
+        return temp;
+    }
 
     case Generic::kParamWatchdogResets:
         return Board::wdt_reset_count;
@@ -195,23 +203,31 @@ Parameter::get() const
 
     case kParamCH1Status:
         return output_status[0];
+
     case kParamCH2Status:
         return output_status[1];
+
     case kParamCH3Status:
         return output_status[2];
+
     case kParamCH4Status:
         return output_status[3];
+
     case kParamCH5Status:
         return output_status[4];
 
     case kParamCH1Current:
         return current[0];
+
     case kParamCH2Current:
         return current[1];
+
     case kParamCH3Current:
         return current[2];
+
     case kParamCH4Current:
         return current[3];
+
     case kParamCH5Current:
         return current[4];
 

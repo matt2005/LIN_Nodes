@@ -136,12 +136,14 @@ Node::update(bool verify, bool save_params)
 
     if (fw == nullptr) {
         warnx("%s no firmware loaded, skipping", ident);
+
     } else {
 
         // make a copy of all the node's parameters for later use
         if (save_params) {
             params().sync();
         }
+
         warnx("%s updating firmware", ident);
 
         // select the node
@@ -156,6 +158,7 @@ Node::update(bool verify, bool save_params)
             params().sync(true);
         }
     }
+
     free(ident);
 }
 

@@ -100,6 +100,7 @@ print(std::vector<unsigned> &filter)
         if (ent->matches(filter)) {
             ent->print();
         }
+
         delete ent;
     }
 }
@@ -267,6 +268,7 @@ Entry::print()
 
             break;
         }
+
         printf("\n");
 
     } else {
@@ -281,11 +283,13 @@ Entry::matches(std::vector<unsigned> &filter)
     if (filter.size() == 0) {
         return true;
     }
+
     for (auto fid : filter) {
         if (fid == _fid) {
             return true;
         }
     }
+
     return false;
 }
 

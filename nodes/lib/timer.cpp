@@ -77,11 +77,12 @@ Timer::time_since(Timeval then)
 void
 Timer::tick()
 {
-    // As a special case, it's OK to touch _now here directly because we 
+    // As a special case, it's OK to touch _now here directly because we
     // are the only writer.
     _now++;
 
     Timer *t = _first;
+
     while (t != nullptr) {
         switch (t->_remaining) {
         case 0:
@@ -116,7 +117,7 @@ Ticker::tick(void *arg)
     (reinterpret_cast<Ticker *>(arg))->_ticked = true;
 }
 
-Timestamp::Timestamp() : _taken(Timer::time_now()) 
+Timestamp::Timestamp() : _taken(Timer::time_now())
 {
     Timer::init();
 }

@@ -40,7 +40,7 @@ template<typename T>
 T
 intsafe_copy(const volatile T *unsafe)
 {
-static_assert(sizeof(T) == 2, "only works for 2-byte types");
+    static_assert(sizeof(T) == 2, "only works for 2-byte types");
 
     auto bytes = reinterpret_cast<const volatile uint8_t *>(unsafe);
     uint8_t high, low;

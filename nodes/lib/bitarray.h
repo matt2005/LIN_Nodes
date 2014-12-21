@@ -15,9 +15,9 @@ class Bitarray
 public:
     Bitarray(uint8_t *bytes) : _bytes(bytes) {}
 
-    void            set(uint8_t n) volatile     { if (n < kSizeBits)        _bytes[index(n)] |=  (bit(n)); }
+    void            set(uint8_t n) volatile     { if (n < kSizeBits)        _bytes[index(n)] |= (bit(n)); }
     void            clear(uint8_t n) volatile   { if (n < kSizeBits)        _bytes[index(n)] &= ~(bit(n)); }
-    bool            test(uint8_t n) const       { return (n < kSizeBits) ? (_bytes[index(n)] &   (bit(n))) : 0; }
+    bool            test(uint8_t n) const       { return (n < kSizeBits) ? (_bytes[index(n)] & (bit(n))) : 0; }
     void            reset() { for (uint8_t i = 0; i < kSizeBytes; i++) _bytes[i] = 0; }
 
     // XXX optimise for specific offset/size combinations later
@@ -67,6 +67,7 @@ public:
                 return false;
             }
         }
+
         return true;
     }
 
@@ -94,7 +95,7 @@ class StaticBitarray : public Bitarray<N>
 {
 public:
     StaticBitarray() : Bitarray<N>(_buffer) {}
-    StaticBitarray(Bitarray<N> &orig) : Bitarray<N>(_buffer) 
+    StaticBitarray(Bitarray<N> &orig) : Bitarray<N>(_buffer)
     {
         for (auto i = 0; i < kSizeBytes; i++) {
             _buffer[i] = orig[i];

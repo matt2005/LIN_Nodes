@@ -99,6 +99,7 @@ public:
         if (state) {
             chX_control.on = 1;
             chX_control.pwm = 255;
+
         } else {
             chX_control.on = 0;
             chX_control.pwm = 0;

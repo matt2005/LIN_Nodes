@@ -47,10 +47,12 @@ trace(int argc, char *argv[])
 
     argv++;
     argc--;
+
     while (argc--) {
         unsigned fid = strtoul(*(argv++), nullptr, 0);
         filter.push_back(fid);
     }
+
     Log::trace(filter);
 }
 
@@ -189,6 +191,7 @@ load_params(int argc, char *argv[])
 
         // update node parameter set from database
         auto pset = node->params();
+
         for (auto dbparam : dbnode["parameters"].ToArray()) {
             try {
                 pset.set(dbparam.ToObject());
@@ -345,9 +348,11 @@ update(int argc, char *argv[])
         switch (ch) {
         case 'n':
             node = strtoul(optarg, nullptr, 0);
+
             if (node == 0) {
                 errx(1, "bad node address '%s'", optarg);
             }
+
             break;
 
         case 'p':

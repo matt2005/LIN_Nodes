@@ -314,8 +314,10 @@ ParamDB::read(const char *path)
     std::string str;
     in >> str;
     in.close();
+
     try {
         _db = json::Deserialize(str);
+
     } catch (const std::runtime_error &e) {
         RAISE(ExDBInvalid, "Json parse error: " << e.what());
     }

@@ -146,6 +146,7 @@ set_bootloader(bool wantBootloader)
                 continue;
             }
         }
+
         RAISE(ExProtocol, "trying to " << (wantBootloader ? "enter" : "leave") << " bootloader mode");
 
     } catch (ExProtocol &e) {

@@ -249,8 +249,8 @@ union Status {
     uint16_t    val;
 
     struct {
-        uint16_t    data:12;
-        uint16_t    reg:4;
+        uint16_t    data: 12;
+        uint16_t    reg: 4;
 
     }           address;
 

@@ -38,6 +38,7 @@ early_init()
     if (MCUSR & WDRF) {
         wdt_reset_count++;
     }
+
     MCUSR = 0;
 
     // reset watchdog timer to a more generous value

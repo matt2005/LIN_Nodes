@@ -96,6 +96,7 @@ Parameter::set(uint16_t value) const
         if (value == operation_magic::kEnterBootloader) {
             Board::enter_bootloader(Master::kNodeAddress, board_function::kMaster);
         }
+
     case Generic::kParamConfigBase ... Generic::kParamConfigTop:
         eeprom_update_word((uint16_t *)((address() - Generic::kParamConfigBase) * 2), value);
         break;
@@ -121,12 +122,11 @@ Parameter::get() const
     case Generic::kParamFirmwarePageSize:
         return SPM_PAGESIZE;
 
-    case Generic::kParamFreeMem:
-        {
-            uint16_t temp = free_memory;
-            free_memory = 0;
-            return temp;
-        }
+    case Generic::kParamFreeMem: {
+        uint16_t temp = free_memory;
+        free_memory = 0;
+        return temp;
+    }
 
     case Generic::kParamWatchdogResets:
         return Board::wdt_reset_count;

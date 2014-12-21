@@ -30,7 +30,7 @@ public:
     /// %[width]u (unsigned)    - prints least significant <width> decimal digits from value,
     ///                           width defaults to 5. Leading space padded with spaces.
     /// %[width]t (char *, unsigned) - as for %s, but the string is looked up in a strtab.
-    /// 
+    ///
     void            printf(PGM_P fmt, ...);
     void            putc(char c) { write(c); }
 

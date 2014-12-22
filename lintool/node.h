@@ -46,7 +46,8 @@ private:
     ParamSet        _params;
     unsigned        _address;
 
-    void            upload(Firmware *fw);
+    void            enter_bootloader();
+    void            leave_bootloader(bool check);
     static void     _scan(unsigned address);
 };
 

@@ -98,76 +98,10 @@ check_ready()
 void
 reset_bootloader()
 {
-    Link::write_param(Generic::kParamOperationMode, 1);
-}
-
-void
-set_bootloader(bool wantBootloader)
-{
-    auto desired = (wantBootloader ? operation_magic::kBootloader : operation_magic::kProgram);
-    auto command = (wantBootloader ? operation_magic::kEnterBootloader : operation_magic::kProgram);
-
-    try {
-
-        if (Link::read_param(Generic::kParamOperationMode) == desired) {
-            // already in the desired state, nothing to do here
-            return;
-        }
-
-        Link::write_param(Generic::kParamOperationMode, command);
-
-        // We might have just tried to reboot the master node, and it might not have
-        // taken, so go through the master setup process again just in case we need to
-        // kick it off the bus once more. This will let us report the error more accurately,
-        // rather than giving a cryptic link error due to two masters trying to talk...
-        //
-        // Note that it's not necessary to re-enable master mode; it will happen automatically
-        // when we try to read the bootloader mode parameter
-        //
-        // XXX should only do this dance when we are talking to the master node...
-        //
-        Link::enable_master(false);
-        usleep(500000);             // 500ms seems to work OK
-
-        // wait for the node to come back up in bootloader mode
-        for (auto tries = 0; tries < 50; tries++) {
-
-            try {
-                auto state = Link::read_param(Generic::kParamOperationMode);
-
-                if (state == desired) {
-                    return;
-                }
-
-                usleep(20000);
-
-            } catch (Link::ExLINError &e) {
-                // transfer failed; node is probably still rebooting
-                continue;
-            }
-        }
-
-        RAISE(ExProtocol, "trying to " << (wantBootloader ? "enter" : "leave") << " bootloader mode");
-
-    } catch (ExProtocol &e) {
-        throw;
-
-    } catch (Exception &e) {
-        RAISE(ExLink, "trying to " << (wantBootloader ? "enter" : "leave") << " bootloader mode: " << e.what());
+    if (Link::read_param(Generic::kParamOperationMode) != operation_magic::kBootloader) {
+        RAISE(ExProtocol, "not in bootloader mode");
     }
-
-}
-
-void
-enter_bootloader()
-{
-    set_bootloader(true);
-}
-
-void
-leave_bootloader()
-{
-    set_bootloader(false);
+    Link::write_param(Generic::kParamOperationMode, 1);
 }
 
 void
@@ -313,7 +247,6 @@ upload(Firmware *fw, bool readback)
 {
     pagesize = Link::read_param(Generic::kParamFirmwarePageSize);
 
-    enter_bootloader();
     reset_bootloader();
 
     warnx("bl_reason: %s",
@@ -339,8 +272,6 @@ upload(Firmware *fw, bool readback)
     if (fw->get_bytes(0, pagesize, &bytes[0])) {
         program_page(0, &bytes[0], readback);
     }
-
-    leave_bootloader();
 }
 
 } // namespace Upload

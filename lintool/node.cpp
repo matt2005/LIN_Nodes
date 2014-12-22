@@ -149,16 +149,136 @@ Node::update(bool verify, bool save_params)
         // select the node
         Link::set_node(address());
 
+        // drop it into bootloader mode
+        enter_bootloader();
+
         // upload firmware to the selected node
         Upload::upload(fw, verify);
 
-        // write parameters back unconditionally
-        if (save_params) {
-            warnx("%s restoring configuration", ident);
-            params().sync(true);
+        // return to program mode and handle follow-up actions
+        if (function() == board_function::kUnconfigured) {
+            leave_bootloader(false);
+        } else {
+            leave_bootloader(true);
+
+            // write parameters back if requested
+            if (save_params) {
+                warnx("%s restoring configuration", ident);
+                params().sync(true);
+            }
         }
     }
 
     free(ident);
 }
 
+void
+Node::enter_bootloader()
+{
+    // check whether the node is already in the bootloader
+    if (Link::read_param(Generic::kParamOperationMode) == operation_magic::kBootloader) {
+        return;
+    }
+
+    try {
+        // request entry to bootloader mode
+        Link::write_param(Generic::kParamOperationMode, operation_magic::kEnterBootloader);
+
+        if (address() == Master::kNodeAddress) {
+            // We just tried to reboot the master node, and it might not have
+            // taken, so go through the master setup process again just in case
+            // we need to kick it off the bus once more. This will let us report
+            // the error more accurately, rather than giving a cryptic link error
+            // due to two masters trying to talk...
+            //
+            // Note that it's not necessary to re-enable master mode; it will happen automatically
+            // when we try to read the bootloader mode parameter
+            //
+            Link::enable_master(false);
+            usleep(500000);             // 500ms seems to work OK
+        }
+
+        // wait for the node to come back up in bootloader mode
+        for (auto tries = 0; tries < 50; tries++) {
+
+            try {
+                auto state = Link::read_param(Generic::kParamOperationMode);
+
+                if (state == operation_magic::kBootloader) {
+                    return;
+                }
+
+                usleep(20000);
+
+            } catch (Link::ExLINError &e) {
+                // transfer failed; node is probably still rebooting
+                continue;
+            }
+        }
+
+        RAISE(ExUpdateFailed, "trying to enter bootloader mode");
+
+    } catch (ExUpdateFailed &e) {
+        throw;
+
+    } catch (Exception &e) {
+        RAISE(ExUpdateFailed, "trying to enter bootloader mode: " << e.what());
+    }
+}
+
+void
+Node::leave_bootloader(bool check)
+{
+    // check whether the node has already left the bootloader
+    if (Link::read_param(Generic::kParamOperationMode) != operation_magic::kBootloader) {
+        return;
+    }
+
+    try {
+        // request return from bootloader mode
+        Link::write_param(Generic::kParamOperationMode, operation_magic::kProgram);
+
+        // if we aren't going to check that it came back, we're done here.
+        if (!check) {
+            return;
+        }
+
+        if (address() == Master::kNodeAddress) {
+            // We just tried to reboot the master node, so go through the master 
+            // setup process again since we need to kick it off the bus once more.
+            //
+            // Note that it's not necessary to re-enable master mode; it will happen automatically
+            // when we try to read the bootloader mode parameter
+            //
+            Link::enable_master(false);
+            usleep(500000);             // 500ms seems to work OK
+        }
+
+        // wait for the node to come back up in program mode
+        for (auto tries = 0; tries < 50; tries++) {
+
+            try {
+                auto state = Link::read_param(Generic::kParamOperationMode);
+
+                if (state == operation_magic::kProgram) {
+                    return;
+                }
+
+                usleep(20000);
+
+            } catch (Link::ExLINError &e) {
+                warnx("link error: %s", e.what());
+                // transfer failed; node is probably still rebooting
+                continue;
+            }
+        }
+
+        RAISE(ExUpdateFailed, "trying to leave bootloader mode");
+
+    } catch (ExUpdateFailed &e) {
+        throw;
+
+    } catch (Exception &e) {
+        RAISE(ExUpdateFailed, "trying to leave bootloader mode: " << e.what());
+    }
+}
